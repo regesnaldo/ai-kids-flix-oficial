@@ -7,7 +7,7 @@ Validate all content before it enters the AI Kids Flix universe.
 kids-4-6, kids-7-9, kids-10-12, teens-13, adults-18, all-ages
 
 ## Pillars
-autonomia, curiosidade, criatividade, pensamento-critico
+autonomy, curiosity, creativity, critical-thinking
 
 ## Validation Steps
 1. Pillar alignment - If NO: reject
@@ -16,4 +16,4 @@ autonomia, curiosidade, criatividade, pensamento-critico
 4. No duplication - If YES: reject
 
 ## Output
-{ approved: true/false, ageGroup: string, issues: [], suggestions: [] }
+{ "approved": true/false, "ageGroup": string, "issues": [], "suggestions": [] }

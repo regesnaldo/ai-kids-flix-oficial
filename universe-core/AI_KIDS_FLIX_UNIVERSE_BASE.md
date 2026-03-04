@@ -7,7 +7,7 @@ Tagline: Somos contra o sistema.
 - kids-4-6 / kids-7-9 / kids-10-12 / teens-13 / adults-18 / all-ages
 
 ## Pilares
-- Autonomia / Curiosidade / Criatividade / Pensamento Critico
+- autonomy / curiosity / creativity / critical-thinking
 
 ## Trilhas
 - tech / science / arts / math / philosophy
