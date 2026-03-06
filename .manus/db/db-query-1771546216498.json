@@ -1,0 +1,208 @@
+{
+  "query": "SELECT e.id, e.seriesId, e.seasonNumber, e.episodeNumber, e.title, e.videoUrl, e.thumbnail, s.title as seriesTitle, s.image as seriesImage FROM episodes e LEFT JOIN series s ON e.seriesId = s.id ORDER BY e.seriesId, e.seasonNumber, e.episodeNumber;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4W5PAba9uynui42.b7caf63a08e3 --database NpXwGYEEh9MzoQzGANzYad --execute SELECT e.id, e.seriesId, e.seasonNumber, e.episodeNumber, e.title, e.videoUrl, e.thumbnail, s.title as seriesTitle, s.image as seriesImage FROM episodes e LEFT JOIN series s ON e.seriesId = s.id ORDER BY e.seriesId, e.seasonNumber, e.episodeNumber;",
+  "rows": [
+    {
+      "id": "30001",
+      "seriesId": "30001",
+      "seasonNumber": "1",
+      "episodeNumber": "1",
+      "title": "Aventuras do Alfabeto - Episódio 1",
+      "videoUrl": "NULL",
+      "thumbnail": "https://via.placeholder.com/320x180?text=Ep1",
+      "seriesTitle": "Aventuras do Alfabeto",
+      "seriesImage": "https://via.placeholder.com/300x400?text=Alfabeto"
+    },
+    {
+      "id": "30002",
+      "seriesId": "30001",
+      "seasonNumber": "1",
+      "episodeNumber": "2",
+      "title": "Aventuras do Alfabeto - Episódio 2",
+      "videoUrl": "NULL",
+      "thumbnail": "https://via.placeholder.com/320x180?text=Ep2",
+      "seriesTitle": "Aventuras do Alfabeto",
+      "seriesImage": "https://via.placeholder.com/300x400?text=Alfabeto"
+    },
+    {
+      "id": "30003",
+      "seriesId": "30001",
+      "seasonNumber": "1",
+      "episodeNumber": "3",
+      "title": "Aventuras do Alfabeto - Episódio 3",
+      "videoUrl": "NULL",
+      "thumbnail": "https://via.placeholder.com/320x180?text=Ep3",
+      "seriesTitle": "Aventuras do Alfabeto",
+      "seriesImage": "https://via.placeholder.com/300x400?text=Alfabeto"
+    },
+    {
+      "id": "30004",
+      "seriesId": "30001",
+      "seasonNumber": "2",
+      "episodeNumber": "1",
+      "title": "Aventuras do Alfabeto - Episódio 4",
+      "videoUrl": "NULL",
+      "thumbnail": "https://via.placeholder.com/320x180?text=Ep4",
+      "seriesTitle": "Aventuras do Alfabeto",
+      "seriesImage": "https://via.placeholder.com/300x400?text=Alfabeto"
+    },
+    {
+      "id": "30005",
+      "seriesId": "30001",
+      "seasonNumber": "2",
+      "episodeNumber": "2",
+      "title": "Aventuras do Alfabeto - Episódio 5",
+      "videoUrl": "NULL",
+      "thumbnail": "https://via.placeholder.com/320x180?text=Ep5",
+      "seriesTitle": "Aventuras do Alfabeto",
+      "seriesImage": "https://via.placeholder.com/300x400?text=Alfabeto"
+    },
+    {
+      "id": "30006",
+      "seriesId": "30001",
+      "seasonNumber": "2",
+      "episodeNumber": "3",
+      "title": "Aventuras do Alfabeto - Episódio 6",
+      "videoUrl": "NULL",
+      "thumbnail": "https://via.placeholder.com/320x180?text=Ep6",
+      "seriesTitle": "Aventuras do Alfabeto",
+      "seriesImage": "https://via.placeholder.com/300x400?text=Alfabeto"
+    },
+    {
+      "id": "30007",
+      "seriesId": "30002",
+      "seasonNumber": "1",
+      "episodeNumber": "1",
+      "title": "Mistérios da Natureza - Episódio 1",
+      "videoUrl": "NULL",
+      "thumbnail": "https://via.placeholder.com/320x180?text=Ep1",
+      "seriesTitle": "Mistérios da Natureza",
+      "seriesImage": "https://via.placeholder.com/300x400?text=Natureza"
+    },
+    {
+      "id": "30008",
+      "seriesId": "30002",
+      "seasonNumber": "1",
+      "episodeNumber": "2",
+      "title": "Mistérios da Natureza - Episódio 2",
+      "videoUrl": "NULL",
+      "thumbnail": "https://via.placeholder.com/320x180?text=Ep2",
+      "seriesTitle": "Mistérios da Natureza",
+      "seriesImage": "https://via.placeholder.com/300x400?text=Natureza"
+    },
+    {
+      "id": "30009",
+      "seriesId": "30002",
+      "seasonNumber": "1",
+      "episodeNumber": "3",
+      "title": "Mistérios da Natureza - Episódio 3",
+      "videoUrl": "NULL",
+      "thumbnail": "https://via.placeholder.com/320x180?text=Ep3",
+      "seriesTitle": "Mistérios da Natureza",
+      "seriesImage": "https://via.placeholder.com/300x400?text=Natureza"
+    },
+    {
+      "id": "30010",
+      "seriesId": "30002",
+      "seasonNumber": "2",
+      "episodeNumber": "1",
+      "title": "Mistérios da Natureza - Episódio 4",
+      "videoUrl": "NULL",
+      "thumbnail": "https://via.placeholder.com/320x180?text=Ep4",
+      "seriesTitle": "Mistérios da Natureza",
+      "seriesImage": "https://via.placeholder.com/300x400?text=Natureza"
+    },
+    {
+      "id": "30011",
+      "seriesId": "30002",
+      "seasonNumber": "2",
+      "episodeNumber": "2",
+      "title": "Mistérios da Natureza - Episódio 5",
+      "videoUrl": "NULL",
+      "thumbnail": "https://via.placeholder.com/320x180?text=Ep5",
+      "seriesTitle": "Mistérios da Natureza",
+      "seriesImage": "https://via.placeholder.com/300x400?text=Natureza"
+    },
+    {
+      "id": "30012",
+      "seriesId": "30002",
+      "seasonNumber": "2",
+      "episodeNumber": "3",
+      "title": "Mistérios da Natureza - Episódio 6",
+      "videoUrl": "NULL",
+      "thumbnail": "https://via.placeholder.com/320x180?text=Ep6",
+      "seriesTitle": "Mistérios da Natureza",
+      "seriesImage": "https://via.placeholder.com/300x400?text=Natureza"
+    },
+    {
+      "id": "30013",
+      "seriesId": "30003",
+      "seasonNumber": "1",
+      "episodeNumber": "1",
+      "title": "Heróis do Código - Episódio 1",
+      "videoUrl": "NULL",
+      "thumbnail": "https://via.placeholder.com/320x180?text=Ep1",
+      "seriesTitle": "Heróis do Código",
+      "seriesImage": "https://via.placeholder.com/300x400?text=Codigo"
+    },
+    {
+      "id": "30014",
+      "seriesId": "30003",
+      "seasonNumber": "1",
+      "episodeNumber": "2",
+      "title": "Heróis do Código - Episódio 2",
+      "videoUrl": "NULL",
+      "thumbnail": "https://via.placeholder.com/320x180?text=Ep2",
+      "seriesTitle": "Heróis do Código",
+      "seriesImage": "https://via.placeholder.com/300x400?text=Codigo"
+    },
+    {
+      "id": "30015",
+      "seriesId": "30003",
+      "seasonNumber": "1",
+      "episodeNumber": "3",
+      "title": "Heróis do Código - Episódio 3",
+      "videoUrl": "NULL",
+      "thumbnail": "https://via.placeholder.com/320x180?text=Ep3",
+      "seriesTitle": "Heróis do Código",
+      "seriesImage": "https://via.placeholder.com/300x400?text=Codigo"
+    },
+    {
+      "id": "30016",
+      "seriesId": "30003",
+      "seasonNumber": "2",
+      "episodeNumber": "1",
+      "title": "Heróis do Código - Episódio 4",
+      "videoUrl": "NULL",
+      "thumbnail": "https://via.placeholder.com/320x180?text=Ep4",
+      "seriesTitle": "Heróis do Código",
+      "seriesImage": "https://via.placeholder.com/300x400?text=Codigo"
+    },
+    {
+      "id": "30017",
+      "seriesId": "30003",
+      "seasonNumber": "2",
+      "episodeNumber": "2",
+      "title": "Heróis do Código - Episódio 5",
+      "videoUrl": "NULL",
+      "thumbnail": "https://via.placeholder.com/320x180?text=Ep5",
+      "seriesTitle": "Heróis do Código",
+      "seriesImage": "https://via.placeholder.com/300x400?text=Codigo"
+    },
+    {
+      "id": "30018",
+      "seriesId": "30003",
+      "seasonNumber": "2",
+      "episodeNumber": "3",
+      "title": "Heróis do Código - Episódio 6",
+      "videoUrl": "NULL",
+      "thumbnail": "https://via.placeholder.com/320x180?text=Ep6",
+      "seriesTitle": "Heróis do Código",
+      "seriesImage": "https://via.placeholder.com/300x400?text=Codigo"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tseriesId\tseasonNumber\tepisodeNumber\ttitle\tvideoUrl\tthumbnail\tseriesTitle\tseriesImage\n30001\t30001\t1\t1\tAventuras do Alfabeto - Episódio 1\tNULL\thttps://via.placeholder.com/320x180?text=Ep1\tAventuras do Alfabeto\thttps://via.placeholder.com/300x400?text=Alfabeto\n30002\t30001\t1\t2\tAventuras do Alfabeto - Episódio 2\tNULL\thttps://via.placeholder.com/320x180?text=Ep2\tAventuras do Alfabeto\thttps://via.placeholder.com/300x400?text=Alfabeto\n30003\t30001\t1\t3\tAventuras do Alfabeto - Episódio 3\tNULL\thttps://via.placeholder.com/320x180?text=Ep3\tAventuras do Alfabeto\thttps://via.placeholder.com/300x400?text=Alfabeto\n30004\t30001\t2\t1\tAventuras do Alfabeto - Episódio 4\tNULL\thttps://via.placeholder.com/320x180?text=Ep4\tAventuras do Alfabeto\thttps://via.placeholder.com/300x400?text=Alfabeto\n30005\t30001\t2\t2\tAventuras do Alfabeto - Episódio 5\tNULL\thttps://via.placeholder.com/320x180?text=Ep5\tAventuras do Alfabeto\thttps://via.placeholder.com/300x400?text=Alfabeto\n30006\t30001\t2\t3\tAventuras do Alfabeto - Episódio 6\tNULL\thttps://via.placeholder.com/320x180?text=Ep6\tAventuras do Alfabeto\thttps://via.placeholder.com/300x400?text=Alfabeto\n30007\t30002\t1\t1\tMistérios da Natureza - Episódio 1\tNULL\thttps://via.placeholder.com/320x180?text=Ep1\tMistérios da Natureza\thttps://via.placeholder.com/300x400?text=Natureza\n30008\t30002\t1\t2\tMistérios da Natureza - Episódio 2\tNULL\thttps://via.placeholder.com/320x180?text=Ep2\tMistérios da Natureza\thttps://via.placeholder.com/300x400?text=Natureza\n30009\t30002\t1\t3\tMistérios da Natureza - Episódio 3\tNULL\thttps://via.placeholder.com/320x180?text=Ep3\tMistérios da Natureza\thttps://via.placeholder.com/300x400?text=Natureza\n30010\t30002\t2\t1\tMistérios da Natureza - Episódio 4\tNULL\thttps://via.placeholder.com/320x180?text=Ep4\tMistérios da Natureza\thttps://via.placeholder.com/300x400?text=Natureza\n30011\t30002\t2\t2\tMistérios da Natureza - Episódio 5\tNULL\thttps://via.placeholder.com/320x180?text=Ep5\tMistérios da Natureza\thttps://via.placeholder.com/300x400?text=Natureza\n30012\t30002\t2\t3\tMistérios da Natureza - Episódio 6\tNULL\thttps://via.placeholder.com/320x180?text=Ep6\tMistérios da Natureza\thttps://via.placeholder.com/300x400?text=Natureza\n30013\t30003\t1\t1\tHeróis do Código - Episódio 1\tNULL\thttps://via.placeholder.com/320x180?text=Ep1\tHeróis do Código\thttps://via.placeholder.com/300x400?text=Codigo\n30014\t30003\t1\t2\tHeróis do Código - Episódio 2\tNULL\thttps://via.placeholder.com/320x180?text=Ep2\tHeróis do Código\thttps://via.placeholder.com/300x400?text=Codigo\n30015\t30003\t1\t3\tHeróis do Código - Episódio 3\tNULL\thttps://via.placeholder.com/320x180?text=Ep3\tHeróis do Código\thttps://via.placeholder.com/300x400?text=Codigo\n30016\t30003\t2\t1\tHeróis do Código - Episódio 4\tNULL\thttps://via.placeholder.com/320x180?text=Ep4\tHeróis do Código\thttps://via.placeholder.com/300x400?text=Codigo\n30017\t30003\t2\t2\tHeróis do Código - Episódio 5\tNULL\thttps://via.placeholder.com/320x180?text=Ep5\tHeróis do Código\thttps://via.placeholder.com/300x400?text=Codigo\n30018\t30003\t2\t3\tHeróis do Código - Episódio 6\tNULL\thttps://via.placeholder.com/320x180?text=Ep6\tHeróis do Código\thttps://via.placeholder.com/300x400?text=Codigo\n",
+  "stderr": "",
+  "execution_time_ms": 359
+}

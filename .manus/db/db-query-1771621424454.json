@@ -1,0 +1,37 @@
+{
+  "query": "SHOW TABLES",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4W5PAba9uynui42.b7caf63a08e3 --database NpXwGYEEh9MzoQzGANzYad --execute SHOW TABLES",
+  "rows": [
+    {
+      "Tables_in_NpXwGYEEh9MzoQzGANzYad": "__drizzle_migrations"
+    },
+    {
+      "Tables_in_NpXwGYEEh9MzoQzGANzYad": "chatHistory"
+    },
+    {
+      "Tables_in_NpXwGYEEh9MzoQzGANzYad": "episodes"
+    },
+    {
+      "Tables_in_NpXwGYEEh9MzoQzGANzYad": "favorites"
+    },
+    {
+      "Tables_in_NpXwGYEEh9MzoQzGANzYad": "interactiveDecisions"
+    },
+    {
+      "Tables_in_NpXwGYEEh9MzoQzGANzYad": "series"
+    },
+    {
+      "Tables_in_NpXwGYEEh9MzoQzGANzYad": "userPreferences"
+    },
+    {
+      "Tables_in_NpXwGYEEh9MzoQzGANzYad": "users"
+    },
+    {
+      "Tables_in_NpXwGYEEh9MzoQzGANzYad": "watchProgress"
+    }
+  ],
+  "messages": [],
+  "stdout": "Tables_in_NpXwGYEEh9MzoQzGANzYad\n__drizzle_migrations\nchatHistory\nepisodes\nfavorites\ninteractiveDecisions\nseries\nuserPreferences\nusers\nwatchProgress\n",
+  "stderr": "",
+  "execution_time_ms": 345
+}

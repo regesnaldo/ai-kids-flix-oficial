@@ -1,0 +1,172 @@
+{
+  "query": "SELECT e.id, e.title, e.videoUrl, e.seriesId, e.seasonNumber, e.episodeNumber, s.title as seriesTitle FROM episodes e JOIN series s ON e.seriesId = s.id ORDER BY e.seriesId, e.seasonNumber, e.episodeNumber",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4W5PAba9uynui42.b7caf63a08e3 --database NpXwGYEEh9MzoQzGANzYad --execute SELECT e.id, e.title, e.videoUrl, e.seriesId, e.seasonNumber, e.episodeNumber, s.title as seriesTitle FROM episodes e JOIN series s ON e.seriesId = s.id ORDER BY e.seriesId, e.seasonNumber, e.episodeNumber",
+  "rows": [
+    {
+      "id": "30001",
+      "title": "Aventuras do Alfabeto - Episódio 1",
+      "videoUrl": "NULL",
+      "seriesId": "30001",
+      "seasonNumber": "1",
+      "episodeNumber": "1",
+      "seriesTitle": "Aventuras do Alfabeto"
+    },
+    {
+      "id": "30002",
+      "title": "Aventuras do Alfabeto - Episódio 2",
+      "videoUrl": "NULL",
+      "seriesId": "30001",
+      "seasonNumber": "1",
+      "episodeNumber": "2",
+      "seriesTitle": "Aventuras do Alfabeto"
+    },
+    {
+      "id": "30003",
+      "title": "Aventuras do Alfabeto - Episódio 3",
+      "videoUrl": "NULL",
+      "seriesId": "30001",
+      "seasonNumber": "1",
+      "episodeNumber": "3",
+      "seriesTitle": "Aventuras do Alfabeto"
+    },
+    {
+      "id": "30004",
+      "title": "Aventuras do Alfabeto - Episódio 4",
+      "videoUrl": "NULL",
+      "seriesId": "30001",
+      "seasonNumber": "2",
+      "episodeNumber": "1",
+      "seriesTitle": "Aventuras do Alfabeto"
+    },
+    {
+      "id": "30005",
+      "title": "Aventuras do Alfabeto - Episódio 5",
+      "videoUrl": "NULL",
+      "seriesId": "30001",
+      "seasonNumber": "2",
+      "episodeNumber": "2",
+      "seriesTitle": "Aventuras do Alfabeto"
+    },
+    {
+      "id": "30006",
+      "title": "Aventuras do Alfabeto - Episódio 6",
+      "videoUrl": "NULL",
+      "seriesId": "30001",
+      "seasonNumber": "2",
+      "episodeNumber": "3",
+      "seriesTitle": "Aventuras do Alfabeto"
+    },
+    {
+      "id": "30007",
+      "title": "Mistérios da Natureza - Episódio 1",
+      "videoUrl": "NULL",
+      "seriesId": "30002",
+      "seasonNumber": "1",
+      "episodeNumber": "1",
+      "seriesTitle": "Mistérios da Natureza"
+    },
+    {
+      "id": "30008",
+      "title": "Mistérios da Natureza - Episódio 2",
+      "videoUrl": "NULL",
+      "seriesId": "30002",
+      "seasonNumber": "1",
+      "episodeNumber": "2",
+      "seriesTitle": "Mistérios da Natureza"
+    },
+    {
+      "id": "30009",
+      "title": "Mistérios da Natureza - Episódio 3",
+      "videoUrl": "NULL",
+      "seriesId": "30002",
+      "seasonNumber": "1",
+      "episodeNumber": "3",
+      "seriesTitle": "Mistérios da Natureza"
+    },
+    {
+      "id": "30010",
+      "title": "Mistérios da Natureza - Episódio 4",
+      "videoUrl": "NULL",
+      "seriesId": "30002",
+      "seasonNumber": "2",
+      "episodeNumber": "1",
+      "seriesTitle": "Mistérios da Natureza"
+    },
+    {
+      "id": "30011",
+      "title": "Mistérios da Natureza - Episódio 5",
+      "videoUrl": "NULL",
+      "seriesId": "30002",
+      "seasonNumber": "2",
+      "episodeNumber": "2",
+      "seriesTitle": "Mistérios da Natureza"
+    },
+    {
+      "id": "30012",
+      "title": "Mistérios da Natureza - Episódio 6",
+      "videoUrl": "NULL",
+      "seriesId": "30002",
+      "seasonNumber": "2",
+      "episodeNumber": "3",
+      "seriesTitle": "Mistérios da Natureza"
+    },
+    {
+      "id": "30013",
+      "title": "Heróis do Código - Episódio 1",
+      "videoUrl": "NULL",
+      "seriesId": "30003",
+      "seasonNumber": "1",
+      "episodeNumber": "1",
+      "seriesTitle": "Heróis do Código"
+    },
+    {
+      "id": "30014",
+      "title": "Heróis do Código - Episódio 2",
+      "videoUrl": "NULL",
+      "seriesId": "30003",
+      "seasonNumber": "1",
+      "episodeNumber": "2",
+      "seriesTitle": "Heróis do Código"
+    },
+    {
+      "id": "30015",
+      "title": "Heróis do Código - Episódio 3",
+      "videoUrl": "NULL",
+      "seriesId": "30003",
+      "seasonNumber": "1",
+      "episodeNumber": "3",
+      "seriesTitle": "Heróis do Código"
+    },
+    {
+      "id": "30016",
+      "title": "Heróis do Código - Episódio 4",
+      "videoUrl": "NULL",
+      "seriesId": "30003",
+      "seasonNumber": "2",
+      "episodeNumber": "1",
+      "seriesTitle": "Heróis do Código"
+    },
+    {
+      "id": "30017",
+      "title": "Heróis do Código - Episódio 5",
+      "videoUrl": "NULL",
+      "seriesId": "30003",
+      "seasonNumber": "2",
+      "episodeNumber": "2",
+      "seriesTitle": "Heróis do Código"
+    },
+    {
+      "id": "30018",
+      "title": "Heróis do Código - Episódio 6",
+      "videoUrl": "NULL",
+      "seriesId": "30003",
+      "seasonNumber": "2",
+      "episodeNumber": "3",
+      "seriesTitle": "Heróis do Código"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\ttitle\tvideoUrl\tseriesId\tseasonNumber\tepisodeNumber\tseriesTitle\n30001\tAventuras do Alfabeto - Episódio 1\tNULL\t30001\t1\t1\tAventuras do Alfabeto\n30002\tAventuras do Alfabeto - Episódio 2\tNULL\t30001\t1\t2\tAventuras do Alfabeto\n30003\tAventuras do Alfabeto - Episódio 3\tNULL\t30001\t1\t3\tAventuras do Alfabeto\n30004\tAventuras do Alfabeto - Episódio 4\tNULL\t30001\t2\t1\tAventuras do Alfabeto\n30005\tAventuras do Alfabeto - Episódio 5\tNULL\t30001\t2\t2\tAventuras do Alfabeto\n30006\tAventuras do Alfabeto - Episódio 6\tNULL\t30001\t2\t3\tAventuras do Alfabeto\n30007\tMistérios da Natureza - Episódio 1\tNULL\t30002\t1\t1\tMistérios da Natureza\n30008\tMistérios da Natureza - Episódio 2\tNULL\t30002\t1\t2\tMistérios da Natureza\n30009\tMistérios da Natureza - Episódio 3\tNULL\t30002\t1\t3\tMistérios da Natureza\n30010\tMistérios da Natureza - Episódio 4\tNULL\t30002\t2\t1\tMistérios da Natureza\n30011\tMistérios da Natureza - Episódio 5\tNULL\t30002\t2\t2\tMistérios da Natureza\n30012\tMistérios da Natureza - Episódio 6\tNULL\t30002\t2\t3\tMistérios da Natureza\n30013\tHeróis do Código - Episódio 1\tNULL\t30003\t1\t1\tHeróis do Código\n30014\tHeróis do Código - Episódio 2\tNULL\t30003\t1\t2\tHeróis do Código\n30015\tHeróis do Código - Episódio 3\tNULL\t30003\t1\t3\tHeróis do Código\n30016\tHeróis do Código - Episódio 4\tNULL\t30003\t2\t1\tHeróis do Código\n30017\tHeróis do Código - Episódio 5\tNULL\t30003\t2\t2\tHeróis do Código\n30018\tHeróis do Código - Episódio 6\tNULL\t30003\t2\t3\tHeróis do Código\n",
+  "stderr": "",
+  "execution_time_ms": 348
+}

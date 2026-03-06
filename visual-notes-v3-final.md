@@ -1,0 +1,2 @@
+# V3 Final Visual Notes
+Título "2035 JÁ COMEÇOU" agora ocupa quase toda a largura da tela (14rem max), com glow pulsante mais intenso. Manifesto typewriter completo visível com gradiente branco→cyan→azul→roxo→magenta, tamanho 2.6rem. Cursor neon cyan pulsante com glow triplo. Badges e botões abaixo do fold. Hierarquia visual clara: título domina, manifesto secundário mas legível, badges terciários.

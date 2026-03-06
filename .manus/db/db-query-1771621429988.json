@@ -1,0 +1,37 @@
+{
+  "query": "SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE()",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4W5PAba9uynui42.b7caf63a08e3 --database NpXwGYEEh9MzoQzGANzYad --execute SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE()",
+  "rows": [
+    {
+      "TABLE_NAME": "__drizzle_migrations"
+    },
+    {
+      "TABLE_NAME": "users"
+    },
+    {
+      "TABLE_NAME": "chatHistory"
+    },
+    {
+      "TABLE_NAME": "episodes"
+    },
+    {
+      "TABLE_NAME": "favorites"
+    },
+    {
+      "TABLE_NAME": "series"
+    },
+    {
+      "TABLE_NAME": "userPreferences"
+    },
+    {
+      "TABLE_NAME": "watchProgress"
+    },
+    {
+      "TABLE_NAME": "interactiveDecisions"
+    }
+  ],
+  "messages": [],
+  "stdout": "TABLE_NAME\n__drizzle_migrations\nusers\nchatHistory\nepisodes\nfavorites\nseries\nuserPreferences\nwatchProgress\ninteractiveDecisions\n",
+  "stderr": "",
+  "execution_time_ms": 377
+}
