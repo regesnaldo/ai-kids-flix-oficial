@@ -126,8 +126,8 @@ export default function Home() {
             lineHeight: 1.1,
           }}
         >
-          <span style={{ color: "#ffffff" }}>AI KIDS</span>{" "}
-          <span style={{ color: "#E50914" }}>FLIX</span>
+          <span style={{ color: "#ffffff" }}>MENTE</span>
+          <span style={{ color: "#E50914" }}>.AI</span>
         </h1>
 
         {/* Subtitulo */}
@@ -137,11 +137,30 @@ export default function Home() {
             fontSize: "clamp(1rem, 2.5vw, 1.4rem)",
             maxWidth: "600px",
             marginTop: "1rem",
-            marginBottom: "2rem",
+            marginBottom: "1.5rem",
             lineHeight: 1.6,
           }}
         >
-          O futuro do entretenimento infantil com Intelig&ecirc;ncia Artificial
+          Onde mentes s&atilde;o formadas, n&atilde;o formatadas
+        </p>
+
+        {/* Manifesto */}
+        <p
+          style={{
+            color: "rgba(255, 255, 255, 0.5)",
+            fontSize: "clamp(0.85rem, 2vw, 1.05rem)",
+            maxWidth: "640px",
+            marginTop: 0,
+            marginBottom: "2rem",
+            lineHeight: 1.8,
+            fontStyle: "italic",
+          }}
+        >
+          Enquanto o mundo fabrica seguidores, n&oacute;s formamos l&iacute;deres.
+          <br />
+          Ferramentas obedecem. Pensadores nunca param de perguntar por qu&ecirc;.
+          <br />
+          Escolha seu lado antes que o sistema escolha por voc&ecirc;.
         </p>
 
         {/* Badges */}
@@ -207,7 +226,7 @@ export default function Home() {
               e.currentTarget.style.boxShadow = "none";
             }}
           >
-            Começar a Assistir
+            Começar a Pensar
           </button>
 
           <button
