@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 function NeuralBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -68,12 +68,28 @@ function NeuralBackground() {
 }
 
 const badges = [
-  { label: "MOVIDO POR IA", title: "Conteúdo gerado e adaptado por inteligência artificial" },
+  { label: "MOVIDO POR IA", title: "Motor de decisão LangChain ativo" },
   { label: "IA ADAPTATIVA", title: "A plataforma aprende com você e ajusta o conteúdo" },
-  { label: "CONTEÚDO FILTRADO", title: "Curado para formar pensadores, não seguidores" },
+  { label: "CONTEÚDO FILTRADO", title: "Selecionado para formar pensadores, não seguidores" },
 ];
 
+function useBadges() {
+  const [data, setData] = useState(badges);
+  useEffect(() => {
+    fetch("/api/badges")
+      .then(r => r.json())
+      .then(d => setData([
+        { label: d.langchain.label, title: d.langchain.description },
+        { label: d.adaptive.total > 0 ? d.adaptive.label + " (" + d.adaptive.total + ")" : d.adaptive.label, title: d.adaptive.description },
+        { label: d.filtered.label, title: d.filtered.description },
+      ]))
+      .catch(() => {});
+  }, []);
+  return data;
+}
+
 export default function Home() {
+  const badges = useBadges();
   return (
     <main style={{ backgroundColor: "#0a0e27", minHeight: "100vh", position: "relative", overflow: "hidden" }}>
       <NeuralBackground />
@@ -128,3 +144,7 @@ export default function Home() {
     </main>
   );
 }
+
+
+
+
