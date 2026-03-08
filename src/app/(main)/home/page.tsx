@@ -1,4 +1,3 @@
- 
 "use client";
 import { useEffect, useRef, useState } from "react";
 
@@ -137,7 +136,9 @@ export default function Home() {
             onMouseLeave={(e) => { e.currentTarget.style.transform = "scale(1)"; e.currentTarget.style.boxShadow = "none"; }}>
             Começar a Pensar
           </button>
-          <button style={{ padding: "1rem 2.8rem", fontSize: "1.15rem", fontWeight: 700, borderRadius: "8px", border: "2px solid rgba(255,255,255,0.3)", backgroundColor: "transparent", color: "#ffffff", cursor: "pointer", transition: "transform 0.2s, border-color 0.2s" }}
+          <button
+            onClick={() => window.location.href = "/planos"}
+            style={{ padding: "1rem 2.8rem", fontSize: "1.15rem", fontWeight: 700, borderRadius: "8px", border: "2px solid rgba(255,255,255,0.3)", backgroundColor: "transparent", color: "#ffffff", cursor: "pointer", transition: "transform 0.2s, border-color 0.2s" }}
             onMouseEnter={(e) => { e.currentTarget.style.transform = "scale(1.05)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.6)"; }}
             onMouseLeave={(e) => { e.currentTarget.style.transform = "scale(1)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.3)"; }}>
             Saiba Mais
