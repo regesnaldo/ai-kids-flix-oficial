@@ -73,14 +73,27 @@ export default function Planos() {
 
   async function handleAssinar(planoId: string, gratuito: boolean) {
     if (gratuito) {
-      alert("Bem-vindo ao FREE PRÊMIO! Seus 3 episódios gratuitos estão liberados.");
+      window.location.href = "/player";
       return;
     }
     setLoading(planoId);
-    setTimeout(() => {
-      alert("Integração Stripe em breve! Plano: " + planoId.toUpperCase() + " - " + periodo);
+    try {
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ plano: planoId, periodo }),
+      });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        alert("Erro ao iniciar checkout. Tente novamente.");
+      }
+    } catch {
+      alert("Erro ao conectar com o servidor.");
+    } finally {
       setLoading(null);
-    }, 1000);
+    }
   }
 
   return (
@@ -94,7 +107,6 @@ export default function Planos() {
           Aprenda sem esforço. Pense com liberdade.
         </p>
 
-        {/* Seletor de período */}
         <div style={{ display: "inline-flex", backgroundColor: "rgba(255,255,255,0.05)", borderRadius: "12px", padding: "6px", marginBottom: "3rem", gap: "4px" }}>
           {(["semanal", "quinzenal", "mensal"] as Periodo[]).map((p) => (
             <button
@@ -113,7 +125,6 @@ export default function Planos() {
           ))}
         </div>
 
-        {/* Cards em paralelo */}
         <div style={{
           display: "grid",
           gridTemplateColumns: "repeat(4, 1fr)",
