@@ -1,3 +1,4 @@
+ 
 "use client";
 import { useEffect, useRef, useState } from "react";
 
@@ -129,7 +130,9 @@ export default function Home() {
         </div>
 
         <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap", justifyContent: "center" }}>
-          <button style={{ padding: "1rem 2.8rem", fontSize: "1.15rem", fontWeight: 700, borderRadius: "8px", border: "none", backgroundColor: "#ffffff", color: "#0a0e27", cursor: "pointer", transition: "transform 0.2s, box-shadow 0.2s" }}
+          <button
+            onClick={() => window.location.href = "/player"}
+            style={{ padding: "1rem 2.8rem", fontSize: "1.15rem", fontWeight: 700, borderRadius: "8px", border: "none", backgroundColor: "#ffffff", color: "#0a0e27", cursor: "pointer", transition: "transform 0.2s, box-shadow 0.2s" }}
             onMouseEnter={(e) => { e.currentTarget.style.transform = "scale(1.05)"; e.currentTarget.style.boxShadow = "0 0 30px rgba(255,255,255,0.2)"; }}
             onMouseLeave={(e) => { e.currentTarget.style.transform = "scale(1)"; e.currentTarget.style.boxShadow = "none"; }}>
             Começar a Pensar
@@ -144,7 +147,3 @@ export default function Home() {
     </main>
   );
 }
-
-
-
-
