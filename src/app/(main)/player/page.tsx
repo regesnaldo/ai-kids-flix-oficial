@@ -22,7 +22,7 @@ function PlayerContent() {
       const res = await fetch("/api/interaction", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ seriesTitle, episodeTitle, ageGroup: "adult" }),
+        body: JSON.stringify({ seriesTitle, episodeTitle, ageGroup: "adult", seed: Math.random() }),
       });
       const data = await res.json();
       if (Array.isArray(data.content)) {
