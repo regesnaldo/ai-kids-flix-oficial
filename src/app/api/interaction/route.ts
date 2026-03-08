@@ -6,16 +6,18 @@ export async function POST(request: NextRequest) {
   try {
     const { seriesTitle, episodeTitle, ageGroup } = await request.json();
 
-    const agePrompts: Record<string, string> = {
-      child: "Voce e um narrador educativo para criancas. Crie uma pergunta simples e clara sobre o episodio.",
-      teen: "Voce e um narrador educativo para jovens. Crie uma pergunta que estimule o pensamento critico.",
-      adult: "Voce e um narrador educativo para adultos. Crie uma pergunta que explore aspectos eticos ou tecnicos.",
-    };
+    const prompt = ageGroup === "child"
+      ? "Voce e um amigo animado explicando IA para criancas. Use analogias do dia a dia, linguagem simples e divertida. Nada de termos tecnicos sem explicacao."
+      : ageGroup === "teen"
+      ? "Voce e um mentor jovem explicando IA. Use linguagem natural e exemplos do mundo real. Termos tecnicos sempre com explicacao rapida entre parenteses."
+      : "Voce e um guia descontraido para adultos curiosos. Use linguagem simples, misture cotidiano com IA. Termos tecnicos com explicacao entre parenteses. Ex: machine learning (quando a maquina aprende sozinha).";
 
     const apiKey = process.env.ANTHROPIC_API_KEY;
     if (!apiKey) {
       return NextResponse.json({ error: "ANTHROPIC_API_KEY nao configurada" }, { status: 503 });
     }
+
+    const userMessage = prompt + " Serie: " + seriesTitle + ". Episodio: " + episodeTitle + ". Responda APENAS em JSON valido, sem markdown: {\"question\": \"pergunta aqui\", \"options\": [\"opcao 1\", \"opcao 2\", \"opcao 3\"]}";
 
     const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
@@ -27,12 +29,7 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify({
         model: "claude-haiku-4-5-20251001",
         max_tokens: 500,
-        messages: [
-          {
-            role: "user",
-            content: `${agePrompts[ageGroup || "adult"]}\n\nSerie: ${seriesTitle}\nEpisodio: ${episodeTitle}\n\nResponda APENAS em JSON valido, sem markdown:\n{"question": "pergunta aqui", "options": ["opcao 1", "opcao 2", "opcao 3"]}`,
-          },
-        ],
+        messages: [{ role: "user", content: userMessage }],
       }),
     });
 
