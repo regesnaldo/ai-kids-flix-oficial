@@ -188,3 +188,16 @@ export const explorerDecisions = mysqlTable("explorer_decisions", {
 
 export type ExplorerDecision = typeof explorerDecisions.$inferSelect;
 export type NewExplorerDecision = typeof explorerDecisions.$inferInsert;
+export const profiles = mysqlTable("profiles", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  name: varchar("name", { length: 100 }).notNull(),
+  avatar: varchar("avatar", { length: 20 }).default("blue"),
+  ageGroup: mysqlEnum("ageGroup", ["kids-4-6", "kids-7-9", "kids-10-12", "teens-13", "adults-18"]).default("adults-18").notNull(),
+  isKids: boolean("isKids").default(false),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Profile = typeof profiles.$inferSelect;
+export type InsertProfile = typeof profiles.$inferInsert;
