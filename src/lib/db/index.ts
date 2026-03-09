@@ -1,19 +1,16 @@
-import { drizzle } from "drizzle-orm/mysql2";
+ import { drizzle } from "drizzle-orm/mysql2";
 import mysql from "mysql2/promise";
+import * as schema from "./schema";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-let _db: any = null;
-
-function getDb() {
-  if (!_db) {
-    const connection = mysql.createPool(process.env.DATABASE_URL!);
-    _db = drizzle(connection);
-  }
-  return _db;
-}
-
-export const db = new Proxy({} as ReturnType<typeof drizzle>, {
-  get(_target, prop) {
-    return getDb()[prop];
-  },
+const pool = mysql.createPool({
+  host: "gateway01.us-east-1.prod.aws.tidbcloud.com",
+  port: 4000,
+  user: "Xp3F88Yn4YRQBSX.root",
+  password: "SWTQOJAWC1v4H5eu",
+  database: "test",
+  ssl: { rejectUnauthorized: true },
+  waitForConnections: true,
+  connectionLimit: 10,
 });
+
+export const db = drizzle(pool, { schema, mode: "default" });
