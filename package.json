@@ -20,6 +20,7 @@
   "dependencies": {
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "critters": "^0.0.23",
     "drizzle-orm": "^0.45.1",
     "framer-motion": "^11.18.2",
     "lucide-react": "^0.574.0",
