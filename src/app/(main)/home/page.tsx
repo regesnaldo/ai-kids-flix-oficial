@@ -2,14 +2,7 @@ import { agents } from "@/data/agents";
 "use client";
 import { useEffect, useState, useRef } from "react";
 
-const AGENTS = [
-  { id: "nexus", name: "NEXUS", role: "O Conector", color: "#3B82F6", desc: "Conecta ideias, pessoas e dados. NEXUS e o agente central que orquestra todos os outros, criando pontes entre o que voce sabe e o que ainda vai descobrir.", tag: "AGENTE PRINCIPAL" },
-  { id: "volt", name: "VOLT", role: "A Energia", color: "#F59E0B", desc: "Energia pura e motivacao. VOLT transforma duvidas em acao e te desafia a pensar mais rapido, mais fundo, mais forte.", tag: "ENERGIA" },
-  { id: "janus", name: "JANUS", role: "O Humorista", color: "#EC4899", desc: "Humor inteligente que ensina. JANUS usa piadas e situacoes inusitadas para fixar conceitos que voce nunca mais vai esquecer.", tag: "HUMOR" },
-  { id: "stratos", name: "STRATOS", role: "O Estrategista", color: "#10B981", desc: "Estrategia e visao de futuro. STRATOS te ensina a pensar 3 passos a frente e tomar decisoes com clareza.", tag: "ESTRATEGIA" },
-  { id: "kaos", name: "KAOS", role: "O Caos Criativo", color: "#E50914", desc: "Destruir para reconstruir melhor. KAOS quebra padroes e te mostra que a criatividade nasce do inesperado.", tag: "CRIATIVIDADE" },
-  { id: "ethos", name: "ETHOS", role: "O Filosofo", color: "#8B5CF6", desc: "Questoes profundas sobre existencia e etica. ETHOS te convida a refletir sobre quem voce e e quem quer ser.", tag: "FILOSOFIA" },
-];
+const AGENTS = agents;
 
 const CATEGORIES = [
   { title: "Populares no MENTE.AI", items: ["NEXUS", "VOLT", "JANUS", "STRATOS", "KAOS", "ETHOS"] },
@@ -84,5 +77,6 @@ export default function Home() {
     </main>
   );
 }
+
 
 
