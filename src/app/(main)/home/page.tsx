@@ -1,5 +1,4 @@
-import { agents } from "@/data/agents";
-"use client";
+"use client";`nimport { agents } from "@/data/agents";
 import { useEffect, useState, useRef } from "react";
 
 const AGENTS = agents;
@@ -77,6 +76,7 @@ export default function Home() {
     </main>
   );
 }
+
 
 
 
