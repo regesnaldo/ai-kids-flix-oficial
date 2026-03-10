@@ -2,7 +2,14 @@
 import { agents } from "@/data/agents";
 import { useEffect, useState, useRef } from "react";
 
-const AGENTS = agents;
+const AGENTS = [
+  { id: "nexus", name: "NEXUS", role: "O Conector", color: "#3B82F6", desc: "Conecta ideias, pessoas e dados. NEXUS e o agente central que orquestra todos os outros.", tag: "AGENTE PRINCIPAL" },
+  { id: "volt", name: "VOLT", role: "A Energia", color: "#F59E0B", desc: "Energia pura e motivacao. VOLT transforma duvidas em acao.", tag: "ENERGIA" },
+  { id: "janus", name: "JANUS", role: "O Humorista", color: "#EC4899", desc: "Humor inteligente que ensina.", tag: "HUMOR" },
+  { id: "stratos", name: "STRATOS", role: "O Estrategista", color: "#10B981", desc: "Estrategia e visao de futuro.", tag: "ESTRATEGIA" },
+  { id: "kaos", name: "KAOS", role: "O Caos Criativo", color: "#E50914", desc: "Criatividade nasce do inesperado.", tag: "CRIATIVIDADE" },
+  { id: "ethos", name: "ETHOS", role: "O Filosofo", color: "#8B5CF6", desc: "Reflexoes sobre existencia e etica.", tag: "FILOSOFIA" }
+];
 
 const CATEGORIES = [
   { title: "Populares no MENTE.AI", items: ["NEXUS", "VOLT", "JANUS", "STRATOS", "KAOS", "ETHOS"] },
@@ -77,6 +84,7 @@ export default function Home() {
     </main>
   );
 }
+
 
 
 
