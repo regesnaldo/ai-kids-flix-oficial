@@ -1,3 +1,4 @@
+import { agents } from "@/data/agents";
 "use client";
 import { useEffect, useState, useRef } from "react";
 
@@ -69,6 +70,8 @@ function Carousel({ title, items }: { title: string; items: string[] }) {
   );
 }
 
+const populares = agents;
+
 export default function Home() {
   const [heroAgent, setHeroAgent] = useState(AGENTS[0]);
   useEffect(() => { const t = setInterval(() => { setHeroAgent((p) => { const i = AGENTS.indexOf(p); return AGENTS[(i + 1) % AGENTS.length]; }); }, 10000); return () => clearInterval(t); }, []);
@@ -81,3 +84,5 @@ export default function Home() {
     </main>
   );
 }
+
+
