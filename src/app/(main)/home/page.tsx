@@ -12,10 +12,10 @@ const BASE_AGENTS = [
 ];
 
 const CATEGORIES = [
-  { title: "Populares no MENTE.AI", items: ["NEXUS", "VOLT", "JANUS", "STRATOS", "KAOS", "ETHOS"] },
-  { title: "Novos Episodios", items: ["VOLT", "ETHOS", "NEXUS", "KAOS", "JANUS", "STRATOS"] },
-  { title: "Continue Assistindo", items: ["JANUS", "STRATOS", "VOLT", "NEXUS", "ETHOS", "KAOS"] },
-  { title: "Recomendados para Voce", items: ["KAOS", "NEXUS", "ETHOS", "VOLT", "STRATOS", "JANUS"] },
+  { title: "Populares no MENTE.AI", items: AGENTS.map(a => a.name) },
+  { title: "Novos Episodios", items: AGENTS.map(a => a.name) },
+  { title: "Continue Assistindo", items: AGENTS.map(a => a.name) },
+  { title: "Recomendados para Voce", items: AGENTS.map(a => a.name) },
 ];
 
 const AGENTS = [...BASE_AGENTS, ...agents];
@@ -86,6 +86,7 @@ export default function Home() {
     </main>
   );
 }
+
 
 
 
