@@ -2,7 +2,7 @@
 import { agents } from "@/data/agents";
 import { useEffect, useState, useRef } from "react";
 
-const AGENTS = [
+const BASE_AGENTS = [
   { id: "nexus", name: "NEXUS", role: "O Conector", color: "#3B82F6", desc: "Conecta ideias, pessoas e dados. NEXUS e o agente central que orquestra todos os outros.", tag: "AGENTE PRINCIPAL" },
   { id: "volt", name: "VOLT", role: "A Energia", color: "#F59E0B", desc: "Energia pura e motivacao. VOLT transforma duvidas em acao.", tag: "ENERGIA" },
   { id: "janus", name: "JANUS", role: "O Humorista", color: "#EC4899", desc: "Humor inteligente que ensina.", tag: "HUMOR" },
@@ -17,6 +17,8 @@ const CATEGORIES = [
   { title: "Continue Assistindo", items: ["JANUS", "STRATOS", "VOLT", "NEXUS", "ETHOS", "KAOS"] },
   { title: "Recomendados para Voce", items: ["KAOS", "NEXUS", "ETHOS", "VOLT", "STRATOS", "JANUS"] },
 ];
+
+const AGENTS = [...BASE_AGENTS, ...agents];
 
 function getAgent(name: string) { return AGENTS.find((a) => a.name === name) || AGENTS[0]; }
 
@@ -84,6 +86,8 @@ export default function Home() {
     </main>
   );
 }
+
+
 
 
 
