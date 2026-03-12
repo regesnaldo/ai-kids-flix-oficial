@@ -13,18 +13,27 @@ const BASE_AGENTS = [
 
 const FALLBACK_COLORS = ["#3B82F6", "#F59E0B", "#EC4899", "#10B981", "#E50914", "#8B5CF6", "#06B6D4", "#F97316", "#14B8A6", "#84CC16"];
 
+const isValidHex = (color: string | undefined): boolean => {
+  if (!color) return false;
+  return /^#([0-9A-F]{3}){1,2}$/i.test(color);
+};
+
 const FULL_AGENT_MODEL = [
   ...BASE_AGENTS,
   ...agents
     .filter((a) => !BASE_AGENTS.some((ba) => ba.name === a.name))
-    .map((a, i) => ({
-      id: a.name.toLowerCase(),
-      name: a.name,
-      role: a.tag || "Explorador",
-      color: FALLBACK_COLORS[i % FALLBACK_COLORS.length],
-      desc: a.description || "Agente do universo MENTE.AI",
-      tag: (a.tag || "AGENTE").toUpperCase(),
-    }))
+    .map((a, i) => {
+      // @ts-ignore - Future-proofing in case agents.ts adds a color property
+      const rawColor = a.color;
+      return {
+        id: a.name.toLowerCase(),
+        name: a.name,
+        role: a.tag || "Explorador",
+        color: isValidHex(rawColor) ? rawColor : FALLBACK_COLORS[i % FALLBACK_COLORS.length],
+        desc: a.description || "Agente do universo MENTE.AI",
+        tag: (a.tag || "AGENTE").toUpperCase(),
+      };
+    })
 ];
 
 const CATEGORIES = [
