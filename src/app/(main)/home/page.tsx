@@ -1,6 +1,7 @@
 "use client";
 import { agents } from "@/data/agents";
 import { useEffect, useState, useRef } from "react";
+import { isValidHex } from "@/lib/color-utils";
 
 const BASE_AGENTS = [
   { id: "nexus", name: "NEXUS", role: "O Conector", color: "#3B82F6", desc: "Conecta ideias, pessoas e dados. NEXUS e o agente central que orquestra todos os outros.", tag: "AGENTE PRINCIPAL" },
@@ -12,11 +13,6 @@ const BASE_AGENTS = [
 ];
 
 const FALLBACK_COLORS = ["#3B82F6", "#F59E0B", "#EC4899", "#10B981", "#E50914", "#8B5CF6", "#06B6D4", "#F97316", "#14B8A6", "#84CC16"];
-
-const isValidHex = (color: string | undefined): boolean => {
-  if (!color) return false;
-  return /^#([0-9A-F]{3}){1,2}$/i.test(color);
-};
 
 const FULL_AGENT_MODEL = [
   ...BASE_AGENTS,
