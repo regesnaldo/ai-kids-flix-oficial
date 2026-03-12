@@ -1,87 +1,104 @@
 "use client";
-import { useEffect, useState } from "react";
+import { agents } from "@/data/agents";
+import { useEffect, useState, useRef } from "react";
+import { isValidHex } from "@/lib/color-utils";
 
-interface DashboardData {
-  user: { name: string; email: string; plan: string; planStatus: string; memberSince: string };
-  stats: { episodesCompleted: number; decisionsMade: number; favorites: number };
-  recentProgress: { episodeId: number; seasonNumber: number; episodeNumber: number; progressSeconds: number; totalSeconds: number; isCompleted: boolean }[];
-}
+const BASE_AGENTS = [
+  { id: "nexus", name: "NEXUS", role: "O Conector", color: "#3B82F6", desc: "Conecta ideias, pessoas e dados. NEXUS e o agente central que orquestra todos os outros.", tag: "AGENTE PRINCIPAL" },
+  { id: "volt", name: "VOLT", role: "A Energia", color: "#F59E0B", desc: "Energia pura e motivacao. VOLT transforma duvidas em acao.", tag: "ENERGIA" },
+  { id: "janus", name: "JANUS", role: "O Humorista", color: "#EC4899", desc: "Humor inteligente que ensina.", tag: "HUMOR" },
+  { id: "stratos", name: "STRATOS", role: "O Estrategista", color: "#10B981", desc: "Estrategia e visao de futuro.", tag: "ESTRATEGIA" },
+  { id: "kaos", name: "KAOS", role: "O Caos Criativo", color: "#E50914", desc: "Criatividade nasce do inesperado.", tag: "CRIATIVIDADE" },
+  { id: "ethos", name: "ETHOS", role: "O Filosofo", color: "#8B5CF6", desc: "Reflexoes sobre existencia e etica.", tag: "FILOSOFIA" }
+];
 
-const planColors: Record<string, string> = { FREE: "#6B7280", BASIC: "#3B82F6", PREMIUM: "#F59E0B", FAMILY: "#10B981" };
+const FALLBACK_COLORS = ["#3B82F6", "#F59E0B", "#EC4899", "#10B981", "#E50914", "#8B5CF6", "#06B6D4", "#F97316", "#14B8A6", "#84CC16"];
 
-function StatCard({ label, value, color }: { label: string; value: number; color: string }) {
+const FULL_AGENT_MODEL = [
+  ...BASE_AGENTS,
+  ...agents
+    .filter((a) => !BASE_AGENTS.some((ba) => ba.name === a.name))
+    .map((a, i) => {
+      // @ts-ignore - Future-proofing in case agents.ts adds a color property
+      const rawColor = a.color;
+      return {
+        id: a.name.toLowerCase(),
+        name: a.name,
+        role: a.tag || "Explorador",
+        color: isValidHex(rawColor) ? rawColor : FALLBACK_COLORS[i % FALLBACK_COLORS.length],
+        desc: a.description || "Agente do universo MENTE.AI",
+        tag: (a.tag || "AGENTE").toUpperCase(),
+      };
+    })
+];
+
+const CATEGORIES = [
+  { title: "Populares no MENTE.AI", items: FULL_AGENT_MODEL.slice(0, 6).map(a => a.name) },
+  { title: "Novos Episodios", items: FULL_AGENT_MODEL.slice(6, 12).map(a => a.name) },
+  { title: "Continue Assistindo", items: FULL_AGENT_MODEL.slice(12, 18).map(a => a.name) },
+  { title: "Recomendados para Voce", items: FULL_AGENT_MODEL.slice(18, 24).map(a => a.name) },
+];
+
+function getAgent(name: string) { return FULL_AGENT_MODEL.find((a) => a.name === name) || FULL_AGENT_MODEL[0]; }
+
+function HeroBanner({ agent, onPlay }: { agent: typeof FULL_AGENT_MODEL[0]; onPlay: () => void }) {
   return (
-    <div style={{ background: "linear-gradient(145deg, rgba(15,20,50,0.9), rgba(10,14,39,0.95))", borderRadius: "12px", padding: "1.5rem", border: "1px solid rgba(59,130,246,0.15)", flex: "1", minWidth: "200px", position: "relative", overflow: "hidden" }}>
-      <div style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "3px", background: `linear-gradient(90deg, ${color}, transparent)` }} />
-      <div style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.4)", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "0.5rem" }}>{label}</div>
-      <div style={{ fontSize: "2.2rem", fontWeight: 800, color: "#fff", fontFamily: "monospace" }}>{String(value).padStart(3, "0")}</div>
+    <div style={{ position: "relative", width: "100%", height: "85vh", minHeight: "500px", background: `linear-gradient(135deg, ${agent.color}22 0%, #0a0a1a 40%, #0a0a1a 100%)`, overflow: "hidden" }}>
+      <div style={{ position: "absolute", top: "15%", right: "5%", width: "350px", height: "350px", borderRadius: "50%", background: `radial-gradient(circle, ${agent.color}30 0%, transparent 70%)`, filter: "blur(60px)", animation: "heroPulse 4s ease-in-out infinite" }} />
+      <div style={{ position: "absolute", bottom: "10%", left: "10%", width: "200px", height: "200px", borderRadius: "50%", background: `radial-gradient(circle, ${agent.color}15 0%, transparent 70%)`, filter: "blur(40px)", animation: "heroPulse 6s ease-in-out infinite reverse" }} />
+      <div style={{ position: "absolute", top: "50%", right: "10%", transform: "translateY(-50%)", width: "280px", height: "280px", borderRadius: "24px", background: `linear-gradient(135deg, ${agent.color}, ${agent.color}66)`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "6rem", fontWeight: 900, color: "#fff", boxShadow: `0 0 80px ${agent.color}40, 0 0 160px ${agent.color}20`, border: `2px solid ${agent.color}44` }}>{agent.name[0]}</div>
+      <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "40%", background: "linear-gradient(transparent, #0a0a1a)" }} />
+      <div style={{ position: "relative", zIndex: 1, height: "100%", display: "flex", flexDirection: "column", justifyContent: "center", padding: "0 4%", maxWidth: "600px" }}>
+        <div style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", marginBottom: "1rem" }}>
+          <span style={{ padding: "0.3rem 0.8rem", borderRadius: "4px", backgroundColor: agent.color, color: "#fff", fontSize: "0.7rem", fontWeight: 800, letterSpacing: "0.1em" }}>{agent.tag}</span>
+          <span style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.8rem" }}>{agent.role}</span>
+        </div>
+        <h1 style={{ fontSize: "clamp(3rem, 8vw, 5rem)", fontWeight: 900, color: "#fff", margin: "0 0 1rem", lineHeight: 1, letterSpacing: "-0.02em", textShadow: `0 0 40px ${agent.color}40` }}>{agent.name}</h1>
+        <p style={{ color: "rgba(255,255,255,0.75)", fontSize: "1rem", lineHeight: 1.6, margin: "0 0 2rem", maxWidth: "500px" }}>{agent.desc}</p>
+        <div style={{ display: "flex", gap: "0.75rem" }}>
+          <button onClick={onPlay} style={{ padding: "0.8rem 2rem", borderRadius: "6px", border: "none", backgroundColor: "#fff", color: "#0a0a1a", fontSize: "1rem", fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: "0.5rem" }} onMouseEnter={(e) => e.currentTarget.style.transform = "scale(1.05)"} onMouseLeave={(e) => e.currentTarget.style.transform = "scale(1)"}><span>&#9654;</span> Assistir</button>
+          <button style={{ padding: "0.8rem 2rem", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.3)", backgroundColor: "rgba(255,255,255,0.1)", color: "#fff", fontSize: "1rem", fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: "0.5rem" }} onMouseEnter={(e) => e.currentTarget.style.transform = "scale(1.05)"} onMouseLeave={(e) => e.currentTarget.style.transform = "scale(1)"}><span>&#9432;</span> Mais informacoes</button>
+        </div>
+      </div>
+      <style>{`@keyframes heroPulse { 0%, 100% { opacity: 0.6; transform: scale(1); } 50% { opacity: 1; transform: scale(1.1); } }`}</style>
     </div>
   );
 }
 
-export default function Dashboard() {
-  const [data, setData] = useState<DashboardData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-
-  useEffect(() => {
-    fetch("/api/dashboard")
-      .then((r) => { if (r.status === 401) { window.location.href = "/login"; return null; } return r.json(); })
-      .then((d) => { if (d) setData(d); })
-      .catch(() => setError("Erro ao carregar dashboard"))
-      .finally(() => setLoading(false));
-  }, []);
-
-  if (loading) return (<main style={{ backgroundColor: "#0a0e27", minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}><div style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.9rem", letterSpacing: "0.15em", textTransform: "uppercase" }}>Carregando sistema...</div></main>);
-  if (error || !data) return (<main style={{ backgroundColor: "#0a0e27", minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}><div style={{ color: "#E50914", fontSize: "1rem" }}>{error || "Erro desconhecido"}</div></main>);
-
-  const { user, stats, recentProgress } = data;
-  const planColor = planColors[user.plan] || "#6B7280";
-  const memberDate = new Date(user.memberSince).toLocaleDateString("pt-BR");
-
+function Carousel({ title, items }: { title: string; items: string[] }) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  function scroll(dir: number) { if (scrollRef.current) scrollRef.current.scrollBy({ left: dir * 300, behavior: "smooth" }); }
   return (
-    <main style={{ backgroundColor: "#0a0e27", minHeight: "100vh", padding: "2rem", color: "#fff" }}>
-      <div style={{ maxWidth: "960px", margin: "0 auto" }}>
-        <div style={{ background: "linear-gradient(145deg, rgba(15,20,50,0.9), rgba(10,14,39,0.95))", borderRadius: "16px", padding: "2rem", border: "1px solid rgba(59,130,246,0.15)", marginBottom: "1.5rem", display: "flex", alignItems: "center", gap: "1.5rem", flexWrap: "wrap", position: "relative", overflow: "hidden" }}>
-          <div style={{ position: "absolute", top: "-50%", right: "-10%", width: "300px", height: "300px", borderRadius: "50%", background: `radial-gradient(circle, ${planColor}10 0%, transparent 70%)` }} />
-          <div style={{ width: "56px", height: "56px", borderRadius: "50%", background: `linear-gradient(135deg, ${planColor}, ${planColor}66)`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.4rem", fontWeight: 800, color: "#fff", border: "2px solid rgba(59,130,246,0.3)" }}>{user.name ? user.name[0].toUpperCase() : "?"}</div>
-          <div style={{ flex: 1, position: "relative" }}>
-            <h1 style={{ margin: 0, fontSize: "1.5rem", fontWeight: 700 }}>{user.name || "Explorador"}</h1>
-            <p style={{ margin: "0.3rem 0 0", color: "rgba(255,255,255,0.4)", fontSize: "0.8rem" }}>{user.email} · Membro desde {memberDate}</p>
-          </div>
-          <div style={{ padding: "0.4rem 1rem", borderRadius: "6px", background: `linear-gradient(135deg, ${planColor}33, ${planColor}11)`, border: `1px solid ${planColor}44`, color: planColor, fontSize: "0.7rem", fontWeight: 700, letterSpacing: "0.15em", textTransform: "uppercase" }}>{user.plan}</div>
+    <div style={{ marginBottom: "2.5rem", position: "relative" }}>
+      <h3 style={{ color: "#fff", fontSize: "1.2rem", fontWeight: 700, margin: "0 0 0.75rem", padding: "0 4%" }}>{title}</h3>
+      <div style={{ position: "relative" }}>
+        <button onClick={() => scroll(-1)} style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: "40px", zIndex: 2, background: "linear-gradient(90deg, #0a0a1a, transparent)", border: "none", color: "#fff", fontSize: "1.5rem", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>&lt;</button>
+        <div ref={scrollRef} style={{ display: "flex", gap: "0.75rem", overflowX: "auto", padding: "0 4%", scrollbarWidth: "none" }}>
+          {items.map((name, i) => {
+            const agent = getAgent(name);
+            return (
+              <div key={i} onClick={() => window.location.href = "/player?series=" + agent.name} style={{ minWidth: "200px", height: "120px", borderRadius: "8px", background: `linear-gradient(135deg, ${agent.color}33, ${agent.color}11)`, border: `1px solid ${agent.color}22`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", cursor: "pointer", transition: "transform 0.2s, box-shadow 0.2s", position: "relative", overflow: "hidden", flexShrink: 0 }} onMouseEnter={(e) => { e.currentTarget.style.transform = "scale(1.08)"; e.currentTarget.style.boxShadow = `0 8px 30px ${agent.color}30`; }} onMouseLeave={(e) => { e.currentTarget.style.transform = "scale(1)"; e.currentTarget.style.boxShadow = "none"; }}>
+                <div style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "3px", background: `linear-gradient(90deg, ${agent.color}, transparent)` }} />
+                <span style={{ fontSize: "1.5rem", fontWeight: 900, color: "#fff" }}>{agent.name}</span>
+                <span style={{ fontSize: "0.7rem", color: "rgba(255,255,255,0.5)", marginTop: "0.25rem" }}>{agent.role}</span>
+              </div>
+            );
+          })}
         </div>
-        <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap", marginBottom: "1.5rem" }}>
-          <StatCard label="Episodios concluidos" value={stats.episodesCompleted} color="#3B82F6" />
-          <StatCard label="Decisoes tomadas" value={stats.decisionsMade} color="#8B5CF6" />
-          <StatCard label="Favoritos" value={stats.favorites} color="#F59E0B" />
-        </div>
-        <div style={{ background: "linear-gradient(145deg, rgba(15,20,50,0.9), rgba(10,14,39,0.95))", borderRadius: "12px", padding: "1.5rem", border: "1px solid rgba(59,130,246,0.15)", marginBottom: "1.5rem" }}>
-          <h2 style={{ margin: "0 0 1rem", fontSize: "0.75rem", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.15em", color: "rgba(255,255,255,0.5)" }}>Progresso Recente</h2>
-          {recentProgress.length === 0 ? (
-            <div style={{ padding: "2rem 0", textAlign: "center" }}>
-              <p style={{ color: "rgba(255,255,255,0.3)", fontSize: "0.85rem", margin: 0 }}>Nenhum episodio assistido ainda</p>
-              <p style={{ color: "rgba(255,255,255,0.2)", fontSize: "0.75rem", margin: "0.5rem 0 0" }}>Comece sua jornada no player</p>
-            </div>
-          ) : (
-            recentProgress.map((p, i) => {
-              const pct = p.totalSeconds > 0 ? Math.round((p.progressSeconds / p.totalSeconds) * 100) : 0;
-              return (
-                <div key={i} style={{ display: "flex", alignItems: "center", gap: "1rem", padding: "0.6rem 0", borderBottom: i < recentProgress.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none" }}>
-                  <div style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.5)", minWidth: "80px", fontFamily: "monospace" }}>S{String(p.seasonNumber).padStart(2, "0")}E{String(p.episodeNumber).padStart(2, "0")}</div>
-                  <div style={{ flex: 1, height: "4px", borderRadius: "2px", backgroundColor: "rgba(255,255,255,0.06)" }}>
-                    <div style={{ height: "100%", borderRadius: "2px", width: `${pct}%`, background: p.isCompleted ? "linear-gradient(90deg, #10B981, #059669)" : "linear-gradient(90deg, #3B82F6, #6366F1)" }} />
-                  </div>
-                  <div style={{ fontSize: "0.7rem", fontFamily: "monospace", minWidth: "40px", textAlign: "right", color: p.isCompleted ? "#10B981" : "rgba(255,255,255,0.35)" }}>{p.isCompleted ? "100%" : `${pct}%`}</div>
-                </div>
-              );
-            })
-          )}
-        </div>
-        <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
-          <button onClick={() => window.location.href = "/player"} style={{ flex: 1, minWidth: "200px", padding: "0.9rem", fontSize: "0.8rem", fontWeight: 700, borderRadius: "8px", border: "none", cursor: "pointer", letterSpacing: "0.1em", textTransform: "uppercase", background: "linear-gradient(135deg, #3B82F6, #6366F1)", color: "#fff" }}>Continuar Assistindo</button>
-          <button onClick={() => window.location.href = "/planos"} style={{ flex: 1, minWidth: "200px", padding: "0.9rem", fontSize: "0.8rem", fontWeight: 700, borderRadius: "8px", border: "1px solid rgba(255,255,255,0.1)", cursor: "pointer", letterSpacing: "0.1em", textTransform: "uppercase", backgroundColor: "rgba(255,255,255,0.03)", color: "rgba(255,255,255,0.6)" }}>Gerenciar Plano</button>
-        </div>
+        <button onClick={() => scroll(1)} style={{ position: "absolute", right: 0, top: 0, bottom: 0, width: "40px", zIndex: 2, background: "linear-gradient(270deg, #0a0a1a, transparent)", border: "none", color: "#fff", fontSize: "1.5rem", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>&gt;</button>
+      </div>
+    </div>
+  );
+}
+
+export default function Home() {
+  const [heroAgent, setHeroAgent] = useState(FULL_AGENT_MODEL[0]);
+  useEffect(() => { const t = setInterval(() => { setHeroAgent((p) => { const i = FULL_AGENT_MODEL.indexOf(p); return FULL_AGENT_MODEL[(i + 1) % FULL_AGENT_MODEL.length]; }); }, 10000); return () => clearInterval(t); }, []);
+  return (
+    <main style={{ backgroundColor: "#0a0a1a", minHeight: "100vh", color: "#fff" }}>
+      <HeroBanner agent={heroAgent} onPlay={() => window.location.href = "/player?series=" + heroAgent.name} />
+      <div style={{ marginTop: "-4rem", position: "relative", zIndex: 2 }}>
+        {CATEGORIES.map((cat) => (<Carousel key={cat.title} title={cat.title} items={cat.items} />))}
       </div>
     </main>
   );
