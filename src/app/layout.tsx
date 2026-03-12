@@ -9,8 +9,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="pt-BR">
-      <body style={{ backgroundColor: "#141414", margin: 0 }}>
+    <html lang="pt-BR" style={{ backgroundColor: "#0a0a1a !important" as any, margin: 0 }}>
+      <body style={{ backgroundColor: "#0a0a1a !important" as any, margin: 0, padding: 0, boxSizing: "border-box" }}>
         {children}
       </body>
     </html>

@@ -1,12 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { jwtVerify } from "jose";
 
-const protectedRoutes = ["/home", "/player", "/sucesso", "/perfis"];
+const publicRoutes = ["/", "/home"];
+const protectedRoutes = ["/player", "/sucesso", "/perfis"];
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  const isPublic = publicRoutes.some((route) => pathname === route);
   const isProtected = protectedRoutes.some((route) => pathname.startsWith(route));
-  if (!isProtected) return NextResponse.next();
+  if (isPublic || !isProtected) return NextResponse.next();
   const token = request.cookies.get("token")?.value;
   if (!token) return NextResponse.redirect(new URL("/login", request.url));
   try {

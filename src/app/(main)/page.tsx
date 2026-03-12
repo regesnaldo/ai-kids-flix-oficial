@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import Link from "next/link";
 
 function NeuralBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -204,7 +205,8 @@ export default function Home() {
             justifyContent: "center",
           }}
         >
-          <button
+          <Link
+            href="/home"
             style={{
               padding: "0.85rem 2.2rem",
               fontSize: "1rem",
@@ -215,19 +217,23 @@ export default function Home() {
               color: "#0a0e27",
               cursor: "pointer",
               transition: "transform 0.2s, box-shadow 0.2s",
+              textDecoration: "none",
+              display: "inline-block",
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.transform = "scale(1.05)";
-              e.currentTarget.style.boxShadow =
+              const target = e.currentTarget as HTMLElement;
+              target.style.transform = "scale(1.05)";
+              target.style.boxShadow =
                 "0 0 30px rgba(255, 255, 255, 0.2)";
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.transform = "scale(1)";
-              e.currentTarget.style.boxShadow = "none";
+              const target = e.currentTarget as HTMLElement;
+              target.style.transform = "scale(1)";
+              target.style.boxShadow = "none";
             }}
           >
             Começar a Pensar
-          </button>
+          </Link>
 
           <button
             style={{
