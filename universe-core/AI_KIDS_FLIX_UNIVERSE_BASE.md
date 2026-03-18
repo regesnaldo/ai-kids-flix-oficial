@@ -1,4 +1,4 @@
-# AI Kids Flix - Universe Base
+# MENTE.AI - Universe Base
 
 Missao: Construir pensadores, nao ferramentas.
 Tagline: Somos contra o sistema.

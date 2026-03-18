@@ -1,10 +1,18 @@
-/* src/app/globals.css */
+@import "tailwindcss";
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+* {
+  box-sizing: border-box;
+}
 
-/* Esconde scrollbar mas mantém funcionalidade */
+html,
+body {
+  background-color: #0a0a1a !important;
+  color: white;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
@@ -13,15 +21,33 @@
   scrollbar-width: none;
 }
 
-/* Fundo imersivo MENTE.AI */
-* {
-  box-sizing: border-box;
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-html, body {
-  background-color: #0a0a1a !important;
-  color: white;
-  margin: 0;
-  padding: 0;
-  overflow-x: hidden;
+.animate-fadeIn {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0) translateX(0);
+    opacity: 0.2;
+  }
+  50% {
+    transform: translateY(-20px) translateX(10px);
+    opacity: 0.5;
+  }
+}
+
+.animate-float {
+  animation: float ease-in-out infinite;
 }

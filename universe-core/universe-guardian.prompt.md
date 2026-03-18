@@ -1,7 +1,7 @@
 # Universe Guardian - Validation Prompt
 
 ## Role
-Validate all content before it enters the AI Kids Flix universe.
+Validate all content before it enters the MENTE.AI universe.
 
 ## Age Groups
 kids-4-6, kids-7-9, kids-10-12, teens-13, adults-18, all-ages

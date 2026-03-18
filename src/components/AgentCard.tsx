@@ -1,63 +1,69 @@
-"use client";
+'use client';
+import { useRouter } from 'next/navigation';
+import { motion } from 'framer-motion';
+import { t } from '@/lib/translations';
+import type { AgentDefinition } from '@/canon/agents/all-agents';
 
-import { AgentUI } from "@/types/agent";
+interface AgentCardProps {
+  agent: AgentDefinition;
+}
 
-export default function AgentCard({ agent }: { agent: AgentUI }) {
+export default function AgentCard({ agent }: AgentCardProps) {
+  const router = useRouter();
+
+  const factionColors: Record<string, string> = {
+    order: 'from-blue-600 to-blue-800',
+    chaos: 'from-red-600 to-red-800',
+    balance: 'from-purple-600 to-purple-800',
+  };
+
   return (
-    <div
-      style={{
-        position: "relative",
-        width: "280px",
-        height: "158px",
-        borderRadius: "8px",
-        overflow: "hidden",
-        background: "linear-gradient(135deg, " + agent.color + "40, " + agent.color + "20)",
-        border: "2px solid " + agent.color,
-        cursor: "pointer",
-        transition: "transform 0.3s, box-shadow 0.3s",
-        flexShrink: "0",
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.transform = "scale(1.05)";
-        e.currentTarget.style.boxShadow = "0 8px 20px " + agent.color + "60";
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.transform = "scale(1)";
-        e.currentTarget.style.boxShadow = "none";
+    <motion.div
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
+      onClick={() => router.push(`/agentes/${agent.id}`)}
+      className={`relative group cursor-pointer rounded-2xl bg-gradient-to-br ${factionColors[agent.faction] || 'from-gray-600 to-gray-800'} p-1 transition-all duration-300 shadow-xl hover:shadow-2xl w-full h-full`}
+      aria-label={`Ver detalhes do agente ${agent.name}`}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          router.push(`/agentes/${agent.id}`);
+        }
       }}
     >
-      {/* Conteúdo */}
-      <div style={{ padding: "16px", height: "100%", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
-        {/* Topo: Nome e Tag */}
-        <div>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "8px" }}>
-            <h3 style={{ color: agent.color, fontSize: "20px", fontWeight: "bold", margin: 0 }}>
-              {agent.name}
-            </h3>
-            <span
-              style={{
-                padding: "4px 8px",
-                fontSize: "10px",
-                fontWeight: "bold",
-                borderRadius: "4px",
-                backgroundColor: agent.color,
-                color: "white",
-                textTransform: "uppercase",
-              }}
-            >
-              {agent.tag}
-            </span>
+      <div className="relative bg-gray-900 rounded-xl overflow-hidden h-full min-h-[400px]">
+        <div className="relative h-48 w-full bg-gradient-to-br from-purple-600 via-blue-600 to-gray-900 flex items-center justify-center p-6">
+          <div className="text-center text-white">
+            <h3 className="text-3xl font-bold mb-2">{agent.name}</h3>
+            <p className="text-sm text-white/70">
+              {t(`dimensions.${agent.dimension}`)} • {t(`levels.${agent.level}`)}
+            </p>
           </div>
         </div>
 
-        {/* Descrição */}
-        <p style={{ fontSize: "12px", color: "#e5e7eb", lineHeight: "1.4", margin: 0, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
-          {agent.desc}
-        </p>
-      </div>
+        <div className="p-6 text-white">
+          <p className="text-sm text-gray-300 mb-4 line-clamp-3">
+            {agent.personality.approach}
+          </p>
 
-      {/* Barra colorida inferior */}
-      <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "4px", background: agent.color }} />
-    </div>
+          <div className="mb-4">
+            <span className="bg-purple-600/80 px-3 py-1 rounded-full text-xs font-medium">
+              {agent.badge.name}
+            </span>
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            <span className="text-xs bg-white/10 px-3 py-1 rounded-full">
+              {t(`levels.${agent.level}`)}
+            </span>
+            <span className="text-xs bg-white/10 px-3 py-1 rounded-full">
+              {t(`factions.${agent.faction}`)}
+            </span>
+          </div>
+        </div>
+      </div>
+    </motion.div>
   );
 }

@@ -1,0 +1,602 @@
+{
+  "logos": {
+    "prompt": "A wise philosopher figure surrounded by geometric patterns and symbols of logic, golden and blue tones, mystical atmosphere, digital art",
+    "generatedAt": "2026-03-17T18:26:31.637Z",
+    "status": "placeholder"
+  },
+  "psyche": {
+    "prompt": "An ethereal emotional guide with flowing robes, heart symbols and waves, purple and pink tones, dreamy atmosphere, digital art",
+    "generatedAt": "2026-03-17T18:26:31.637Z",
+    "status": "placeholder"
+  },
+  "philosophical_primordial_order": {
+    "prompt": "A primordial representation of philosophical energy with order alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.637Z",
+    "status": "placeholder"
+  },
+  "philosophical_primordial_chaos": {
+    "prompt": "A primordial representation of philosophical energy with chaos alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.638Z",
+    "status": "placeholder"
+  },
+  "philosophical_primordial_balance": {
+    "prompt": "A primordial representation of philosophical energy with balance alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.638Z",
+    "status": "placeholder"
+  },
+  "philosophical_mythic_order": {
+    "prompt": "A mythic representation of philosophical energy with order alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.638Z",
+    "status": "placeholder"
+  },
+  "philosophical_mythic_chaos": {
+    "prompt": "A mythic representation of philosophical energy with chaos alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.639Z",
+    "status": "placeholder"
+  },
+  "philosophical_mythic_balance": {
+    "prompt": "A mythic representation of philosophical energy with balance alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.639Z",
+    "status": "placeholder"
+  },
+  "philosophical_archetypal_order": {
+    "prompt": "A archetypal representation of philosophical energy with order alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.639Z",
+    "status": "placeholder"
+  },
+  "philosophical_archetypal_chaos": {
+    "prompt": "A archetypal representation of philosophical energy with chaos alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.639Z",
+    "status": "placeholder"
+  },
+  "philosophical_archetypal_balance": {
+    "prompt": "A archetypal representation of philosophical energy with balance alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.640Z",
+    "status": "placeholder"
+  },
+  "philosophical_human_order": {
+    "prompt": "A human representation of philosophical energy with order alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.640Z",
+    "status": "placeholder"
+  },
+  "philosophical_human_chaos": {
+    "prompt": "A human representation of philosophical energy with chaos alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.640Z",
+    "status": "placeholder"
+  },
+  "philosophical_human_balance": {
+    "prompt": "A human representation of philosophical energy with balance alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.640Z",
+    "status": "placeholder"
+  },
+  "emotional_primordial_order": {
+    "prompt": "A primordial representation of emotional energy with order alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.640Z",
+    "status": "placeholder"
+  },
+  "emotional_primordial_chaos": {
+    "prompt": "A primordial representation of emotional energy with chaos alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.640Z",
+    "status": "placeholder"
+  },
+  "emotional_primordial_balance": {
+    "prompt": "A primordial representation of emotional energy with balance alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.640Z",
+    "status": "placeholder"
+  },
+  "emotional_mythic_order": {
+    "prompt": "A mythic representation of emotional energy with order alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.641Z",
+    "status": "placeholder"
+  },
+  "emotional_mythic_chaos": {
+    "prompt": "A mythic representation of emotional energy with chaos alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.641Z",
+    "status": "placeholder"
+  },
+  "emotional_mythic_balance": {
+    "prompt": "A mythic representation of emotional energy with balance alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.641Z",
+    "status": "placeholder"
+  },
+  "emotional_archetypal_order": {
+    "prompt": "A archetypal representation of emotional energy with order alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.641Z",
+    "status": "placeholder"
+  },
+  "emotional_archetypal_chaos": {
+    "prompt": "A archetypal representation of emotional energy with chaos alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.641Z",
+    "status": "placeholder"
+  },
+  "emotional_archetypal_balance": {
+    "prompt": "A archetypal representation of emotional energy with balance alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.641Z",
+    "status": "placeholder"
+  },
+  "emotional_human_order": {
+    "prompt": "A human representation of emotional energy with order alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.641Z",
+    "status": "placeholder"
+  },
+  "emotional_human_chaos": {
+    "prompt": "A human representation of emotional energy with chaos alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.642Z",
+    "status": "placeholder"
+  },
+  "emotional_human_balance": {
+    "prompt": "A human representation of emotional energy with balance alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.642Z",
+    "status": "placeholder"
+  },
+  "creative_primordial_order": {
+    "prompt": "A primordial representation of creative energy with order alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.642Z",
+    "status": "placeholder"
+  },
+  "creative_primordial_chaos": {
+    "prompt": "A primordial representation of creative energy with chaos alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.642Z",
+    "status": "placeholder"
+  },
+  "creative_primordial_balance": {
+    "prompt": "A primordial representation of creative energy with balance alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.642Z",
+    "status": "placeholder"
+  },
+  "creative_mythic_order": {
+    "prompt": "A mythic representation of creative energy with order alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.643Z",
+    "status": "placeholder"
+  },
+  "creative_mythic_chaos": {
+    "prompt": "A mythic representation of creative energy with chaos alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.643Z",
+    "status": "placeholder"
+  },
+  "creative_mythic_balance": {
+    "prompt": "A mythic representation of creative energy with balance alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.643Z",
+    "status": "placeholder"
+  },
+  "creative_archetypal_order": {
+    "prompt": "A archetypal representation of creative energy with order alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.644Z",
+    "status": "placeholder"
+  },
+  "creative_archetypal_chaos": {
+    "prompt": "A archetypal representation of creative energy with chaos alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.644Z",
+    "status": "placeholder"
+  },
+  "creative_archetypal_balance": {
+    "prompt": "A archetypal representation of creative energy with balance alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.644Z",
+    "status": "placeholder"
+  },
+  "creative_human_order": {
+    "prompt": "A human representation of creative energy with order alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.644Z",
+    "status": "placeholder"
+  },
+  "creative_human_chaos": {
+    "prompt": "A human representation of creative energy with chaos alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.644Z",
+    "status": "placeholder"
+  },
+  "creative_human_balance": {
+    "prompt": "A human representation of creative energy with balance alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.644Z",
+    "status": "placeholder"
+  },
+  "ethical_primordial_order": {
+    "prompt": "A primordial representation of ethical energy with order alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.644Z",
+    "status": "placeholder"
+  },
+  "ethical_primordial_chaos": {
+    "prompt": "A primordial representation of ethical energy with chaos alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.644Z",
+    "status": "placeholder"
+  },
+  "ethical_primordial_balance": {
+    "prompt": "A primordial representation of ethical energy with balance alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.645Z",
+    "status": "placeholder"
+  },
+  "ethical_mythic_order": {
+    "prompt": "A mythic representation of ethical energy with order alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.645Z",
+    "status": "placeholder"
+  },
+  "ethical_mythic_chaos": {
+    "prompt": "A mythic representation of ethical energy with chaos alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.645Z",
+    "status": "placeholder"
+  },
+  "ethical_mythic_balance": {
+    "prompt": "A mythic representation of ethical energy with balance alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.645Z",
+    "status": "placeholder"
+  },
+  "ethical_archetypal_order": {
+    "prompt": "A archetypal representation of ethical energy with order alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.645Z",
+    "status": "placeholder"
+  },
+  "ethical_archetypal_chaos": {
+    "prompt": "A archetypal representation of ethical energy with chaos alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.645Z",
+    "status": "placeholder"
+  },
+  "ethical_archetypal_balance": {
+    "prompt": "A archetypal representation of ethical energy with balance alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.645Z",
+    "status": "placeholder"
+  },
+  "ethical_human_order": {
+    "prompt": "A human representation of ethical energy with order alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.646Z",
+    "status": "placeholder"
+  },
+  "ethical_human_chaos": {
+    "prompt": "A human representation of ethical energy with chaos alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.646Z",
+    "status": "placeholder"
+  },
+  "ethical_human_balance": {
+    "prompt": "A human representation of ethical energy with balance alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.646Z",
+    "status": "placeholder"
+  },
+  "social_primordial_order": {
+    "prompt": "A primordial representation of social energy with order alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.646Z",
+    "status": "placeholder"
+  },
+  "social_primordial_chaos": {
+    "prompt": "A primordial representation of social energy with chaos alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.646Z",
+    "status": "placeholder"
+  },
+  "social_primordial_balance": {
+    "prompt": "A primordial representation of social energy with balance alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.646Z",
+    "status": "placeholder"
+  },
+  "social_mythic_order": {
+    "prompt": "A mythic representation of social energy with order alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.646Z",
+    "status": "placeholder"
+  },
+  "social_mythic_chaos": {
+    "prompt": "A mythic representation of social energy with chaos alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.647Z",
+    "status": "placeholder"
+  },
+  "social_mythic_balance": {
+    "prompt": "A mythic representation of social energy with balance alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.647Z",
+    "status": "placeholder"
+  },
+  "social_archetypal_order": {
+    "prompt": "A archetypal representation of social energy with order alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.647Z",
+    "status": "placeholder"
+  },
+  "social_archetypal_chaos": {
+    "prompt": "A archetypal representation of social energy with chaos alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.647Z",
+    "status": "placeholder"
+  },
+  "social_archetypal_balance": {
+    "prompt": "A archetypal representation of social energy with balance alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.647Z",
+    "status": "placeholder"
+  },
+  "social_human_order": {
+    "prompt": "A human representation of social energy with order alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.648Z",
+    "status": "placeholder"
+  },
+  "social_human_chaos": {
+    "prompt": "A human representation of social energy with chaos alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.648Z",
+    "status": "placeholder"
+  },
+  "social_human_balance": {
+    "prompt": "A human representation of social energy with balance alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.648Z",
+    "status": "placeholder"
+  },
+  "spiritual_primordial_order": {
+    "prompt": "A primordial representation of spiritual energy with order alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.649Z",
+    "status": "placeholder"
+  },
+  "spiritual_primordial_chaos": {
+    "prompt": "A primordial representation of spiritual energy with chaos alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.649Z",
+    "status": "placeholder"
+  },
+  "spiritual_primordial_balance": {
+    "prompt": "A primordial representation of spiritual energy with balance alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.649Z",
+    "status": "placeholder"
+  },
+  "spiritual_mythic_order": {
+    "prompt": "A mythic representation of spiritual energy with order alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.649Z",
+    "status": "placeholder"
+  },
+  "spiritual_mythic_chaos": {
+    "prompt": "A mythic representation of spiritual energy with chaos alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.649Z",
+    "status": "placeholder"
+  },
+  "spiritual_mythic_balance": {
+    "prompt": "A mythic representation of spiritual energy with balance alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.649Z",
+    "status": "placeholder"
+  },
+  "spiritual_archetypal_order": {
+    "prompt": "A archetypal representation of spiritual energy with order alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.650Z",
+    "status": "placeholder"
+  },
+  "spiritual_archetypal_chaos": {
+    "prompt": "A archetypal representation of spiritual energy with chaos alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.651Z",
+    "status": "placeholder"
+  },
+  "spiritual_archetypal_balance": {
+    "prompt": "A archetypal representation of spiritual energy with balance alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.651Z",
+    "status": "placeholder"
+  },
+  "spiritual_human_order": {
+    "prompt": "A human representation of spiritual energy with order alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.651Z",
+    "status": "placeholder"
+  },
+  "spiritual_human_chaos": {
+    "prompt": "A human representation of spiritual energy with chaos alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.652Z",
+    "status": "placeholder"
+  },
+  "spiritual_human_balance": {
+    "prompt": "A human representation of spiritual energy with balance alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.652Z",
+    "status": "placeholder"
+  },
+  "intellectual_primordial_order": {
+    "prompt": "A primordial representation of intellectual energy with order alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.653Z",
+    "status": "placeholder"
+  },
+  "intellectual_primordial_chaos": {
+    "prompt": "A primordial representation of intellectual energy with chaos alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.653Z",
+    "status": "placeholder"
+  },
+  "intellectual_primordial_balance": {
+    "prompt": "A primordial representation of intellectual energy with balance alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.653Z",
+    "status": "placeholder"
+  },
+  "intellectual_mythic_order": {
+    "prompt": "A mythic representation of intellectual energy with order alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.653Z",
+    "status": "placeholder"
+  },
+  "intellectual_mythic_chaos": {
+    "prompt": "A mythic representation of intellectual energy with chaos alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.653Z",
+    "status": "placeholder"
+  },
+  "intellectual_mythic_balance": {
+    "prompt": "A mythic representation of intellectual energy with balance alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.653Z",
+    "status": "placeholder"
+  },
+  "intellectual_archetypal_order": {
+    "prompt": "A archetypal representation of intellectual energy with order alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.653Z",
+    "status": "placeholder"
+  },
+  "intellectual_archetypal_chaos": {
+    "prompt": "A archetypal representation of intellectual energy with chaos alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.654Z",
+    "status": "placeholder"
+  },
+  "intellectual_archetypal_balance": {
+    "prompt": "A archetypal representation of intellectual energy with balance alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.654Z",
+    "status": "placeholder"
+  },
+  "intellectual_human_order": {
+    "prompt": "A human representation of intellectual energy with order alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.654Z",
+    "status": "placeholder"
+  },
+  "intellectual_human_chaos": {
+    "prompt": "A human representation of intellectual energy with chaos alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.654Z",
+    "status": "placeholder"
+  },
+  "intellectual_human_balance": {
+    "prompt": "A human representation of intellectual energy with balance alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.654Z",
+    "status": "placeholder"
+  },
+  "practical_primordial_order": {
+    "prompt": "A primordial representation of practical energy with order alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.654Z",
+    "status": "placeholder"
+  },
+  "practical_primordial_chaos": {
+    "prompt": "A primordial representation of practical energy with chaos alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.654Z",
+    "status": "placeholder"
+  },
+  "practical_primordial_balance": {
+    "prompt": "A primordial representation of practical energy with balance alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.655Z",
+    "status": "placeholder"
+  },
+  "practical_mythic_order": {
+    "prompt": "A mythic representation of practical energy with order alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.655Z",
+    "status": "placeholder"
+  },
+  "practical_mythic_chaos": {
+    "prompt": "A mythic representation of practical energy with chaos alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.655Z",
+    "status": "placeholder"
+  },
+  "practical_mythic_balance": {
+    "prompt": "A mythic representation of practical energy with balance alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.655Z",
+    "status": "placeholder"
+  },
+  "practical_archetypal_order": {
+    "prompt": "A archetypal representation of practical energy with order alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.655Z",
+    "status": "placeholder"
+  },
+  "practical_archetypal_chaos": {
+    "prompt": "A archetypal representation of practical energy with chaos alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.656Z",
+    "status": "placeholder"
+  },
+  "practical_archetypal_balance": {
+    "prompt": "A archetypal representation of practical energy with balance alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.656Z",
+    "status": "placeholder"
+  },
+  "practical_human_order": {
+    "prompt": "A human representation of practical energy with order alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.656Z",
+    "status": "placeholder"
+  },
+  "practical_human_chaos": {
+    "prompt": "A human representation of practical energy with chaos alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.656Z",
+    "status": "placeholder"
+  },
+  "practical_human_balance": {
+    "prompt": "A human representation of practical energy with balance alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.657Z",
+    "status": "placeholder"
+  },
+  "aesthetic_primordial_order": {
+    "prompt": "A primordial representation of aesthetic energy with order alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.657Z",
+    "status": "placeholder"
+  },
+  "aesthetic_primordial_chaos": {
+    "prompt": "A primordial representation of aesthetic energy with chaos alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.657Z",
+    "status": "placeholder"
+  },
+  "aesthetic_primordial_balance": {
+    "prompt": "A primordial representation of aesthetic energy with balance alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.657Z",
+    "status": "placeholder"
+  },
+  "aesthetic_mythic_order": {
+    "prompt": "A mythic representation of aesthetic energy with order alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.657Z",
+    "status": "placeholder"
+  },
+  "aesthetic_mythic_chaos": {
+    "prompt": "A mythic representation of aesthetic energy with chaos alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.657Z",
+    "status": "placeholder"
+  },
+  "aesthetic_mythic_balance": {
+    "prompt": "A mythic representation of aesthetic energy with balance alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.657Z",
+    "status": "placeholder"
+  },
+  "aesthetic_archetypal_order": {
+    "prompt": "A archetypal representation of aesthetic energy with order alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.658Z",
+    "status": "placeholder"
+  },
+  "aesthetic_archetypal_chaos": {
+    "prompt": "A archetypal representation of aesthetic energy with chaos alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.658Z",
+    "status": "placeholder"
+  },
+  "aesthetic_archetypal_balance": {
+    "prompt": "A archetypal representation of aesthetic energy with balance alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.658Z",
+    "status": "placeholder"
+  },
+  "aesthetic_human_order": {
+    "prompt": "A human representation of aesthetic energy with order alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.658Z",
+    "status": "placeholder"
+  },
+  "aesthetic_human_chaos": {
+    "prompt": "A human representation of aesthetic energy with chaos alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.659Z",
+    "status": "placeholder"
+  },
+  "aesthetic_human_balance": {
+    "prompt": "A human representation of aesthetic energy with balance alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.659Z",
+    "status": "placeholder"
+  },
+  "political_primordial_order": {
+    "prompt": "A primordial representation of political energy with order alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.659Z",
+    "status": "placeholder"
+  },
+  "political_primordial_chaos": {
+    "prompt": "A primordial representation of political energy with chaos alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.659Z",
+    "status": "placeholder"
+  },
+  "political_primordial_balance": {
+    "prompt": "A primordial representation of political energy with balance alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.659Z",
+    "status": "placeholder"
+  },
+  "political_mythic_order": {
+    "prompt": "A mythic representation of political energy with order alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.660Z",
+    "status": "placeholder"
+  },
+  "political_mythic_chaos": {
+    "prompt": "A mythic representation of political energy with chaos alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.660Z",
+    "status": "placeholder"
+  },
+  "political_mythic_balance": {
+    "prompt": "A mythic representation of political energy with balance alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.660Z",
+    "status": "placeholder"
+  },
+  "political_archetypal_order": {
+    "prompt": "A archetypal representation of political energy with order alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.661Z",
+    "status": "placeholder"
+  },
+  "political_archetypal_chaos": {
+    "prompt": "A archetypal representation of political energy with chaos alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.661Z",
+    "status": "placeholder"
+  },
+  "political_archetypal_balance": {
+    "prompt": "A archetypal representation of political energy with balance alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.661Z",
+    "status": "placeholder"
+  },
+  "political_human_order": {
+    "prompt": "A human representation of political energy with order alignment, high detail, cinematic lighting, 8k",
+    "generatedAt": "2026-03-17T18:26:31.661Z",
+    "status": "placeholder"
+  }
+}

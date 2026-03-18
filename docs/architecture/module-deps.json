@@ -1,0 +1,76 @@
+{
+  "app/(main)/home/page.tsx": [],
+  "app/(main)/laboratorio/simulador/page.tsx": [
+    "cognitive/core/attentionEngine.ts",
+    "cognitive/core/cognitiveOrchestrator.ts",
+    "cognitive/core/emotionalEngine.ts"
+  ],
+  "app/(main)/layout.tsx": [],
+  "app/(main)/login/page.tsx": [],
+  "app/(main)/page.tsx": [],
+  "app/(main)/perfis/page.tsx": [],
+  "app/(main)/planos/page.tsx": [],
+  "app/(main)/player/page.tsx": [],
+  "app/(main)/sucesso/page.tsx": [],
+  "app/api/auth/login/route.ts": [
+    "lib/db/index.ts",
+    "lib/db/schema.ts"
+  ],
+  "app/api/auth/register/route.ts": [
+    "lib/db/index.ts",
+    "lib/db/schema.ts"
+  ],
+  "app/api/badges/route.ts": [
+    "lib/db/index.ts",
+    "lib/db/schema.ts"
+  ],
+  "app/api/checkout/route.ts": [],
+  "app/api/dashboard/route.ts": [
+    "lib/db/index.ts",
+    "lib/db/schema.ts"
+  ],
+  "app/api/explorer/route.ts": [
+    "lib/db/index.ts",
+    "lib/db/schema.ts"
+  ],
+  "app/api/interaction/route.ts": [],
+  "app/api/profiles/route.ts": [
+    "lib/db/index.ts",
+    "lib/db/schema.ts"
+  ],
+  "app/api/tts/route.ts": [],
+  "app/layout.tsx": [],
+  "app/page.tsx": [],
+  "canon/canon-agents.ts": [],
+  "canon/canon-database.ts": [
+    "canon/canon-agents.ts"
+  ],
+  "canon/canon-engine.ts": [
+    "canon/canon-agents.ts",
+    "canon/canon-database.ts"
+  ],
+  "canon/canon-structure.ts": [
+    "canon/canon-agents.ts"
+  ],
+  "cognitive/core/attentionEngine.ts": [
+    "cognitive/core/emotionalEngine.ts"
+  ],
+  "cognitive/core/cognitiveOrchestrator.ts": [
+    "cognitive/core/attentionEngine.ts",
+    "cognitive/core/emotionalEngine.ts"
+  ],
+  "cognitive/core/emotionalEngine.ts": [],
+  "data/agents-hierarchy.ts": [],
+  "data/agents-prompts.ts": [],
+  "data/agents.ts": [],
+  "lib/auth.ts": [],
+  "lib/db/index.ts": [
+    "lib/db/schema.ts"
+  ],
+  "lib/db/schema.ts": [],
+  "lib/getAgentImage.ts": [],
+  "lib/getAgentRank.ts": [
+    "data/agents-hierarchy.ts"
+  ],
+  "middleware.ts": []
+}
