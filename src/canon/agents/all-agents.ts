@@ -1,29 +1,47 @@
-export interface AgentDefinition { 
-  id: string; 
-  name: string; 
-  dimension: 'philosophical' | 'emotional' | 'creative' | 'ethical' | 'social' | 'spiritual' | 'intellectual' | 'practical' | 'aesthetic' | 'political' | 'scientific' | 'mystical'; 
-  level: 'primordial' | 'mythic' | 'archetypal' | 'human'; 
-  faction: 'order' | 'chaos' | 'balance'; 
-  season: number; // 1-12 
-  personality: { 
-    tone: 'formal' | 'friendly' | 'challenging' | 'empathetic' | 'analytical' | 'inspirational'; 
-    values: string[]; 
-    approach: string; 
-  }; 
-  visualPrompt: string; // Prompt para gerar imagem 
-  laboratoryTask: string; // Tarefa específica no laboratório 
-  badge: { 
-    name: string; 
-    description: string; 
-    icon: string; 
-  }; 
-  recommendedVideos: string[]; // IDs de vídeos 
-} 
+import { translations } from "../../lib/translations.ts";
+import type { AgentDefinition } from "./types.ts";
+export type { AgentDefinition } from "./types.ts";
 
 // Helper para gerar os 120 agentes
 const dimensions: AgentDefinition['dimension'][] = ['philosophical', 'emotional', 'creative', 'ethical', 'social', 'spiritual', 'intellectual', 'practical', 'aesthetic', 'political', 'scientific', 'mystical'];
 const levels: AgentDefinition['level'][] = ['primordial', 'mythic', 'archetypal', 'human'];
 const factions: AgentDefinition['faction'][] = ['order', 'chaos', 'balance'];
+
+const dimensionNames = {
+  philosophical: 'Filosófico',
+  emotional: 'Emocional',
+  creative: 'Criativo',
+  ethical: 'Ético',
+  social: 'Social',
+  spiritual: 'Espiritual',
+  intellectual: 'Intelectual',
+  practical: 'Prático',
+  aesthetic: 'Estético',
+  political: 'Político',
+  scientific: 'Científico',
+  mystical: 'Místico',
+} as const satisfies Record<AgentDefinition['dimension'], string>;
+
+const levelNames = {
+  primordial: 'Primordial',
+  mythic: 'Mítico',
+  archetypal: 'Arquetípico',
+  human: 'Humano',
+} as const satisfies Record<AgentDefinition['level'], string>;
+
+const factionNames = {
+  order: 'Ordem',
+  chaos: 'Caos',
+  balance: 'Equilíbrio',
+} as const satisfies Record<AgentDefinition['faction'], string>;
+
+function generatePortugueseName(
+  dimension: AgentDefinition['dimension'],
+  level: AgentDefinition['level'],
+  faction: AgentDefinition['faction']
+): string {
+  return `${dimensionNames[dimension]} ${levelNames[level]} ${factionNames[faction]}`;
+}
 
 const generateAllAgents = (): AgentDefinition[] => {
   const agents: AgentDefinition[] = [];
@@ -46,7 +64,7 @@ const generateAllAgents = (): AgentDefinition[] => {
     badge: {
       name: 'Mente Analítica',
       description: 'Desbloqueado ao expressar curiosidade racional',
-      icon: '🧠'
+      icon: ''
     },
     recommendedVideos: ['vid_logos_001', 'vid_philosophy_basics']
   });
@@ -68,7 +86,7 @@ const generateAllAgents = (): AgentDefinition[] => {
     badge: {
       name: 'Coração Aberto',
       description: 'Desbloqueado ao expressar alegria profunda',
-      icon: '💚'
+      icon: ''
     },
     recommendedVideos: ['vid_psyche_001', 'vid_emotional_intelligence']
   });
@@ -84,24 +102,28 @@ const generateAllAgents = (): AgentDefinition[] => {
         // Pular se já existe (logos/psyche)
         if (agents.find(a => a.id === id)) continue;
 
+        const dimLabel = translations.dimensions[dim];
+        const levelLabel = translations.levels[lvl];
+        const factionLabel = translations.factions[fac];
+
         agents.push({
           id,
-          name: id.toUpperCase().replace(/_/g, ' '),
+          name: generatePortugueseName(dim, lvl, fac),
           dimension: dim,
           level: lvl,
           faction: fac,
           season: Math.floor(Math.random() * 12) + 1,
           personality: {
             tone: lvl === 'primordial' ? 'formal' : lvl === 'mythic' ? 'inspirational' : 'friendly',
-            values: [dim, lvl, fac],
-            approach: `Eu represento a convergência de ${dim} no nível ${lvl} sob a influência de ${fac}.`
+            values: [dimLabel, levelLabel, factionLabel],
+            approach: `Eu represento a convergência da dimensão ${dimLabel} no nível ${levelLabel}, sob a influência de ${factionLabel}.`
           },
           visualPrompt: `A ${lvl} representation of ${dim} energy with ${fac} alignment, high detail, cinematic lighting, 8k`,
-          laboratoryTask: `Explore como ${dim} se manifesta em sua vida através da perspectiva ${lvl}.`,
+          laboratoryTask: `Explore como a dimensão ${dimLabel} se manifesta em sua vida na perspectiva ${levelLabel}.`,
           badge: {
-            name: `${id} Master`,
-            description: `Mestre da dimensão ${dim}`,
-            icon: '✨'
+            name: `Mestre da Dimensão ${dimLabel}`,
+            description: `Domínio da dimensão ${dimLabel}.`,
+            icon: ''
           },
           recommendedVideos: [`vid_${id}_01`]
         });

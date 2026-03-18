@@ -26,6 +26,19 @@ npm run build
 npm run test:all
 ```
 
+## Gerar Imagens dos Agentes (Nano Banana Pro)
+
+1. Crie `.env.local`:
+   - `NANO_BANANA_API_KEY=seu-api-key-pro-aqui`
+   - opcional: `NANO_BANANA_BASE_URL=https://api.nanobanana.ai/v1`
+   - opcional: `NANO_BANANA_MODEL=pro-generator-v2`
+2. Verifique o status:
+   - `npm run agents:check`
+3. Gere em lotes:
+   - `npm run agents:images`
+
+As imagens serão salvas em `public/agents/`.
+
 ## 📁 Estrutura do Projeto
 
 ```
@@ -73,6 +86,7 @@ npm run arch:validate
 - [Protocolo Arquitetural](docs/ARCHITECTURE_PROTOCOL.md)
 - [Diário de Decisões (ADR)](docs/ARCHITECTURE_DECISIONS.md)
 - [Mapa de Hot Spots](docs/architecture/heatmap-report.md)
+- [Guia Nano Banana](docs/NANO_BANANA_GUIDE.md)
 
 ## 🛠️ Tech Stack
 

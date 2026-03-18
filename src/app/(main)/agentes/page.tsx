@@ -2,8 +2,8 @@
 import { useState, useMemo } from 'react'; 
 import AgentCard from '@/components/AgentCard'; 
 import { ALL_AGENTS } from '@/canon/agents/all-agents'; 
-import type { AgentDefinition } from '@/canon/agents/generated/types'; 
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
+import { t } from '@/lib/translations';
 
 export default function AgentesPage() { 
   const [selectedDimension, setSelectedDimension] = useState<string>('all'); 
@@ -43,7 +43,7 @@ export default function AgentesPage() {
             animate={{ opacity: 1, y: 0 }}
             className="text-6xl md:text-7xl font-extrabold text-white mb-6 tracking-tighter"
           > 
-            🧠 Os 120 Agentes MENTE.AI 
+            Os 120 Agentes MENTE.AI 
           </motion.h1> 
           <motion.p 
             initial={{ opacity: 0 }}
@@ -63,7 +63,7 @@ export default function AgentesPage() {
           > 
             <input 
               type="text" 
-              placeholder="Buscar agente por nome ou abordagem..." 
+              placeholder={t('ui.search')} 
               value={searchTerm} 
               onChange={(e) => setSearchTerm(e.target.value)} 
               className="w-full px-8 py-5 rounded-2xl bg-white/5 backdrop-blur-xl border-2 border-white/10 text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/20 transition-all duration-300 shadow-2xl" 
@@ -84,9 +84,9 @@ export default function AgentesPage() {
                 onChange={(e) => setSelectedDimension(e.target.value)} 
                 className="appearance-none px-6 py-3 pr-10 rounded-xl bg-white/5 backdrop-blur-md border border-white/10 text-white focus:outline-none focus:border-purple-500 transition-all hover:bg-white/10 cursor-pointer" 
               > 
-                <option value="all" className="text-gray-900">Todas Dimensões</option> 
+                <option value="all" className="text-gray-900">{t('ui.allDimensions')}</option> 
                 {dimensions.filter(d => d !== 'all').map(dim => ( 
-                  <option key={dim} value={dim} className="text-gray-900 capitalize">{dim}</option> 
+                  <option key={dim} value={dim} className="text-gray-900">{t(`dimensions.${dim}`)}</option> 
                 ))} 
               </select>
               <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-purple-400">▼</div>
@@ -99,9 +99,9 @@ export default function AgentesPage() {
                 onChange={(e) => setSelectedLevel(e.target.value)} 
                 className="appearance-none px-6 py-3 pr-10 rounded-xl bg-white/5 backdrop-blur-md border border-white/10 text-white focus:outline-none focus:border-purple-500 transition-all hover:bg-white/10 cursor-pointer" 
               > 
-                <option value="all" className="text-gray-900">Todos Níveis</option> 
+                <option value="all" className="text-gray-900">{t('ui.allLevels')}</option> 
                 {levels.filter(l => l !== 'all').map(level => ( 
-                  <option key={level} value={level} className="text-gray-900 capitalize">{level}</option> 
+                  <option key={level} value={level} className="text-gray-900">{t(`levels.${level}`)}</option> 
                 ))} 
               </select> 
               <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-purple-400">▼</div>
@@ -114,9 +114,9 @@ export default function AgentesPage() {
                 onChange={(e) => setSelectedFaction(e.target.value)} 
                 className="appearance-none px-6 py-3 pr-10 rounded-xl bg-white/5 backdrop-blur-md border border-white/10 text-white focus:outline-none focus:border-purple-500 transition-all hover:bg-white/10 cursor-pointer" 
               > 
-                <option value="all" className="text-gray-900">Todas Facções</option> 
+                <option value="all" className="text-gray-900">{t('ui.allFactions')}</option> 
                 {factions.filter(f => f !== 'all').map(faction => ( 
-                  <option key={faction} value={faction} className="text-gray-900 capitalize">{faction}</option> 
+                  <option key={faction} value={faction} className="text-gray-900">{t(`factions.${faction}`)}</option> 
                 ))} 
               </select> 
               <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-purple-400">▼</div>
@@ -129,30 +129,17 @@ export default function AgentesPage() {
             animate={{ opacity: 1 }}
             className="inline-block px-6 py-2 bg-purple-500/20 rounded-full border border-purple-500/30 text-purple-200 font-medium"
           > 
-            Mostrando <span className="text-white font-bold">{filteredAgents.length}</span> de {ALL_AGENTS.length} agentes 
+            {t('ui.showing')} <span className="text-white font-bold">{filteredAgents.length}</span> {t('ui.of')} {ALL_AGENTS.length} {t('ui.agentsCountLabel')} 
           </motion.div> 
         </div> 
 
-        {/* Grid de Cards */} 
-        <motion.div 
-          layout
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8"
-        > 
-          <AnimatePresence>
-            {filteredAgents.map(agent => ( 
-              <motion.div
-                key={agent.id}
-                layout
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                transition={{ duration: 0.3 }}
-              >
-                <AgentCard agent={agent} /> 
-              </motion.div>
-            ))} 
-          </AnimatePresence>
-        </motion.div> 
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-8">
+          {filteredAgents.map((agent, index) => (
+            <div key={agent.id} className="animate-fadeIn" style={{ animationDelay: `${index * 50}ms` }}>
+              <AgentCard agent={agent} />
+            </div>
+          ))}
+        </div>
 
         {/* Mensagem se não encontrar */} 
         {filteredAgents.length === 0 && ( 

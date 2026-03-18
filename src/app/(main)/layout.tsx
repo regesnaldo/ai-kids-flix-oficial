@@ -1,10 +1,22 @@
  
 "use client";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect } from "react";
 import Navigation from "@/components/Navigation";
+import { shouldShowOnboarding } from "@/lib/onboarding/types";
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
+
+  useEffect(() => {
+    const blocked =
+      pathname.startsWith("/login") ||
+      pathname.startsWith("/planos") ||
+      pathname.startsWith("/sucesso");
+    if (blocked) return;
+    if (shouldShowOnboarding()) router.push("/onboarding");
+  }, [pathname, router]);
 
   return (
     <div style={{ backgroundColor: "#0a0e27", minHeight: "100vh", margin: 0 }}>

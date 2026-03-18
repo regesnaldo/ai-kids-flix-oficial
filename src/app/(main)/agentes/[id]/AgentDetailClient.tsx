@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useUserStore } from '@/store/useUserStore';
 import type { AgentDefinition } from '@/canon/agents/all-agents';
 import AgentChat from '@/components/AgentChat';
+import { t } from '@/lib/translations';
 
 interface AgentDetailClientProps {
   agent: AgentDefinition;
@@ -30,7 +31,9 @@ export default function AgentDetailClient({ agent }: AgentDetailClientProps) {
             <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-transparent to-transparent" />
             <div className="absolute bottom-0 left-0 right-0 p-8 text-white">
               <h1 className="text-5xl font-bold mb-2">{agent.name}</h1>
-              <p className="text-xl text-gray-300 capitalize">{agent.dimension} • {agent.level}</p>
+              <p className="text-xl text-gray-300">
+                {t(`dimensions.${agent.dimension}`)} • {t(`levels.${agent.level}`)}
+              </p>
             </div>
           </div>
           <div className="p-8 text-white">
@@ -54,7 +57,6 @@ export default function AgentDetailClient({ agent }: AgentDetailClientProps) {
             <div className="mb-8">
               <h2 className="text-2xl font-bold mb-4 text-purple-400">Conquista Associada</h2>
               <div className="flex items-center gap-4 bg-gradient-to-r from-purple-600/30 to-blue-600/30 p-6 rounded-xl border border-purple-500/30">
-                <span className="text-4xl">{agent.badge.icon}</span>
                 <div>
                   <h3 className="text-xl font-bold">{agent.badge.name}</h3>
                   <p className="text-gray-300">{agent.badge.description}</p>
@@ -66,7 +68,7 @@ export default function AgentDetailClient({ agent }: AgentDetailClientProps) {
                 href="/laboratorio/simulador"
                 className="flex-1 bg-gradient-to-r from-purple-600 to-blue-600 text-white text-center py-4 rounded-xl font-bold text-lg hover:scale-105 transition-transform"
               >
-                🧪 Ir ao Laboratório
+                Ir ao Laboratório
               </Link>
               <button
                 onClick={() => setGuideAgent(agent.id)}
@@ -78,7 +80,7 @@ export default function AgentDetailClient({ agent }: AgentDetailClientProps) {
                 }`}
                 aria-label={isCurrentGuide ? 'Agente guia já selecionado' : 'Escolher este agente como guia'}
               >
-                {isCurrentGuide ? '⭐ Guia Atual' : '⭐ Escolher como Guia'}
+                {isCurrentGuide ? 'Guia Atual' : 'Escolher como Guia'}
               </button>
             </div>
           </div>
