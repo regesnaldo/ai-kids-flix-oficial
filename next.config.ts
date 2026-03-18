@@ -28,14 +28,30 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   compress: true,
-  experimental: { optimizeCss: true },
+  
+  experimental: { 
+    optimizeCss: true,
+  },
+  typescript: {
+    // ignoreDevErrors removido por ser inválido no v16
+  },
+  output: 'standalone',
   images: {
     formats: ["image/avif", "image/webp"],
     minimumCacheTTL: 60,
     dangerouslyAllowSVG: false,
   },
   async headers() {
-    return [{ source: "/(.*)", headers: securityHeaders }];
+    return [
+      { source: "/(.*)", headers: securityHeaders },
+      {
+        source: '/:path*',
+        headers: [
+          { key: 'X-Platform-Name', value: 'MENTE.AI' },
+          { key: 'X-Project-Version', value: '1.0.0' },
+        ],
+      },
+    ];
   },
 };
 

@@ -1,6 +1,7 @@
 export const metadata = {
-  title: "AI Kids Flix",
-  description: 'SOMOS CONTRA AO SISTEMA: CONSTRUIMOS PENSADORES E NÃO "FERRAMENTAS"',
+  title: "MENTE.AI — Laboratório de Inteligência Viva",
+  description: "MENTE.AI: Plataforma de autoconhecimento com agentes inteligentes e simulador emocional.",
+  applicationName: "MENTE.AI",
 };
 
 export default function RootLayout({

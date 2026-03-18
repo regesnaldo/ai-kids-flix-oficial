@@ -1,8 +1,44 @@
- 
+
 node_modules/
-.next/
+.next/out/
+.next/cache/
 .vercel/
 .env
 .env.local
 .env.development.local
 .env.production.local
+.vercel
+.env*.local
+
+# Next.js
+.next
+.next/cache/
+.next/trace/
+
+# Turbopack (CRÍTICO: não versionar cache corrompido)
+.turbo/
+.turbopack/
+.turbopack-cache/
+turbo-*.log
+next-panic-*.log
+
+# Windows-specific caches
+Thumbs.db
+desktop.ini
+$RECYCLE.BIN/
+
+# Cache geral
+node_modules/.cache
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# System
+.DS_Store

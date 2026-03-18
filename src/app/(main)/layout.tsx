@@ -1,15 +1,10 @@
  
 "use client";
 import { usePathname } from "next/navigation";
+import Navigation from "@/components/Navigation";
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-
-  const navItems = [
-    { label: "Início", href: "/home" },
-    { label: "Explorar", href: "/planos" },
-    { label: "Minha Lista", href: "/login" },
-  ];
 
   return (
     <div style={{ backgroundColor: "#0a0e27", minHeight: "100vh", margin: 0 }}>
@@ -25,19 +20,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
             <span style={{ color: "#E50914" }}>.AI</span>
           </span>
         </a>
-        <nav style={{ display: "flex", gap: "1.5rem" }}>
-          {navItems.map((item) => (
-            <a key={item.label} href={item.href} style={{
-              color: pathname === item.href ? "#ffffff" : "rgba(255,255,255,0.6)",
-              textDecoration: "none",
-              fontSize: "0.95rem",
-              fontWeight: pathname === item.href ? 700 : 500,
-              borderBottom: pathname === item.href ? "2px solid #E50914" : "2px solid transparent",
-              paddingBottom: "2px",
-              transition: "all 0.2s",
-            }}>{item.label}</a>
-          ))}
-        </nav>
+        <Navigation />
       </header>
       <div style={{ paddingTop: "70px" }}>
         {children}
