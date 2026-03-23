@@ -1,10 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2026-02-25.clover",
-});
-
 const PRICE_IDS: Record<string, Record<string, string>> = {
   basico: {
     mensal: "price_1T8juHA8k5sJtQHotNEhgmOT",
@@ -25,6 +21,18 @@ const PRICE_IDS: Record<string, Record<string, string>> = {
 
 export async function POST(request: NextRequest) {
   try {
+    const apiKey = process.env.CHECKOUT_API_KEY;
+    const authenticator = process.env.CHECKOUT_AUTHENTICATOR;
+    const isDev = process.env.NODE_ENV === "development";
+
+    if (!apiKey || !authenticator) {
+      if (isDev) {
+        console.warn("Checkout API: Running in dev mode without credentials");
+      } else {
+        throw new Error("Neither apiKey nor config.authenticator provided");
+      }
+    }
+
     const { plano, periodo } = await request.json();
 
     if (plano === "free") {
@@ -37,6 +45,23 @@ export async function POST(request: NextRequest) {
     }
 
     const origin = request.headers.get("origin") || "http://localhost:3000";
+    const stripeSecret = process.env.STRIPE_SECRET_KEY;
+
+    if (!stripeSecret) {
+      if (isDev) {
+        console.warn("Checkout API: STRIPE_SECRET_KEY ausente em desenvolvimento");
+        return NextResponse.json({
+          url: `${origin}/sucesso?session_id=dev-checkout-session`,
+          debug: true,
+        });
+      }
+
+      throw new Error("STRIPE_SECRET_KEY não configurada");
+    }
+
+    const stripe = new Stripe(stripeSecret, {
+      apiVersion: "2026-02-25.clover",
+    });
 
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",

@@ -63,9 +63,9 @@ const AGENTS: AgentWithColor[] = [
 
 const CATEGORIES = [
   { title: "Populares no MENTE.AI", items: AGENTS.slice(0, 6).map(a => a.name) },
-  { title: "Novos Episodios", items: AGENTS.slice(6, 12).map(a => a.name) },
+  { title: "Novos Episodios", items: AGENTS.slice(2, 6).map(a => a.name) },
   { title: "Continue Assistindo", items: AGENTS.slice(0, 4).map(a => a.name) },
-  { title: "Recomendados para Voce", items: AGENTS.slice(8, 12).map(a => a.name) },
+  { title: "Recomendados para Voce", items: AGENTS.slice(1, 5).map(a => a.name) },
 ];
 
 function getAgent(name: string): AgentWithColor {
@@ -202,7 +202,7 @@ export default function Home() {
   const [heroAgent, setHeroAgent] = useState<AgentWithColor>(AGENTS[0]);
   useEffect(() => { const t = setInterval(() => { setHeroAgent((p) => { const i = AGENTS.indexOf(p); return AGENTS[(i + 1) % AGENTS.length]; }); }, 10000); return () => clearInterval(t); }, []);
   return (
-    <main style={{ backgroundColor: "#0a0a1a", width: "100%", minHeight: "100vh", color: "#fff", margin: 0, padding: 0, boxSizing: "border-box", overflow: "hidden" }}>
+    <main style={{ backgroundColor: "#0a0a1a", width: "100%", minHeight: "100vh", color: "#fff", margin: 0, padding: 0, boxSizing: "border-box", overflowX: "hidden" }}>
       <HeroBanner agent={heroAgent} onPlay={() => window.location.href = "/player?series=" + heroAgent.name} />
       <div style={{ marginTop: "-4rem", position: "relative", zIndex: 2 }}>
         {CATEGORIES.map((cat) => (

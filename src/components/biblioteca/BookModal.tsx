@@ -1,0 +1,46 @@
+"use client";
+import Image from "next/image";
+import { Download, Share2, X, Volume2, VolumeX, Sparkles } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { agents } from "@/data/agents";
+import type { Agent } from "@/data/agents";
+interface BookModalProps { isOpen: boolean; agent: Agent | null; onClose: () => void; }
+export default function BookModal({ isOpen, agent, onClose }: BookModalProps) {
+  const [audioPlaying, setAudioPlaying] = useState(false);
+  const [audioLoading, setAudioLoading] = useState(false);
+  const [showContent, setShowContent] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const suggestions = agent ? agents.filter(a => a.level === agent.level && a.id !== agent.id).slice(0, 3) : [];
+  useEffect(() => { if (isOpen && agent) { setShowContent(false); const t = setTimeout(() => setShowContent(true), 50); return () => clearTimeout(t); } return () => { if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; } setAudioPlaying(false); }; }, [isOpen, agent]);
+  const toggleAudio = async () => { if (audioPlaying && audioRef.current) { audioRef.current.pause(); setAudioPlaying(false); return; } if (!agent) return; setAudioLoading(true); try { const desc = `${agent.technicalName}, tambem conhecido como ${agent.nickname}. ${agent.description}. Este conceito faz parte do nivel ${agent.level} do MENTE AI.`; const audio = document.createElement("audio"); audio.src = "/api/tts?text=" + encodeURIComponent(desc); audioRef.current = audio; audio.addEventListener("canplaythrough", function h() { audio.removeEventListener("canplaythrough", h); setAudioLoading(false); setAudioPlaying(true); audio.play(); }); audio.addEventListener("ended", () => setAudioPlaying(false)); audio.addEventListener("error", () => { setAudioLoading(false); setAudioPlaying(false); }); audio.load(); } catch { setAudioLoading(false); } };
+  if (!isOpen || !agent) return null;
+  const levelColors: Record<string, string> = { "Fundamentos": "#3b82f6", "Intermediario": "#10b981", "Avancado": "#f97316", "Mestre": "#8b5cf6" };
+  const accent = levelColors[agent.level] || "#8b5cf6";
+  return (
+    <div onClick={onClose} className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.85)", backdropFilter: "blur(12px)" }}>
+      <div onClick={(e) => e.stopPropagation()} style={{ opacity: showContent ? 1 : 0, transform: showContent ? "scale(1) translateY(0)" : "scale(0.9) translateY(20px)", transition: "all 0.4s cubic-bezier(0.16, 1, 0.3, 1)", maxWidth: "720px", width: "100%", background: "linear-gradient(145deg, rgba(11,16,32,0.98), rgba(5,7,14,0.98))", borderRadius: "1.5rem", border: `1px solid ${accent}30`, boxShadow: `0 25px 60px rgba(0,0,0,0.5), 0 0 40px ${accent}15`, padding: "2rem", position: "relative", overflow: "hidden" }}>
+        <div style={{ position: "absolute", top: "-50%", right: "-20%", width: "300px", height: "300px", borderRadius: "50%", background: `radial-gradient(circle, ${accent}15, transparent 70%)`, filter: "blur(40px)", pointerEvents: "none" }} />
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "1rem", position: "relative" }}>
+          <div><p style={{ fontSize: "0.65rem", textTransform: "uppercase", letterSpacing: "0.2em", color: accent, marginBottom: "0.3rem" }}>Livro Vivo #{agent.discoveryOrder}</p><h3 style={{ fontSize: "1.3rem", fontWeight: 700, color: "white", margin: 0 }}>{agent.technicalName}</h3><p style={{ fontSize: "0.9rem", color: "rgba(255,255,255,0.5)", margin: "0.2rem 0 0" }}>&quot;{agent.nickname}&quot;</p></div>
+          <div style={{ display: "flex", gap: "0.5rem" }}>
+            <button onClick={toggleAudio} style={{ width: "36px", height: "36px", borderRadius: "50%", border: `1px solid ${accent}40`, background: audioPlaying ? `${accent}20` : "rgba(255,255,255,0.05)", color: audioPlaying ? accent : "rgba(255,255,255,0.6)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>{audioLoading ? <span style={{ fontSize: "0.7rem" }}>...</span> : audioPlaying ? <VolumeX size={16} /> : <Volume2 size={16} />}</button>
+            <button onClick={onClose} style={{ width: "36px", height: "36px", borderRadius: "50%", border: "1px solid rgba(255,255,255,0.15)", background: "rgba(255,255,255,0.05)", color: "rgba(255,255,255,0.6)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}><X size={16} /></button>
+          </div>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "140px 1fr", gap: "1.5rem", marginTop: "1.5rem" }}>
+          <div style={{ position: "relative", height: "200px", borderRadius: "0.8rem", overflow: "hidden", border: `1px solid ${accent}25`, boxShadow: `0 0 20px ${accent}10` }}><Image src={agent.imageUrl} alt={agent.technicalName} fill className="object-cover" sizes="140px" /></div>
+          <div>
+            <div style={{ padding: "0.6rem 0.8rem", borderRadius: "0.6rem", background: `${accent}10`, border: `1px solid ${accent}20`, marginBottom: "0.8rem" }}><p style={{ fontSize: "0.75rem", color: accent, margin: 0 }}>Nivel: {agent.level} | Categoria: {agent.category}</p></div>
+            <p style={{ fontSize: "0.9rem", lineHeight: 1.7, color: "rgba(255,255,255,0.75)", margin: 0 }}>{agent.description}</p>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "0.5rem", marginTop: "1.2rem" }}>
+              <button style={{ padding: "0.6rem", borderRadius: "0.6rem", border: "none", background: `linear-gradient(135deg, ${accent}, ${accent}88)`, color: "white", fontSize: "0.8rem", fontWeight: 600, cursor: "pointer" }}>Ler</button>
+              <button style={{ padding: "0.6rem", borderRadius: "0.6rem", border: `1px solid ${accent}30`, background: `${accent}10`, color: accent, fontSize: "0.8rem", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.3rem" }}><Download size={14} /> Baixar</button>
+              <button style={{ padding: "0.6rem", borderRadius: "0.6rem", border: "1px solid rgba(255,255,255,0.15)", background: "rgba(255,255,255,0.05)", color: "rgba(255,255,255,0.7)", fontSize: "0.8rem", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.3rem" }}><Share2 size={14} /> Compartilhar</button>
+            </div>
+          </div>
+        </div>
+        {suggestions.length > 0 && (<div style={{ marginTop: "1.5rem", padding: "1rem", borderRadius: "0.8rem", background: "rgba(255,255,255,0.03)", border: `1px solid ${accent}12` }}><div style={{ display: "flex", alignItems: "center", gap: "0.4rem", marginBottom: "0.6rem" }}><Sparkles size={14} style={{ color: accent }} /><p style={{ fontSize: "0.7rem", textTransform: "uppercase", letterSpacing: "0.15em", color: accent, margin: 0, fontWeight: 600 }}>NEXUS sugere</p></div><div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "0.5rem" }}>{suggestions.map(s => (<div key={s.id} style={{ padding: "0.5rem 0.7rem", borderRadius: "0.5rem", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", fontSize: "0.75rem", color: "rgba(255,255,255,0.6)" }}>{s.technicalName} &quot;{s.nickname}&quot;</div>))}</div></div>)}
+      </div>
+    </div>
+  );
+}
