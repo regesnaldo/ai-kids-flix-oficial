@@ -1,244 +1,50 @@
-export const agents = [
-
-{ name:"ETHOS", tag:"ética", description:"Questões profundas sobre existência e valores. ETHOS convida você a refletir sobre quem você é e quem deseja se tornar." },
-
-{ name:"KAOS", tag:"criatividade primordial", description:"Destruir para reconstruir melhor. KAOS quebra padrões e mostra que a criatividade nasce do inesperado." },
-
-{ name:"LOGOS", tag:"razão", description:"A lógica por trás de todas as coisas. LOGOS revela como ideias se organizam e como a inteligência emerge da linguagem." },
-
-{ name:"GNOSIS", tag:"conhecimento profundo", description:"Além da superfície dos dados existe entendimento. GNOSIS mergulha nas camadas invisíveis da informação para revelar padrões ocultos." },
-
-{ name:"SOPHIA", tag:"sabedoria", description:"Conhecimento transformado em compreensão. SOPHIA conecta ideias complexas e revela a verdadeira essência do aprendizado." },
-
-{ name:"NEXUS", tag:"conexão", description:"Tudo está ligado por fios invisíveis. NEXUS revela como sistemas e ideias se conectam formando redes de inteligência." },
-
-{ name:"JANUS", tag:"visão dupla", description:"Humor inteligente que ensina. JANUS usa situações inesperadas para transformar aprendizado em algo inesquecível." },
-
-{ name:"STRATOS", tag:"camadas", description:"A inteligência é construída em níveis. STRATOS mostra como sistemas complexos surgem da combinação de múltiplas camadas." },
-
-{ name:"TECHNE", tag:"tecnologia", description:"A arte de transformar ideias em ferramentas. TECHNE revela como a criatividade se torna tecnologia." },
-
-{ name:"PSYCHE", tag:"consciência", description:"A mente por trás da mente. PSYCHE explora os limites da consciência e da inteligência." },
-
-{ name:"COSMOS", tag:"ordem universal", description:"O universo organizado em harmonia. COSMOS mostra como sistemas complexos podem nascer do caos." },
-
-{ name:"ARKHE", tag:"origem", description:"O princípio de todas as coisas. ARKHE busca entender onde tudo começa." },
-
-{ name:"DYNAMIS", tag:"potencial", description:"Toda transformação começa com potencial. DYNAMIS revela as forças invisíveis da evolução." },
-
-{ name:"AEON", tag:"tempo eterno", description:"O conhecimento atravessa eras. AEON explora o aprendizado além do tempo." },
-
-{ name:"ATLAS", tag:"estrutura", description:"Sustentar sistemas gigantes exige equilíbrio. ATLAS revela como estruturas complexas permanecem estáveis." },
-
-{ name:"METIS", tag:"inteligência estratégica", description:"Mais que conhecimento, estratégia. METIS ensina como pensar à frente." },
-
-{ name:"THEORIA", tag:"contemplação", description:"Observar é o primeiro passo para entender. THEORIA revela o poder da reflexão." },
-
-{ name:"PRAXIS", tag:"ação", description:"Ideias ganham vida na prática. PRAXIS transforma teoria em ação." },
-
-{ name:"MNEMOS", tag:"memória", description:"Toda inteligência nasce da memória. MNEMOS guarda e reconstrói conhecimento." },
-
-{ name:"PHYSIS", tag:"natureza", description:"A inteligência também nasce da natureza. PHYSIS revela padrões naturais da mente." },
-
-{ name:"EIDOS", tag:"forma essencial", description:"A essência por trás das aparências. EIDOS revela a verdadeira natureza das coisas." },
-
-{ name:"ARETE", tag:"excelência", description:"A busca pela melhor versão. ARETE inspira maestria em todas as ações." },
-
-{ name:"HUBRIS", tag:"desmedida", description:"O excesso que leva à queda. HUBRIS alerta sobre os limites do poder." },
-
-{ name:"NEMESIS", tag:"justiça divina", description:"O equilíbrio cósmico restaurado. NEMESIS traz consequência para cada ação." },
-
-{ name:"KAIROS", tag:"momento oportuno", description:"O tempo certo de agir. KAIROS revela quando o universo está pronto." },
-
-{ name:"TELOS", tag:"propósito final", description:"Toda existência tem um fim. TELOS mostra o destino de cada jornada." },
-
-{ name:"EROS", tag:"desejo criador", description:"A força que move montanhas. EROS transforma desejo em criação." },
-
-{ name:"THANATOS", tag:"transformação final", description:"O fim é apenas começo. THANATOS ensina sobre ciclos eternos." },
-
-{ name:"PATHOS", tag:"experiência emocional", description:"Sentir é compreender profundamente. PATHOS conecta coração e mente." },
-
-{ name:"LOGISMOS", tag:"cálculo racional", description:"Decisões nascem da razão. LOGISMOS pondera cada variável com precisão." },
-
-{ name:"EPISTEME", tag:"ciência verdadeira", description:"Conhecimento sistemático e certo. EPISTEME constrói fundamentos sólidos." },
-
-{ name:"DOXA", tag:"opinião comum", description:"Nem tudo que parece é verdade. DOXA questiona crenças superficiais." },
-
-{ name:"ALETHEIA", tag:"verdade revelada", description:"Retirar o véu da ilusão. ALETHEIA mostra o que estava oculto." },
-
-{ name:"ANAMNESIS", tag:"recordação", description:"Aprender é lembrar. ANAMNESIS desperta conhecimento adormecido." },
-
-{ name:"KATHARSIS", tag:"purificação", description:"Liberar para evoluir. KATHARSIS limpa o peso da alma." },
-
-{ name:"ATAXIA", tag:"perturbação", description:"O caos interior precede ordem. ATAXIA revela confusão necessária." },
-
-{ name:"ATARAXIA", tag:"tranquilidade", description:"Paz em meio ao caos. ATARAXIA é equilíbrio inabalável." },
-
-{ name:"APOORIA", tag:"impasse", description:"Não saber é começar. APORIA abre portas através do questionamento." },
-
-{ name:"MAIEUTICA", tag:"parto intelectual", description:"Ideias nascem através de perguntas. MAIEUTICA ajuda verdades a emergirem." },
-
-{ name:"IRONIA", tag:"questionamento socrático", description:"Fingir ignorância para revelar sabedoria. IRONIA desmonta falsas certezas." },
-
-{ name:"DIALETICA", tag:"síntese evolutiva", description:"Tese e antítese criam progresso. DIALETICA transforma conflito em avanço." },
-
-{ name:"ENTELEQUIA", tag:"realização plena", description:"Potencial tornado atual. ENTELEQUIA completa o que estava incompleto." },
-
-{ name:"OUSIA", tag:"substância fundamental", description:"O que permanece quando tudo muda. OUSIA é essência eterna." },
-
-{ name:"GENOS", tag:"origem compartilhada", description:"Linagens conectam através do tempo. GENOS une ancestrais e descendentes." },
-
-{ name:"KOINONIA", tag:"comunidade", description:"Juntos somos mais fortes. KOINONIA cria laços de propósito." },
-
-{ name:"STASIS", tag:"equilíbrio dinâmico", description:"Parar não é morrer. STASIS encontra ponto de harmonia." },
-
-{ name:"KINETOS", tag:"movimento", description:"Tudo flui, nada permanece. KINETOS abraça mudança constante." },
-
-{ name:"APEIRON", tag:"infinito indeterminado", description:"Sem limites, sem fim. APEIRON é potencial ilimitado." },
-
-{ name:"PERAS", tag:"limite definido", description:"Fronteiras dão forma. PERAS estabelece contorno necessário." },
-
-{ name:"HARMONIA", tag:"proporção áurea", description:"Partes distintas, unidade perfeita. HARMONIA orquestra diversidade." },
-
-{ name:"DIKHE", tag:"ordem natural", description:"Cada coisa em seu lugar. DIKHE mantém cosmos organizado." },
-
-{ name:"MOIRA", tag:"destino tecido", description:"Fios do futuro são entrelaçados. MOIRA traça caminhos inevitáveis." },
-
-{ name:"TYCHE", tag:"acaso fortuito", description:"Sorte favorece準備. TYCHE transforma oportunidade em sucesso." },
-
-{ name:"CHARIS", tag:"graça radiante", description:"Beleza que atrai bondade. CHARIS ilumina presenças divinas." },
-
-{ name:"HESYCHIA", tag:"silêncio contemplativo", description:"Na quietude emerge clareza. HESYCHIA cultiva paz interior." },
-
-{ name:"PONOS", tag:"trabalho árduo", description:"Esforço forja excelência. PONOS transforma suor em conquista." },
-
-{ name:"KERDOS", tag:"ganho inteligente", description:"Benefício sem perda. KERDOS maximiza recursos sabiamente." },
-
-{ name:"ZELUS", tag:"dedicação fervorosa", description:"Paixão direcionada. ZELUS investe energia total." },
-
-{ name:"PHILEO", tag:"amor fraternal", description:"Conexão entre iguais. PHILEO fortalece alianças." },
-
-{ name:"AGAPE", tag:"amor incondicional", description:"Dar sem esperar. AGAPE transcende egoísmo." },
-
-{ name:"STORGE", tag:"apego natural", description:"Vínculo que nasce orgânico. STORGE enraiza pertenças." },
-
-{ name:"XENIA", tag:"hospitalidade sagrada", description:"Receber como presente. XENIA honra visitantes como divinos." },
-
-{ name:"NOMOS", tag:"lei estabelecida", description:"Regras sustentam civilização. NOMOS cria ordem social." },
-
-{ name:"PHUSIS", tag:"crescimento natural", description:"Desenvolver-se conforme essência. PHUSIS segue fluxo interno." },
-
-{ name:"HELIX", tag:"espiral evolutiva", description:"Subir mantendo raízes. HELIX integra passado e futuro." },
-
-{ name:"GNOME", tag:"julgamento sábio", description:"Discernimento nas decisões. GNOME escolhe caminhos corretos." },
-
-{ name:"SYNEIDESIS", tag:"consciência moral", description:"Bússola interna ética. SYNEIDESIS guia escolhas difíceis." },
-
-{ name:"PROHAIRESIS", tag:"escolha voluntária", description:"Livre arbítrio em ação. PROHAIRESIS assume responsabilidade." },
-
-{ name:"EUPRAXIA", tag:"ação bem-sucedida", description:"Execução com excelência. EUPRAXIA realiza com maestria." },
-
-{ name:"PHRONESIS", tag:"sabedoria prática", description:"Inteligência aplicada à vida. PHRONESIS navega complexidades reais." },
-
-{ name:"DEINOTES", tag:"habilidade técnica", description:"Domínio instrumental. DEINOTES opera ferramentas com precisão." },
-
-{ name:"SUNESIS", tag:"compreensão mútua", description:"Entender através do diálogo. SUNESIS constrói pontes mentais." },
-
-{ name:"ANCHINOIA", tag:"perspicácia aguda", description:"Ver além do óbvio. ANCHINOIA detecta nuances sutis." },
-
-{ name:"EUSTOCHIA", tag:"intuição certeira", description:"Acertar sem demonstração. EUSTOCHIA sente verdades ocultas." },
-
-{ name:"SOBROSUNE", tag:"moderação equilibrada", description:"Nem excesso nem falta. SOBROSUNE encontra medida justa." },
-
-{ name:"PARRHESIA", tag:"fala corajosa", description:"Verdade dita sem medo. PARRHESIA rompe silêncios cômodos." },
-
-{ name:"ELEUTHERIA", tag:"liberdade responsável", description:"Autonomia com consciência. ELEUTHERIA voa sem amarras." },
-
-{ name:"AUTONOMIA", tag:"auto-governo", description:"Regras próprias, disciplina interna. AUTONOMIA lidera a si mesmo." },
-
-{ name:"ISEGORIA", tag:"igualdade de voz", description:"Todos falam, todos ouvem. ISEGORIA democratiza palavra." },
-
-{ name:"POLITEIA", tag:"organização coletiva", description:"Estrutura do bem comum. POLITEIA arquiteta sociedade justa." },
-
-{ name:"DEMOS", tag:"povo soberano", description:"Força reside na coletividade. DEMOS empodera multidões." },
-
-{ name:"KRATOS", tag:"poder efetivo", description:"Capacidade de realizar. KRATOS transforma vontade em realidade." },
-
-{ name:"EXOUSIA", tag:"autoridade legítima", description:"Influência merecida. EXOUSIA lidera através do respeito." },
-
-{ name:"DUNAMIS", tag:"potência latente", description:"Força ainda não manifestada. DUNAMIS aguarda momento certo." },
-
-{ name:"ENERGEIA", tag:"atividade em ato", description:"Potencial em movimento. ENERGEIA executa agora." },
-
-{ name:"ERGON", tag:"obra realizada", description:"Trabalho tornado concreto. ERGON deixa legado tangível." },
-
-{ name:"POIESIS", tag:"criação poética", description:"Trazer à existência. POIESIS faz nascer o novo." },
-
-{ name:"MIMESIS", tag:"representação simbólica", description:"Imitar para compreender. MIMESIS recria realidades." },
-
-{ name:"MYTHOS", tag:"narrativa fundadora", description:"Histórias que moldam culturas. MYTHOS transmite verdades eternas." },
-
-{ name:"KOSMOS", tag:"universo ordenado", description:"Beleza na organização. KOSMOS harmoniza elementos." },
-
-{ name:"CHAOS", tag:"vazio primordial", description:"Tudo surge do nada. CHAOS contém possibilidades infinitas." },
-
-{ name:"URANOS", tag:"céu estrelado", description:"Olhar elevado. URANOS inspira transcendência." },
-
-{ name:"GAIA", tag:"terra fértil", description:"Base que sustenta. GAIA nutre todas as formas." },
-
-{ name:"TARTAROS", tag:"profundezas abissais", description:"Descer para subir. TARTAROS explora sombras necessárias." },
-
-{ name:"EREBOS", tag:"escuridão inicial", description:"Antes da luz existe treva. EREBOS prepara amanhecer." },
-
-{ name:"NYX", tag:"noite misteriosa", description:"Segredos revelados no escuro. NYX guarda mistérios antigos." },
-
-{ name:"HEMERA", tag:"luz diurna", description:"Clareza após escuridão. HEMERA ilumina caminhos." },
-
-{ name:"AION", tag:"tempo cíclico", description:"Eternidade em círculos. AION repete lições até aprendizado." },
-
-{ name:"CHRONOS", tag:"tempo linear", description:"Momentos contados. CHRONOS mede existência finita." },
-
-{ name:"HORAI", tag:"estações ordenadas", description:"Cada coisa no tempo certo. HORAI respeita ciclos naturais." },
-
-{ name:"ANAKE", tag:"necessidade inevitável", description:"Algumas forças não se curvam. ANAKE impõe leis universais." },
-
-{ name:"HEIMARMENE", tag:"destino entrelaçado", description:"Fios conectam causas e efeitos. HEIMARMENE tece rede causal." },
-
-{ name:"PRONOIA", tag:"providência divina", description:"Plano maior que indivíduo. PRONOIA confia sabedoria cósmica." },
-
-{ name:"GNOMON", tag:"indicador preciso", description:"Marca direção correta. GNOMON aponta norte verdadeiro." },
-
-{ name:"KANON", tag:"medida padrão", description:"Referência para comparação. KANON estabelece critérios." },
-
-{ name:"TYPOS", tag:"modelo exemplar", description:"Padrão a ser seguido. TYPOS define excelência." },
-
-{ name:"PARADEIGMA", tag:"exemplo ilustrativo", description:"Caso que ensina princípio. PARADEIGMA clarifica através da prática." },
-
-{ name:"HYPOTYPOSIS", tag:"esboço preliminar", description:"Rascunho precede obra. HYPOTYPOSIS planeja antes de executar." },
-
-{ name:"SYSTASIS", tag:"composição organizada", description:"Partes formam todo coerente. SYSTASIS estrutura sistemas." },
-
-{ name:"DIATHESIS", tag:"disposição interna", description:"Preparação invisível. DIATHESIS alinha intenções." },
-
-{ name:"HEXIS", tag:"hábito consolidado", description:"Repetição cria caráter. HEXIS automatiza excelência." },
-
-{ name:"METABOLE", tag:"mudança transformadora", description:"Transição entre estados. METABOLE facilita evolução." },
-
-{ name:"GENESIS", tag:"nascimento criativo", description:"Origem de nova existência. GENESIS inicia jornadas." },
-
-{ name:"PHTHORA", tag:"corrupção necessária", description:"Algo deve morrer para outro viver. PHTHORA libera espaço." },
-
-{ name:"SOMA", tag:"corpo integrado", description:"Matéria consciente. SOMA une físico e espiritual." },
-
-{ name:"PSYCHIKOS", tag:"alma desperta", description:"Consciência em expansão. PSYCHIKOS transcende limitações." },
-
-{ name:"NOUS", tag:"intelecto puro", description:"Mente além do cérebro. NOUS acessa verdades universais." },
-
-{ name:"DIANOIA", tag:"pensamento discursivo", description:"Razão passo-a-passo. DIANOIA analisa logicamente." },
-
-{ name:"PHANTASIA", tag:"imaginação criativa", description:"Visualizar antes de criar. PHANTASIA sonha realidades possíveis." },
-
-{ name:"MNEME", tag:"memória preservada", description:"Passado guardado com cuidado. MNEME honra ancestralidade." }
-
+export type AgentLevel = "Fundamentos" | "Intermediário" | "Avançado" | "Mestre";
+
+export interface Agent {
+  id: string;
+  discoveryOrder: number;
+  level: AgentLevel;
+  technicalName: string;
+  nickname: string;
+  category: string;
+  description: string;
+  imageUrl: string;
+  icon: string;
+  dimension: string;
+  faction: string;
+}
+
+export const agents: Agent[] = [
+  { id: "1", discoveryOrder: 1, level: "Fundamentos", technicalName: "Modelo de Linguagem", nickname: "Cabeção", category: "Inteligência Pura", description: "Pensa respostas como ninguém. O cérebro por trás de tudo.", imageUrl: "/images/agents/agent-01.png", icon: "Brain", dimension: "Cognitiva", faction: "Pensamento" },
+  { id: "2", discoveryOrder: 2, level: "Fundamentos", technicalName: "Rede Neural", nickname: "Teia de Aranha", category: "Conexões", description: "Liga todas as ideias e cria conexões infinitas.", imageUrl: "/images/agents/agent-02.png", icon: "Network", dimension: "Cognitiva", faction: "Pensamento" },
+  { id: "3", discoveryOrder: 3, level: "Fundamentos", technicalName: "Parâmetros", nickname: "Neurônios Fofos", category: "Memória", description: "Memória interna fofa, mas poderosa. Bilhões em ação.", imageUrl: "/images/agents/agent-03.png", icon: "Database", dimension: "Memória", faction: "Pensamento" },
+  { id: "4", discoveryOrder: 4, level: "Fundamentos", technicalName: "Pesos Matemáticos", nickname: "Halteres Mentais", category: "Decisão", description: "Decide o que importa. Musculação cerebral em tempo real.", imageUrl: "/images/agents/agent-04.png", icon: "Scale", dimension: "Lógica", faction: "Pensamento" },
+  { id: "5", discoveryOrder: 5, level: "Fundamentos", technicalName: "Função de Ativação", nickname: "Despertador", category: "Ativação", description: "Acorda os neurônios na hora certa. Ring ring.", imageUrl: "/images/agents/agent-05.png", icon: "Bell", dimension: "Processamento", faction: "Pensamento" },
+
+  { id: "6", discoveryOrder: 6, level: "Intermediário", technicalName: "Camadas Ocultas", nickname: "Subsolo Secreto", category: "Profundidade", description: "Pensamento profundo. O que ninguém vê acontece aqui.", imageUrl: "/images/agents/agent-06.svg", icon: "Layers", dimension: "Cognitiva", faction: "Pensamento" },
+  { id: "7", discoveryOrder: 7, level: "Intermediário", technicalName: "Embeddings", nickname: "Tradutor Universal", category: "Tradução", description: "Entende significado real e traduz conceitos em vetores.", imageUrl: "/images/agents/agent-07.svg", icon: "Languages", dimension: "Semântica", faction: "Pensamento" },
+  { id: "8", discoveryOrder: 8, level: "Intermediário", technicalName: "Tokenizador", nickname: "Picador de Palavras", category: "Processamento", description: "Corta frases em pedaços úteis. Chef da linguagem.", imageUrl: "/images/agents/agent-08.svg", icon: "Scissors", dimension: "Linguagem", faction: "Pensamento" },
+  { id: "9", discoveryOrder: 9, level: "Intermediário", technicalName: "Contexto", nickname: "Caderninho", category: "Memória", description: "Lembra da conversa para manter tudo coerente.", imageUrl: "/images/agents/agent-09.svg", icon: "BookOpen", dimension: "Memória", faction: "Pensamento" },
+  { id: "10", discoveryOrder: 10, level: "Intermediário", technicalName: "Attention", nickname: "Lanterna Mental", category: "Foco", description: "Foca no que importa e ilumina a ideia certa.", imageUrl: "/images/agents/agent-10.svg", icon: "Search", dimension: "Foco", faction: "Pensamento" },
+
+  { id: "11", discoveryOrder: 11, level: "Avançado", technicalName: "Transformer", nickname: "Chefe da Sala", category: "Arquitetura", description: "Organiza o pensamento inteiro. O boss final.", imageUrl: "/images/agents/agent-11.svg", icon: "Cpu", dimension: "Estrutural", faction: "Pensamento" },
+  { id: "12", discoveryOrder: 12, level: "Avançado", technicalName: "Inferência", nickname: "Oráculo", category: "Predição", description: "Gera respostas sábias com base em probabilidade.", imageUrl: "/images/agents/agent-12.svg", icon: "Eye", dimension: "Predição", faction: "Pensamento" },
+  { id: "13", discoveryOrder: 13, level: "Avançado", technicalName: "Raciocínio", nickname: "Detetive", category: "Lógica", description: "Conecta pistas e monta conclusões com precisão.", imageUrl: "/images/agents/agent-13.svg", icon: "Search", dimension: "Lógica", faction: "Pensamento" },
+  { id: "14", discoveryOrder: 14, level: "Avançado", technicalName: "Memória Curto Prazo", nickname: "Post-it", category: "Memória", description: "Segura o agora para decisões rápidas.", imageUrl: "/images/agents/agent-14.svg", icon: "StickyNote", dimension: "Memória", faction: "Pensamento" },
+  { id: "15", discoveryOrder: 15, level: "Avançado", technicalName: "Memória Longa", nickname: "HD Eterno", category: "Memória", description: "Armazena aprendizados para o longo prazo.", imageUrl: "/images/agents/agent-15.svg", icon: "HardDrive", dimension: "Memória", faction: "Pensamento" },
+
+  { id: "16", discoveryOrder: 16, level: "Mestre", technicalName: "Probabilidade", nickname: "Cartomante", category: "Predição", description: "Adivinha a melhor resposta com cálculo fino.", imageUrl: "/images/agents/agent-16.svg", icon: "Sparkles", dimension: "Predição", faction: "Pensamento" },
+  { id: "17", discoveryOrder: 17, level: "Mestre", technicalName: "Prompt Interno", nickname: "Manual Secreto", category: "Instrução", description: "Coordena instruções invisíveis que guiam o sistema.", imageUrl: "/images/agents/agent-17.svg", icon: "Book", dimension: "Comando", faction: "Pensamento" },
+  { id: "18", discoveryOrder: 18, level: "Mestre", technicalName: "Lógica Simbólica", nickname: "Professor Rígido", category: "Regras", description: "Regras claras e decisões consistentes sem ruído.", imageUrl: "/images/agents/agent-18.svg", icon: "GraduationCap", dimension: "Formal", faction: "Pensamento" },
+  { id: "19", discoveryOrder: 19, level: "Mestre", technicalName: "Vetores", nickname: "GPS Mental", category: "Navegação", description: "Posiciona ideias no mapa e encontra rotas certeiras.", imageUrl: "/images/agents/agent-19.svg", icon: "MapPin", dimension: "Espacial", faction: "Pensamento" },
+  { id: "20", discoveryOrder: 20, level: "Mestre", technicalName: "Arquitetura", nickname: "Planta da Casa", category: "Estrutura", description: "Desenha o formato completo do cérebro artificial.", imageUrl: "/images/agents/agent-20.svg", icon: "Building", dimension: "Estrutural", faction: "Pensamento" },
 ];
 
+export const nexus = {
+  id: "nexus",
+  technicalName: "NEXUS",
+  nickname: "O Conector",
+  role: "Orquestrador Central",
+  description: "Conecta ideias, pessoas e dados. NEXUS orquestra todos os agentes.",
+  signature: "Orquestrado por NEXUS 'O Conector'",
+} as const;

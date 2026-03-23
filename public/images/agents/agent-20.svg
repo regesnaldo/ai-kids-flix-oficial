@@ -1,0 +1,14 @@
+<svg xmlns='http://www.w3.org/2000/svg' width='300' height='400' viewBox='0 0 300 400'>
+  <defs>
+    <linearGradient id='g' x1='0' y1='0' x2='1' y2='1'>
+      <stop offset='0%' stop-color='hsl(340, 78%, 38%)'/>
+      <stop offset='50%' stop-color='#1a1a2e'/>
+      <stop offset='100%' stop-color='#0f3460'/>
+    </linearGradient>
+  </defs>
+  <rect width='300' height='400' fill='url(#g)'/>
+  <circle cx='220' cy='80' r='58' fill='rgba(147,51,234,0.35)'/>
+  <circle cx='80' cy='320' r='84' fill='rgba(59,130,246,0.25)'/>
+  <text x='150' y='188' fill='white' font-family='Arial, sans-serif' font-size='28' font-weight='700' text-anchor='middle'>AGENTE</text>
+  <text x='150' y='224' fill='#d1d5db' font-family='Arial, sans-serif' font-size='22' font-weight='700' text-anchor='middle'>#20</text>
+</svg>

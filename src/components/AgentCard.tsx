@@ -45,12 +45,12 @@ export default function AgentCard({ agent }: AgentCardProps) {
 
         <div className="p-6 text-white">
           <p className="text-sm text-gray-300 mb-4 line-clamp-3">
-            {agent.personality.approach}
+            {agent.personality?.approach ?? '—'}
           </p>
 
           <div className="mb-4">
             <span className="bg-purple-600/80 px-3 py-1 rounded-full text-xs font-medium">
-              {agent.badge.name}
+              {agent.badge?.name ?? 'Agente'}
             </span>
           </div>
 
