@@ -11,6 +11,7 @@ import {
 
 import NexusCore from "@/components/laboratorio/NexusCore";
 import ParticleField from "@/components/laboratorio/ParticleField";
+import HeroSection from "@/components/HeroSection";
 
 const fireflies = [
   { label: "Contexto", season: "linguagens", agent: "9" },
@@ -24,6 +25,8 @@ const fireflies = [
 export default function LaboratorioPage() {
   return (
     <main className="relative min-h-screen overflow-hidden bg-[#05060c] text-white">
+      <HeroSection />
+
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_15%,rgba(147,51,234,0.26),transparent_40%),radial-gradient(circle_at_80%_25%,rgba(59,130,246,0.26),transparent_45%),radial-gradient(circle_at_50%_90%,rgba(6,182,212,0.2),transparent_45%)]" />
       <div className="pointer-events-none absolute inset-0 opacity-20 [background:linear-gradient(135deg,transparent_0%,rgba(255,255,255,0.06)_50%,transparent_100%)]" />
       <ParticleField interactive count={50} />
