@@ -1,46 +1,122 @@
-"use client";
-import Image from "next/image";
-import { Download, Share2, X, Volume2, VolumeX, Sparkles } from "lucide-react";
-import { useState, useEffect, useRef } from "react";
-import { agents } from "@/data/agents";
-import type { Agent } from "@/data/agents";
-interface BookModalProps { isOpen: boolean; agent: Agent | null; onClose: () => void; }
-export default function BookModal({ isOpen, agent, onClose }: BookModalProps) {
-  const [audioPlaying, setAudioPlaying] = useState(false);
-  const [audioLoading, setAudioLoading] = useState(false);
-  const [showContent, setShowContent] = useState(false);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  const suggestions = agent ? agents.filter(a => a.level === agent.level && a.id !== agent.id).slice(0, 3) : [];
-  useEffect(() => { if (isOpen && agent) { setShowContent(false); const t = setTimeout(() => setShowContent(true), 50); return () => clearTimeout(t); } return () => { if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; } setAudioPlaying(false); }; }, [isOpen, agent]);
-  const toggleAudio = async () => { if (audioPlaying && audioRef.current) { audioRef.current.pause(); setAudioPlaying(false); return; } if (!agent) return; setAudioLoading(true); try { const desc = `${agent.technicalName}, tambem conhecido como ${agent.nickname}. ${agent.description}. Este conceito faz parte do nivel ${agent.level} do MENTE AI.`; const audio = document.createElement("audio"); audio.src = "/api/tts?text=" + encodeURIComponent(desc); audioRef.current = audio; audio.addEventListener("canplaythrough", function h() { audio.removeEventListener("canplaythrough", h); setAudioLoading(false); setAudioPlaying(true); audio.play(); }); audio.addEventListener("ended", () => setAudioPlaying(false)); audio.addEventListener("error", () => { setAudioLoading(false); setAudioPlaying(false); }); audio.load(); } catch { setAudioLoading(false); } };
-  if (!isOpen || !agent) return null;
-  const levelColors: Record<string, string> = { "Fundamentos": "#3b82f6", "Intermediario": "#10b981", "Avancado": "#f97316", "Mestre": "#8b5cf6" };
-  const accent = levelColors[agent.level] || "#8b5cf6";
+'use client';
+
+import { motion, AnimatePresence } from 'framer-motion';
+import { X, BookOpen, Download, Share2, Volume2, VolumeX } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import type { Agent } from '@/data/agents';
+
+interface BookModalProps { agent: Agent; onClose: () => void; }
+
+const playAudioWithFallback = async (audioUrl: string, text: string) => {
+  try {
+    if ('speechSynthesis' in window) speechSynthesis.cancel();
+    const audio = new Audio(audioUrl);
+    audio.preload = 'auto';
+    await Promise.race([audio.play(), new Promise((_,rej)=>setTimeout(()=>rej('timeout'),3000))]);
+    audio.onended = () => { audio.src=''; audio.pause(); };
+    return audio;
+  } catch (e) {
+    console.warn('MP3 falhou, usando TTS:', e);
+    if ('speechSynthesis' in window && text) {
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = 'pt-BR'; u.rate = 0.95;
+      const voices = speechSynthesis.getVoices();
+      const pt = voices.find(v=>v.lang.includes('pt'));
+      if (pt) u.voice = pt;
+      speechSynthesis.speak(u);
+    }
+    return null;
+  }
+};
+const stopAudio = () => { if ('speechSynthesis' in window) speechSynthesis.cancel(); };
+
+export default function BookModal({ agent, onClose }: BookModalProps) {
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
+
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => { if (e.key==='Escape') { stopAudio(); onClose(); } };
+    document.addEventListener('keydown', handleEscape);
+    if ('speechSynthesis' in window) speechSynthesis.onvoiceschanged = () => speechSynthesis.getVoices();
+    return () => { document.removeEventListener('keydown', handleEscape); stopAudio(); };
+  }, [onClose]);
+
+  useEffect(() => {
+    if (agent?.description && !isMuted) {
+      playAudioWithFallback(`/audio/livros/livro-${agent.id}.mp3`, agent.description)
+        .then(() => setIsPlaying(true)).catch(() => setIsPlaying(false));
+    }
+    return () => { stopAudio(); setIsPlaying(false); };
+  }, [agent?.id, agent?.description, isMuted]);
+
+  const togglePlay = () => {
+    if (isPlaying) { stopAudio(); setIsPlaying(false); }
+    else if (agent?.description) {
+      playAudioWithFallback(`/audio/livros/livro-${agent.id}.mp3`, agent.description)
+        .then(()=>setIsPlaying(true)).catch(()=>setIsPlaying(false));
+    }
+  };
+  const toggleMute = () => { setIsMuted(!isMuted); if (!isMuted) { stopAudio(); setIsPlaying(false); } else if (agent?.description) playAudioWithFallback(`/audio/livros/livro-${agent.id}.mp3`, agent.description); };
+
+  const levelConfig: Record<string, { glow: string; bg: string }> = {
+    Fundamentos: { glow: '#3b82f6', bg: 'from-blue-900/50' },
+    Intermediário: { glow: '#22c55e', bg: 'from-green-900/50' },
+    Avançado: { glow: '#f97316', bg: 'from-orange-900/50' },
+    Mestre: { glow: '#a855f7', bg: 'from-purple-900/50' }
+  };
+  const config = levelConfig[agent?.level] || levelConfig.Fundamentos;
+
   return (
-    <div onClick={onClose} className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.85)", backdropFilter: "blur(12px)" }}>
-      <div onClick={(e) => e.stopPropagation()} style={{ opacity: showContent ? 1 : 0, transform: showContent ? "scale(1) translateY(0)" : "scale(0.9) translateY(20px)", transition: "all 0.4s cubic-bezier(0.16, 1, 0.3, 1)", maxWidth: "720px", width: "100%", background: "linear-gradient(145deg, rgba(11,16,32,0.98), rgba(5,7,14,0.98))", borderRadius: "1.5rem", border: `1px solid ${accent}30`, boxShadow: `0 25px 60px rgba(0,0,0,0.5), 0 0 40px ${accent}15`, padding: "2rem", position: "relative", overflow: "hidden" }}>
-        <div style={{ position: "absolute", top: "-50%", right: "-20%", width: "300px", height: "300px", borderRadius: "50%", background: `radial-gradient(circle, ${accent}15, transparent 70%)`, filter: "blur(40px)", pointerEvents: "none" }} />
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "1rem", position: "relative" }}>
-          <div><p style={{ fontSize: "0.65rem", textTransform: "uppercase", letterSpacing: "0.2em", color: accent, marginBottom: "0.3rem" }}>Livro Vivo #{agent.discoveryOrder}</p><h3 style={{ fontSize: "1.3rem", fontWeight: 700, color: "white", margin: 0 }}>{agent.technicalName}</h3><p style={{ fontSize: "0.9rem", color: "rgba(255,255,255,0.5)", margin: "0.2rem 0 0" }}>&quot;{agent.nickname}&quot;</p></div>
-          <div style={{ display: "flex", gap: "0.5rem" }}>
-            <button onClick={toggleAudio} style={{ width: "36px", height: "36px", borderRadius: "50%", border: `1px solid ${accent}40`, background: audioPlaying ? `${accent}20` : "rgba(255,255,255,0.05)", color: audioPlaying ? accent : "rgba(255,255,255,0.6)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>{audioLoading ? <span style={{ fontSize: "0.7rem" }}>...</span> : audioPlaying ? <VolumeX size={16} /> : <Volume2 size={16} />}</button>
-            <button onClick={onClose} style={{ width: "36px", height: "36px", borderRadius: "50%", border: "1px solid rgba(255,255,255,0.15)", background: "rgba(255,255,255,0.05)", color: "rgba(255,255,255,0.6)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}><X size={16} /></button>
-          </div>
-        </div>
-        <div style={{ display: "grid", gridTemplateColumns: "140px 1fr", gap: "1.5rem", marginTop: "1.5rem" }}>
-          <div style={{ position: "relative", height: "200px", borderRadius: "0.8rem", overflow: "hidden", border: `1px solid ${accent}25`, boxShadow: `0 0 20px ${accent}10` }}><Image src={agent.imageUrl} alt={agent.technicalName} fill className="object-cover" sizes="140px" /></div>
-          <div>
-            <div style={{ padding: "0.6rem 0.8rem", borderRadius: "0.6rem", background: `${accent}10`, border: `1px solid ${accent}20`, marginBottom: "0.8rem" }}><p style={{ fontSize: "0.75rem", color: accent, margin: 0 }}>Nivel: {agent.level} | Categoria: {agent.category}</p></div>
-            <p style={{ fontSize: "0.9rem", lineHeight: 1.7, color: "rgba(255,255,255,0.75)", margin: 0 }}>{agent.description}</p>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "0.5rem", marginTop: "1.2rem" }}>
-              <button style={{ padding: "0.6rem", borderRadius: "0.6rem", border: "none", background: `linear-gradient(135deg, ${accent}, ${accent}88)`, color: "white", fontSize: "0.8rem", fontWeight: 600, cursor: "pointer" }}>Ler</button>
-              <button style={{ padding: "0.6rem", borderRadius: "0.6rem", border: `1px solid ${accent}30`, background: `${accent}10`, color: accent, fontSize: "0.8rem", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.3rem" }}><Download size={14} /> Baixar</button>
-              <button style={{ padding: "0.6rem", borderRadius: "0.6rem", border: "1px solid rgba(255,255,255,0.15)", background: "rgba(255,255,255,0.05)", color: "rgba(255,255,255,0.7)", fontSize: "0.8rem", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.3rem" }}><Share2 size={14} /> Compartilhar</button>
+    <AnimatePresence>
+      <motion.div initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" onClick={onClose}>
+        <motion.div initial={{scale:0.9,opacity:0,y:20}} animate={{scale:1,opacity:1,y:0}} exit={{scale:0.9,opacity:0,y:20}} transition={{type:"spring",damping:25,stiffness:300}}
+          className={`relative w-full max-w-2xl bg-gradient-to-br ${config.bg} to-[#0a0a0f] rounded-3xl border-2 overflow-hidden`}
+          style={{ borderColor: config.glow, boxShadow: `0 0 60px ${config.glow}40` }} onClick={(e)=>e.stopPropagation()}>
+          <div className="relative p-6 pb-4 border-b border-white/10">
+            <div className="absolute inset-0 opacity-20" style={{background:`radial-gradient(ellipse at top,${config.glow}33,transparent 70%)`}}/>
+            <div className="relative flex items-start justify-between">
+              <div className="flex items-center gap-4">
+                <div className="p-3 rounded-xl" style={{background:`${config.glow}22`,border:`1px solid ${config.glow}44`,boxShadow:`0 0 0 2px ${config.glow}`}}>
+                  <BookOpen className="w-6 h-6" style={{color:config.glow}}/>
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-white">{agent?.technicalName}</h2>
+                  <p className="text-sm text-purple-300">&quot;{agent?.nickname}&quot;</p>
+                  <span className="inline-block mt-1 px-2 py-0.5 text-xs rounded-full" style={{background:`${config.glow}22`,color:config.glow}}>{agent?.level}</span>
+                </div>
+              </div>
+              <motion.button onClick={onClose} whileHover={{scale:1.1,rotate:90}} whileTap={{scale:0.9}} className="p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors" aria-label="Fechar"><X className="w-5 h-5 text-white"/></motion.button>
             </div>
           </div>
-        </div>
-        {suggestions.length > 0 && (<div style={{ marginTop: "1.5rem", padding: "1rem", borderRadius: "0.8rem", background: "rgba(255,255,255,0.03)", border: `1px solid ${accent}12` }}><div style={{ display: "flex", alignItems: "center", gap: "0.4rem", marginBottom: "0.6rem" }}><Sparkles size={14} style={{ color: accent }} /><p style={{ fontSize: "0.7rem", textTransform: "uppercase", letterSpacing: "0.15em", color: accent, margin: 0, fontWeight: 600 }}>NEXUS sugere</p></div><div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "0.5rem" }}>{suggestions.map(s => (<div key={s.id} style={{ padding: "0.5rem 0.7rem", borderRadius: "0.5rem", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", fontSize: "0.75rem", color: "rgba(255,255,255,0.6)" }}>{s.technicalName} &quot;{s.nickname}&quot;</div>))}</div></div>)}
-      </div>
-    </div>
+          <div className="p-6 space-y-4">
+            <p className="text-gray-300 leading-relaxed text-lg">{agent?.description}</p>
+            <div className="flex items-center gap-3 pt-2">
+              <motion.button onClick={togglePlay} whileHover={{scale:1.05}} whileTap={{scale:0.95}} className="flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-colors" style={{background:isPlaying?`${config.glow}33`:`${config.glow}22`,color:config.glow,border:`1px solid ${config.glow}44`}}>
+                {isPlaying?<><span className="w-2 h-2 bg-current rounded-sm animate-pulse"/>Tocando...</>:<><Volume2 className="w-4 h-4"/>Ouvir Explicação</>}
+              </motion.button>
+              <motion.button onClick={toggleMute} whileHover={{scale:1.05}} whileTap={{scale:0.95}} className="p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors" aria-label={isMuted?'Ativar som':'Silenciar'}>
+                {isMuted?<VolumeX className="w-5 h-5 text-gray-400"/>:<Volume2 className="w-5 h-5 text-white"/>}
+              </motion.button>
+            </div>
+            <div className="flex gap-3 pt-4 border-t border-white/10">
+              <motion.button whileHover={{scale:1.02}} whileTap={{scale:0.98}} className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white font-semibold transition-all"><BookOpen className="w-4 h-4"/>Explorar Conceito</motion.button>
+              <motion.button whileHover={{scale:1.02}} whileTap={{scale:0.98}} className="p-3 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20"><Download className="w-5 h-5 text-white"/></motion.button>
+              <motion.button whileHover={{scale:1.02}} whileTap={{scale:0.98}} className="p-3 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20"><Share2 className="w-5 h-5 text-white"/></motion.button>
+            </div>
+          </div>
+          <div className="px-6 py-4 bg-black/20 border-t border-white/10">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full overflow-hidden" style={{boxShadow:`0 0 0 2px ${config.glow}`}}>
+                  {agent?.imageUrl?<img src={agent.imageUrl} alt={agent.nickname} className="w-full h-full object-cover"/>:<div className="w-full h-full flex items-center justify-center text-white font-bold text-sm" style={{background:`${config.glow}33`}}>{agent?.nickname?.charAt(0)}</div>}
+                </div>
+                <div><p className="text-xs text-gray-400">Guia da Missão</p><p className="text-white font-medium">{agent?.nickname}</p></div>
+              </div>
+              <div className="text-right"><p className="text-xs text-gray-400">Tempo estimado</p><p className="text-cyan-400 font-semibold">2-3 min</p></div>
+            </div>
+          </div>
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>
   );
 }
