@@ -7,11 +7,13 @@ import {
   Clock3,
   Orbit,
   Sparkles,
+  Zap,
 } from "lucide-react";
 
 import NexusCore from "@/components/laboratorio/NexusCore";
 import ParticleField from "@/components/laboratorio/ParticleField";
 import HeroSection from "@/components/HeroSection";
+import TransformerDemo from "@/components/lab/TransformerDemo";
 
 const fireflies = [
   { label: "Contexto", season: "linguagens", agent: "9" },
@@ -186,8 +188,15 @@ export default function LaboratorioPage() {
             ))}
           </div>
         </section>
+
+        <section className="mt-8 rounded-2xl border border-purple-500/30 bg-[#0d0b1e]/80 p-6 backdrop-blur-md">
+          <div className="mb-5 flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-purple-400">
+            <Zap className="h-4 w-4" />
+            Experimento — Transformers em Ação
+          </div>
+          <TransformerDemo />
+        </section>
       </section>
     </main>
   );
 }
-
