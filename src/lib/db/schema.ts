@@ -201,3 +201,28 @@ export const profiles = mysqlTable("profiles", {
 
 export type Profile = typeof profiles.$inferSelect;
 export type InsertProfile = typeof profiles.$inferInsert;
+
+export const agentNotes = mysqlTable("agent_notes", {
+  id: varchar("id", { length: 36 }).primaryKey(),
+  userId: int("user_id").notNull(),
+  agentId: varchar("agent_id", { length: 100 }).notNull(),
+  content: text("content").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow(),
+});
+
+export type AgentNote = typeof agentNotes.$inferSelect;
+export type NewAgentNote = typeof agentNotes.$inferInsert;
+
+export const userXp = mysqlTable("user_xp", {
+  id: varchar("id", { length: 36 }).primaryKey(),
+  userId: int("user_id").notNull(),
+  xpTotal: int("xp_total").default(0),
+  xpThisWeek: int("xp_this_week").default(0),
+  streakDays: int("streak_days").default(0),
+  lastActivityDate: varchar("last_activity_date", { length: 10 }),
+  weekStartDate: varchar("week_start_date", { length: 10 }),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow(),
+});
+
+export type UserXp = typeof userXp.$inferSelect;
