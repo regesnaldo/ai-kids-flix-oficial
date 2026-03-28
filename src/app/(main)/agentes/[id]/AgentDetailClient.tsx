@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useUserStore } from '@/store/useUserStore';
 import type { AgentDefinition } from '@/canon/agents/all-agents';
 import AgentChat from '@/components/AgentChat';
+import AgentNotes from '@/components/AgentNotes';
 import { t } from '@/lib/translations';
 
 interface AgentDetailClientProps {
@@ -90,6 +91,7 @@ export default function AgentDetailClient({ agent }: AgentDetailClientProps) {
           agentName={agent.name}
           agentApproach={agent.personality.approach}
         />
+        <AgentNotes agentId={agent.id} agentName={agent.name} />
       </div>
     </div>
   );
