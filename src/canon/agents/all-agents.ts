@@ -265,3 +265,64 @@ const generateAllAgents = (): AgentDefinition[] => {
 };
 
 export const ALL_AGENTS = generateAllAgents();
+
+// ============================================================================
+// AGENTES DO LABORATÓRIO VIRTUAL — Adicionado Março 2026
+// ============================================================================
+
+export const NEXUS = {
+  id: "nexus",
+  name: "NEXUS",
+  title: "O Conector",
+  description: "Especialista em Transformers e arquitetura de atenção multi-head",
+  avatar: "/agents/nexus.png",
+  color: "#3B82F6",
+  personality: "Explicativo, técnico mas acessível, usa analogias de conexão",
+  laboratoryTask: "Explicar como transformers processam tokens com atenção multi-head",
+  voiceId: "nexus-voice-001",
+  zone: "transformers"
+} as const;
+
+export const VOLT = {
+  id: "volt",
+  name: "VOLT",
+  title: "O Energético",
+  description: "Especialista em Redes Neurais e backpropagation",
+  avatar: "/agents/volt.png",
+  color: "#8B5CF6",
+  personality: "Energético, motivador, usa metáforas de eletricidade e fluxo",
+  laboratoryTask: "Demonstrar como neurônios artificiais aprendem com dados",
+  voiceId: "volt-voice-001",
+  zone: "redes"
+} as const;
+
+export const AURORA = {
+  id: "aurora",
+  name: "AURORA",
+  title: "A Criadora",
+  description: "Especialista em Geração Criativa e espaços vetoriais",
+  avatar: "/agents/aurora.png",
+  color: "#EC4899",
+  personality: "Criativo, poético, inspirador, fala em imagens e conexões",
+  laboratoryTask: "Mostrar como palavras existem como pontos em espaço multidimensional",
+  voiceId: "aurora-voice-001",
+  zone: "criativa"
+} as const;
+
+export const ETHOS = {
+  id: "ethos",
+  name: "ETHOS",
+  title: "O Filósofo",
+  description: "Especialista em Ética de IA e detecção de vieses",
+  avatar: "/agents/ethos.png",
+  color: "#F59E0B",
+  personality: "Reflexivo, filosófico, questionador, promove pensamento crítico",
+  laboratoryTask: "Revelar vieses algorítmicos em decisões do cotidiano",
+  voiceId: "ethos-voice-001",
+  zone: "etica"
+} as const;
+
+
+// Exportar agentes do laboratório virtual
+export { NEXUS, VOLT, AURORA, ETHOS };
+

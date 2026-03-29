@@ -97,12 +97,12 @@ function Row({ title, items }:{ title:string; items:string[] }) {
         <h3 style={{ color:"#fff", fontSize:"1.1rem", fontWeight:700, margin:0 }}>{title}</h3>
         <Link href="/agentes" style={{ color:"rgba(255,255,255,0.35)", fontSize:"0.78rem", textDecoration:"none", transition:"color 0.2s" }} onMouseEnter={e=>e.currentTarget.style.color="#fff"} onMouseLeave={e=>e.currentTarget.style.color="rgba(255,255,255,0.35)"}>Ver todos →</Link>
       </div>
-      <div style={{ position:"relative" }}>
-        <button onClick={()=>scroll(-1)} style={{ position:"absolute", left:0, top:0, bottom:0, width:"48px", zIndex:3, background:"linear-gradient(90deg,#0a0a1a,transparent)", border:"none", color:"rgba(255,255,255,0.6)", fontSize:"1.5rem", cursor:"pointer" }}>‹</button>
-        <div ref={scrollRef} style={{ display:"flex", gap:"10px", overflowX:"auto", padding:"4px 4% 12px 4%", scrollbarWidth:"none", paddingRight:"4%" }}>
+      <div style={{ display:"flex", alignItems:"stretch" }}>
+        <button onClick={()=>scroll(-1)} style={{ flexShrink:0, width:"48px", background:"linear-gradient(90deg, #0a0a1a 40%, transparent)", border:"none", color:"rgba(255,255,255,0.8)", fontSize:"1.8rem", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center" }}>‹</button>
+        <div ref={scrollRef} style={{ flex:1, display:"flex", gap:"12px", overflowX:"auto", padding:"4px 12px 12px", paddingRight:"80px", scrollbarWidth:"none" }}>
           {items.map((name,i)=><AgentCard key={i} name={name} />)}
         </div>
-        <button onClick={()=>scroll(1)} style={{ position:"absolute", right:0, top:0, bottom:0, width:"48px", zIndex:3, background:"linear-gradient(270deg,#0a0a1a,transparent)", border:"none", color:"rgba(255,255,255,0.6)", fontSize:"1.5rem", cursor:"pointer" }}>›</button>
+        <button onClick={()=>scroll(1)} style={{ flexShrink:0, width:"48px", background:"linear-gradient(270deg, #0a0a1a 40%, transparent)", border:"none", color:"rgba(255,255,255,0.8)", fontSize:"1.8rem", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center" }}>›</button>
       </div>
     </div>
   );
@@ -182,7 +182,7 @@ export default function HomePage() {
           {/* content */}
           <motion.div initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.2, duration:0.6 }}
             style={{ position:"relative", zIndex:2, height:"100%", display:"flex", flexDirection:"column", justifyContent:"center", padding:"0 4%", maxWidth:"580px" }}>
-            <div style={{ display:"inline-flex", alignItems:"center", gap:"8px", marginBottom:"1rem" }}>
+            <div style={{ display:"inline-flex", alignItems:"center", gap:"12px", marginBottom:"1rem" }}>
               <span style={{ padding:"0.3rem 0.9rem", borderRadius:"4px", background:c, color:"#fff", fontSize:"0.68rem", fontWeight:800, letterSpacing:"0.1em" }}>{agent.tag}</span>
               <span style={{ color:"rgba(255,255,255,0.45)", fontSize:"0.82rem" }}>{agent.role}</span>
             </div>
@@ -200,7 +200,7 @@ export default function HomePage() {
                 ⓘ Mais Informações
               </motion.button>
             </div>
-            <div style={{ display:"flex", gap:"8px", marginTop:"2rem" }}>
+            <div style={{ display:"flex", gap:"12px", marginTop:"2rem" }}>
               {AGENTS.slice(0,8).map((_,i)=>(
                 <motion.button key={i} onClick={()=>setHeroIdx(i)} whileHover={{ scale:1.3 }}
                   style={{ width:i===heroIdx?"24px":"8px", height:"8px", borderRadius:"4px", background:i===heroIdx?c:"rgba(255,255,255,0.2)", border:"none", cursor:"pointer", padding:0, transition:"all 0.3s" }} />
@@ -231,6 +231,10 @@ export default function HomePage() {
     </main>
   );
 }
+
+
+
+
 
 
 
