@@ -4,10 +4,13 @@ import { clearAuthCookie, COOKIE_NAME, verifyToken } from "@/lib/auth";
 const protectedRoutes = ["/home","/player","/sucesso","/perfis","/conta","/agentes","/explorar","/ranking","/laboratorio"];
 const apiProtectedRoutes = ["/api/profile","/api/notes","/api/xp","/api/badges"];
 const authRoutes = ["/login","/onboarding"];
+const publicRoutes = ["/logout"];
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  const isPublic = publicRoutes.some((r) => pathname === r || pathname.startsWith(r + "/"));
+  if (isPublic) return NextResponse.next();
   if (pathname.startsWith("/_next") || pathname.includes(".")) {
     return NextResponse.next();
   }
@@ -38,3 +41,4 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|css|js)$).*)"],
 };
+
