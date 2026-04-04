@@ -1,17 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { addXp, XP_REWARDS } from "@/lib/xp";
-import { jwtVerify } from "jose";
+import { getAuthCookieFromRequest, verifyToken } from "@/lib/auth";
 
 async function getUserId(request: NextRequest): Promise<number | null> {
-  try {
-    const token = request.cookies.get("token")?.value;
-    if (!token) return null;
-    const secret = new TextEncoder().encode(process.env.JWT_SECRET!);
-    const { payload } = await jwtVerify(token, secret);
-    return payload.userId as number;
-  } catch {
-    return null;
-  }
+  const token = getAuthCookieFromRequest(request);
+  if (!token) return null;
+  const payload = await verifyToken(token);
+  const id = payload?.userId ? Number(payload.userId) : NaN;
+  return Number.isInteger(id) && id > 0 ? id : null;
 }
 
 export async function POST(request: NextRequest) {

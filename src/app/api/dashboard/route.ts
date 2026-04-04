@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { jwtVerify } from "jose";
+import { getAuthCookieFromRequest, verifyToken } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { users, watchProgress, interactiveDecisions, favorites } from "@/lib/db/schema";
 import { eq, count, sql } from "drizzle-orm";
@@ -7,15 +7,13 @@ import { eq, count, sql } from "drizzle-orm";
 export const runtime = "nodejs";
 
 async function getUserFromToken(request: NextRequest) {
-  const token = request.cookies.get("token")?.value;
+  const token = getAuthCookieFromRequest(request);
   if (!token) return null;
-  try {
-    const secret = new TextEncoder().encode(process.env.JWT_SECRET!);
-    const { payload } = await jwtVerify(token, secret);
-    return payload as { userId: number; email: string };
-  } catch {
-    return null;
-  }
+  const payload = await verifyToken(token);
+  if (!payload) return null;
+  const userId = payload.userId ? Number(payload.userId) : NaN;
+  if (!Number.isInteger(userId) || userId <= 0) return null;
+  return { userId, email: payload.email };
 }
 
 export async function GET(request: NextRequest) {

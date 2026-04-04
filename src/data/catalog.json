@@ -1,0 +1,89 @@
+{
+  "seasons": [
+    {
+      "season": 1,
+      "title": "Temporada 1: Fundamentos — O Despertar da Máquina",
+      "theme": "Fundamentos",
+      "modules": [
+        { "id": "t1m1", "title": "M1: O Cérebro Eletrônico" },
+        { "id": "t1m2", "title": "M2: Onde a IA Vive" },
+        { "id": "t1m3", "title": "M3: Robôs vs Mente" },
+        { "id": "t1m4", "title": "M4: O Jogo das Repetições" },
+        { "id": "t1m5", "title": "M5: Criando Mundos (Generativa)" },
+        { "id": "t1m6", "title": "M6: A Bússola Ética" },
+        { "id": "t1m7", "title": "M7: Diálogo com a Máquina" },
+        { "id": "t1m8", "title": "M8: A Arte do Prompt" },
+        { "id": "t1m9", "title": "M9: IA no Dia a Dia" },
+        { "id": "t1m10", "title": "M10: O Grande Desafio" }
+      ]
+    },
+    {
+      "season": 2,
+      "title": "Temporada 2: Visão Computacional — Olhos da Máquina",
+      "theme": "Visão Computacional",
+      "modules": [
+        { "id": "t2m1", "title": "M1: A Máquina Enxerga?" },
+        { "id": "t2m2", "title": "M2: Pixels e Padrões" },
+        { "id": "t2m3", "title": "M3: Detectando Objetos" },
+        { "id": "t2m4", "title": "M4: Segmentação" },
+        { "id": "t2m5", "title": "M5: Rostos e Emoções" },
+        { "id": "t2m6", "title": "M6: OCR e Leitura" },
+        { "id": "t2m7", "title": "M7: Filtros e Ruídos" },
+        { "id": "t2m8", "title": "M8: Dados e Rotulagem" },
+        { "id": "t2m9", "title": "M9: Viés na Visão" },
+        { "id": "t2m10", "title": "M10: Projeto Final (Visão)" }
+      ]
+    },
+    {
+      "season": 3,
+      "title": "Temporada 3: NLP — A Linguagem da Máquina",
+      "theme": "NLP",
+      "modules": [
+        { "id": "t3m1", "title": "M1: Palavras Viram Números" },
+        { "id": "t3m2", "title": "M2: Embeddings" },
+        { "id": "t3m3", "title": "M3: Intenções e Entidades" },
+        { "id": "t3m4", "title": "M4: Sentimentos" },
+        { "id": "t3m5", "title": "M5: Tradução" },
+        { "id": "t3m6", "title": "M6: Resumo" },
+        { "id": "t3m7", "title": "M7: RAG (Buscar e Responder)" },
+        { "id": "t3m8", "title": "M8: Alucinações" },
+        { "id": "t3m9", "title": "M9: Segurança em Texto" },
+        { "id": "t3m10", "title": "M10: Projeto Final (NLP)" }
+      ]
+    },
+    {
+      "season": 4,
+      "title": "Temporada 4: Ética — A Bússola da IA",
+      "theme": "Ética",
+      "modules": [
+        { "id": "t4m1", "title": "M1: O que é Justo?" },
+        { "id": "t4m2", "title": "M2: Privacidade" },
+        { "id": "t4m3", "title": "M3: Consentimento" },
+        { "id": "t4m4", "title": "M4: Viés" },
+        { "id": "t4m5", "title": "M5: Transparência" },
+        { "id": "t4m6", "title": "M6: Responsabilidade" },
+        { "id": "t4m7", "title": "M7: Segurança" },
+        { "id": "t4m8", "title": "M8: Crianças e IA" },
+        { "id": "t4m9", "title": "M9: Direitos e Leis" },
+        { "id": "t4m10", "title": "M10: Projeto Final (Ética)" }
+      ]
+    },
+    {
+      "season": 5,
+      "title": "Temporada 5: Futuro — Além do Horizonte",
+      "theme": "Futuro",
+      "modules": [
+        { "id": "t5m1", "title": "M1: Agentes Autônomos" },
+        { "id": "t5m2", "title": "M2: Multimodal" },
+        { "id": "t5m3", "title": "M3: IA na Educação" },
+        { "id": "t5m4", "title": "M4: IA na Saúde" },
+        { "id": "t5m5", "title": "M5: IA na Arte" },
+        { "id": "t5m6", "title": "M6: IA e Trabalho" },
+        { "id": "t5m7", "title": "M7: Segurança no Futuro" },
+        { "id": "t5m8", "title": "M8: Governança" },
+        { "id": "t5m9", "title": "M9: O que vem depois?" },
+        { "id": "t5m10", "title": "M10: O Grande Desafio (Final)" }
+      ]
+    }
+  ]
+}

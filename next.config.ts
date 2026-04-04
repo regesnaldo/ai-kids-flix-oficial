@@ -16,7 +16,7 @@ const securityHeaders = [
       "font-src 'self' https://fonts.gstatic.com",
       "img-src 'self' data: blob: https:",
       "connect-src 'self' https://vitals.vercel-insights.com https://vercel.live",
-      "media-src 'self'",
+      "media-src 'self' data: blob:",
       "frame-src 'none'",
       "worker-src 'self' blob:",
       "manifest-src 'self'",

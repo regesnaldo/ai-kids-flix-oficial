@@ -19,10 +19,9 @@ export default function AgentCard({ agent }: AgentCardProps) {
 
   return (
     <motion.div
-      whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
       onClick={() => router.push(`/agentes/${agent.id}`)}
-      className={`relative group cursor-pointer rounded-2xl bg-gradient-to-br ${factionColors[agent.faction] || 'from-gray-600 to-gray-800'} p-1 transition-all duration-300 shadow-xl hover:shadow-2xl w-full h-full`}
+      className={`relative group cursor-pointer rounded-2xl bg-gradient-to-br ${factionColors[agent.faction] || 'from-gray-600 to-gray-800'} p-1 transition-all duration-500 ease-out shadow-xl hover:-translate-y-2 hover:scale-105 hover:shadow-[0_0_20px_rgba(0,240,255,0.4)] w-full h-full`}
       aria-label={`Ver detalhes do agente ${agent.name}`}
       role="button"
       tabIndex={0}
@@ -33,34 +32,28 @@ export default function AgentCard({ agent }: AgentCardProps) {
         }
       }}
     >
-      <div className="relative bg-gray-900 rounded-xl overflow-hidden h-full min-h-[400px]">
-        <div className="relative h-48 w-full bg-gradient-to-br from-purple-600 via-blue-600 to-gray-900 flex items-center justify-center p-6">
-          <div className="text-center text-white">
-            <h3 className="text-3xl font-bold mb-2">{agent.name}</h3>
-            <p className="text-sm text-white/70">
-              {t(`dimensions.${agent.dimension}`)} • {t(`levels.${agent.level}`)}
-            </p>
+      <div className="relative bg-gray-950 rounded-xl overflow-hidden h-full aspect-[2/3]">
+        <img
+          src={`/images/agentes/${agent.id}.png`}
+          alt={agent.name}
+          className="absolute inset-0 w-full h-full object-cover"
+          onError={(e) => {
+            e.currentTarget.style.display = 'none';
+          }}
+        />
+
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-600/30 via-blue-600/20 to-black/70" />
+        <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+
+        <div className="absolute inset-x-0 bottom-0 p-4">
+          <div className="text-[0.7rem] text-white/60 mb-1">
+            {t(`dimensions.${agent.dimension}`)} • {t(`levels.${agent.level}`)}
           </div>
-        </div>
-
-        <div className="p-6 text-white">
-          <p className="text-sm text-gray-300 mb-4 line-clamp-3">
-            {agent.personality?.approach ?? '—'}
-          </p>
-
-          <div className="mb-4">
-            <span className="bg-purple-600/80 px-3 py-1 rounded-full text-xs font-medium">
-              {agent.badge?.name ?? 'Agente'}
-            </span>
-          </div>
-
-          <div className="flex flex-wrap gap-2">
-            <span className="text-xs bg-white/10 px-3 py-1 rounded-full">
-              {t(`levels.${agent.level}`)}
-            </span>
-            <span className="text-xs bg-white/10 px-3 py-1 rounded-full">
-              {t(`factions.${agent.faction}`)}
-            </span>
+          <h3 className="text-xl font-bold tracking-widest text-white group-hover:text-[#00F0FF] transition-colors duration-300">
+            {agent.name}
+          </h3>
+          <div className="text-sm text-white/60">
+            {agent.badge?.description ?? t(`factions.${agent.faction}`)}
           </div>
         </div>
       </div>

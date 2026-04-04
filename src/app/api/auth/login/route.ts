@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { users } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
-import { SignJWT } from "jose";
 import { createHash } from "crypto";
+import { clearAuthCookie, setAuthCookie, signToken } from "@/lib/auth";
 
 function hashPassword(password: string): string {
   return createHash("sha256").update(password).digest("hex");
@@ -22,14 +22,15 @@ export async function POST(request: NextRequest) {
     const user = await db.select().from(users).where(eq(users.email, email)).limit(1);
 
     if (user.length === 0 || user[0].password !== hashedPassword) {
-      return NextResponse.json({ error: "Email ou senha incorretos." }, { status: 401 });
+      const response = NextResponse.json({ error: "Email ou senha incorretos." }, { status: 401 });
+      return clearAuthCookie(response);
     }
 
-    const secret = new TextEncoder().encode(process.env.JWT_SECRET!);
-    const token = await new SignJWT({ userId: user[0].id, email })
-      .setProtectedHeader({ alg: "HS256" })
-      .setExpirationTime("7d")
-      .sign(secret);
+    const token = await signToken({
+      userId: String(user[0].id),
+      email: String(email),
+      plan: "free",
+    });
 
     const response = NextResponse.json({
       success: true,
@@ -37,16 +38,21 @@ export async function POST(request: NextRequest) {
       user: { id: user[0].id, name: user[0].name, email: user[0].email, plan: user[0].subscriptionPlan },
     });
 
-    response.cookies.set("token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      maxAge: 60 * 60 * 24 * 7,
-      path: "/",
-    });
+    for (const path of ["/", "/api", "/api/auth", "/api/auth/login"]) {
+      response.cookies.set("token", "", {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 0,
+        path,
+      });
+    }
 
-    return response;
+    return setAuthCookie(response, token);
+
   } catch (error) {
     console.error("LOGIN ERROR:", error);
-    return NextResponse.json({ error: "Erro ao fazer login.", details: String(error) }, { status: 500 });
+    const response = NextResponse.json({ error: "Erro ao fazer login.", details: String(error) }, { status: 500 });
+    return clearAuthCookie(response);
   }
 }

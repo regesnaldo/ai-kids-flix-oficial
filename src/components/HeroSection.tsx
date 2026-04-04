@@ -206,7 +206,7 @@ export default function HeroSection() {
             className="flex flex-wrap gap-3"
           >
             <Link
-              href="/laboratorio"
+
               className="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-600 px-6 py-3 text-sm font-semibold text-white shadow-[0_0_20px_rgba(147,51,234,0.4)] transition-all duration-300 hover:shadow-[0_0_30px_rgba(147,51,234,0.6)] hover:brightness-110"
             >
               <FlaskConical className="h-4 w-4 transition-transform group-hover:rotate-12" />

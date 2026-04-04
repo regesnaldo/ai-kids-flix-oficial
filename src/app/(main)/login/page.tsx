@@ -14,7 +14,8 @@ export default function Login() {
   const [verSenha, setVerSenha] = useState(false);
   const [verConfirmar, setVerConfirmar] = useState(false);
 
-  async function handleSubmit() {
+  async function handleSubmit(e?: React.FormEvent) {
+    e?.preventDefault();
     setErro(""); setSucesso("");
     if (tab === "cadastrar" && senha !== confirmar) { setErro("As senhas nao coincidem."); return; }
     setLoading(true);
@@ -55,13 +56,13 @@ export default function Login() {
             </button>
           ))}
         </div>
-        <div style={{ backgroundColor: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "16px", padding: "2rem" }}>
+        <form onSubmit={handleSubmit} style={{ backgroundColor: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "16px", padding: "2rem" }}>
           {tab === "cadastrar" && (
-            <input style={{ ...inp, marginBottom: "1rem" }} placeholder="Seu nome completo" value={nome} onChange={(e) => setNome(e.target.value)} />
+            <input style={{ ...inp, marginBottom: "1rem" }} placeholder="Seu nome completo" value={nome} onChange={(e) => setNome(e.target.value)} autoComplete="name" />
           )}
           <input style={{ ...inp, marginBottom: "1rem" }} type="email" placeholder="Seu email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" />
           <div style={{ position: "relative", marginBottom: "1rem" }}>
-            <input style={inp} placeholder="Sua senha" type={verSenha ? "text" : "password"} value={senha} onChange={(e) => setSenha(e.target.value)} autoComplete="current-password" />
+            <input style={inp} placeholder="Sua senha" type={verSenha ? "text" : "password"} value={senha} onChange={(e) => setSenha(e.target.value)} autoComplete={tab === "entrar" ? "current-password" : "new-password"} />
             <button type="button" onClick={() => setVerSenha((v) => !v)}
               style={{ position: "absolute", right: "0.75rem", top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: "#ffffff", display: "flex", padding: "4px" }}>
               {verSenha ? <EyeOff size={20} /> : <Eye size={20} />}
@@ -78,7 +79,7 @@ export default function Login() {
           )}
           {erro && <p style={{ color: "#E50914", fontSize: "0.9rem", marginBottom: "1rem", textAlign: "center" }}>{erro}</p>}
           {sucesso && <p style={{ color: "#10B981", fontSize: "0.9rem", marginBottom: "1rem", textAlign: "center" }}>{sucesso}</p>}
-          <button type="button" onClick={handleSubmit} disabled={loading}
+          <button type="submit" disabled={loading}
             style={{ width: "100%", padding: "1rem", fontSize: "1rem", fontWeight: 700, borderRadius: "8px", border: "none", backgroundColor: "#E50914", color: "#ffffff", cursor: "pointer", opacity: loading ? 0.7 : 1 }}>
             {loading ? "Aguarde..." : tab === "entrar" ? "Entrar" : "Criar conta gratis"}
           </button>
@@ -89,7 +90,7 @@ export default function Login() {
               </span>
             </p>
           )}
-        </div>
+        </form>
       </div>
     </main>
   );

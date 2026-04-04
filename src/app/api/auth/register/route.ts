@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { users } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
-import { SignJWT } from "jose";
 import { createHash } from "crypto";
+import { setAuthCookie, signToken } from "@/lib/auth";
 
 function hashPassword(password: string): string {
   return createHash("sha256").update(password).digest("hex");
@@ -34,21 +34,14 @@ export async function POST(request: NextRequest) {
 
     const newUser = await db.select().from(users).where(eq(users.email, email)).limit(1);
 
-    const secret = new TextEncoder().encode(process.env.JWT_SECRET!);
-    const token = await new SignJWT({ userId: newUser[0].id, email })
-      .setProtectedHeader({ alg: "HS256" })
-      .setExpirationTime("7d")
-      .sign(secret);
-
-    const response = NextResponse.json({ success: true, message: "Cadastro realizado!" });
-    response.cookies.set("token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      maxAge: 60 * 60 * 24 * 7,
-      path: "/",
+    const token = await signToken({
+      userId: String(newUser[0].id),
+      email: String(email),
+      plan: "free",
     });
 
-    return response;
+    const response = NextResponse.json({ success: true, message: "Cadastro realizado!" });
+    return setAuthCookie(response, token);
   } catch (error) {
     console.error("REGISTER ERROR:", error);
     return NextResponse.json({ error: "Erro ao cadastrar.", details: String(error) }, { status: 500 });

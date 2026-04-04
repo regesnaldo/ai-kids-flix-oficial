@@ -1,14 +1,7 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
-
-type ChatRole = 'user' | 'assistant';
-
-interface ChatMessage {
-  id: string;
-  role: ChatRole;
-  content: string;
-}
+import { useState, useEffect, useRef } from 'react';
+import { useChatHistory, type ChatMessage } from '@/hooks/useChatHistory';
 
 interface AgentChatProps {
   agentId: string;
@@ -21,40 +14,17 @@ function newId() {
 }
 
 export default function AgentChat({ agentId, agentName, agentApproach }: AgentChatProps) {
-  const storageKey = useMemo(() => `mente-ai-chat-${agentId}`, [agentId]);
-  const [messages, setMessages] = useState<ChatMessage[]>(() => [
-    {
-      id: newId(),
-      role: 'assistant',
-      content: `Olá! Eu sou ${agentName}. ${agentApproach}`,
-    },
-  ]);
+  const initialMessage = `Olá! Eu sou ${agentName}. ${agentApproach}`;
+  const { messages, setMessages, addMessage, clearHistory, error: storageError } = useChatHistory(
+    agentId,
+    initialMessage,
+    { maxMessages: 20 } // Limita a 20 mensagens
+  );
+  
   const [input, setInput] = useState('');
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const endRef = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    const raw = localStorage.getItem(storageKey);
-    if (!raw) return;
-    try {
-      const parsed: unknown = JSON.parse(raw);
-      if (!Array.isArray(parsed)) return;
-      const restored = parsed
-        .filter((m: any) => m && (m.role === 'user' || m.role === 'assistant') && typeof m.content === 'string')
-        .slice(-50)
-        .map((m: any) => ({ id: String(m.id || newId()), role: m.role as ChatRole, content: String(m.content) }));
-      if (restored.length > 0) {
-        setMessages(restored);
-      }
-    } catch {
-      return;
-    }
-  }, [storageKey]);
-
-  useEffect(() => {
-    localStorage.setItem(storageKey, JSON.stringify(messages));
-  }, [messages, storageKey]);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -68,9 +38,8 @@ export default function AgentChat({ agentId, agentName, agentApproach }: AgentCh
     setIsSending(true);
     setInput('');
 
-    const userMessage: ChatMessage = { id: newId(), role: 'user', content: text };
-    const optimistic = [...messages, userMessage];
-    setMessages(optimistic);
+    // Adiciona mensagem do usuário
+    addMessage('user', text);
 
     try {
       const res = await fetch('/api/chat', {
@@ -78,7 +47,7 @@ export default function AgentChat({ agentId, agentName, agentApproach }: AgentCh
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           agentId,
-          messages: optimistic.map((m) => ({ role: m.role, content: m.content })),
+          messages: messages.map((m) => ({ role: m.role, content: m.content })),
         }),
       });
 
@@ -86,7 +55,6 @@ export default function AgentChat({ agentId, agentName, agentApproach }: AgentCh
       if (!res.ok) {
         const msg = typeof data?.error === 'string' ? data.error : 'Falha ao enviar mensagem';
         setError(msg);
-        setMessages((prev) => prev);
         return;
       }
 
@@ -96,7 +64,7 @@ export default function AgentChat({ agentId, agentName, agentApproach }: AgentCh
         return;
       }
 
-      setMessages((prev) => [...prev, { id: newId(), role: 'assistant', content: assistantText }]);
+      addMessage('assistant', assistantText);
     } catch (e) {
       setError('Erro de rede ao enviar mensagem');
     } finally {
@@ -105,11 +73,7 @@ export default function AgentChat({ agentId, agentName, agentApproach }: AgentCh
   }
 
   function resetChat() {
-    const initial: ChatMessage[] = [
-      { id: newId(), role: 'assistant', content: `Olá! Eu sou ${agentName}. ${agentApproach}` },
-    ];
-    setMessages(initial);
-    localStorage.removeItem(storageKey);
+    clearHistory();
     setError(null);
     setInput('');
   }

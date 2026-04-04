@@ -1,265 +1,76 @@
-"use client";
+'use client';
 
-import { useEffect, useRef } from "react";
-import Link from "next/link";
+/**
+ * MENTE.AI — Página Inicial estilo Netflix
+ * src/app/(main)/page.tsx
+ *
+ * Estrutura:
+ *  1. HeroBanner — tela cheia com gradiente + formulário de email
+ *  2. AgentRow  — 5 fileiras de agentes com scroll horizontal
+ *  3. AgentDetailModal — abre ao clicar em qualquer card
+ */
 
-function NeuralBackground() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+import { useState } from 'react';
+import HeroBanner from '@/components/home/HeroBanner';
+import AgentRow from '@/components/home/AgentRow';
+import AgentDetailModal from '@/components/home/AgentDetailModal';
+import InfoModal from '@/components/home/InfoModal';
+import { allAgents, AGENT_ROWS } from '@/data/all-agents';
+import type { HomeAgent } from '@/data/all-agents';
 
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
+export default function HomePage() {
+  const [selectedAgent, setSelectedAgent] = useState<HomeAgent | null>(null);
+  const [isModalOpen, setIsModalOpen]     = useState(false);
+  const [isInfoOpen, setIsInfoOpen]       = useState(false);
 
-    let animationId: number;
-    const nodes: { x: number; y: number; vx: number; vy: number }[] = [];
-    const NODE_COUNT = 80;
-    const CONNECTION_DIST = 150;
+  const handleOpenModal = (agent: HomeAgent) => {
+    setSelectedAgent(agent);
+    setIsModalOpen(true);
+  };
 
-    function resize() {
-      canvas!.width = window.innerWidth;
-      canvas!.height = window.innerHeight;
-    }
-
-    resize();
-    window.addEventListener("resize", resize);
-
-    for (let i = 0; i < NODE_COUNT; i++) {
-      nodes.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        vx: (Math.random() - 0.5) * 0.6,
-        vy: (Math.random() - 0.5) * 0.6,
-      });
-    }
-
-    function draw() {
-      ctx!.clearRect(0, 0, canvas!.width, canvas!.height);
-
-      for (let i = 0; i < nodes.length; i++) {
-        const a = nodes[i];
-        a.x += a.vx;
-        a.y += a.vy;
-        if (a.x < 0 || a.x > canvas!.width) a.vx *= -1;
-        if (a.y < 0 || a.y > canvas!.height) a.vy *= -1;
-
-        for (let j = i + 1; j < nodes.length; j++) {
-          const b = nodes[j];
-          const dx = a.x - b.x;
-          const dy = a.y - b.y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < CONNECTION_DIST) {
-            const opacity = 1 - dist / CONNECTION_DIST;
-            ctx!.beginPath();
-            ctx!.strokeStyle = `rgba(59, 130, 246, ${opacity * 0.3})`;
-            ctx!.lineWidth = 1;
-            ctx!.moveTo(a.x, a.y);
-            ctx!.lineTo(b.x, b.y);
-            ctx!.stroke();
-          }
-        }
-
-        ctx!.beginPath();
-        ctx!.arc(a.x, a.y, 2.5, 0, Math.PI * 2);
-        ctx!.fillStyle = "rgba(59, 130, 246, 0.7)";
-        ctx!.fill();
-      }
-
-      animationId = requestAnimationFrame(draw);
-    }
-
-    draw();
-
-    return () => {
-      cancelAnimationFrame(animationId);
-      window.removeEventListener("resize", resize);
-    };
-  }, []);
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    // Limpa o agente após a animação de saída
+    setTimeout(() => setSelectedAgent(null), 300);
+  };
 
   return (
-    <canvas
-      ref={canvasRef}
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        width: "100%",
-        height: "100%",
-        zIndex: 0,
-      }}
-    />
-  );
-}
+    <main className="min-h-screen bg-zinc-950">
 
-export default function Home() {
-  return (
-    <main
-      style={{
-        backgroundColor: "#0a0e27",
-        minHeight: "100vh",
-        position: "relative",
-        overflow: "hidden",
-      }}
-    >
-      <NeuralBackground />
+      {/* ── 1. Hero Banner ── */}
+      <HeroBanner onInfoClick={() => setIsInfoOpen(true)} />
 
-      <div
-        style={{
-          position: "relative",
-          zIndex: 1,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          minHeight: "100vh",
-          padding: "2rem",
-          textAlign: "center",
-        }}
-      >
-        {/* Logo */}
-        <h1
-          style={{
-            fontSize: "clamp(3rem, 8vw, 6rem)",
-            fontWeight: 900,
-            letterSpacing: "-0.02em",
-            margin: 0,
-            lineHeight: 1.1,
-          }}
-        >
-          <span style={{ color: "#ffffff" }}>MENTE</span>
-          <span style={{ color: "#E50914" }}>.AI</span>
-        </h1>
+      {/* ── 2. Fileiras de Agentes ── */}
+      <section className="-mt-20 relative z-20 pb-24 pt-4 space-y-8" aria-label="Catálogo de Agentes">
+        {AGENT_ROWS.map((row) => (
+          <AgentRow
+            key={row.title}
+            title={row.title}
+            agents={row.agents}
+            onAgentClick={handleOpenModal}
+          />
+        ))}
 
-        {/* Subtitulo */}
-        <p
-          style={{
-            color: "rgba(255, 255, 255, 0.7)",
-            fontSize: "clamp(1rem, 2.5vw, 1.4rem)",
-            maxWidth: "600px",
-            marginTop: "1rem",
-            marginBottom: "1.5rem",
-            lineHeight: 1.6,
-          }}
-        >
-          Onde mentes s&atilde;o formadas, n&atilde;o formatadas
-        </p>
+        {/* Fileira extra: todos os agentes */}
+        <AgentRow
+          title="Todos os Agentes"
+          agents={allAgents}
+          onAgentClick={handleOpenModal}
+        />
+      </section>
 
-        {/* Manifesto */}
-        <p
-          style={{
-            color: "rgba(255, 255, 255, 0.5)",
-            fontSize: "clamp(0.85rem, 2vw, 1.05rem)",
-            maxWidth: "640px",
-            marginTop: 0,
-            marginBottom: "2rem",
-            lineHeight: 1.8,
-            fontStyle: "italic",
-          }}
-        >
-          Enquanto o mundo fabrica seguidores, n&oacute;s formamos l&iacute;deres.
-          <br />
-          Ferramentas obedecem. Pensadores nunca param de perguntar por qu&ecirc;.
-          <br />
-          Escolha seu lado antes que o sistema escolha por voc&ecirc;.
-        </p>
+      {/* ── 3. Modal de Detalhes do Agente ── */}
+      <AgentDetailModal
+        agent={selectedAgent}
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+      />
 
-        {/* Badges */}
-        <div
-          style={{
-            display: "flex",
-            gap: "0.75rem",
-            flexWrap: "wrap",
-            justifyContent: "center",
-            marginBottom: "2.5rem",
-          }}
-        >
-          {["POWERED BY AI", "IA Adaptativa", "Conteúdo Filtrado"].map(
-            (badge) => (
-              <span
-                key={badge}
-                style={{
-                  padding: "0.4rem 1rem",
-                  borderRadius: "9999px",
-                  border: "1px solid rgba(59, 130, 246, 0.4)",
-                  backgroundColor: "rgba(59, 130, 246, 0.1)",
-                  color: "rgba(255, 255, 255, 0.85)",
-                  fontSize: "0.8rem",
-                  fontWeight: 600,
-                  letterSpacing: "0.05em",
-                  textTransform: "uppercase",
-                }}
-              >
-                {badge}
-              </span>
-            )
-          )}
-        </div>
-
-        {/* Botoes */}
-        <div
-          style={{
-            display: "flex",
-            gap: "1rem",
-            flexWrap: "wrap",
-            justifyContent: "center",
-          }}
-        >
-          <Link
-            href="/home"
-            style={{
-              padding: "0.85rem 2.2rem",
-              fontSize: "1rem",
-              fontWeight: 700,
-              borderRadius: "8px",
-              border: "none",
-              backgroundColor: "#ffffff",
-              color: "#0a0e27",
-              cursor: "pointer",
-              transition: "transform 0.2s, box-shadow 0.2s",
-              textDecoration: "none",
-              display: "inline-block",
-            }}
-            onMouseEnter={(e) => {
-              const target = e.currentTarget as HTMLElement;
-              target.style.transform = "scale(1.05)";
-              target.style.boxShadow =
-                "0 0 30px rgba(255, 255, 255, 0.2)";
-            }}
-            onMouseLeave={(e) => {
-              const target = e.currentTarget as HTMLElement;
-              target.style.transform = "scale(1)";
-              target.style.boxShadow = "none";
-            }}
-          >
-            Começar a Pensar
-          </Link>
-
-          <button
-            style={{
-              padding: "0.85rem 2.2rem",
-              fontSize: "1rem",
-              fontWeight: 700,
-              borderRadius: "8px",
-              border: "2px solid rgba(255, 255, 255, 0.3)",
-              backgroundColor: "transparent",
-              color: "#ffffff",
-              cursor: "pointer",
-              transition: "transform 0.2s, border-color 0.2s",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = "scale(1.05)";
-              e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.6)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = "scale(1)";
-              e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.3)";
-            }}
-          >
-            Saiba Mais
-          </button>
-        </div>
-      </div>
+      {/* ── 4. Modal "Mais Informações" (sobre a plataforma) ── */}
+      <InfoModal
+        isOpen={isInfoOpen}
+        onClose={() => setIsInfoOpen(false)}
+      />
     </main>
   );
 }

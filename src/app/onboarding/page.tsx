@@ -18,14 +18,14 @@ export default function OnboardingPage() {
 
   useEffect(() => {
     if (!shouldShowOnboarding()) {
-      router.push("/laboratorio/simulador");
+      router.push("/home");
     }
   }, [router]);
 
   const handleWelcomeNext = () => setStep("agent");
   const handleWelcomeSkip = () => {
     savePreferences({ onboardingCompleted: true });
-    router.push("/laboratorio/simulador");
+    router.push("/home");
   };
 
   const handleAgentSelect = (agentId: string) => {
@@ -37,16 +37,16 @@ export default function OnboardingPage() {
 
   const handleAgentSkip = () => {
     savePreferences({ onboardingCompleted: true });
-    router.push("/laboratorio/simulador");
+    router.push("/home");
   };
 
   const handleTutorialComplete = () => {
     savePreferences({ onboardingCompleted: true });
     if (selectedAgent) {
-      router.push(`/laboratorio/simulador?guide=${encodeURIComponent(selectedAgent)}`);
+      router.push("/home");
       return;
     }
-    router.push("/agentes");
+    router.push("/home");
   };
 
   return (
