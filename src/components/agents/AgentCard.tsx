@@ -1,69 +1,143 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { ArrowRight, Bell, Book, BookOpen, Brain, Building, Cpu, Database, Eye, GraduationCap, HardDrive, Languages, Layers, MapPin, Network, Scale, Scissors, Search, Sparkles, StickyNote } from "lucide-react";
-import type { Agent } from "@/data/agents";
+import { useState } from "react";
+import { motion } from "framer-motion";
+import Image from "next/image";
+import type { AgentShowcase } from "@/data/agents-showcase";
 
-const iconMap = {
-  Bell,
-  Book,
-  BookOpen,
-  Brain,
-  Building,
-  Cpu,
-  Database,
-  Eye,
-  GraduationCap,
-  HardDrive,
-  Languages,
-  Layers,
-  MapPin,
-  Network,
-  Scale,
-  Scissors,
-  Search,
-  Sparkles,
-  StickyNote,
-};
+interface AgentCardProps {
+  agent: AgentShowcase;
+  priority?: boolean;
+}
 
-type AgentCardProps = {
-  agent: Agent;
-};
-
-export default function AgentCard({ agent }: AgentCardProps) {
-  const router = useRouter();
-  const Icon = iconMap[agent.icon as keyof typeof iconMap] ?? Brain;
+export default function AgentCard({ agent, priority = false }: AgentCardProps) {
+  const [imgError, setImgError] = useState(false);
 
   return (
-    <article
-      className="group relative aspect-video w-full overflow-hidden rounded-2xl border-2 border-[#9333ea] bg-gradient-to-br from-[#1a1a2e] via-[#16213e] to-[#0f3460] p-6 text-white shadow-[0_10px_40px_rgba(147,51,234,0.3)] transition-all duration-300 ease-out hover:scale-[1.02] hover:border-[#e94560] hover:shadow-[0_20px_60px_rgba(233,69,96,0.5)]"
-    >
-      <div className="mb-4 flex items-start justify-between">
-        <span className="text-xs uppercase tracking-[0.2em] text-gray-400">{agent.category}</span>
-        <Icon className="h-12 w-12 text-purple-400 transition-colors group-hover:text-pink-400 sm:h-14 sm:w-14" />
-      </div>
+    <>
+      <style>{`
+        .agent-card-root {
+          aspect-ratio: 3 / 4;
+          border-radius: 16px;
+          overflow: hidden;
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          position: relative;
+          width: 100%;
+          max-width: 360px;
+          cursor: default;
+        }
+        @media (max-width: 768px) {
+          .agent-card-root {
+            aspect-ratio: 16 / 9;
+            max-width: none;
+          }
+        }
+      `}</style>
 
-      <h3 className="text-2xl font-bold text-white sm:text-3xl">
-        {agent.technicalName} "{agent.nickname}"
-      </h3>
-
-      <div className="my-4 h-px bg-gradient-to-r from-purple-600 to-blue-600 opacity-60" />
-
-      <p className="mb-5 line-clamp-3 text-base text-gray-300">{agent.description}</p>
-
-      <div className="mb-5 flex gap-2">
-        <span className="rounded-full border border-purple-500 bg-purple-600/30 px-2 py-1 text-xs text-purple-200">{agent.dimension}</span>
-        <span className="rounded-full border border-blue-500 bg-blue-600/30 px-2 py-1 text-xs text-blue-200">{agent.level}</span>
-      </div>
-
-      <button
-        type="button"
-        onClick={() => router.push(`/laboratorio/simulador?agent=${agent.id}`)}
-        className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition-all duration-300 hover:brightness-125 hover:shadow-[0_0_30px_rgba(147,51,234,0.6)]"
+      <motion.div
+        className="agent-card-root"
+        whileHover={{ scale: 1.02 }}
+        transition={{ duration: 0.3, ease: "easeOut" }}
+        style={{
+          boxShadow: `0 24px 48px rgba(0,0,0,0.5), 0 0 60px ${agent.themeGlow}33`,
+        }}
       >
-        Experimentar
-        <ArrowRight className="h-4 w-4" />
-      </button>
-    </article>
+        {/* Image or initial-letter placeholder */}
+        {imgError ? (
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              background: `linear-gradient(135deg, ${agent.themeGlow}22 0%, #0a0a0f 60%)`,
+              fontSize: "clamp(64px, 12vw, 100px)",
+              fontWeight: 900,
+              color: agent.themeGlow,
+              letterSpacing: "-2px",
+              userSelect: "none",
+            }}
+            aria-hidden="true"
+          >
+            {agent.name.charAt(0)}
+          </div>
+        ) : (
+          <Image
+            src={agent.image}
+            alt={`${agent.name} — ${agent.subtitle}`}
+            fill
+            style={{ objectFit: "cover" }}
+            priority={priority}
+            onError={() => setImgError(true)}
+            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 360px"
+          />
+        )}
+
+        {/* Gradient overlay bottom-to-top */}
+        <div
+          aria-hidden="true"
+          style={{
+            position: "absolute",
+            inset: 0,
+            background:
+              "linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.25) 45%, transparent 72%)",
+            pointerEvents: "none",
+          }}
+        />
+
+        {/* Footer info */}
+        <div
+          style={{
+            position: "absolute",
+            bottom: 0,
+            left: 0,
+            right: 0,
+            padding: "20px",
+          }}
+        >
+          <div
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              backgroundColor: agent.categoryColor,
+              color: "#fff",
+              fontSize: "10px",
+              fontWeight: 700,
+              textTransform: "uppercase",
+              letterSpacing: "0.1em",
+              padding: "3px 8px",
+              borderRadius: "4px",
+              marginBottom: "6px",
+            }}
+          >
+            {agent.category}
+          </div>
+
+          <div
+            style={{
+              fontSize: "22px",
+              fontWeight: 900,
+              color: "#ffffff",
+              letterSpacing: "-0.5px",
+              lineHeight: 1.1,
+            }}
+          >
+            {agent.name}
+          </div>
+
+          <div
+            style={{
+              fontSize: "13px",
+              color: "rgba(255,255,255,0.65)",
+              marginTop: "3px",
+              fontWeight: 400,
+            }}
+          >
+            {agent.subtitle}
+          </div>
+        </div>
+      </motion.div>
+    </>
   );
 }

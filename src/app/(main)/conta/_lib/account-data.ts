@@ -1,9 +1,9 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { jwtVerify } from "jose";
 import { and, desc, eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { profiles, users, watchProgress } from "@/lib/db/schema";
+import { COOKIE_NAME, verifyToken } from "@/lib/auth";
 
 export type AccountPlan = "free" | "pro" | "enterprise";
 export type AccountStatus = "ativa" | "inativa";
@@ -49,7 +49,7 @@ export type AccountData = {
 };
 
 type AuthPayload = {
-  userId?: number;
+  userId?: string;
 };
 
 function formatDate(date: Date | null): string {
@@ -157,26 +157,21 @@ function mapSubscriptionStatusRaw(
 
 async function getAuthenticatedUserId(): Promise<number> {
   const cookieStore = await cookies();
-  const token = cookieStore.get("token")?.value;
+  const token = cookieStore.get(COOKIE_NAME)?.value;
 
   if (!token) {
     redirect("/login");
   }
 
-  if (!process.env.JWT_SECRET) {
-    throw new Error("JWT_SECRET não configurado.");
-  }
-
   try {
-    const secret = new TextEncoder().encode(process.env.JWT_SECRET);
-    const { payload } = await jwtVerify(token, secret);
-    const auth = payload as AuthPayload;
+    const auth = (await verifyToken(token)) as AuthPayload | null;
+    const userId = auth?.userId ? Number(auth.userId) : NaN;
 
-    if (!auth.userId || !Number.isInteger(auth.userId) || auth.userId <= 0) {
+    if (!Number.isInteger(userId) || userId <= 0) {
       redirect("/login");
     }
 
-    return auth.userId;
+    return userId;
   } catch {
     redirect("/login");
   }

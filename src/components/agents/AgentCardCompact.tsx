@@ -37,7 +37,7 @@ export default function AgentCardCompact({ agent }: AgentCardCompactProps) {
 
         <button
           type="button"
-          onClick={() => router.push(`/laboratorio/simulador?agent=${agent.id}`)}
+
           className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-purple-600 to-blue-600 px-3 py-2 text-sm font-semibold text-white transition-all duration-300 hover:brightness-125"
         >
           Experimentar

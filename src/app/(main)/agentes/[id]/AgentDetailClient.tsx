@@ -65,12 +65,6 @@ export default function AgentDetailClient({ agent }: AgentDetailClientProps) {
               </div>
             </div>
             <div className="flex gap-4">
-              <Link
-                href="/laboratorio/simulador"
-                className="flex-1 bg-gradient-to-r from-purple-600 to-blue-600 text-white text-center py-4 rounded-xl font-bold text-lg hover:scale-105 transition-transform"
-              >
-                Ir ao Laboratório
-              </Link>
               <button
                 onClick={() => setGuideAgent(agent.id)}
                 disabled={isCurrentGuide}

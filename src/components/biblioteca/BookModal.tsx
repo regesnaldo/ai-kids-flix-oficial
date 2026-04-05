@@ -1,9 +1,10 @@
 'use client';
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, BookOpen, Download, Share2, Volume2, VolumeX } from 'lucide-react';
+import { X, BookOpen, Download, Info, Share2, Volume2, VolumeX } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import type { Agent } from '@/data/agents';
+import AgentInfoModal from '@/components/info/AgentInfoModal';
 
 interface BookModalProps { agent: Agent; onClose: () => void; }
 
@@ -33,6 +34,7 @@ const stopAudio = () => { if ('speechSynthesis' in window) speechSynthesis.cance
 export default function BookModal({ agent, onClose }: BookModalProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
+  const [infoOpen, setInfoOpen] = useState(false);
 
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => { if (e.key==='Escape') { stopAudio(); onClose(); } };
@@ -67,6 +69,7 @@ export default function BookModal({ agent, onClose }: BookModalProps) {
   const config = levelConfig[agent?.level] || levelConfig.Fundamentos;
 
   return (
+    <>
     <AnimatePresence>
       <motion.div initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" onClick={onClose}>
         <motion.div initial={{scale:0.9,opacity:0,y:20}} animate={{scale:1,opacity:1,y:0}} exit={{scale:0.9,opacity:0,y:20}} transition={{type:"spring",damping:25,stiffness:300}}
@@ -100,6 +103,17 @@ export default function BookModal({ agent, onClose }: BookModalProps) {
             </div>
             <div className="flex gap-3 pt-4 border-t border-white/10">
               <motion.button whileHover={{scale:1.02}} whileTap={{scale:0.98}} className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white font-semibold transition-all"><BookOpen className="w-4 h-4"/>Explorar Conceito</motion.button>
+              <motion.button
+                onClick={(e) => { e.stopPropagation(); setInfoOpen(true); }}
+                whileHover={{scale:1.02}}
+                whileTap={{scale:0.98}}
+                title="Mais Informações"
+                aria-label="Mais Informações sobre este agente"
+                className="flex items-center gap-1.5 px-3 py-3 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white text-sm font-medium transition-all"
+              >
+                <Info className="w-4 h-4" />
+                <span className="hidden sm:inline">Mais Info</span>
+              </motion.button>
               <motion.button whileHover={{scale:1.02}} whileTap={{scale:0.98}} className="p-3 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20"><Download className="w-5 h-5 text-white"/></motion.button>
               <motion.button whileHover={{scale:1.02}} whileTap={{scale:0.98}} className="p-3 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20"><Share2 className="w-5 h-5 text-white"/></motion.button>
             </div>
@@ -118,5 +132,15 @@ export default function BookModal({ agent, onClose }: BookModalProps) {
         </motion.div>
       </motion.div>
     </AnimatePresence>
+
+    {/* Modal de Mais Informações (estilo Netflix) */}
+    <AgentInfoModal
+      agent={agent}
+      isOpen={infoOpen}
+      onClose={() => setInfoOpen(false)}
+    />
+    </>
   );
 }
+
+

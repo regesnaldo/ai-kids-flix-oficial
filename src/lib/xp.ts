@@ -4,10 +4,25 @@ import { eq } from "drizzle-orm";
 import crypto from "crypto";
 
 export const XP_REWARDS = {
-  NOTA_CRIADA: 10,
+  // ─── Fase 1 (MVP) ───────────────────────────────────────────────────────────
+  NOTA_CRIADA:          10,
   EXPERIMENTO_CONCLUIDO: 25,
-  LOGIN_DIARIO: 5,
-  PERFIL_COMPLETO: 50,
+  LOGIN_DIARIO:          5,
+  PERFIL_COMPLETO:      50,
+
+  // ─── Fase 2 — Agentes ───────────────────────────────────────────────────────
+  /** Primeira interação com um agente recém-desbloqueado */
+  AGENTE_DESBLOQUEADO:   30,
+  /** A cada nova interação com qualquer agente */
+  AGENTE_INTERACAO:      15,
+  /** Atingiu 10 interações com um mesmo agente (nível de relacionamento max) */
+  AGENTE_COMPLETADO:    100,
+
+  // ─── Fase 2 — Combinações ───────────────────────────────────────────────────
+  /** Primeira vez que o usuário usa uma combinação de agentes */
+  COMBINACAO_DESCOBERTA: 50,
+  /** Usa uma combinação já descoberta (bônus menor) */
+  COMBINACAO_USADA:      10,
 } as const;
 
 function getMondayOfCurrentWeek(): string {
@@ -19,7 +34,7 @@ function getMondayOfCurrentWeek(): string {
   return monday.toISOString().split("T")[0];
 }
 
-export async function addXp(userId: number, amount: number, reason: string): Promise<void> {
+export async function addXp(userId: number, amount: number, _reason: string): Promise<void> {
   const today = new Date().toISOString().split("T")[0];
   const monday = getMondayOfCurrentWeek();
 

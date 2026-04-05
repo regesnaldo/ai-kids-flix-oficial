@@ -8,6 +8,7 @@ node_modules/
 .env.local
 .env.local#
 .env.development.local
+.env.production
 .env.production.local
 .env*.local
 
@@ -33,3 +34,10 @@ yarn-error.log*
 *.swo
 
 .DS_Store
+
+src.backup.*
+
+# Arquivos temporários e backups
+.env.local.temp
+*.bak
+output.mp3

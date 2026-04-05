@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ChevronRight } from "lucide-react";
 
@@ -104,6 +105,7 @@ function planLabel(plan: AccountViewData["plan"]): string {
 }
 
 export default function ContaManagementClient({ accountData, errorMessage }: ContaManagementClientProps) {
+  const router = useRouter();
   const [activeMenu, setActiveMenu] = useState<string>(sidebarItems[0].label);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -123,9 +125,13 @@ export default function ContaManagementClient({ accountData, errorMessage }: Con
             <a href="#" className="transition-colors hover:text-zinc-950">
               Ajuda
             </a>
-            <a href="#" className="transition-colors hover:text-zinc-950">
+            <button
+              type="button"
+              onClick={() => router.push("/logout")}
+              className="transition-colors hover:text-zinc-950"
+            >
               Sair
-            </a>
+            </button>
           </nav>
         </div>
       </header>

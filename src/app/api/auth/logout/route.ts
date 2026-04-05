@@ -1,13 +1,7 @@
 import { NextResponse } from "next/server";
+import { clearAuthCookie } from "@/lib/auth";
 
 export async function GET(request: Request) {
   const response = NextResponse.redirect(new URL("/login", request.url));
-  response.cookies.set("token", "", {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    maxAge: 0,
-    path: "/",
-  });
-
-  return response;
+  return clearAuthCookie(response);
 }

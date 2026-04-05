@@ -1,4 +1,4 @@
- import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, boolean, decimal, json, uniqueIndex, primaryKey } from "drizzle-orm/mysql-core";
+import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, boolean, decimal, json, uniqueIndex, primaryKey, index } from "drizzle-orm/mysql-core";
 
 export const users = mysqlTable("users", {
   id: int("id").autoincrement().primaryKey(),
@@ -226,3 +226,189 @@ export const userXp = mysqlTable("user_xp", {
 });
 
 export type UserXp = typeof userXp.$inferSelect;
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// FASE 2 — Gamificação, Combinações e Progresso por Agente
+// ═══════════════════════════════════════════════════════════════════════════════
+
+// ─── Constantes de domínio ────────────────────────────────────────────────────
+
+export const CATEGORIAS_AGENTE = [
+  "fundamentos",
+  "linguagens",
+  "criacao",
+  "inovacao",
+  "ferramentas",
+  "colaborativos",
+] as const;
+
+export const TIPOS_SINERGIA = [
+  "amplificacao",   // Os dois agentes somam forças
+  "contrabalanco",  // Um equilibra o extremo do outro
+  "fusao",          // Juntos criam um conceito novo
+  "especializacao", // Um aprofunda o domínio do outro
+] as const;
+
+export type CategoriaAgente = (typeof CATEGORIAS_AGENTE)[number];
+export type TipoSinergia   = (typeof TIPOS_SINERGIA)[number];
+
+// ─── Requisitos de desbloqueio (JSON tipado) ──────────────────────────────────
+
+export interface RequisitosDesbloqueio {
+  xpMinimo?: number;           // XP total necessário
+  agentesCompletos?: string[]; // IDs de agentes que precisam estar completos
+  badges?: string[];           // Badges necessários
+  faseMinima?: number;         // Fase do roadmap mínima (1-4)
+}
+
+// ─── 1. agentMetadata — estende all-agents.ts com dados da Fase 2 ─────────────
+//
+// Relacionamento: 1 agente (all-agents.ts) → 1 agentMetadata (DB)
+// Não duplica nome/personalidade — só armazena dados dinâmicos/gamificação.
+
+export const agentMetadata = mysqlTable(
+  "agent_metadata",
+  {
+    agentId: varchar("agent_id", { length: 100 }).primaryKey(),
+
+    // Organização
+    temporada:       int("temporada").notNull().default(1),         // 1-4
+    ordemNaTemporada: int("ordem_na_temporada").notNull().default(0),
+    fase:            int("fase").notNull().default(1),              // 1=MVP, 2=Beta, 3=Early, 4=Full
+    categoria:       mysqlEnum("categoria", CATEGORIAS_AGENTE).notNull().default("fundamentos"),
+    tags:            json("tags").$type<string[]>().default([]),
+
+    // Gamificação
+    dificuldade:         int("dificuldade").notNull().default(1),   // 1-5
+    xpPorInteracao:      int("xp_por_interacao").notNull().default(15),
+    xpPorConcluir:       int("xp_por_concluir").notNull().default(100),
+    bloqueadoPorPadrao:  boolean("bloqueado_por_padrao").notNull().default(false),
+    requisitosDesbloqueio: json("requisitos_desbloqueio")
+      .$type<RequisitosDesbloqueio>()
+      .default({}),
+
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow().onUpdateNow(),
+  },
+  (t) => ({
+    idxTemporada: index("idx_agent_temporada").on(t.temporada),
+    idxCategoria: index("idx_agent_categoria").on(t.categoria),
+    idxFase:      index("idx_agent_fase").on(t.fase),
+  }),
+);
+
+export type AgentMetadata    = typeof agentMetadata.$inferSelect;
+export type NewAgentMetadata = typeof agentMetadata.$inferInsert;
+
+// ─── 2. userAgentProgress — progresso de um usuário com cada agente ───────────
+//
+// Relacionamento: users (1) → userAgentProgress (N) ← agentMetadata (1)
+// Complementa userXp (XP global) com rastreamento fino por agente.
+
+export const userAgentProgress = mysqlTable(
+  "user_agent_progress",
+  {
+    id:      varchar("id", { length: 36 }).primaryKey(),
+    userId:  int("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+    agentId: varchar("agent_id", { length: 100 }).notNull(),
+
+    // Desbloqueio
+    desbloqueado:   boolean("desbloqueado").notNull().default(false),
+    desbloqueadoEm: timestamp("desbloqueado_em"),
+
+    // Engajamento
+    interacoesTotal: int("interacoes_total").notNull().default(0),
+    notasTotal:      int("notas_total").notNull().default(0),
+    xpGanho:         int("xp_ganho").notNull().default(0),
+
+    // Nível de relacionamento com o agente (0-5 — calculado na app)
+    nivelInteracao: int("nivel_interacao").notNull().default(0),
+
+    completadoEm: timestamp("completado_em"),
+
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow().onUpdateNow(),
+  },
+  (t) => ({
+    // Chave lógica: cada usuário tem 1 registro por agente
+    uniqUserAgent:    uniqueIndex("uq_user_agent_progress").on(t.userId, t.agentId),
+    // Queries frequentes: "todos os agentes desbloqueados do usuário X"
+    idxUserDesbloq:   index("idx_uap_user_desbloqueado").on(t.userId, t.desbloqueado),
+    // Queries de admin: "quem mais interagiu com o agente Y"
+    idxAgentInteracao: index("idx_uap_agent_interacoes").on(t.agentId, t.interacoesTotal),
+  }),
+);
+
+export type UserAgentProgress    = typeof userAgentProgress.$inferSelect;
+export type NewUserAgentProgress = typeof userAgentProgress.$inferInsert;
+
+// ─── 3. agentCombinations — catálogo de pares de agentes combináveis ──────────
+//
+// Relacionamento: N:N entre agentes.
+// Regra: agentAId < agentBId (ordem lexicográfica) para evitar duplicatas (A,B) = (B,A).
+// Essa invariante é GARANTIDA pelo serviço de negócio, não pelo DB.
+
+export const agentCombinations = mysqlTable(
+  "agent_combinations",
+  {
+    id: varchar("id", { length: 36 }).primaryKey(),
+
+    // Par de agentes (IDs do all-agents.ts)
+    agentAId: varchar("agent_a_id", { length: 100 }).notNull(),
+    agentBId: varchar("agent_b_id", { length: 100 }).notNull(),
+
+    // Sinergia
+    tipoSinergia:  mysqlEnum("tipo_sinergia", TIPOS_SINERGIA).notNull().default("amplificacao"),
+    sinergiaBonus: int("sinergia_bonus").notNull().default(0), // 0-100
+    xpBonus:       int("xp_bonus").notNull().default(0),      // XP extra por usar a combo
+    descricao:     text("descricao"),                         // "Juntos dominam NLP + Ética"
+
+    // Requisitos para descobrir esta combinação
+    requisitosDesbloqueio: json("requisitos_desbloqueio")
+      .$type<RequisitosDesbloqueio>()
+      .default({}),
+
+    ativa:     boolean("ativa").notNull().default(true),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (t) => ({
+    // Garante unicidade do par (A, B) no banco
+    uniqPar:      uniqueIndex("uq_combination_par").on(t.agentAId, t.agentBId),
+    idxAgentA:    index("idx_comb_agent_a").on(t.agentAId),
+    idxAgentB:    index("idx_comb_agent_b").on(t.agentBId),
+    idxSinergia:  index("idx_comb_sinergia").on(t.tipoSinergia),
+  }),
+);
+
+export type AgentCombination    = typeof agentCombinations.$inferSelect;
+export type NewAgentCombination = typeof agentCombinations.$inferInsert;
+
+// ─── 4. userCombinations — combinações descobertas pelo usuário ───────────────
+//
+// Relacionamento: users (1) → userCombinations (N) ← agentCombinations (1)
+// Registra QUANDO e QUANTAS VEZES o usuário usou cada combinação.
+
+export const userCombinations = mysqlTable(
+  "user_combinations",
+  {
+    id:            varchar("id", { length: 36 }).primaryKey(),
+    userId:        int("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+    combinationId: varchar("combination_id", { length: 36 }).notNull()
+      .references(() => agentCombinations.id, { onDelete: "cascade" }),
+
+    descobertaEm:  timestamp("descoberta_em").notNull().defaultNow(),
+    vezesUsada:    int("vezes_usada").notNull().default(1),
+    ultimoUsoEm:   timestamp("ultimo_uso_em").defaultNow(),
+  },
+  (t) => ({
+    // Um usuário descobre cada combinação apenas uma vez
+    uniqUserCombo: uniqueIndex("uq_user_combination").on(t.userId, t.combinationId),
+    // "Todas as combinações do usuário X, ordenadas por uso"
+    idxUserUso:    index("idx_uc_user_uso").on(t.userId, t.vezesUsada),
+    // "Qual combinação foi mais usada globalmente"
+    idxComboUso:   index("idx_uc_combo_uso").on(t.combinationId, t.vezesUsada),
+  }),
+);
+
+export type UserCombination    = typeof userCombinations.$inferSelect;
+export type NewUserCombination = typeof userCombinations.$inferInsert;

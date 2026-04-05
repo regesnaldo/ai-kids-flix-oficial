@@ -2,15 +2,15 @@
 import mysql from "mysql2/promise";
 import * as schema from "./schema";
 
-const pool = mysql.createPool({
-  host: "gateway01.us-east-1.prod.aws.tidbcloud.com",
-  port: 4000,
-  user: "Xp3F88Yn4YRQBSX.root",
-  password: "SWTQOJAWC1v4H5eu",
-  database: "test",
-  ssl: { rejectUnauthorized: true },
+const poolOptions: mysql.PoolOptions = {
   waitForConnections: true,
   connectionLimit: 10,
-});
+};
+
+if (process.env.DATABASE_URL) {
+  poolOptions.uri = process.env.DATABASE_URL;
+}
+
+const pool = mysql.createPool(poolOptions);
 
 export const db = drizzle(pool, { schema, mode: "default" });

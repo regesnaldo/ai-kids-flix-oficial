@@ -66,7 +66,7 @@ export default function AccountShell({ active, title, subtitle, children }: Acco
             <Link href="/home" className="transition-colors hover:text-zinc-950">
               Início
             </Link>
-            <Link href="/login" className="transition-colors hover:text-zinc-950">
+            <Link href="/logout" className="transition-colors hover:text-zinc-950">
               Sair
             </Link>
           </nav>

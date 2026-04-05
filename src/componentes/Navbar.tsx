@@ -11,9 +11,6 @@ export default function Navbar() {
         <Link href="/home" style={linkStyle}>Início</Link>
         <Link href="/planos" style={{ ...linkStyle, opacity: 1, borderBottom: '2px solid #E50914', paddingBottom: '5px' }}>Explorar</Link>
         <Link href="/minha-lista" style={linkStyle}>Minha Lista</Link>
-        <Link href="/laboratorio" style={{ backgroundColor: '#E50914', color: '#fff', padding: '6px 15px', borderRadius: '4px', fontWeight: 'bold', fontSize: '0.85rem', textDecoration: 'none', textTransform: 'uppercase' }}>
-          🧪 LABORATÓRIO
-        </Link>
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center' }}>
