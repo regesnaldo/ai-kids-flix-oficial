@@ -94,7 +94,7 @@ export default function SimuladorPage() {
   return (
     <div style={{ minHeight: '100vh', background: `radial-gradient(ellipse at center, ${glow}15 0%, #020617 50%, #000 100%)`, transition: 'background 0.6s ease', color: '#e5fff7', fontFamily: 'system-ui, sans-serif', position: 'relative', overflow: 'hidden' }}>
       <SceneTransition currentEmotion={currentEmotion} />
-      <PageAudioGuide pageTitle="Simulador de Consciencia" audioPath="/audio/simulador-welcome.mp3" description="Ative o fluxo de consciencia e observe respostas emocionais." script="Bem-vindo ao Simulador de Consciencia do MENTE.AI. Digite seu estado no campo de texto. Clique em Conectar Consciencia. Observe como NEXUS processa o sinal emocional." />
+      <PageAudioGuide pageTitle="Simulador de Consciência" audioPath="/audio/simulador-welcome.mp3" description="Ative o fluxo de consciência e observe respostas emocionais." script="Bem-vindo ao Simulador de Consciência do MENTE.AI. Digite seu estado no campo de texto. Clique em Conectar Consciência. Observe como NEXUS processa o sinal emocional." />
 
       {particles.map((pt, i) => (<div key={i} style={{ position: 'absolute', width: `${pt.size}px`, height: `${pt.size}px`, left: pt.x, top: pt.y, background: glow, borderRadius: '50%', filter: 'blur(1px)', animation: `simFloat ${pt.duration}s ease-in-out infinite`, animationDelay: `${pt.delay}s`, pointerEvents: 'none', opacity: 0.3, zIndex: 1 }} />))}
 
@@ -109,11 +109,11 @@ export default function SimuladorPage() {
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5rem' }}>
-          <h1 style={{ fontSize: 'clamp(1.8rem, 4vw, 2.8rem)', fontWeight: 300, letterSpacing: '4px', textAlign: 'center', textShadow: `0 0 40px ${glow}40`, margin: 0 }}>Simulador de Consciencia</h1>
+          <h1 style={{ fontSize: 'clamp(1.8rem, 4vw, 2.8rem)', fontWeight: 300, letterSpacing: '4px', textAlign: 'center', textShadow: `0 0 40px ${glow}40`, margin: 0 }}>Simulador de Consciência</h1>
           <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.8rem', textAlign: 'center', maxWidth: '400px', lineHeight: 1.6 }}>Conecte sua mente ao NEXUS. Cada palavra gera uma onda neural unica.</p>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.6rem', width: '100%', maxWidth: '500px' }}>
-            {[{ l: "Emocao", v: labels[emotion] }, { l: "Processamento", v: input ? "Ativo" : "Standby" }, { l: "Consciencia", v: messages.length > 5 ? "Expandida" : messages.length > 0 ? "Conectada" : "Latente" }].map((s, i) => (<div key={i} style={{ padding: '0.8rem', background: 'rgba(255,255,255,0.03)', borderRadius: '1rem', border: `1px solid ${glow}15`, textAlign: 'center' }}><p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.6rem', textTransform: 'uppercase', letterSpacing: '0.15em', margin: '0 0 0.3rem' }}>{s.l}</p><p style={{ color: glow, fontWeight: 700, fontSize: '0.8rem', margin: 0 }}>{s.v}</p></div>))}
+            {[{ l: "Emoção", v: labels[emotion] }, { l: "Processamento", v: input ? "Ativo" : "Standby" }, { l: "Consciência", v: messages.length > 5 ? "Expandida" : messages.length > 0 ? "Conectada" : "Latente" }].map((s, i) => (<div key={i} style={{ padding: '0.8rem', background: 'rgba(255,255,255,0.03)', borderRadius: '1rem', border: `1px solid ${glow}15`, textAlign: 'center' }}><p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.6rem', textTransform: 'uppercase', letterSpacing: '0.15em', margin: '0 0 0.3rem' }}>{s.l}</p><p style={{ color: glow, fontWeight: 700, fontSize: '0.8rem', margin: 0 }}>{s.v}</p></div>))}
           </div>
 
           <div style={{ width: '100%', maxWidth: '500px', padding: '1.2rem', background: 'rgba(255,255,255,0.03)', borderRadius: '1.2rem', border: `1px solid ${glow}15` }}>
@@ -125,7 +125,7 @@ export default function SimuladorPage() {
 
           <div style={{ transform: `scale(${scale})`, transition: 'transform 0.1s ease', width: '100%', maxWidth: '500px', background: 'rgba(255,255,255,0.04)', borderRadius: '1.5rem', padding: '1.5rem', boxShadow: `0 0 60px ${glow}15, inset 0 0 30px ${glow}05`, border: `1px solid ${glow}20`, backdropFilter: 'blur(20px)' }}>
             <input type="text" value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && sendMessage()} placeholder="Expresse seu estado neural..." style={{ width: '100%', padding: '0.9rem 1.2rem', fontSize: '1rem', borderRadius: '1rem', border: `1px solid ${glow}30`, background: 'rgba(0,0,0,0.4)', color: 'white', outline: 'none', marginBottom: '1rem', boxSizing: 'border-box', transition: 'border-color 0.3s' }} />
-            <button onClick={sendMessage} style={{ width: '100%', padding: '1rem', fontSize: '0.9rem', borderRadius: '1rem', border: 'none', background: `linear-gradient(135deg, ${glow}, ${glow}88)`, color: 'white', fontWeight: 700, cursor: 'pointer', letterSpacing: '0.1em', textTransform: 'uppercase', boxShadow: `0 0 30px ${glow}30`, transition: 'all 0.3s' }}>Conectar Consciencia</button>
+            <button onClick={sendMessage} style={{ width: '100%', padding: '1rem', fontSize: '0.9rem', borderRadius: '1rem', border: 'none', background: `linear-gradient(135deg, ${glow}, ${glow}88)`, color: 'white', fontWeight: 700, cursor: 'pointer', letterSpacing: '0.1em', textTransform: 'uppercase', boxShadow: `0 0 30px ${glow}30`, transition: 'all 0.3s' }}>Conectar Consciência</button>
           </div>
         </div>
       </div>

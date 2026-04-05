@@ -22,7 +22,7 @@ describe('Laboratório de Inteligência Viva', () => {
   });
 
   test('renderiza título em português', () => {
-    expect(screen.getByText(/Laboratório de Inteligência Viva/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Simulador de Consciência/i).length).toBeGreaterThan(0);
   });
 
   test('input de expressão está presente', () => {
