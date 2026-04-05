@@ -51,7 +51,7 @@ function InfoRow({
   value,
   cor,
 }: {
-  icon: React.ElementType;
+  icon: React.FC<{ className?: string; color?: string }>;
   label: string;
   value: string;
   cor?: string;
@@ -62,7 +62,7 @@ function InfoRow({
         className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg"
         style={{ background: cor ? `${cor}22` : 'rgba(255,255,255,0.07)' }}
       >
-        <Icon className="h-4 w-4" style={{ color: cor ?? 'rgba(255,255,255,0.6)' }} />
+        <Icon className="h-4 w-4" color={cor ?? 'rgba(255,255,255,0.6)'} />
       </div>
       <div className="min-w-0">
         <p className="text-[11px] text-zinc-500 uppercase tracking-wider">{label}</p>
@@ -219,3 +219,7 @@ export default function AgentInfoModal({
     </NetflixModal>
   );
 }
+
+
+
+
