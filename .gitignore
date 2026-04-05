@@ -33,3 +33,13 @@ yarn-error.log*
 *.swo
 
 .DS_Store
+
+# Arquivos de backup/temporários
+*.bak
+*.backup
+*.tmp
+*.orig
+tsconfig.tsbuildinfo
+output.mp3
+test.txt
+rcapp*

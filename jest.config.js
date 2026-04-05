@@ -5,6 +5,8 @@ module.exports = {
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
+    // Mock pacotes ESM que não são suportados pelo Jest
+    '^tone$': '<rootDir>/__mocks__/tone.js',
   },
   testMatch: ['**/*.test.ts', '**/*.test.tsx'],
   collectCoverageFrom: [

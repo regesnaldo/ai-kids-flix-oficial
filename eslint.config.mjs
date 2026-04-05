@@ -1,4 +1,5 @@
- import js from "@eslint/js";
+import js from "@eslint/js";
+import nextConfig from "eslint-config-next/typescript";
 
 export default [
   {
@@ -6,10 +7,13 @@ export default [
       "node_modules",
       ".next",
       "dist",
-      "build"
+      "build",
+      "**/*.bak",
+      "**/*.backup",
     ]
   },
   js.configs.recommended,
+  ...nextConfig,
   {
     files: ["**/*.{js,cjs,mjs}"],
     languageOptions: {
