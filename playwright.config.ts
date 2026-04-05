@@ -22,9 +22,14 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: 'npm run start',
+    command: 'node .next/standalone/server.js',
     url: 'http://localhost:3000',
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000,
+    env: {
+      PORT: '3000',
+      NODE_ENV: 'production',
+      HOSTNAME: '0.0.0.0',
+    },
   },
 });
