@@ -3,7 +3,7 @@
 **Versão:** 1.0  
 **Última Atualização:** Março 2025  
 **Status:** MVP em Produção  
-**URL:** https://ai-kids-flix.vercel.app
+**URL:** https://mente-ai.vercel.app
 
 ---
 
@@ -42,5 +42,5 @@ src/
 1234567891011121314151617181920212223242526272829303132333435363738394041
 ---## 🎨 IDENTIDADE VISUAL- **Roxo:** #9333ea- **Azul:** #3b82f6- **Ciano:** #06b6d4- **Fundo:** #0a0a0f- **Estilo:** Cyberpunk/Netflix---## 🔐 VARIÁVEIS (Vercel)- ✅ JWT_SECRET- ✅ STRIPE_SECRET_KEY- ✅ STRIPE_PUBLISHABLE_KEY- ✅ DATABASE_URL- ✅ GOOGLE_AI_STUDIO_API_KEY- ✅ OPENAI_API_KEY---## 📈 MÉTRICAS| Métrica | MVP | Fase 2 ||---------|-----|--------|| Usuários/semana | 50 | 500 || Tempo no Lab | 3 min | 5 min || NPS | 70% | 85% || Conversão | 5% | 10% |---## 🚀 DEPLOY```bashnpm run typechecknpm run buildvercel --prod --yes
 
-Produção: https://ai-kids-flix.vercel.app
+Produção: https://mente-ai.vercel.app
 "Orquestrado por NEXUS 'O Conector'"

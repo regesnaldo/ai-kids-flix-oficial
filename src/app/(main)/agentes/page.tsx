@@ -1,11 +1,4 @@
-import { Plus_Jakarta_Sans } from "next/font/google";
 import AgentHero from "@/components/agents/AgentHero";
-
-const plusJakarta = Plus_Jakarta_Sans({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
-  display: "swap",
-});
 
 export const metadata = {
   title: "Agentes — MENTE.AI",
@@ -15,7 +8,7 @@ export const metadata = {
 
 export default function AgentesPage() {
   return (
-    <div className={plusJakarta.className}>
+    <div style={{ fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}>
       <AgentHero />
     </div>
   );
