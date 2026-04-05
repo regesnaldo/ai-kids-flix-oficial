@@ -11,7 +11,6 @@ export default function Navbar() {
         <Link href="/home" style={linkStyle}>Início</Link>
         <Link href="/planos" style={{ ...linkStyle, opacity: 1, borderBottom: '2px solid #E50914', paddingBottom: '5px' }}>Explorar</Link>
         <Link href="/minha-lista" style={linkStyle}>Minha Lista</Link>
-
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center' }}>

@@ -20,12 +20,13 @@ const mysql = require("mysql2/promise");
 
 // ─── Configuração ─────────────────────────────────────────────────────────────
 
+const databaseUrl = process.env.DATABASE_URL;
+if (!databaseUrl) {
+  throw new Error("DATABASE_URL não configurada");
+}
+
 const DB_CONFIG = {
-  host: process.env.DB_HOST || "gateway01.us-east-1.prod.aws.tidbcloud.com",
-  port: Number(process.env.DB_PORT) || 4000,
-  user: process.env.DB_USER || "Xp3F88Yn4YRQBSX.root",
-  password: process.env.DB_PASSWORD || "SWTQOJAWC1v4H5eu",
-  database: process.env.DB_NAME || "test",
+  uri: databaseUrl,
   ssl: { rejectUnauthorized: true },
 };
 

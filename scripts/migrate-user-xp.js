@@ -2,12 +2,12 @@ require("dotenv").config({ path: ".env.local" });
 const mysql = require("mysql2/promise");
 
 async function migrate() {
+  const databaseUrl = process.env.DATABASE_URL;
+  if (!databaseUrl) {
+    throw new Error("DATABASE_URL não configurada");
+  }
   const conn = await mysql.createConnection({
-    host: "gateway01.us-east-1.prod.aws.tidbcloud.com",
-    port: 4000,
-    user: "Xp3F88Yn4YRQBSX.root",
-    password: "SWTQOJAWC1v4H5eu",
-    database: "test",
+    uri: databaseUrl,
     ssl: { rejectUnauthorized: true },
   });
 

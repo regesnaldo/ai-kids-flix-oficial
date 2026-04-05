@@ -1,10 +1,32 @@
 import { NextRequest, NextResponse } from "next/server";
-import { clearAuthCookie, COOKIE_NAME, verifyToken } from "@/lib/auth";
+import { jwtVerify } from "jose";
 
 const protectedRoutes = ["/home","/player","/sucesso","/perfis","/conta","/agentes","/explorar","/ranking","/laboratorio"];
 const apiProtectedRoutes = ["/api/profile","/api/notes","/api/xp","/api/badges"];
 const authRoutes = ["/login","/onboarding"];
 const publicRoutes = ["/logout"];
+const COOKIE_NAME = "token";
+
+async function verifyToken(token: string) {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) return null;
+  try {
+    const secretKey = new TextEncoder().encode(secret);
+    const { payload } = await jwtVerify(token, secretKey);
+    return payload;
+  } catch {
+    return null;
+  }
+}
+
+function clearAuthCookie(response: NextResponse) {
+  response.cookies.set(COOKIE_NAME, "", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    maxAge: 0,
+    path: "/",
+  });
+}
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;

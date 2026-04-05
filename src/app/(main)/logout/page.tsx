@@ -31,13 +31,7 @@ export default function LogoutPage() {
 
   return (
     <div className="min-h-screen bg-black relative overflow-hidden">
-      <Image
-        src="/images/agentes/nexus.png"
-        alt="MENTE.AI"
-        fill
-        priority
-        className="object-cover opacity-30"
-      />
+      <Image src="/images/agentes/nexus.png" alt="MENTE.AI" fill priority className="object-cover opacity-30" />
       <div className="absolute inset-0 bg-black/55" />
 
       <header className="relative z-10 flex items-center justify-between px-6 md:px-12 py-6">
@@ -57,16 +51,18 @@ export default function LogoutPage() {
         <div className="max-w-md mx-auto bg-white rounded-lg shadow-xl p-10">
           <h1 className="text-2xl font-bold text-zinc-800">Já vai?</h1>
           <p className="mt-4 text-zinc-700 leading-relaxed">
-            Você não precisa sair do MENTE.AI todas as vezes. Isso só é necessário quando você
-            está usando um computador compartilhado ou público.
+            Você não precisa sair do MENTE.AI todas as vezes. Isso só é necessário quando você está usando um computador
+            compartilhado ou público.
           </p>
           <p className="mt-4 text-zinc-700">
-            Você irá para a MENTE.AI em <span className="font-bold">{Math.max(0, seconds)}</span>{' '}
-            segundos.
+            Você irá para a MENTE.AI em <span className="font-bold">{Math.max(0, seconds)}</span> segundos.
           </p>
           <button
             type="button"
-            onClick={async () => { await fetch('/api/auth/logout', { method: 'POST' }); router.push('/'); }}
+            onClick={async () => {
+              await fetch('/api/auth/logout', { method: 'POST' });
+              router.push('/');
+            }}
             className="mt-6 bg-blue-600 hover:bg-blue-700 text-white w-full py-3 rounded font-semibold text-lg transition"
           >
             Até mais
@@ -76,7 +72,3 @@ export default function LogoutPage() {
     </div>
   );
 }
-
-
-
-
