@@ -1,5 +1,6 @@
 import js from "@eslint/js";
 import tseslint from "typescript-eslint";
+import reactHooks from "eslint-plugin-react-hooks";
 
 export default tseslint.config(
   // Arquivos e pastas ignorados
@@ -20,6 +21,18 @@ export default tseslint.config(
 
   // Configuração TypeScript (parse + regras)
   ...tseslint.configs.recommended,
+
+  // React Hooks plugin (registra o plugin para que comentários eslint-disable funcionem)
+  {
+    plugins: {
+      "react-hooks": reactHooks,
+    },
+    rules: {
+      // exhaustive-deps como warn; rules-of-hooks desabilitado para evitar falsos positivos
+      "react-hooks/exhaustive-deps": "warn",
+      "react-hooks/rules-of-hooks": "off",
+    },
+  },
 
   // Overrides globais para TS/TSX
   {

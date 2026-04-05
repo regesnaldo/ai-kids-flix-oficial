@@ -90,7 +90,8 @@ export async function detectEmotion(audioBlob: Blob): Promise<EmotionResult | nu
     if (!predictions) return null;
 
     // Extrair emoções do prosody model
-    const emotions: EmotionScore[] = predictions?.results?.predictions?.[0]
+    const humeData = predictions as any; // eslint-disable-line @typescript-eslint/no-explicit-any
+    const emotions: EmotionScore[] = humeData?.results?.predictions?.[0]
       ?.models?.prosody?.grouped_predictions?.[0]
       ?.predictions?.[0]?.emotions ?? [];
 
