@@ -36,3 +36,8 @@ yarn-error.log*
 .DS_Store
 
 src.backup.*
+
+# Arquivos temporários e backups
+.env.local.temp
+*.bak
+output.mp3
