@@ -3,6 +3,9 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Volume2, VolumeX } from 'lucide-react';
+import VoiceInputButton, { type VoiceConverseResult } from './VoiceInputButton';
+import EmotionIndicator from './EmotionIndicator';
+import type { EmotionResult } from '@/lib/voice/hume';
 
 export type DialogueState = 'initial' | 'responding' | 'awaiting';
 
@@ -40,7 +43,7 @@ function useTypewriter(text: string, speed = 25, onComplete?: () => void) {
       if (indexRef.current >= text.length) { clearInterval(interval); onComplete?.(); }
     }, speed);
     return () => clearInterval(interval);
-  }, [text, speed, onComplete]);
+  }, [text, speed]);
   return displayedText;
 }
 
@@ -54,9 +57,15 @@ function ResponseButton({ text, onClick, disabled }: { text: string; onClick: ()
   );
 }
 
+// ID e voz do NEXUS — agente central do metaverso
+const NEXUS_AGENT_ID = 'nexus';
+const NEXUS_VOICE_ID = process.env.NEXT_PUBLIC_ELEVENLABS_VOICE_ID_NEXUS ?? '';
+
 export function NexusDialog({ dialogueState, selectedOption, onOptionSelect, onResponseComplete, onSpeak, isSpeaking }: NexusDialogProps) {
   const [showOptions, setShowOptions] = useState(false);
   const [audioEnabled, setAudioEnabled] = useState(true);
+  const [detectedEmotion, setDetectedEmotion] = useState<EmotionResult | null>(null);
+  const [voiceHistory, setVoiceHistory] = useState<Array<{ role: 'user' | 'assistant'; content: string }>>([]);
   const isInitial = dialogueState === 'initial' && !selectedOption;
   const activeText = useMemo(() => {
     if (isInitial) return DIALOGUE_CONTENT.initial.text;
@@ -69,6 +78,22 @@ export function NexusDialog({ dialogueState, selectedOption, onOptionSelect, onR
   });
   useEffect(() => { setShowOptions(false); }, [dialogueState, selectedOption]);
   const handleSpeak = useCallback(() => { if (audioEnabled && activeText) onSpeak(activeText); }, [audioEnabled, activeText, onSpeak]);
+
+  // Callback quando o usuário responde por voz
+  const handleVoiceResponse = useCallback((result: VoiceConverseResult) => {
+    if (result.emotion) {
+      setDetectedEmotion(result.emotion as EmotionResult);
+    }
+    // Adicionar ao histórico para contexto contínuo
+    setVoiceHistory((prev) => [
+      ...prev,
+      { role: 'user', content: result.userText },
+      { role: 'assistant', content: result.agentText },
+    ]);
+    // Injetar resposta do agente no fluxo de diálogo
+    onOptionSelect(`[voz] ${result.userText}`);
+  }, [onOptionSelect]);
+
   const options = Object.keys(DIALOGUE_CONTENT.responses);
   return (
     <div className="absolute bottom-0 left-0 right-0 p-4 md:p-8 pointer-events-auto">
@@ -78,11 +103,25 @@ export function NexusDialog({ dialogueState, selectedOption, onOptionSelect, onR
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
               <span className="font-mono font-bold text-blue-400 tracking-wider text-sm" style={{ textShadow: '0 0 10px rgba(59,130,246,0.5)' }}>NEXUS</span>
+              {/* Indicador emocional sutil ao lado do nome */}
+              <EmotionIndicator emotion={detectedEmotion} />
             </div>
-            <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} onClick={() => setAudioEnabled(!audioEnabled)}
-              className={`p-2 rounded-lg transition-colors ${audioEnabled ? 'text-blue-400 hover:bg-blue-500/20' : 'text-gray-500'}`}>
-              {audioEnabled ? <Volume2 size={18} /> : <VolumeX size={18} />}
-            </motion.button>
+            <div className="flex items-center gap-2">
+              {/* Botão de voz — modo de entrada alternativo */}
+              <VoiceInputButton
+                agentId={NEXUS_AGENT_ID}
+                agentVoiceId={NEXUS_VOICE_ID}
+                conversationHistory={voiceHistory}
+                onTranscription={(text) => console.log('[NEXUS] Usuário disse:', text)}
+                onResponse={handleVoiceResponse}
+                onError={(msg) => console.warn('[NEXUS] Voz:', msg)}
+                className="text-xs"
+              />
+              <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} onClick={() => setAudioEnabled(!audioEnabled)}
+                className={`p-2 rounded-lg transition-colors ${audioEnabled ? 'text-blue-400 hover:bg-blue-500/20' : 'text-gray-500'}`}>
+                {audioEnabled ? <Volume2 size={18} /> : <VolumeX size={18} />}
+              </motion.button>
+            </div>
           </div>
           <div className="min-h-[120px] mb-5">
             <p className="font-mono text-blue-50 text-sm md:text-base leading-relaxed">
@@ -120,3 +159,4 @@ export function NexusDialog({ dialogueState, selectedOption, onOptionSelect, onR
     </div>
   );
 }
+             
