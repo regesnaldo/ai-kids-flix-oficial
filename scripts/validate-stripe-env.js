@@ -1,9 +1,9 @@
 /* eslint-disable no-console */
-const requiredVars = [
-  "STRIPE_SECRET_KEY",
-  "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY",
-  "STRIPE_WEBHOOK_SECRET",
-];
+const dotenv = require("dotenv");
+
+dotenv.config({ path: ".env.local" });
+
+const requiredVars = ["STRIPE_SECRET_KEY", "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY"];
 
 function assert(condition, message) {
   if (!condition) {
@@ -30,14 +30,16 @@ function validate() {
 
   assert(sk.startsWith("sk_"), "[stripe-env] STRIPE_SECRET_KEY inválida");
   assert(pk.startsWith("pk_"), "[stripe-env] NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY inválida");
-  assert(wh.startsWith("whsec_"), "[stripe-env] STRIPE_WEBHOOK_SECRET inválida");
 
   if (isProd) {
+    assert(wh.startsWith("whsec_"), "[stripe-env] produção exige STRIPE_WEBHOOK_SECRET (whsec_)");
     assert(sk.startsWith("sk_live_"), "[stripe-env] produção exige STRIPE_SECRET_KEY sk_live_");
     assert(pk.startsWith("pk_live_"), "[stripe-env] produção exige NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY pk_live_");
+  } else if (wh && !wh.startsWith("whsec_")) {
+    assert(false, "[stripe-env] STRIPE_WEBHOOK_SECRET inválida (esperado whsec_)");
   }
 
-  console.log(`[stripe-env] OK (${isProd ? "production" : "non-production"})`);
+  console.log(`\x1b[32m[stripe-env] OK (${isProd ? "production" : "non-production"})\x1b[0m`);
 }
 
 try {
