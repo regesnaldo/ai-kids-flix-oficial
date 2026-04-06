@@ -41,3 +41,8 @@ src.backup.*
 .env.local.temp
 *.bak
 output.mp3
+
+# Artefatos locais de desenvolvimento
+tsconfig.tsbuildinfo
+fix-env.js
+mente-ai.db
