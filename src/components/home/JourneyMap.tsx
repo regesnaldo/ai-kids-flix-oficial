@@ -43,7 +43,9 @@ export default function JourneyMap() {
   }, [xpTotal]);
 
   const visitedAgents = useMemo(() => {
-    const unique = Array.from(new Set(decisoesTomadas.map((d) => d.agentId).filter(Boolean)));
+    const unique = Array.from(
+      new Set(decisoesTomadas.map((d) => d.agenteRespondeu).filter(Boolean))
+    );
     return unique.slice(0, 5);
   }, [decisoesTomadas]);
 
