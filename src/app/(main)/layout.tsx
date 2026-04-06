@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import Link from "next/link";
 import Navigation from "@/components/Navigation";
 import { shouldShowOnboarding } from "@/lib/onboarding/types";
+import PageViewTracker from "@/components/metrics/PageViewTracker";
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -21,6 +22,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
 
   return (
     <div style={{ backgroundColor: "#0a0e27", minHeight: "100vh", margin: 0 }}>
+      <PageViewTracker />
       <header
         style={{
           position: "fixed",

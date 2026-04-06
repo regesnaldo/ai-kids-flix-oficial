@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
+import { trackConversion } from "@/lib/metrics/conversion-client";
 
 export default function Login() {
   const [tab, setTab] = useState("entrar");
@@ -25,7 +26,17 @@ export default function Login() {
       const res = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
       const data = await res.json();
       if (!res.ok) { setErro(data.error || "Erro ao processar."); }
-      else { setSucesso(tab === "entrar" ? "Login realizado!" : "Cadastro realizado!"); setTimeout(() => { window.location.href = "/perfis"; }, 1000); }
+      else {
+        if (tab === "cadastrar") {
+          void trackConversion({
+            event: "sign_up",
+            path: "/login",
+            metadata: { source: "form-login-cadastro" },
+          });
+        }
+        setSucesso(tab === "entrar" ? "Login realizado!" : "Cadastro realizado!");
+        setTimeout(() => { window.location.href = "/perfis"; }, 1000);
+      }
     } catch { setErro("Erro de conexao."); } finally { setLoading(false); }
   }
 

@@ -1,6 +1,18 @@
 "use client";
+import { useEffect } from "react";
+import { trackConversion } from "@/lib/metrics/conversion-client";
 
 export default function Sucesso() {
+  useEffect(() => {
+    const search = new URLSearchParams(window.location.search);
+    const sessionId = search.get("session_id");
+    void trackConversion({
+      event: "purchase",
+      path: "/sucesso",
+      metadata: { sessionId },
+    });
+  }, []);
+
   return (
     <main style={{ backgroundColor: "#0a0e27", minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", padding: "2rem" }}>
       <div style={{ textAlign: "center", maxWidth: "500px" }}>

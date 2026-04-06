@@ -1,5 +1,6 @@
  "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { trackConversion } from "@/lib/metrics/conversion-client";
 
 const planos = [
   {
@@ -70,6 +71,14 @@ type Periodo = "semanal" | "quinzenal" | "mensal";
 export default function Planos() {
   const [periodo, setPeriodo] = useState<Periodo>("mensal");
   const [loading, setLoading] = useState<string | null>(null);
+
+  useEffect(() => {
+    void trackConversion({
+      event: "paywall_hit",
+      path: "/planos",
+      metadata: { screen: "planos" },
+    });
+  }, []);
 
   async function handleAssinar(planoId: string, gratuito: boolean) {
     if (gratuito) {
