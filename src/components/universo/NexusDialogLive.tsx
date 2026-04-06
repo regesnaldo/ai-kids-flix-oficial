@@ -12,6 +12,9 @@ interface Props {
   onSpeak?: (text: string) => Promise<void> | void;
   isSpeaking?: boolean;
   audioEnabled?: boolean;
+  endpoint?: string;
+  agentLabel?: string;
+  initialAssistantMessage?: string;
 }
 
 export default function NexusDialogLive({
@@ -19,15 +22,18 @@ export default function NexusDialogLive({
   onSpeak,
   isSpeaking = false,
   audioEnabled = true,
+  endpoint = "/api/nexus/chat",
+  agentLabel = "NEXUS",
+  initialAssistantMessage,
 }: Props) {
   const [mensagem, setMensagem] = useState("");
   const [loading, setLoading] = useState(false);
   const [historico, setHistorico] = useState<Msg[]>([
     {
       role: "assistant",
-      content: primeiraEscolha
+      content: initialAssistantMessage ?? (primeiraEscolha
         ? `NEXUS: Você iniciou com "${primeiraEscolha}". O que ainda falta esclarecer?`
-        : "NEXUS: O que você está tentando entender hoje que ainda não conseguiu formular por completo?",
+        : "NEXUS: O que você está tentando entender hoje que ainda não conseguiu formular por completo?"),
     },
   ]);
 
@@ -39,7 +45,7 @@ export default function NexusDialogLive({
     setMensagem("");
     setLoading(true);
     try {
-      const res = await fetch("/api/nexus/chat", {
+      const res = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ mensagem: userMsg.content, historico: next }),
@@ -63,11 +69,11 @@ export default function NexusDialogLive({
       <div className="max-h-72 space-y-3 overflow-y-auto pr-1">
         {historico.map((m, i) => (
           <div key={`${m.role}-${i}`} className={m.role === "assistant" ? "text-blue-100" : "text-white"}>
-            <span className="mr-2 font-mono text-xs text-blue-300/70">{m.role === "assistant" ? "NEXUS" : "VOCÊ"}</span>
+            <span className="mr-2 font-mono text-xs text-blue-300/70">{m.role === "assistant" ? agentLabel : "VOCÊ"}</span>
             <span className="text-sm">{m.content}</span>
           </div>
         ))}
-        {loading && <p className="font-mono text-xs text-blue-400/70">NEXUS está pensando...</p>}
+        {loading && <p className="font-mono text-xs text-blue-400/70">{agentLabel} está pensando...</p>}
       </div>
 
       <div className="mt-4 flex gap-2">

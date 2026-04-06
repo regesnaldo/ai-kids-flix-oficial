@@ -93,6 +93,7 @@ export const UNIVERSOS: Record<UniversoId, Universo> = {
     sinergiasCom: ['kaos', 'prism'],
     gatilhoDeAtivacao: 'Usuário demonstra entusiasmo ou quer agir rapidamente',
     perfisQueAtiva: ['Rebelde-experimentador', 'Criativo-experimental'],
+    voiceId: process.env.NEXT_PUBLIC_VOLT_VOICE_ID || 'VR6AewLTigWG4xSOukaG',
     imagemUrl: '/images/universos/volt.png',
   },
 
