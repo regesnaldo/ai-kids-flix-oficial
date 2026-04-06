@@ -21,7 +21,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
   }, [pathname, router]);
 
   return (
-    <div style={{ backgroundColor: "#0a0e27", minHeight: "100vh", margin: 0 }}>
+    <div style={{ backgroundColor: 'var(--cognitive-bg, #0a0e27)', minHeight: '100vh', margin: 0 }}>
       <PageViewTracker />
       <header
         style={{

@@ -3,13 +3,14 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRef, useState } from 'react';
-import HeroBanner from '@/components/home/HeroBanner';
+import FuturisticHero from '@/components/home/FuturisticHero';
 import AgentRow from '@/components/home/AgentRow';
 import AgentDetailModal from '@/components/home/AgentDetailModal';
 import InfoModal from '@/components/home/InfoModal';
 import { allAgents, AGENT_ROWS } from '@/data/all-agents';
 import type { HomeAgent } from '@/data/all-agents';
 import { CATALOG } from '@/constants/catalog';
+import JourneyMap from '@/components/home/JourneyMap';
 
 function SeasonRow() {
   const rowRef = useRef<HTMLDivElement>(null);
@@ -127,8 +128,12 @@ export default function HomePage() {
   };
 
   return (
-    <main className="min-h-screen bg-zinc-950">
-      <HeroBanner onInfoClick={() => setIsInfoOpen(true)} />
+    <main
+      className="min-h-screen"
+      style={{ backgroundColor: 'var(--cognitive-bg, #03030d)' }}
+    >
+      <FuturisticHero onInfoClick={() => setIsInfoOpen(true)} />
+      <JourneyMap />
 
       <section className="-mt-20 relative z-20 pb-24 pt-4 space-y-8" aria-label="Catálogo">
         <SeasonRow />
