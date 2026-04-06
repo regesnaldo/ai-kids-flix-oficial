@@ -15,6 +15,8 @@ interface Props {
   endpoint?: string;
   agentLabel?: string;
   initialAssistantMessage?: string;
+  onUserMessage?: (text: string) => void;
+  onAssistantMessage?: (text: string) => void;
 }
 
 export default function NexusDialogLive({
@@ -25,6 +27,8 @@ export default function NexusDialogLive({
   endpoint = "/api/nexus/chat",
   agentLabel = "NEXUS",
   initialAssistantMessage,
+  onUserMessage,
+  onAssistantMessage,
 }: Props) {
   const [mensagem, setMensagem] = useState("");
   const [loading, setLoading] = useState(false);
@@ -42,6 +46,7 @@ export default function NexusDialogLive({
     const userMsg: Msg = { role: "user", content: mensagem.trim() };
     const next = [...historico, userMsg];
     setHistorico(next);
+    onUserMessage?.(userMsg.content);
     setMensagem("");
     setLoading(true);
     try {
@@ -56,6 +61,7 @@ export default function NexusDialogLive({
         ...prev,
         { role: "assistant", content: resposta },
       ]);
+      onAssistantMessage?.(resposta);
       if (audioEnabled && onSpeak && !isSpeaking) {
         await onSpeak(resposta);
       }

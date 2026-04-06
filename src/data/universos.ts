@@ -217,6 +217,7 @@ export const UNIVERSOS: Record<UniversoId, Universo> = {
     sinergiasCom: ['kaos', 'janus', 'aurora'],
     gatilhoDeAtivacao: 'Usuário busca expressão, beleza ou precisa de metáforas para entender',
     perfisQueAtiva: ['Criativo-experimental', 'Empático-humanista'],
+    voiceId: process.env.NEXT_PUBLIC_LYRA_VOICE_ID || 'XB0fDUnXU5powFXDhCwa',
     imagemUrl: '/images/universos/lyra.png',
   },
 
@@ -265,6 +266,7 @@ export const UNIVERSOS: Record<UniversoId, Universo> = {
     sinergiasCom: ['lyra', 'kaos', 'janus'],
     gatilhoDeAtivacao: 'Usuário está em momento de mudança ou busca renovação',
     perfisQueAtiva: ['Rebelde-experimentador', 'Criativo-experimental', 'Empático-humanista'],
+    voiceId: process.env.NEXT_PUBLIC_AURORA_VOICE_ID || '21m00Tcm4TlvDq8ikWAM',
     imagemUrl: '/images/universos/aurora.png',
   },
 
@@ -313,6 +315,7 @@ export const UNIVERSOS: Record<UniversoId, Universo> = {
     sinergiasCom: ['ethos', 'janus', 'nexus'],
     gatilhoDeAtivacao: 'Usuário toma decisão com impacto coletivo ou ambiental',
     perfisQueAtiva: ['Pacificador-conformista', 'Empático-humanista', 'Analítico-protetor'],
+    voiceId: process.env.NEXT_PUBLIC_TERRA_VOICE_ID || 'XrExE9yKIg1WjnnlVkGX',
     imagemUrl: '/images/universos/terra.png',
   },
 
