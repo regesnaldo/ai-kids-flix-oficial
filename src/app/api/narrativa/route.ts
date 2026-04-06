@@ -11,10 +11,12 @@
 import { desc, eq } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { interactiveDecisions, userProfile, type UserProfileAgentHistoryEntry } from "@/lib/db/schema";
+import { interactiveDecisions, universeTransitions, userProfile, type UserProfileAgentHistoryEntry } from "@/lib/db/schema";
 import { getAuthCookieFromRequest, verifyToken } from "@/lib/auth";
 import { computeAdaptiveRoute } from "@/lib/narrativa/adaptive-routing-engine";
 import { gerarPromptDoAgente } from "@/lib/narrativa/dimension-router";
+import { profileInteraction } from "@/engine/profiler";
+import { buildTransitionSeed } from "@/lib/narrativa/transition-seed";
 import type { PerfilId } from "@/types/narrativa";
 import type { UniversoId } from "@/data/universos";
 
@@ -96,18 +98,32 @@ export async function POST(req: NextRequest) {
       decisionsRecentes = recentDecisions.reverse();
     }
 
+    const profiled = profileInteraction({
+      texto: mensagem,
+      escolha: choiceLabel,
+      historico,
+      escolhasRecentes: decisionsRecentes.map((d) => d.choiceLabel),
+      dimensoesAtuais: {
+        emocional: dimensaoEmocionalAtual,
+        intelectual: dimensaoIntelectualAtual,
+        moral: dimensaoMoralAtual,
+      },
+    });
+
     const adaptiveRoute = computeAdaptiveRoute({
       mensagem,
       historico,
       fase,
       agenteAtual,
       perfilAtual: perfilAtual ?? null,
-      dimensaoEmocionalAtual,
-      dimensaoIntelectualAtual,
-      dimensaoMoralAtual,
+      dimensaoEmocionalAtual: profiled.dimensoes.emocional,
+      dimensaoIntelectualAtual: profiled.dimensoes.intelectual,
+      dimensaoMoralAtual: profiled.dimensoes.moral,
       decisionsRecentes,
       agentHistory,
     });
+
+    const ultimaFalaSemente = buildTransitionSeed(agenteAtual, adaptiveRoute.agentePrimario);
 
     const promptSistema = gerarPromptDoAgente(
       adaptiveRoute.agentePrimario,
@@ -168,6 +184,20 @@ export async function POST(req: NextRequest) {
             updatedAt: new Date(),
           },
         });
+
+      await db.insert(universeTransitions).values({
+        userId,
+        episodeId: numericOrFallback(body.episodeId, 0),
+        seriesId: numericOrFallback(body.seriesId, 0),
+        fromAgent: adaptiveRoute.agenteOrigem,
+        toAgent: adaptiveRoute.agentePrimario,
+        reason: adaptiveRoute.backtrackingReason ?? "routing",
+        transitionNarrative: adaptiveRoute.narrativaTransicao,
+        metadata: {
+          backtrackingAplicado: adaptiveRoute.backtrackingAplicado,
+          thoughtCandidates: adaptiveRoute.thoughtCandidates,
+        },
+      });
     }
 
     return NextResponse.json({
@@ -178,6 +208,8 @@ export async function POST(req: NextRequest) {
       agentePrimarioCanonico: normalizeAgentIdForClient(adaptiveRoute.agentePrimario),
       agentesSecundarios: adaptiveRoute.agentesSecundarios,
       promptSistema,
+      ultimaFalaSemente,
+      narrativaTransicao: adaptiveRoute.narrativaTransicao,
       justificativa: adaptiveRoute.justificativa,
       backtrackingAplicado: adaptiveRoute.backtrackingAplicado,
       thoughtCandidates: adaptiveRoute.thoughtCandidates,
@@ -200,6 +232,7 @@ export async function GET() {
     entregaveis: [
       "Tabela userProfile no TiDB",
       "Tabela interactiveDecisions registrada por interação",
+      "Tabela universeTransitions registrada por transição",
       "Roteamento de 6 arquétipos",
       "NEXUS -> VOLT ou AXIOM",
       "Backtracking automático",
