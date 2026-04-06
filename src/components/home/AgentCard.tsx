@@ -37,6 +37,7 @@ export default function AgentCard({ agent, onClick }: AgentCardProps) {
   const [muted, setMuted] = useState(true);
   const [imageReady, setImageReady] = useState(false);
   const [videoReady, setVideoReady] = useState(false);
+  const currentLetter = agent.name.charAt(0);
 
   useEffect(() => {
     try {
@@ -89,7 +90,10 @@ export default function AgentCard({ agent, onClick }: AgentCardProps) {
       {/* ── Imagem / Placeholder ── */}
       <div
         className="relative aspect-[2/3] rounded-lg overflow-hidden"
-        style={{ boxShadow: `0 8px 32px ${agent.color}33` }}
+        style={{
+          boxShadow: `0 12px 48px ${agent.color}44, inset 0 0 25px ${agent.color}33`,
+          border: `1px solid ${agent.color}30`,
+        }}
       >
         <div
           className="absolute inset-0 flex items-center justify-center z-0"
@@ -140,7 +144,7 @@ export default function AgentCard({ agent, onClick }: AgentCardProps) {
         ) : null}
 
         {/* ── Overlay on hover ── */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/60 to-black opacity-0 group-hover:opacity-90 transition-opacity duration-300" />
 
         {/* ── Conteúdo do hover ── */}
         <div className="absolute inset-0 flex flex-col justify-end p-3 translate-y-4 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-300">
@@ -153,8 +157,17 @@ export default function AgentCard({ agent, onClick }: AgentCardProps) {
           </span>
 
           {/* Nome */}
-          <h3 className="text-base font-extrabold text-white leading-tight">{agent.name}</h3>
-          <p className="text-xs text-zinc-300 mt-0.5 mb-2 line-clamp-2">{agent.description}</p>
+          <h3
+            className="text-base font-extrabold text-white leading-tight"
+            style={{ fontFamily: '"Orbitron", "Space Grotesk", sans-serif' }}
+          >
+            {agent.name}
+          </h3>
+          <p className="text-[11px] tracking-[0.2em] text-white/60 uppercase">{agent.role}</p>
+          <p className="text-xs text-white/60 mt-1 line-clamp-2">{agent.description}</p>
+          <p className="text-[10px] text-white/40 mt-1 uppercase tracking-[0.3em]">
+            Ativa quando você busca {agent.category.toLowerCase()}
+          </p>
 
           {/* Botão */}
           <div className="flex gap-2">
@@ -181,6 +194,13 @@ export default function AgentCard({ agent, onClick }: AgentCardProps) {
         <div className={`absolute top-2 left-2 px-2 py-0.5 ${badge.bg} text-white text-[9px] font-bold rounded-full`}>
           {badge.text}
         </div>
+      </div>
+
+      <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
+        <span className="h-8 w-8 rounded-full border border-white/30 flex items-center justify-center text-xs font-bold text-white">
+          {currentLetter}
+        </span>
+        <span className="text-[10px] text-white/60 uppercase">Preview do universo</span>
       </div>
 
       {/* ── Nome abaixo do card (visível sempre) ── */}
