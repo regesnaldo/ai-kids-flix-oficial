@@ -1,26 +1,33 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
+import { db } from "@/lib/db";
+import { users } from "@/lib/db/schema";
+import { eq } from "drizzle-orm";
+import { getAuthCookieFromRequest, verifyToken } from "@/lib/auth";
+import { assertLiveStripeKeysForProd, resolvePriceId } from "@/lib/stripe/config";
 
-const PRICE_IDS: Record<string, Record<string, string>> = {
-  basico: {
-    mensal: "price_1T8juHA8k5sJtQHotNEhgmOT",
-    semanal: "price_1T8mgXA8k5sJtQHoeHgSJYa2",
-    quinzenal: "price_1T8mbyA8k5sJtQHoROxgvUal",
-  },
-  premio: {
-    mensal: "price_1T8mRsA8k5sJtQHoST6p70CV",
-    semanal: "price_1T8nD4A8k5sJtQHoBMK09CDF",
-    quinzenal: "price_1T8nD4A8k5sJtQHoBMK09CDF",
-  },
-  familiar: {
-    mensal: "price_1T8mTRA8k5sJtQHooIIxPIe4",
-    semanal: "price_1T8nLRA8k5sJtQHo051GvCCd",
-    quinzenal: "price_1T8nIrA8k5sJtQHoPOKV6xyo",
-  },
-};
+async function getAuthenticatedUserContext(request: NextRequest): Promise<{
+  userId: number | null;
+  email: string | null;
+}> {
+  const token = getAuthCookieFromRequest(request);
+  if (!token) return { userId: null, email: null };
+
+  const payload = await verifyToken(token);
+  const userId = payload?.userId ? Number(payload.userId) : NaN;
+  if (!Number.isInteger(userId) || userId <= 0) return { userId: null, email: null };
+
+  const [user] = await db.select({ email: users.email }).from(users).where(eq(users.id, userId)).limit(1);
+  return {
+    userId,
+    email: user?.email ?? payload?.email ?? null,
+  };
+}
 
 export async function POST(request: NextRequest) {
   try {
+    assertLiveStripeKeysForProd();
+
     const apiKey = process.env.CHECKOUT_API_KEY;
     const authenticator = process.env.CHECKOUT_AUTHENTICATOR;
     const isDev = process.env.NODE_ENV === "development";
@@ -39,7 +46,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ url: "/player" });
     }
 
-    const priceId = PRICE_IDS[plano]?.[periodo];
+    const priceId = resolvePriceId(plano, periodo);
     if (!priceId) {
       return NextResponse.json({ error: "Plano ou período inválido" }, { status: 400 });
     }
@@ -62,6 +69,7 @@ export async function POST(request: NextRequest) {
     const stripe = new Stripe(stripeSecret, {
       apiVersion: "2026-02-25.clover",
     });
+    const authUser = await getAuthenticatedUserContext(request);
 
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
@@ -70,6 +78,22 @@ export async function POST(request: NextRequest) {
       success_url: `${origin}/sucesso?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/planos`,
       locale: "pt-BR",
+      customer_email: authUser.email ?? undefined,
+      metadata: {
+        plano,
+        periodo,
+        appUserId: authUser.userId ? String(authUser.userId) : "",
+        appUserEmail: authUser.email ?? "",
+      },
+      subscription_data: {
+        metadata: {
+          plano,
+          periodo,
+          appUserId: authUser.userId ? String(authUser.userId) : "",
+          appUserEmail: authUser.email ?? "",
+        },
+      },
+      client_reference_id: authUser.userId ? String(authUser.userId) : undefined,
     });
 
     return NextResponse.json({ url: session.url });
