@@ -126,6 +126,22 @@ export const interactiveDecisions = mysqlTable("interactiveDecisions", {
 export type InteractiveDecision = typeof interactiveDecisions.$inferSelect;
 export type InsertInteractiveDecision = typeof interactiveDecisions.$inferInsert;
 
+export const universeTransitions = mysqlTable("universeTransitions", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  episodeId: int("episodeId").notNull().default(0),
+  seriesId: int("seriesId").notNull().default(0),
+  fromAgent: varchar("fromAgent", { length: 100 }).notNull(),
+  toAgent: varchar("toAgent", { length: 100 }).notNull(),
+  reason: varchar("reason", { length: 80 }).notNull(),
+  transitionNarrative: text("transitionNarrative"),
+  metadata: json("metadata"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type UniverseTransition = typeof universeTransitions.$inferSelect;
+export type InsertUniverseTransition = typeof universeTransitions.$inferInsert;
+
 export interface UserProfileAgentHistoryEntry {
   agentId: string;
   archetype: string;

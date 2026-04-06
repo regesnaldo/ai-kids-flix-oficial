@@ -44,6 +44,22 @@ function parseBool(value, defaultValue) {
   return value.toLowerCase() === "true";
 }
 
+function isIgnorableMigrationError(error) {
+  const code = error?.code ?? "";
+  const errno = Number(error?.errno);
+  const message = String(error?.message ?? "").toLowerCase();
+
+  if (code === "ER_TABLE_EXISTS_ERROR" || errno === 1050) return true;
+  if (code === "ER_DUP_KEYNAME" || errno === 1061) return true;
+  if (code === "ER_DUP_FIELDNAME" || errno === 1060) return true;
+  if (code === "ER_FK_DUP_NAME" || errno === 1826) return true;
+  if (message.includes("already exists")) return true;
+  if (message.includes("duplicate") && message.includes("constraint")) return true;
+  if (message.includes("duplicate") && message.includes("index")) return true;
+
+  return false;
+}
+
 async function run() {
   loadEnvFile(path.resolve(process.cwd(), ".env.local"));
   loadEnvFile(path.resolve(process.cwd(), ".env"));
@@ -99,6 +115,10 @@ async function run() {
       const migrationPath = path.join(migrationsDir, fileName);
       const sql = fs.readFileSync(migrationPath, "utf8");
       const checksum = crypto.createHash("sha256").update(sql).digest("hex");
+      const statements = sql
+        .split(/-->\s*statement-breakpoint/g)
+        .map((chunk) => chunk.trim())
+        .filter(Boolean);
 
       const [rows] = await conn.execute(
         "SELECT id, checksum FROM _narrative_migrations WHERE id = ? LIMIT 1",
@@ -117,7 +137,17 @@ async function run() {
       }
 
       console.log(`- APPLY ${fileName}`);
-      await conn.query(sql);
+      for (const statement of statements) {
+        try {
+          await conn.query(statement);
+        } catch (statementError) {
+          if (isIgnorableMigrationError(statementError)) {
+            console.log(`  - SKIP statement (${statementError.code || statementError.errno || "ignorable"})`);
+            continue;
+          }
+          throw statementError;
+        }
+      }
       await conn.execute(
         "INSERT INTO _narrative_migrations (id, checksum) VALUES (?, ?)",
         [fileName, checksum],
