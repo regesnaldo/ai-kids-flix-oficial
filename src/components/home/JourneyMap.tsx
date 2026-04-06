@@ -12,23 +12,13 @@ const DIMENSIONS = [
 ];
 
 export default function JourneyMap() {
-  const {
-    fase,
-    temporada,
-    agenteAtivo,
-    perfilDetectado,
-    xpTotal,
-    dimensaoAtiva,
-    decisoesTomadas,
-  } = useNarrativaStore((state) => ({
-    fase: state.fase,
-    temporada: state.temporada,
-    agenteAtivo: state.agenteAtivo,
-    perfilDetectado: state.perfilDetectado,
-    xpTotal: state.xpTotal,
-    dimensaoAtiva: state.dimensaoAtiva,
-    decisoesTomadas: state.decisoesTomadas,
-  }));
+  const fase = useNarrativaStore((state) => state.fase);
+  const temporada = useNarrativaStore((state) => state.temporada);
+  const agenteAtivo = useNarrativaStore((state) => state.agenteAtivo);
+  const perfilDetectado = useNarrativaStore((state) => state.perfilDetectado);
+  const xpTotal = useNarrativaStore((state) => state.xpTotal);
+  const dimensaoAtiva = useNarrativaStore((state) => state.dimensaoAtiva);
+  const decisoesTomadas = useNarrativaStore((state) => state.decisoesTomadas);
 
   const currentAgent = HERO_AGENTS.find((agent) => agent.id === agenteAtivo) ?? HERO_AGENTS[0];
 
