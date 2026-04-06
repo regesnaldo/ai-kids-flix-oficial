@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
+import { desc, eq } from "drizzle-orm";
 import { ALL_AGENTS } from "@/canon/agents/all-agents";
 import { anthropicCompletionText, type AnthropicMensagem } from "@/lib/anthropic";
+import { routeAgent, type ArchetypeId } from "@/engine/router";
+import { db } from "@/lib/db";
+import { interactiveDecisions, userProfile } from "@/lib/db/schema";
+import { getAuthCookieFromRequest, verifyToken } from "@/lib/auth";
+import { profileInteraction } from "@/engine/profiler";
 
 export const runtime = "nodejs";
 
@@ -14,8 +20,15 @@ interface ChatMessage {
 }
 
 interface ChatRequestBody {
-  agentId: string;
+  agentId?: string;
   messages: ChatMessage[];
+  dimensoes?: {
+    emocional: number;
+    intelectual: number;
+    moral: number;
+  };
+  escolhasRecentes?: string[];
+  perfilHint?: ArchetypeId;
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -49,9 +62,97 @@ function buildSystemPrompt(agent: (typeof ALL_AGENTS)[number]): string {
   ].join("\n");
 }
 
+const ROUTED_AGENT_FALLBACKS: Record<string, string[]> = {
+  axiom: ["logos", "nexus"],
+  kaos: ["aurora", "volt", "nexus"],
+  terra: ["psyche", "nexus"],
+  lyra: ["aurora", "psyche"],
+  stratos: ["nexus", "logos"],
+  prism: ["aurora", "nexus"],
+};
+
+function resolveAgentFromCatalog(preferredAgentId: string): (typeof ALL_AGENTS)[number] | null {
+  const direct = ALL_AGENTS.find((a) => a.id === preferredAgentId);
+  if (direct) return direct;
+
+  const fallbacks = ROUTED_AGENT_FALLBACKS[preferredAgentId] ?? [];
+  for (const fallbackId of fallbacks) {
+    const fallback = ALL_AGENTS.find((a) => a.id === fallbackId);
+    if (fallback) return fallback;
+  }
+
+  return null;
+}
+
 // ─── Provedor OpenAI (fallback) ───────────────────────────────────────────────
 
 const OPENAI_TIMEOUT_MS = 25_000;
+
+async function getAuthenticatedUserId(req: NextRequest): Promise<number | null> {
+  const token = getAuthCookieFromRequest(req);
+  if (!token) return null;
+  const payload = await verifyToken(token);
+  const userId = payload?.userId ? Number(payload.userId) : NaN;
+  return Number.isInteger(userId) && userId > 0 ? userId : null;
+}
+
+async function updateSilentProfileInBackground(args: {
+  userId: number;
+  latestUserMessage: string;
+  fullHistory: AnthropicMensagem[];
+}) {
+  try {
+    const [profile] = await db
+      .select()
+      .from(userProfile)
+      .where(eq(userProfile.userId, args.userId))
+      .limit(1);
+
+    const recentDecisions = await db
+      .select({ choiceLabel: interactiveDecisions.choiceLabel })
+      .from(interactiveDecisions)
+      .where(eq(interactiveDecisions.userId, args.userId))
+      .orderBy(desc(interactiveDecisions.id))
+      .limit(8);
+
+    const userTexts = args.fullHistory
+      .filter((m) => m.role === "user")
+      .map((m) => m.content)
+      .slice(-8);
+
+    const profiled = profileInteraction({
+      texto: args.latestUserMessage,
+      historico: userTexts,
+      escolhasRecentes: recentDecisions.map((d) => d.choiceLabel).reverse(),
+      dimensoesAtuais: {
+        emocional: profile?.dimensaoEmocional ?? 0,
+        intelectual: profile?.dimensaoIntelectual ?? 0,
+        moral: profile?.dimensaoMoral ?? 0,
+      },
+    });
+
+    await db
+      .insert(userProfile)
+      .values({
+        userId: args.userId,
+        dimensaoEmocional: profiled.dimensoes.emocional,
+        dimensaoIntelectual: profiled.dimensoes.intelectual,
+        dimensaoMoral: profiled.dimensoes.moral,
+        agentHistory: profile?.agentHistory ?? [],
+        updatedAt: new Date(),
+      })
+      .onDuplicateKeyUpdate({
+        set: {
+          dimensaoEmocional: profiled.dimensoes.emocional,
+          dimensaoIntelectual: profiled.dimensoes.intelectual,
+          dimensaoMoral: profiled.dimensoes.moral,
+          updatedAt: new Date(),
+        },
+      });
+  } catch (error) {
+    console.error("[chat] silent profiler failed:", error);
+  }
+}
 
 async function callOpenAI(args: { system: string; messages: AnthropicMensagem[] }): Promise<string> {
   const apiKey = process.env.OPENAI_API_KEY;
@@ -98,11 +199,33 @@ export async function POST(request: NextRequest) {
     const body: unknown = await request.json();
     const parsed = body as Partial<ChatRequestBody>;
 
-    if (!isNonEmptyString(parsed.agentId)) {
-      return NextResponse.json({ error: "agentId é obrigatório" }, { status: 400 });
+    let requestedAgentId = isNonEmptyString(parsed.agentId) ? parsed.agentId.trim() : "";
+    let routed:
+      | {
+          archetype: ArchetypeId;
+          agentId: string;
+          secondaryAgentIds: string[];
+        }
+      | null = null;
+
+    if (!requestedAgentId) {
+      const dimensoes = parsed.dimensoes;
+      if (!dimensoes) {
+        return NextResponse.json(
+          { error: "agentId é obrigatório quando dimensoes não forem enviadas" },
+          { status: 400 },
+        );
+      }
+
+      routed = routeAgent({
+        dimensoes,
+        escolhasRecentes: Array.isArray(parsed.escolhasRecentes) ? parsed.escolhasRecentes : [],
+        perfilHint: parsed.perfilHint ?? null,
+      });
+      requestedAgentId = routed.agentId;
     }
 
-    const agent = ALL_AGENTS.find((a) => a.id === parsed.agentId);
+    const agent = resolveAgentFromCatalog(requestedAgentId);
     if (!agent) {
       return NextResponse.json({ error: "Agente não encontrado" }, { status: 404 });
     }
@@ -138,7 +261,23 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    return NextResponse.json({ message: assistantText });
+    const userId = await getAuthenticatedUserId(request);
+    if (userId) {
+      const latestUserMessage = messages[messages.length - 1]?.content ?? "";
+      void updateSilentProfileInBackground({
+        userId,
+        latestUserMessage,
+        fullHistory: messages,
+      });
+    }
+
+    return NextResponse.json({
+      message: assistantText,
+      routedAgentId: requestedAgentId,
+      agentIdUsado: agent.id,
+      archetype: routed?.archetype ?? null,
+      secondaryAgentIds: routed?.secondaryAgentIds ?? [],
+    });
 
   } catch (error: unknown) {
     const err = error as { tipo?: string; mensagem?: string; tentativas?: number };
