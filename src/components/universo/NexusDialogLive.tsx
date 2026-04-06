@@ -7,13 +7,27 @@ interface Msg {
   content: string;
 }
 
-export default function NexusDialogLive() {
+interface Props {
+  primeiraEscolha?: string | null;
+  onSpeak?: (text: string) => Promise<void> | void;
+  isSpeaking?: boolean;
+  audioEnabled?: boolean;
+}
+
+export default function NexusDialogLive({
+  primeiraEscolha = null,
+  onSpeak,
+  isSpeaking = false,
+  audioEnabled = true,
+}: Props) {
   const [mensagem, setMensagem] = useState("");
   const [loading, setLoading] = useState(false);
   const [historico, setHistorico] = useState<Msg[]>([
     {
       role: "assistant",
-      content: "NEXUS: O que você está tentando entender hoje que ainda não conseguiu formular por completo?",
+      content: primeiraEscolha
+        ? `NEXUS: Você iniciou com "${primeiraEscolha}". O que ainda falta esclarecer?`
+        : "NEXUS: O que você está tentando entender hoje que ainda não conseguiu formular por completo?",
     },
   ]);
 
@@ -31,10 +45,14 @@ export default function NexusDialogLive() {
         body: JSON.stringify({ mensagem: userMsg.content, historico: next }),
       });
       const data = await res.json();
+      const resposta = data?.resposta ?? "NEXUS está calibrando uma nova pergunta...";
       setHistorico((prev) => [
         ...prev,
-        { role: "assistant", content: data?.resposta ?? "NEXUS está calibrando uma nova pergunta..." },
+        { role: "assistant", content: resposta },
       ]);
+      if (audioEnabled && onSpeak && !isSpeaking) {
+        await onSpeak(resposta);
+      }
     } finally {
       setLoading(false);
     }

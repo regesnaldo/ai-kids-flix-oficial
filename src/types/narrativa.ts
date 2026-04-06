@@ -84,7 +84,7 @@ export const PERFIS: Record<PerfilId, PerfilUsuario> = {
     id: 'pacifico-conformista',
     nome: 'Pacífico-Conformista',
     combinacaoDimensoes: 'Medo + Conformidade + Hesitação',
-    agentesAtivados: ['salt', 'janus'],
+    agentesAtivados: ['terra', 'janus'],
     descricao: 'Prefere o caminho seguro, evita conflitos, busca validação.',
     corTema: '#78909C',
   },

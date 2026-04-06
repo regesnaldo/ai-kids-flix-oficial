@@ -11,6 +11,20 @@ import * as Tone from "tone";
 
 let synth: Tone.PolySynth | null = null;
 let loop: Tone.Loop | null = null;
+let volume = 0.18;
+let muted = false;
+let state: "idle" | "playing" = "idle";
+const listeners = new Set<(nextState: "idle" | "playing") => void>();
+
+function emit(nextState: "idle" | "playing") {
+  state = nextState;
+  listeners.forEach((listener) => listener(nextState));
+}
+
+function applyVolume() {
+  if (!synth) return;
+  synth.volume.value = muted ? -40 : Tone.gainToDb(Math.max(0.0001, volume));
+}
 
 export async function iniciarNexusAmbient() {
   if (synth || loop) return;
@@ -33,6 +47,8 @@ export async function iniciarNexusAmbient() {
   loop.start(0);
   Tone.Transport.bpm.value = 56;
   Tone.Transport.start();
+  applyVolume();
+  emit("playing");
 }
 
 export function pararNexusAmbient() {
@@ -41,5 +57,34 @@ export function pararNexusAmbient() {
   loop = null;
   synth?.dispose();
   synth = null;
+  emit("idle");
 }
+
+export const nexusAmbient = {
+  async start() {
+    await iniciarNexusAmbient();
+  },
+  stop() {
+    pararNexusAmbient();
+  },
+  setVolume(nextVolume: number) {
+    volume = Math.max(0, Math.min(1, nextVolume));
+    applyVolume();
+  },
+  mute() {
+    muted = true;
+    applyVolume();
+  },
+  unmute() {
+    muted = false;
+    applyVolume();
+  },
+  subscribe(listener: (nextState: "idle" | "playing") => void) {
+    listeners.add(listener);
+    listener(state);
+    return () => {
+      listeners.delete(listener);
+    };
+  },
+};
 

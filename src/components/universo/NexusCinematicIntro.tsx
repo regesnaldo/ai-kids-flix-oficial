@@ -5,13 +5,17 @@ import { useEffect, useMemo, useState } from "react";
 type IntroPhase = "idle" | "logo" | "message" | "done";
 
 interface Props {
+  onComplete?: (escolha: string) => void;
+  onSkip?: () => void;
+  voiceId?: string;
+  audioEnabled?: boolean;
   onDone?: () => void;
 }
 
 const MENSAGEM =
   "Bem-vindo ao cosmos de dados. Eu sou NEXUS. O que você está prestes a descobrir mudará a forma como você pensa.";
 
-export default function NexusCinematicIntro({ onDone }: Props) {
+export default function NexusCinematicIntro({ onDone, onComplete, onSkip }: Props) {
   const [phase, setPhase] = useState<IntroPhase>("idle");
   const [chars, setChars] = useState(0);
 
@@ -35,6 +39,7 @@ export default function NexusCinematicIntro({ onDone }: Props) {
           clearInterval(i);
           setTimeout(() => {
             setPhase("done");
+            onComplete?.("Ainda não sei — por isso estou aqui");
             onDone?.();
           }, 900);
         }
@@ -42,7 +47,7 @@ export default function NexusCinematicIntro({ onDone }: Props) {
       });
     }, 20);
     return () => clearInterval(i);
-  }, [phase, onDone]);
+  }, [phase, onComplete, onDone]);
 
   const text = useMemo(() => MENSAGEM.slice(0, chars), [chars]);
 
@@ -55,6 +60,14 @@ export default function NexusCinematicIntro({ onDone }: Props) {
         )}
         {(phase === "message" || phase === "done") && (
           <p className="mt-4 text-sm text-blue-100/90">{text}</p>
+        )}
+        {phase !== "done" && onSkip && (
+          <button
+            onClick={onSkip}
+            className="mt-4 rounded-md border border-blue-300/30 bg-blue-500/10 px-3 py-1 text-xs text-blue-200"
+          >
+            Pular intro
+          </button>
         )}
       </div>
     </div>
