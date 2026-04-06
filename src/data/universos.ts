@@ -142,6 +142,7 @@ export const UNIVERSOS: Record<UniversoId, Universo> = {
     sinergiasCom: ['nexus', 'axim', 'cipher'],
     gatilhoDeAtivacao: 'Usuário precisa planejar, organizar ou pensar a longo prazo',
     perfisQueAtiva: ['Analítico-protetor', 'Estratégico-visioneiro'],
+    voiceId: process.env.NEXT_PUBLIC_STRATOS_VOICE_ID || 'g6xIsTj2HwM6VR4iXFCw',
     imagemUrl: '/images/universos/stratos.png',
   },
 
