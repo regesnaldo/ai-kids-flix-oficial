@@ -23,7 +23,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { transcribeAudio } from '@/lib/voice/whisper';
 import { detectEmotion, getEmotionPromptHint } from '@/lib/voice/hume';
-import { allAgents } from '@/canon/agents/all-agents';
+import { ALL_AGENTS } from '@/canon/agents/all-agents';
 
 export const runtime = 'nodejs';
 export const maxDuration = 45;
@@ -66,8 +66,10 @@ export async function POST(req: NextRequest) {
     const emotionHint = getEmotionPromptHint(emotion);
 
     // 2. Buscar agente
-    const agent = allAgents.find((a) => a.id === agentId);
-    const agentSystemPrompt = agent?.systemPrompt ?? `Você é ${agentId}, um agente do metaverso MENTE.AI.`;
+    const agent = ALL_AGENTS.find((a) => a.id === agentId);
+    const agentSystemPrompt = agent
+      ? `Você é ${agent.name}. Tom: ${agent.personality.tone}. Abordagem: ${agent.personality.approach}`
+      : `Você é ${agentId}, um agente do metaverso MENTE.AI.`;
 
     // 3. Chamar Claude (Haiku) com contexto emocional
     const { Anthropic } = await import('@anthropic-ai/sdk');

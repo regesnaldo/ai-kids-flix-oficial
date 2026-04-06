@@ -2,11 +2,20 @@
 
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 import { useEffect, useMemo, useState } from 'react';
 import { allAgents } from '@/data/all-agents';
 import { TEMAS } from '@/components/TemasDropdown';
 
 export default function ExplorarPage() {
+  return (
+    <Suspense fallback={<div>Carregando...</div>}>
+      <ExplorarContent />
+    </Suspense>
+  );
+}
+
+function ExplorarContent() {
   const searchParams = useSearchParams();
   const temaSlug = searchParams.get('tema');
   const [loading, setLoading] = useState(true);

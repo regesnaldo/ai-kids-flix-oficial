@@ -30,6 +30,7 @@
     "agents:retry": "npm run agents:images",
     "agents:translate-names": "npx ts-node --esm scripts/translate-agent-names.ts",
     "automate:all": "npx ts-node --esm scripts/automate-everything.ts",
+    "migrate:narrative": "node scripts/migrate-narrative.js",
     "commit": "powershell -ExecutionPolicy Bypass -File ./scripts/commit-all.ps1",
     "commit:quick": "powershell -ExecutionPolicy Bypass -File ./scripts/quick-commit.ps1",
     "demo:record": "playwright test --grep \"Gravar demo\"",

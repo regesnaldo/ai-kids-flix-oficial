@@ -126,6 +126,31 @@ export const interactiveDecisions = mysqlTable("interactiveDecisions", {
 export type InteractiveDecision = typeof interactiveDecisions.$inferSelect;
 export type InsertInteractiveDecision = typeof interactiveDecisions.$inferInsert;
 
+export interface UserProfileAgentHistoryEntry {
+  agentId: string;
+  archetype: string;
+  dimensao: string;
+  choiceId: string;
+  choiceLabel: string;
+  dimensaoEmocional: number;
+  dimensaoIntelectual: number;
+  dimensaoMoral: number;
+  backtrackingApplied: boolean;
+  timestamp: string;
+}
+
+export const userProfile = mysqlTable("userProfile", {
+  userId: int("userId").notNull().references(() => users.id, { onDelete: "cascade" }).primaryKey(),
+  dimensaoEmocional: int("dimensaoEmocional").notNull().default(0),
+  dimensaoIntelectual: int("dimensaoIntelectual").notNull().default(0),
+  dimensaoMoral: int("dimensaoMoral").notNull().default(0),
+  agentHistory: json("agentHistory").$type<UserProfileAgentHistoryEntry[]>().notNull().default([]),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type UserProfile = typeof userProfile.$inferSelect;
+export type InsertUserProfile = typeof userProfile.$inferInsert;
+
 export const AI_KNOWLEDGE_LEVELS = ["leigo", "intermediario", "avancado"] as const;
 export const AGE_GROUPS = ["kids-4-6", "kids-7-9", "kids-10-12", "teens-13", "adults-18", "all-ages"] as const;
 export const TRACKS = ["tech", "science", "arts", "math", "philosophy"] as const;

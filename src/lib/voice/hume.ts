@@ -31,6 +31,22 @@ export interface EmotionResult {
   category: 'positive' | 'negative' | 'neutral' | 'curious' | 'anxious';
 }
 
+interface HumePredictionPayload {
+  results?: {
+    predictions?: Array<{
+      models?: {
+        prosody?: {
+          grouped_predictions?: Array<{
+            predictions?: Array<{
+              emotions?: EmotionScore[];
+            }>;
+          }>;
+        };
+      };
+    }>;
+  };
+}
+
 // Mapeamento de emoções para categorias que o agente pode usar
 const EMOTION_CATEGORY_MAP: Partial<Record<EmotionName, EmotionResult['category']>> = {
   Curiosity: 'curious',
@@ -118,7 +134,7 @@ async function pollJobResult(
   apiKey: string,
   maxAttempts = 10,
   intervalMs = 800
-): Promise<Record<string, unknown> | null> {
+): Promise<HumePredictionPayload | null> {
   for (let i = 0; i < maxAttempts; i++) {
     await new Promise((r) => setTimeout(r, intervalMs));
 
@@ -127,7 +143,7 @@ async function pollJobResult(
     });
 
     if (res.ok) {
-      return await res.json() as Record<string, unknown>;
+      return await res.json() as HumePredictionPayload;
     }
 
     if (res.status !== 400) break; // 400 = ainda processando
