@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useChatHistory, type ChatMessage } from '@/hooks/useChatHistory';
+import { updateCognitiveStateFromText } from '@/cognitive/colorEngine';
 
 interface AgentChatProps {
   agentId: string;
@@ -31,15 +32,16 @@ export default function AgentChat({ agentId, agentName, agentApproach }: AgentCh
   }, [messages, isSending]);
 
   async function sendMessage() {
-    const text = input.trim();
-    if (!text || isSending) return;
+      const text = input.trim();
+      if (!text || isSending) return;
 
-    setError(null);
-    setIsSending(true);
-    setInput('');
+      setError(null);
+      setIsSending(true);
+      setInput('');
 
-    // Adiciona mensagem do usuário
-    addMessage('user', text);
+      // Adiciona mensagem do usuário
+      addMessage('user', text);
+      updateCognitiveStateFromText(text);
 
     try {
       const res = await fetch('/api/chat', {
@@ -139,7 +141,10 @@ export default function AgentChat({ agentId, agentName, agentApproach }: AgentCh
         <div className="flex gap-3 items-end">
           <textarea
             value={input}
-            onChange={(e) => setInput(e.target.value)}
+            onChange={(e) => {
+              setInput(e.target.value);
+              updateCognitiveStateFromText(e.target.value);
+            }}
             onKeyDown={(e) => {
               if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
@@ -168,4 +173,3 @@ export default function AgentChat({ agentId, agentName, agentApproach }: AgentCh
     </section>
   );
 }
-
