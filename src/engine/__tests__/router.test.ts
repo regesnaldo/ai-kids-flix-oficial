@@ -61,5 +61,26 @@ describe("engine/router", () => {
     expect(result.archetype).toBe("criativo");
     expect(["prism", "aurora"]).toContain(result.agentId);
   });
-});
 
+  it("evita sequencia direta STRATOS -> KAOS", () => {
+    const result = routeAgent({
+      dimensoes: { emocional: 95, intelectual: 30, moral: 20 },
+      escolhasRecentes: ["quero quebrar as regras agora"],
+      lastAgentId: "stratos",
+    });
+
+    expect(result.archetype).toBe("rebelde");
+    expect(result.agentId).toBe("ethos");
+  });
+
+  it("evita sequencia direta KAOS -> STRATOS", () => {
+    const result = routeAgent({
+      dimensoes: { emocional: 10, intelectual: 95, moral: 70 },
+      escolhasRecentes: ["plano de longo prazo com dados"],
+      lastAgentId: "kaos",
+    });
+
+    expect(result.archetype).toBe("estrategico");
+    expect(result.agentId).toBe("nexus");
+  });
+});

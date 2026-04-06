@@ -167,6 +167,7 @@ export const UNIVERSOS: Record<UniversoId, Universo> = {
     sinergiasCom: ['volt', 'aurora', 'lyra'],
     gatilhoDeAtivacao: 'Usuário está preso em padrões ou precisa de criatividade disruptiva',
     perfisQueAtiva: ['Rebelde-experimentador', 'Criativo-experimental'],
+    voiceId: process.env.NEXT_PUBLIC_KAOS_VOICE_ID || 'EXAVITQu4vr4xnSDxMaL',
     imagemUrl: '/images/universos/kaos.png',
   },
 

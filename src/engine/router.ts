@@ -16,6 +16,7 @@ export interface RouterInput {
   dimensoes: DimensionSnapshot;
   escolhasRecentes?: string[];
   perfilHint?: ArchetypeId | null;
+  lastAgentId?: string | null;
 }
 
 export interface RouterResult {
@@ -124,6 +125,24 @@ function routeByArchetype(archetype: ArchetypeId, dims: DimensionSnapshot): { ag
   }
 }
 
+function avoidConflictingSequence(
+  candidateAgentId: string,
+  lastAgentId?: string | null,
+): { agentId: string; secondaryAgentIds: string[] } {
+  const prev = (lastAgentId ?? "").toLowerCase();
+  const next = candidateAgentId.toLowerCase();
+
+  // Regra Sprint B: KAOS vs STRATOS nunca em sequência direta.
+  if (prev === "stratos" && next === "kaos") {
+    return { agentId: "ethos", secondaryAgentIds: ["kaos"] };
+  }
+  if (prev === "kaos" && next === "stratos") {
+    return { agentId: "nexus", secondaryAgentIds: ["stratos"] };
+  }
+
+  return { agentId: candidateAgentId, secondaryAgentIds: [] };
+}
+
 export function routeAgent(input: RouterInput): RouterResult {
   const byDimensions = scoreByDimensions(input.dimensoes);
   const byChoices = scoreByChoices(input.escolhasRecentes ?? []);
@@ -139,11 +158,13 @@ export function routeAgent(input: RouterInput): RouterResult {
 
   const archetype = selectArchetype(scores, input.perfilHint);
   const route = routeByArchetype(archetype, input.dimensoes);
+  const conflictResolved = avoidConflictingSequence(route.agentId, input.lastAgentId);
+  const secondaryFromRoute = route.secondary.filter((id) => id !== conflictResolved.agentId);
 
   return {
     archetype,
-    agentId: route.agentId,
-    secondaryAgentIds: route.secondary,
+    agentId: conflictResolved.agentId,
+    secondaryAgentIds: [...secondaryFromRoute, ...conflictResolved.secondaryAgentIds],
     scores,
   };
 }
