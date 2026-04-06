@@ -192,6 +192,7 @@ export const UNIVERSOS: Record<UniversoId, Universo> = {
     sinergiasCom: ['janus', 'terra', 'nexus'],
     gatilhoDeAtivacao: 'Usuário enfrenta decisão moral ou questiona valores',
     perfisQueAtiva: ['Analítico-protetor', 'Pacificador-conformista', 'Empático-humanista'],
+    voiceId: process.env.NEXT_PUBLIC_ETHOS_VOICE_ID || 'TxGEqnHWrfWFTfGW9XjX',
     imagemUrl: '/images/universos/ethos.png',
   },
 
