@@ -100,7 +100,65 @@ export default function JourneyMap() {
             </p>
           </div>
         </div>
+
+        <TimelineMap fase={fase} />
       </div>
     </section>
+  );
+}
+
+const FASES_NARRATIVA = [
+  { id: 1, nome: 'Despertar' },
+  { id: 2, nome: 'NEXUS' },
+  { id: 3, nome: 'Evolução' },
+  { id: 4, nome: 'Integração' },
+  { id: 5, nome: 'Síntese' },
+];
+
+function TimelineMap({ fase }: { fase: number }) {
+  return (
+    <div className="mt-6">
+      <p className="text-xs uppercase tracking-[0.3em] text-white/40 mb-4">Linha do tempo</p>
+      <div className="flex items-center">
+        {FASES_NARRATIVA.map((f, idx) => {
+          const status = f.id < fase ? 'concluida' : f.id === fase ? 'atual' : 'proxima';
+          return (
+            <div key={f.id} className="flex items-center flex-1 last:flex-none">
+              <div className="flex flex-col items-center min-w-[48px]">
+                <div
+                  className={`rounded-full border-2 transition-all ${
+                    status === 'atual'
+                      ? 'w-5 h-5 bg-cyan-400 border-cyan-400 shadow-[0_0_14px_rgba(34,211,238,0.9)]'
+                      : status === 'concluida'
+                      ? 'w-4 h-4 bg-green-500 border-green-500'
+                      : 'w-4 h-4 bg-transparent border-white/30'
+                  }`}
+                />
+                <p
+                  className={`text-[10px] mt-1 whitespace-nowrap text-center ${
+                    status === 'atual'
+                      ? 'font-bold text-cyan-300'
+                      : status === 'concluida'
+                      ? 'text-green-400/80'
+                      : 'text-white/30'
+                  }`}
+                >
+                  {f.nome}
+                </p>
+              </div>
+              {idx < FASES_NARRATIVA.length - 1 && (
+                <div
+                  className={`flex-1 h-px mx-2 ${
+                    status === 'concluida'
+                      ? 'bg-gradient-to-r from-green-500/60 to-cyan-400/40'
+                      : 'bg-white/10'
+                  }`}
+                />
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
   );
 }

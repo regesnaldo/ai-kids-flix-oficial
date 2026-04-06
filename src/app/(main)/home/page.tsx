@@ -3,7 +3,9 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import FuturisticHero from '@/components/home/FuturisticHero';
+import CognitiveInput from '@/components/home/CognitiveInput';
 import AgentRow from '@/components/home/AgentRow';
 import AgentDetailModal from '@/components/home/AgentDetailModal';
 import InfoModal from '@/components/home/InfoModal';
@@ -113,6 +115,7 @@ function SeasonRow() {
 }
 
 export default function HomePage() {
+  const router = useRouter();
   const [selectedAgent, setSelectedAgent] = useState<HomeAgent | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isInfoOpen, setIsInfoOpen] = useState(false);
@@ -132,7 +135,10 @@ export default function HomePage() {
       className="min-h-screen"
       style={{ backgroundColor: 'var(--cognitive-bg, #03030d)' }}
     >
-      <FuturisticHero onInfoClick={() => setIsInfoOpen(true)} />
+      <FuturisticHero
+        onInfoClick={() => setIsInfoOpen(true)}
+        onEnterMetaverse={() => router.push('/laboratorio')}
+      />
       <JourneyMap />
 
       <section className="-mt-20 relative z-20 pb-24 pt-4 space-y-8" aria-label="Catálogo">
@@ -157,6 +163,7 @@ export default function HomePage() {
       <AgentDetailModal agent={selectedAgent} isOpen={isModalOpen} onClose={handleCloseModal} />
 
       <InfoModal isOpen={isInfoOpen} onClose={() => setIsInfoOpen(false)} />
+      <CognitiveInput />
     </main>
   );
 }

@@ -24,6 +24,7 @@ export default function Navigation() {
   const [temasOpen, setTemasOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mobileTemasOpen, setMobileTemasOpen] = useState(false);
+  const [notifOpen, setNotifOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   const navItems = [
@@ -178,12 +179,30 @@ export default function Navigation() {
         </div>
 
         <div className="flex items-center gap-4">
-          <button type="button" className="hidden md:inline-flex text-zinc-300 hover:text-white transition" aria-label="Buscar">
+          <button
+            type="button"
+            onClick={() => router.push('/explorar')}
+            className="hidden md:inline-flex text-zinc-300 hover:text-white transition"
+            aria-label="Buscar"
+          >
             <Search className="w-5 h-5" />
           </button>
-          <button type="button" className="hidden md:inline-flex text-zinc-300 hover:text-white transition" aria-label="Notificações">
-            <Bell className="w-5 h-5" />
-          </button>
+          <div className="relative hidden md:inline-flex">
+            <button
+              type="button"
+              onClick={() => setNotifOpen((v) => !v)}
+              className="text-zinc-300 hover:text-white transition"
+              aria-label="Notificações"
+            >
+              <Bell className="w-5 h-5" />
+            </button>
+            {notifOpen && (
+              <div className="absolute right-0 top-full mt-3 w-64 bg-zinc-950 border border-zinc-700 shadow-2xl rounded-lg p-4 z-50">
+                <p className="text-xs uppercase tracking-widest text-zinc-400 mb-2">Notificações</p>
+                <p className="text-sm text-zinc-300">Nenhuma notificação por enquanto.</p>
+              </div>
+            )}
+          </div>
 
           {session.authenticated ? (
             <div className="relative hidden md:block">

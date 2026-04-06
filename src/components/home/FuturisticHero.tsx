@@ -34,7 +34,13 @@ function createParticle(canvasWidth: number, canvasHeight: number): Particle {
   };
 }
 
-export default function FuturisticHero({ onInfoClick }: { onInfoClick?: () => void }) {
+export default function FuturisticHero({
+  onInfoClick,
+  onEnterMetaverse,
+}: {
+  onInfoClick?: () => void;
+  onEnterMetaverse?: () => void;
+}) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [phraseIndex, setPhraseIndex] = useState(0);
   const [typedValue, setTypedValue] = useState('');
@@ -156,6 +162,7 @@ export default function FuturisticHero({ onInfoClick }: { onInfoClick?: () => vo
           <div className="flex flex-wrap items-center gap-4 pt-4">
             <motion.button
               type="button"
+              onClick={onEnterMetaverse}
               whileHover={{ scale: 1.05 }}
               className="px-8 py-3 rounded-full text-black font-extrabold uppercase tracking-[0.4em] shadow-[0_0_32px_rgba(15,118,255,0.6)] transition"
               style={{
