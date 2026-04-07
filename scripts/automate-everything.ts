@@ -37,7 +37,7 @@ const steps = [
 ];
 
 let completedSteps = 0;
-let failedSteps: string[] = [];
+const failedSteps: string[] = [];
 
 steps.forEach((step, index) => {
   console.log(`\n[${index + 1}/${steps.length}] ${step.name}...`);

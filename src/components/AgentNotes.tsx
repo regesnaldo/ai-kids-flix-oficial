@@ -24,7 +24,7 @@ export default function AgentNotes({ agentId, agentName }: Props) {
       const res = await fetch(`/api/notes?agentId=${agentId}`);
       const data = await res.json();
       setNotes(data.notes ?? []);
-    } catch {}
+    } catch { /* silent: falha silenciosa ao carregar notas */ }
     setLoading(false);
   }, [agentId]);
 
@@ -49,7 +49,7 @@ export default function AgentNotes({ agentId, agentName }: Props) {
           body: JSON.stringify({ reason: "NOTA_CRIADA" }),
         }).catch(() => {});
       }
-    } catch {}
+    } catch { /* silent: falha silenciosa ao salvar nota */ }
     setSaving(false);
   }
 

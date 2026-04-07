@@ -1,3 +1,5 @@
+﻿export const dynamic = 'force-dynamic';
+
 import AccountShell from "../../_components/AccountShell";
 import { InfoCard } from "../../_components/AccountBlocks";
 import RedeemCodeForm from "../_components/RedeemCodeForm";

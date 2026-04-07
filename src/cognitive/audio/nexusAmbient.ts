@@ -7,10 +7,23 @@
  * - transições lentas para sensação contemplativa
  */
 
-import * as Tone from "tone";
+// Tone.js é importado de forma lazy para evitar erros de SSR no Next.js
+// (ver Bug #04 no CLAUDE.md — Tone.js causa NotSupportedError no servidor)
+type ToneModule = typeof import("tone");
 
-let synth: Tone.PolySynth | null = null;
-let loop: Tone.Loop | null = null;
+let toneInstance: ToneModule | null = null;
+
+async function getTone(): Promise<ToneModule> {
+  if (!toneInstance) {
+    toneInstance = await import("tone");
+  }
+  return toneInstance;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let synth: any | null = null;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let loop: any | null = null;
 let volume = 0.18;
 let muted = false;
 let state: "idle" | "playing" = "idle";
@@ -21,13 +34,18 @@ function emit(nextState: "idle" | "playing") {
   listeners.forEach((listener) => listener(nextState));
 }
 
+function gainToDb(gain: number): number {
+  return 20 * Math.log10(Math.max(0.0001, gain));
+}
+
 function applyVolume() {
   if (!synth) return;
-  synth.volume.value = muted ? -40 : Tone.gainToDb(Math.max(0.0001, volume));
+  synth.volume.value = muted ? -40 : gainToDb(volume);
 }
 
 export async function iniciarNexusAmbient() {
   if (synth || loop) return;
+  const Tone = await getTone();
   await Tone.start();
 
   synth = new Tone.PolySynth(Tone.Synth, {
@@ -38,7 +56,7 @@ export async function iniciarNexusAmbient() {
   const notas = ["C3", "G3", "D4", "A3"];
   let idx = 0;
 
-  loop = new Tone.Loop((time) => {
+  loop = new Tone.Loop((time: number) => {
     if (!synth) return;
     synth.triggerAttackRelease(notas[idx % notas.length], "2n", time, 0.12);
     idx += 1;

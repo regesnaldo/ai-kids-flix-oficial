@@ -1,5 +1,7 @@
 'use client';
 
+export const dynamic = 'force-dynamic';
+
 /**
  * /universo/nexus — Universo NEXUS — Piloto do Metaverso MENTE.AI
  *
@@ -16,14 +18,15 @@ import { Canvas } from '@react-three/fiber';
 import { Loader } from '@react-three/drei';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Volume2, VolumeX, Minimize2 } from 'lucide-react';
-import dynamic from 'next/dynamic';
+import nextDynamic from 'next/dynamic';
 
 import { NexusScene } from '@/components/universo/NexusScene';
+import NoSSR from '@/components/NoSSR';
 import NexusCinematicIntro from '@/components/universo/NexusCinematicIntro';
 import { nexusAmbient } from '@/cognitive/audio/nexusAmbient';
 
 // Importação dinâmica para evitar SSR do canvas
-const NexusDialogLive = dynamic(
+const NexusDialogLive = nextDynamic(
   () => import('@/components/universo/NexusDialogLive'),
   { ssr: false, loading: () => null },
 );
@@ -137,21 +140,23 @@ export default function NexusUniversePage() {
       )}
 
       {/* ── Cena 3D (sempre carregando em background) ─────────────────────── */}
-      <div className="absolute inset-0 z-0">
-        <Canvas
-          camera={{ position: [0, 0, 15], fov: 60 }}
-          gl={{ antialias: true, alpha: true }}
-          dpr={[1, 2]}
-        >
-          <Suspense fallback={null}>
-            <NexusScene />
-          </Suspense>
-        </Canvas>
-        <Loader
-          containerStyles={{ background: '#000' }}
-          innerStyles={{ background: '#3B82F6' }}
-        />
-      </div>
+      <NoSSR>
+        <div className="absolute inset-0 z-0">
+          <Canvas
+            camera={{ position: [0, 0, 15], fov: 60 }}
+            gl={{ antialias: true, alpha: true }}
+            dpr={[1, 2]}
+          >
+            <Suspense fallback={null}>
+              <NexusScene />
+            </Suspense>
+          </Canvas>
+          <Loader
+            containerStyles={{ background: '#000' }}
+            innerStyles={{ background: '#3B82F6' }}
+          />
+        </div>
+      </NoSSR>
 
       {/* ── Gradiente cinematográfico ──────────────────────────────────────── */}
       <div className="absolute inset-0 z-5 pointer-events-none bg-gradient-to-t from-black/50 via-transparent to-black/20" />

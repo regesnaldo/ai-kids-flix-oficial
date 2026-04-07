@@ -1,4 +1,6 @@
-"use client";
+﻿"use client";
+
+export const dynamic = 'force-dynamic';
 
 import { Suspense, useCallback, useRef, useState } from "react";
 import { Canvas } from "@react-three/fiber";
@@ -8,6 +10,7 @@ import { Minimize2, Volume2, VolumeX } from "lucide-react";
 import NexusCinematicIntro from "@/components/universo/NexusCinematicIntro";
 import NexusDialogLive from "@/components/universo/NexusDialogLive";
 import { EthosScene } from "@/components/universo/EthosScene";
+import NoSSR from "@/components/NoSSR";
 
 const ETHOS_VOICE_ID = process.env.NEXT_PUBLIC_ETHOS_VOICE_ID || "TxGEqnHWrfWFTfGW9XjX";
 
@@ -67,14 +70,16 @@ export default function EthosUniversePage() {
         />
       )}
 
-      <div className="absolute inset-0 z-0">
-        <Canvas camera={{ position: [8, 2, 10], fov: 60 }} dpr={[1, 2]}>
-          <Suspense fallback={null}>
-            <EthosScene />
-          </Suspense>
-        </Canvas>
-        <Loader containerStyles={{ background: "#120804" }} innerStyles={{ background: "#f59e0b" }} />
-      </div>
+      <NoSSR>
+        <div className="absolute inset-0 z-0">
+          <Canvas camera={{ position: [8, 2, 10], fov: 60 }} dpr={[1, 2]}>
+            <Suspense fallback={null}>
+              <EthosScene />
+            </Suspense>
+          </Canvas>
+          <Loader containerStyles={{ background: "#120804" }} innerStyles={{ background: "#f59e0b" }} />
+        </div>
+      </NoSSR>
 
       {introConcluida && (
         <>

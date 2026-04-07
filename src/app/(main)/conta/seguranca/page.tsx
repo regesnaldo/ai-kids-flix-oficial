@@ -1,3 +1,5 @@
+﻿export const dynamic = 'force-dynamic';
+
 import AccountShell from "../_components/AccountShell";
 import { ActionLink, InfoCard } from "../_components/AccountBlocks";
 import ChangePasswordForm from "../_components/ChangePasswordForm";

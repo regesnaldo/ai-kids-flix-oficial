@@ -1,0 +1,103 @@
+{
+  "dimensions": {
+    "philosophical": "Philosophical",
+    "emotional": "Emotional",
+    "creative": "Creative",
+    "ethical": "Ethical",
+    "social": "Social",
+    "spiritual": "Spiritual",
+    "intellectual": "Intellectual",
+    "practical": "Practical",
+    "aesthetic": "Aesthetic",
+    "political": "Political",
+    "scientific": "Scientific",
+    "mystical": "Mystical"
+  },
+  "levels": {
+    "primordial": "Primordial",
+    "mythic": "Mythic",
+    "archetypal": "Archetypal",
+    "human": "Human"
+  },
+  "factions": {
+    "order": "Order",
+    "chaos": "Chaos",
+    "balance": "Balance"
+  },
+  "ui": {
+    "home": "Home",
+    "agents": "Agents",
+    "laboratory": "Laboratory",
+    "explore": "Explore",
+    "search": "Search agent by name or approach...",
+    "allDimensions": "All Dimensions",
+    "allLevels": "All Levels",
+    "allFactions": "All Factions",
+    "showing": "Showing",
+    "of": "of",
+    "agentsCountLabel": "agents"
+  },
+  "badges": {
+    "Mente Analítica": "Analytical Mind",
+    "Coração Aberto": "Open Heart"
+  },
+  "seasons": {
+    "title": "Seasons",
+    "episode": "Episode",
+    "season": "Season",
+    "watchNow": "Watch Now",
+    "continue": "Continue",
+    "completed": "Completed",
+    "locked": "Locked",
+    "progress": "Progress"
+  },
+  "episodes": {
+    "title": "Episodes",
+    "duration": "Duration",
+    "minutes": "min",
+    "xpReward": "XP Reward",
+    "difficulty": "Difficulty",
+    "easy": "Easy",
+    "medium": "Medium",
+    "hard": "Hard",
+    "expert": "Expert",
+    "master": "Master"
+  },
+  "agents": {
+    "nexus": "NEXUS - The Guide",
+    "axiom": "AXIOM - Pattern Analyzer",
+    "volt": "VOLT - Action Catalyst",
+    "ethos": "ETHOS - Ethics Guardian",
+    "kaos": "KAOS - Chaos Agent",
+    "cipher": "CIPHER - Data Master",
+    "aurora": "AURORA - Creative Vision",
+    "stratos": "STRATOS - Strategy Architect"
+  },
+  "navigation": {
+    "home": "Home",
+    "library": "Library",
+    "ranking": "Ranking",
+    "profile": "Profile",
+    "settings": "Settings"
+  },
+  "actions": {
+    "start": "Start",
+    "continue": "Continue",
+    "retry": "Retry",
+    "back": "Back",
+    "next": "Next",
+    "submit": "Submit",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit"
+  },
+  "messages": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "success": "Success",
+    "noResults": "No results found",
+    "welcome": "Welcome to MENTE.AI",
+    "selectChoice": "Make your choice"
+  }
+}

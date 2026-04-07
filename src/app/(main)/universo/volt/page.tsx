@@ -1,4 +1,6 @@
-"use client";
+﻿"use client";
+
+export const dynamic = 'force-dynamic';
 
 import { Suspense, useCallback, useRef, useState } from "react";
 import { Canvas } from "@react-three/fiber";
@@ -8,6 +10,7 @@ import { Minimize2, Volume2, VolumeX } from "lucide-react";
 import NexusCinematicIntro from "@/components/universo/NexusCinematicIntro";
 import NexusDialogLive from "@/components/universo/NexusDialogLive";
 import { VoltScene } from "@/components/universo/VoltScene";
+import NoSSR from "@/components/NoSSR";
 
 const VOLT_VOICE_ID = process.env.NEXT_PUBLIC_VOLT_VOICE_ID || "VR6AewLTigWG4xSOukaG";
 
@@ -67,14 +70,16 @@ export default function VoltUniversePage() {
         />
       )}
 
-      <div className="absolute inset-0 z-0">
-        <Canvas camera={{ position: [0, 0, 15], fov: 62 }} dpr={[1, 2]}>
-          <Suspense fallback={null}>
-            <VoltScene />
-          </Suspense>
-        </Canvas>
-        <Loader containerStyles={{ background: "#030303" }} innerStyles={{ background: "#facc15" }} />
-      </div>
+      <NoSSR>
+        <div className="absolute inset-0 z-0">
+          <Canvas camera={{ position: [0, 0, 15], fov: 62 }} dpr={[1, 2]}>
+            <Suspense fallback={null}>
+              <VoltScene />
+            </Suspense>
+          </Canvas>
+          <Loader containerStyles={{ background: "#030303" }} innerStyles={{ background: "#facc15" }} />
+        </div>
+      </NoSSR>
 
       {introConcluida && (
         <>

@@ -1,4 +1,6 @@
-"use client";
+﻿"use client";
+
+export const dynamic = 'force-dynamic';
 
 import { Suspense, useCallback, useRef, useState } from "react";
 import { Canvas } from "@react-three/fiber";
@@ -8,6 +10,7 @@ import { Minimize2, Volume2, VolumeX } from "lucide-react";
 import NexusCinematicIntro from "@/components/universo/NexusCinematicIntro";
 import NexusDialogLive from "@/components/universo/NexusDialogLive";
 import { LyraScene } from "@/components/universo/LyraScene";
+import NoSSR from "@/components/NoSSR";
 
 const LYRA_VOICE_ID = process.env.NEXT_PUBLIC_LYRA_VOICE_ID || "XB0fDUnXU5powFXDhCwa";
 
@@ -101,14 +104,16 @@ export default function LyraUniversePage() {
         />
       )}
 
-      <div className="absolute inset-0 z-0">
-        <Canvas camera={{ position: [0, 0, 13], fov: 62 }} dpr={[1, 2]}>
-          <Suspense fallback={null}>
-            <LyraScene audioLevel={audioLevel} />
-          </Suspense>
-        </Canvas>
-        <Loader containerStyles={{ background: "#14081f" }} innerStyles={{ background: "#e879f9" }} />
-      </div>
+      <NoSSR>
+        <div className="absolute inset-0 z-0">
+          <Canvas camera={{ position: [0, 0, 13], fov: 62 }} dpr={[1, 2]}>
+            <Suspense fallback={null}>
+              <LyraScene audioLevel={audioLevel} />
+            </Suspense>
+          </Canvas>
+          <Loader containerStyles={{ background: "#14081f" }} innerStyles={{ background: "#e879f9" }} />
+        </div>
+      </NoSSR>
 
       {introConcluida && (
         <>

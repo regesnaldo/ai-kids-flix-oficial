@@ -1,4 +1,6 @@
-"use client";
+﻿"use client";
+
+export const dynamic = 'force-dynamic';
 
 import { Suspense, useCallback, useRef, useState } from "react";
 import { Canvas } from "@react-three/fiber";
@@ -8,6 +10,7 @@ import { Minimize2, Volume2, VolumeX } from "lucide-react";
 import NexusCinematicIntro from "@/components/universo/NexusCinematicIntro";
 import NexusDialogLive from "@/components/universo/NexusDialogLive";
 import { AuroraScene } from "@/components/universo/AuroraScene";
+import NoSSR from "@/components/NoSSR";
 
 const AURORA_VOICE_ID = process.env.NEXT_PUBLIC_AURORA_VOICE_ID || "21m00Tcm4TlvDq8ikWAM";
 
@@ -75,14 +78,16 @@ export default function AuroraUniversePage() {
         />
       )}
 
-      <div className="absolute inset-0 z-0">
-        <Canvas camera={{ position: [0, 1, 12], fov: 60 }} dpr={[1, 2]}>
-          <Suspense fallback={null}>
-            <AuroraScene mood={mood} />
-          </Suspense>
-        </Canvas>
-        <Loader containerStyles={{ background: "#0f172a" }} innerStyles={{ background: "#22d3ee" }} />
-      </div>
+      <NoSSR>
+        <div className="absolute inset-0 z-0">
+          <Canvas camera={{ position: [0, 1, 12], fov: 60 }} dpr={[1, 2]}>
+            <Suspense fallback={null}>
+              <AuroraScene mood={mood} />
+            </Suspense>
+          </Canvas>
+          <Loader containerStyles={{ background: "#0f172a" }} innerStyles={{ background: "#22d3ee" }} />
+        </div>
+      </NoSSR>
 
       {introConcluida && (
         <>

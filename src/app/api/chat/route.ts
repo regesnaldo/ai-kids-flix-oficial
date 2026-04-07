@@ -7,6 +7,7 @@ import { db } from "@/lib/db";
 import { interactiveDecisions, userProfile } from "@/lib/db/schema";
 import { getAuthCookieFromRequest, verifyToken } from "@/lib/auth";
 import { profileInteraction } from "@/engine/profiler";
+import { executarToT, injetarToTNoSystem } from "@/engine/tot";
 
 export const runtime = "nodejs";
 
@@ -239,20 +240,36 @@ export async function POST(request: NextRequest) {
     }
 
     const system = buildSystemPrompt(agent);
+
+    // Tree of Thoughts: gera 3 caminhos de raciocínio e injeta o melhor no prompt
+    let systemFinal = system;
+    if (process.env.TOT_ENABLED === "true") {
+      try {
+        const tot = await executarToT({
+          agent,
+          messages,
+          archetype: routed?.archetype ?? null,
+        });
+        systemFinal = injetarToTNoSystem(system, tot);
+      } catch {
+        // Falha silenciosa — chat continua com system prompt original
+      }
+    }
+
     const provider = (process.env.LLM_PROVIDER || "").toLowerCase();
 
     let assistantText: string;
 
     // Seleção de provedor: variável LLM_PROVIDER > presença de chave > erro
     if (provider === "openai") {
-      assistantText = await callOpenAI({ system, messages });
+      assistantText = await callOpenAI({ system: systemFinal, messages });
 
     } else if (provider === "anthropic" || process.env.ANTHROPIC_API_KEY) {
       // ✅ Usa utilitário central: lazy client + retry + timeout + logs semânticos
-      assistantText = await anthropicCompletionText({ system, mensagens: messages });
+      assistantText = await anthropicCompletionText({ system: systemFinal, mensagens: messages });
 
     } else if (process.env.OPENAI_API_KEY) {
-      assistantText = await callOpenAI({ system, messages });
+      assistantText = await callOpenAI({ system: systemFinal, messages });
 
     } else {
       return NextResponse.json(

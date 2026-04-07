@@ -1,3 +1,5 @@
+﻿export const dynamic = 'force-dynamic';
+
 import { redirect } from "next/navigation";
 import AccountShell from "../../_components/AccountShell";
 import { InfoCard } from "../../_components/AccountBlocks";

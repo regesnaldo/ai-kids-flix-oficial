@@ -95,7 +95,6 @@ export function useChatHistory(
       console.warn('[useChatHistory] Erro ao carregar histórico:', e);
     }
   // Rodar apenas na montagem (storageKey não muda durante vida do componente)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [storageKey]);
 
   // ── Persiste no localStorage sempre que messages mudar ───────────────────

@@ -49,7 +49,7 @@ export default function ProfilePicker() {
       if (res.status === 401) { window.location.href = "/login"; return; }
       const data = await res.json();
       setProfiles(data);
-    } catch {} finally { setLoading(false); }
+    } catch { /* silent */ } finally { setLoading(false); }
   }
 
   async function createProfile() {

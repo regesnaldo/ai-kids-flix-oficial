@@ -1,4 +1,6 @@
-"use client";
+﻿"use client";
+
+export const dynamic = 'force-dynamic';
 
 import { Suspense, useCallback, useRef, useState } from "react";
 import { Canvas } from "@react-three/fiber";
@@ -8,6 +10,7 @@ import { Minimize2, Volume2, VolumeX } from "lucide-react";
 import NexusCinematicIntro from "@/components/universo/NexusCinematicIntro";
 import NexusDialogLive from "@/components/universo/NexusDialogLive";
 import { TerraScene } from "@/components/universo/TerraScene";
+import NoSSR from "@/components/NoSSR";
 
 const TERRA_VOICE_ID = process.env.NEXT_PUBLIC_TERRA_VOICE_ID || "XrExE9yKIg1WjnnlVkGX";
 
@@ -74,14 +77,16 @@ export default function TerraUniversePage() {
         />
       )}
 
-      <div className="absolute inset-0 z-0">
-        <Canvas camera={{ position: [0, 1.2, 12], fov: 62 }} dpr={[1, 2]}>
-          <Suspense fallback={null}>
-            <TerraScene empathyScore={empathyScore} />
-          </Suspense>
-        </Canvas>
-        <Loader containerStyles={{ background: "#03110a" }} innerStyles={{ background: "#22c55e" }} />
-      </div>
+      <NoSSR>
+        <div className="absolute inset-0 z-0">
+          <Canvas camera={{ position: [0, 1.2, 12], fov: 62 }} dpr={[1, 2]}>
+            <Suspense fallback={null}>
+              <TerraScene empathyScore={empathyScore} />
+            </Suspense>
+          </Canvas>
+          <Loader containerStyles={{ background: "#03110a" }} innerStyles={{ background: "#22c55e" }} />
+        </div>
+      </NoSSR>
 
       {introConcluida && (
         <>
