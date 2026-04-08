@@ -2,11 +2,11 @@
 
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { useEffect, useMemo, useState } from 'react';
+import { Suspense, useEffect, useMemo, useState } from 'react';
 import { allAgents } from '@/data/all-agents';
 import { TEMAS } from '@/components/TemasDropdown';
 
-export default function ExplorarPage() {
+function ExplorarContent() {
   const searchParams = useSearchParams();
   const temaSlug = searchParams.get('tema');
   const [loading, setLoading] = useState(true);
@@ -80,5 +80,17 @@ export default function ExplorarPage() {
         )}
       </main>
     </div>
+  );
+}
+
+export default function ExplorarPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-zinc-950 text-white flex items-center justify-center">
+        <div className="text-zinc-400">Carregando...</div>
+      </div>
+    }>
+      <ExplorarContent />
+    </Suspense>
   );
 }
