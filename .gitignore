@@ -41,3 +41,4 @@ src.backup.*
 .env.local.temp
 *.bak
 output.mp3
+mente-ai.db
