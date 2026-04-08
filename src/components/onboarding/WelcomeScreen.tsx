@@ -14,15 +14,21 @@ type Particle = {
   animationDuration: string;
 };
 
+function seededRandom(seed: number, min: number, max: number, decimals = 4): number {
+  const x = Math.sin(seed * 12.9898 + seed * 78.233) * 43758.5453;
+  const value = min + (max - min) * (x - Math.floor(x));
+  return parseFloat(value.toFixed(decimals));
+}
+
 export default function WelcomeScreen({ onNext, onSkip }: WelcomeScreenProps) {
   const [loaded, setLoaded] = useState(false);
 
   const particles = useMemo<Particle[]>(() => {
-    return Array.from({ length: 20 }).map(() => ({
-      left: `${Math.random() * 100}%`,
-      top: `${Math.random() * 100}%`,
-      animationDelay: `${Math.random() * 5}s`,
-      animationDuration: `${3 + Math.random() * 4}s`,
+    return Array.from({ length: 20 }).map((_, i) => ({
+      left: `${seededRandom(i, 0, 100, 2)}%`,
+      top: `${seededRandom(i + 1, 0, 100, 2)}%`,
+      animationDelay: `${seededRandom(i + 2, 0, 5, 3)}s`,
+      animationDuration: `${seededRandom(i + 3, 3, 7, 3)}s`,
     }));
   }, []);
 
@@ -43,6 +49,7 @@ export default function WelcomeScreen({ onNext, onSkip }: WelcomeScreenProps) {
               animationDelay: p.animationDelay,
               animationDuration: p.animationDuration,
             }}
+            suppressHydrationWarning
           />
         ))}
       </div>
