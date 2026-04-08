@@ -23,7 +23,7 @@ export default function Navigation() {
   // Estado inicial estável para evitar flicker
   const [session, setSession] = useState<SessionState>({ authenticated: false, user: null });
   const [accountOpen, setAccountOpen] = useState(false);
-  const [temasOpen, setTemasOpen] = useState(false);
+  const [temasOpen, setTemasOpen] = useState(false); // mantido para compatibilidade futura
   const [seriesOpen, setSeriesOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mobileTemasOpen, setMobileTemasOpen] = useState(false);
@@ -129,52 +129,59 @@ export default function Navigation() {
           </Link>
 
           <nav className="hidden md:flex items-center gap-6">
-            {navItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`text-sm font-medium transition hover:text-white ${
-                  pathname === item.href ? 'text-white' : 'text-zinc-400'
-                }`}
-              >
-                {item.label}
-              </Link>
-            ))}
+            {navItems.map((item) => {
+              const isSeries = item.label === 'Séries';
+              return (
+                <div key={item.href} className="relative">
+                  {isSeries ? (
+                    <button
+                      type="button"
+                      onClick={() => setSeriesOpen((v) => !v)}
+                      className={`text-sm font-medium transition inline-flex items-center gap-1 hover:text-white ${
+                        seriesOpen ? 'text-white' : 'text-zinc-400'
+                      }`}
+                    >
+                      {item.label}
+                      <ChevronDown className={`w-4 h-4 transition-transform ${seriesOpen ? 'rotate-180' : ''}`} />
+                    </button>
+                  ) : (
+                    <Link
+                      href={item.href}
+                      className={`text-sm font-medium transition hover:text-white ${
+                        pathname === item.href ? 'text-white' : 'text-zinc-400'
+                      }`}
+                    >
+                      {item.label}
+                    </Link>
+                  )}
 
-            <div className="relative">
-              <button
-                type="button"
-                onClick={() => setTemasOpen((v) => !v)}
-                className="text-sm text-zinc-400 hover:text-white transition inline-flex items-center gap-1"
-              >
-                Temas
-                <ChevronDown className={`w-4 h-4 transition-transform ${temasOpen ? 'rotate-180' : ''}`} />
-              </button>
-
-              {temasOpen && (
-                <div className="absolute top-full left-0 mt-4 bg-zinc-900 border border-zinc-700 shadow-2xl rounded-xl z-50 overflow-hidden">
-                  <div className="grid grid-cols-3 gap-x-12 gap-y-2 p-6 min-w-[780px]">
-                    {temasColumns.map((col, colIdx) => (
-                      <div key={colIdx} className="space-y-1">
-                        {col.map((t) => (
-                          <button
-                            key={t.slug}
-                            type="button"
-                            onClick={() => {
-                              router.push(`/explorar?tema=${encodeURIComponent(t.slug)}`);
-                              setTemasOpen(false);
-                            }}
-                            className="block w-full text-left text-sm text-zinc-300 hover:text-white hover:bg-white/5 py-1.5 px-2 rounded transition"
-                          >
-                            {t.label}
-                          </button>
+                  {/* Dropdown de Séries - apenas Temas */}
+                  {isSeries && seriesOpen && (
+                    <div className="absolute top-full left-0 mt-4 bg-zinc-900 border border-zinc-700 shadow-2xl rounded-xl z-50 overflow-hidden">
+                      <div className="grid grid-cols-3 gap-x-12 gap-y-2 p-6 min-w-[720px]">
+                        {seriesDropdownItems.map((col, colIdx) => (
+                          <div key={colIdx} className="space-y-1">
+                            {col.map((t) => (
+                              <button
+                                key={t.slug}
+                                type="button"
+                                onClick={() => {
+                                  router.push(`/explorar?tema=${encodeURIComponent(t.slug)}`);
+                                  setSeriesOpen(false);
+                                }}
+                                className="block w-full text-left text-sm text-zinc-300 hover:text-white hover:bg-white/5 py-1.5 px-2 rounded transition"
+                              >
+                                {t.label}
+                              </button>
+                            ))}
+                          </div>
                         ))}
                       </div>
-                    ))}
-                  </div>
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
+              );
+            })}
           </nav>
         </div>
 
@@ -240,45 +247,50 @@ export default function Navigation() {
       {mobileOpen && (
         <div className="md:hidden absolute left-0 right-0 top-16 bg-zinc-950 border-t border-zinc-800 max-h-[calc(100vh-64px)] overflow-y-auto">
           <div className="px-6 py-4 space-y-4">
-            {navItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="block text-lg font-medium text-zinc-200 hover:text-white"
-              >
-                {item.label}
-              </Link>
-            ))}
-            
-            <div className="pt-4 border-t border-zinc-800" />
-
-            <button
-              type="button"
-              onClick={() => setMobileTemasOpen((v) => !v)}
-              className="w-full flex items-center justify-between text-lg font-medium text-zinc-200"
-            >
-              <span>Temas</span>
-              <ChevronDown className={`w-5 h-5 transition-transform ${mobileTemasOpen ? 'rotate-180' : ''}`} />
-            </button>
-
-            {mobileTemasOpen && (
-              <div className="space-y-3 pl-2">
-                {temasColumns.flat().map((t) => (
-                  <button
-                    key={t.slug}
-                    type="button"
-                    onClick={() => {
-                      router.push(`/explorar?tema=${encodeURIComponent(t.slug)}`);
-                      setMobileOpen(false);
-                      setMobileTemasOpen(false);
-                    }}
-                    className="block text-left text-sm text-zinc-400 hover:text-white py-1"
-                  >
-                    {t.label}
-                  </button>
-                ))}
-              </div>
-            )}
+            {navItems.map((item) => {
+              const isSeries = item.label === 'Séries';
+              if (isSeries) {
+                return (
+                  <div key={item.href}>
+                    <button
+                      type="button"
+                      onClick={() => setMobileSeriesOpen((v) => !v)}
+                      className="w-full flex items-center justify-between text-lg font-medium text-zinc-200"
+                    >
+                      <span>{item.label}</span>
+                      <ChevronDown className={`w-5 h-5 transition-transform ${mobileSeriesOpen ? 'rotate-180' : ''}`} />
+                    </button>
+                    {mobileSeriesOpen && (
+                      <div className="space-y-3 pl-2 mt-3">
+                        {seriesDropdownItems.flat().map((t) => (
+                          <button
+                            key={t.slug}
+                            type="button"
+                            onClick={() => {
+                              router.push(`/explorar?tema=${encodeURIComponent(t.slug)}`);
+                              setMobileOpen(false);
+                              setMobileSeriesOpen(false);
+                            }}
+                            className="block text-left text-sm text-zinc-400 hover:text-white py-1"
+                          >
+                            {t.label}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              }
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="block text-lg font-medium text-zinc-200 hover:text-white"
+                >
+                  {item.label}
+                </Link>
+              );
+            })}
             
             <div className="pt-4 border-t border-zinc-800" />
 
