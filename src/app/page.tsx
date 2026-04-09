@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useMemo, useState } from 'react';
 import { ChevronDown, Globe, Plus, X } from 'lucide-react';
+import { NexusScene } from '@/components/zones/NexusScene';
 
 const AGENT_IMAGES = [
   '/images/agentes/nexus.png',
@@ -217,6 +218,8 @@ export default function RootLandingPage() {
               </button>
             </div>
           </section>
+
+          <NexusScene />
 
           <section className="border-t border-zinc-800 py-16 px-6 md:px-12">
             <div className="bg-black/70 backdrop-blur-sm">
