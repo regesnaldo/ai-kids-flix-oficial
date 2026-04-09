@@ -7,6 +7,7 @@ import HeroBanner from '@/components/home/HeroBanner';
 import AgentRow from '@/components/home/AgentRow';
 import AgentDetailModal from '@/components/home/AgentDetailModal';
 import InfoModal from '@/components/home/InfoModal';
+import GlobalNarrativeWidget from '@/components/home/GlobalNarrativeWidget';
 import { allAgents, AGENT_ROWS } from '@/data/all-agents';
 import type { HomeAgent } from '@/data/all-agents';
 import { CATALOG } from '@/constants/catalog';
@@ -131,6 +132,7 @@ export default function HomePage() {
       <HeroBanner onInfoClick={() => setIsInfoOpen(true)} />
 
       <section className="-mt-20 relative z-20 pb-24 pt-4 space-y-8" aria-label="Catálogo">
+        <GlobalNarrativeWidget />
         <SeasonRow />
 
         {AGENT_ROWS.map((row) => (

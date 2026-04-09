@@ -412,3 +412,61 @@ export const userCombinations = mysqlTable(
 
 export type UserCombination    = typeof userCombinations.$inferSelect;
 export type NewUserCombination = typeof userCombinations.$inferInsert;
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// FASE 9 — Multi-usuário: Estado Global, Presença e Votação Coletiva
+// ═══════════════════════════════════════════════════════════════════════════════
+
+export const globalNarrativeState = mysqlTable(
+  "global_narrative_state",
+  {
+    id: varchar("id", { length: 36 }).primaryKey(),
+    episodeId: varchar("episode_id", { length: 255 }).notNull(),
+    choiceId: varchar("choice_id", { length: 255 }).notNull(),
+    choiceLabel: varchar("choice_label", { length: 500 }).notNull(),
+    totalVotes: int("total_votes").default(0).notNull(),
+    percentage: int("percentage").default(0).notNull(),
+    dominantChoice: varchar("dominant_choice", { length: 255 }),
+    isActive: int("is_active").default(1).notNull(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (t) => ({
+    idxEpisode: index("idx_gns_episode").on(t.episodeId),
+  }),
+);
+
+export type GlobalNarrativeState = typeof globalNarrativeState.$inferSelect;
+
+export const universePresence = mysqlTable(
+  "universe_presence",
+  {
+    id: varchar("id", { length: 36 }).primaryKey(),
+    universeId: varchar("universe_id", { length: 255 }).notNull().unique(),
+    activeCount: int("active_count").default(0).notNull(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (t) => ({
+    idxUniverse: index("idx_up_universe").on(t.universeId),
+  }),
+);
+
+export type UniversePresence = typeof universePresence.$inferSelect;
+
+export const collectiveVotes = mysqlTable(
+  "collective_votes",
+  {
+    id: varchar("id", { length: 36 }).primaryKey(),
+    userId: int("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+    episodeId: varchar("episode_id", { length: 255 }).notNull(),
+    choiceId: varchar("choice_id", { length: 255 }).notNull(),
+    choiceLabel: varchar("choice_label", { length: 500 }).notNull(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (t) => ({
+    idxEpisode: index("idx_cv_episode").on(t.episodeId),
+    idxUser: index("idx_cv_user").on(t.userId),
+  }),
+);
+
+export type CollectiveVote = typeof collectiveVotes.$inferSelect;
