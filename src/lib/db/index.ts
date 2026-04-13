@@ -35,6 +35,9 @@ function normalizeDatabaseUrl(rawUrl: string): string {
 const poolOptions: mysql.PoolOptions = {
   waitForConnections: true,
   connectionLimit: 10,
+  ssl: {
+    rejectUnauthorized: true,
+  },
 };
 
 if (process.env.DATABASE_URL) {
