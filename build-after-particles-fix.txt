@@ -1,0 +1,89 @@
+
+> mente-ai-platform@1.0.0 build
+> next build
+
+Ôû▓ Next.js 16.1.6 (Turbopack)
+- Environments: .env.local, .env
+- Experiments (use with caution):
+  Ô£ô optimizeCss
+
+  Creating an optimized production build ...
+Ô£ô Compiled successfully in 52s
+  Running TypeScript ...
+  Collecting page data using 3 workers ...
+  Generating static pages using 3 workers (0/56) ...
+  Generating static pages using 3 workers (14/56) 
+­ƒöª NEXUS: componente renderizado
+(node:31544) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+  Generating static pages using 3 workers (28/56) 
+  Generating static pages using 3 workers (42/56) 
+Ô£ô Generating static pages using 3 workers (56/56) in 3.9s
+  Finalizing page optimization ...
+
+Route (app)
+Ôöî Ôùï /
+Ôö£ Ôùï /_not-found
+Ôö£ Ôùï /agentes
+Ôö£ ãÆ /agentes/[id]
+Ôö£ ãÆ /api/agent-combination
+Ôö£ ãÆ /api/agent-combination/available
+Ôö£ ãÆ /api/agentes
+Ôö£ ãÆ /api/auth/login
+Ôö£ ãÆ /api/auth/logout
+Ôö£ ãÆ /api/auth/register
+Ôö£ ãÆ /api/auth/session
+Ôö£ ãÆ /api/badges
+Ôö£ ãÆ /api/chat
+Ôö£ ãÆ /api/checkout
+Ôö£ ãÆ /api/collective/vote
+Ôö£ ãÆ /api/cron/narrative
+Ôö£ ãÆ /api/dashboard
+Ôö£ ãÆ /api/elevenlabs/speak
+Ôö£ ãÆ /api/explorer
+Ôö£ ãÆ /api/health/anthropic
+Ôö£ ãÆ /api/interaction
+Ôö£ ãÆ /api/lab/transformer
+Ôö£ ãÆ /api/narrative/state
+Ôö£ ãÆ /api/notes
+Ôö£ ãÆ /api/notes/[id]
+Ôö£ ãÆ /api/presence/update
+Ôö£ ãÆ /api/profiles
+Ôö£ ãÆ /api/ranking
+Ôö£ ãÆ /api/seasons
+Ôö£ ãÆ /api/universe/[id]/presence
+Ôö£ ãÆ /api/webhooks/stripe
+Ôö£ ãÆ /api/xp
+Ôö£ ãÆ /api/xp/events
+Ôö£ ãÆ /conta
+Ôö£ ãÆ /conta/aparelhos
+Ôö£ ãÆ /conta/assinatura
+Ôö£ ãÆ /conta/configuracoes
+Ôö£ ãÆ /conta/pagamento
+Ôö£ ãÆ /conta/pagamento/cobranca
+Ôö£ ãÆ /conta/pagamento/historico
+Ôö£ ãÆ /conta/pagamento/metodo
+Ôö£ ãÆ /conta/pagamento/resgatar
+Ôö£ ãÆ /conta/perfis
+Ôö£ Ôùï /conta/plano
+Ôö£ ãÆ /conta/seguranca
+Ôö£ ãÆ /conta/visao-geral
+Ôö£ Ôùï /dashboard
+Ôö£ Ôùï /explorar
+Ôö£ Ôùï /home
+Ôö£ Ôùï /login
+Ôö£ Ôùï /logout
+Ôö£ Ôùï /onboarding
+Ôö£ Ôùï /perfis
+Ôö£ Ôùï /planos
+Ôö£ Ôùï /player
+Ôö£ Ôùï /ranking
+Ôö£ Ôùï /sucesso
+Ôöö Ôùï /universo/nexus
+
+
+ãÆ Proxy (Middleware)
+
+Ôùï  (Static)   prerendered as static content
+ãÆ  (Dynamic)  server-rendered on demand
+

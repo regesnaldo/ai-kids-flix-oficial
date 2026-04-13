@@ -3,20 +3,6 @@
  * Transcreve áudio do usuário para texto em PT-BR
  */
 
-import OpenAI from 'openai';
-
-let openaiClient: OpenAI | null = null;
-
-function getOpenAIClient(): OpenAI {
-  if (!openaiClient) {
-    if (!process.env.OPENAI_API_KEY) {
-      throw new Error('OPENAI_API_KEY não configurada no .env.local');
-    }
-    openaiClient = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-  }
-  return openaiClient;
-}
-
 export interface TranscriptionResult {
   text: string;
   language: string;
@@ -32,21 +18,40 @@ export async function transcribeAudio(
   audioBlob: Blob,
   language = 'pt'
 ): Promise<TranscriptionResult> {
-  const openai = getOpenAIClient();
-
   // Limitar tamanho: máx 25MB (limite Whisper) ou 30s de áudio
   if (audioBlob.size > 25 * 1024 * 1024) {
     throw new Error('Áudio muito longo. Máximo: 30 segundos.');
   }
 
-  const file = new File([audioBlob], 'audio.webm', { type: audioBlob.type || 'audio/webm' });
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) {
+    throw new Error('OPENAI_API_KEY não configurada no .env.local');
+  }
 
-  const transcription = await openai.audio.transcriptions.create({
-    file,
-    model: 'whisper-1',
-    language,
-    response_format: 'verbose_json',
+  const formData = new FormData();
+  formData.append('file', audioBlob, 'audio.webm');
+  formData.append('model', 'whisper-1');
+  formData.append('language', language);
+  formData.append('response_format', 'verbose_json');
+
+  const res = await fetch('https://api.openai.com/v1/audio/transcriptions', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+    },
+    body: formData,
   });
+
+  if (!res.ok) {
+    const body = await res.text().catch(() => '');
+    throw new Error(`Whisper falhou (${res.status}): ${body || res.statusText}`);
+  }
+
+  const transcription = (await res.json()) as {
+    text: string;
+    language?: string;
+    duration?: number;
+  };
 
   return {
     text: transcription.text,

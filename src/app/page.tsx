@@ -1,357 +1,336 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useMemo, useState } from 'react';
-import { ChevronDown, Globe, Plus, X } from 'lucide-react';
+import { type RefObject, type TouchEvent, useEffect, useRef, useState } from 'react';
+import { ChevronLeft, ChevronRight, Info, Play, Volume2, VolumeX } from 'lucide-react';
+import Image from 'next/image';
 
-const AGENT_IMAGES = [
-  '/images/agentes/nexus.png',
-  '/images/agentes/volt.png',
-  '/images/agentes/kaos.png',
-  '/images/agentes/ethos.png',
-  '/images/agentes/aurora.png',
-  '/images/agentes/axiom.png',
-  '/images/agentes/cipher.png',
-  '/images/agentes/lyra.png',
-  '/images/agentes/stratos.png',
-  '/images/agentes/terra.png',
-  '/images/agentes/prism.png',
-  '/images/agentes/janus.png',
+type Agente = {
+  id: string;
+  nome: string;
+  descricao: string;
+  cor: string;
+  imagem: string;
+  video?: string;
+  categoria: 'mentor' | 'novo' | 'idade';
+  idadeMin?: number;
+};
+
+const AGENTES_DESTAQUE: Agente[] = [
+  {
+    id: 'ethos',
+    nome: 'Ethos',
+    descricao: 'Seu guia ético e filosófico. Aprenda a pensar criticamente sobre suas decisões.',
+    cor: 'from-purple-600 to-blue-600',
+    imagem: '/images/agentes/ethos.png',
+    categoria: 'mentor',
+  },
+  {
+    id: 'logos',
+    nome: 'Logos',
+    descricao: 'Mestre da lógica e raciocínio. Desenvolva seu pensamento analítico.',
+    cor: 'from-blue-600 to-cyan-600',
+    imagem: '/images/agentes/index.png',
+    categoria: 'mentor',
+  },
+  {
+    id: 'pathos',
+    nome: 'Pathos',
+    descricao: 'Explore emoções e empatia. Entenda a si mesmo e aos outros.',
+    cor: 'from-pink-600 to-rose-600',
+    imagem: '/images/agentes/lyra.png',
+    categoria: 'mentor',
+  },
+  {
+    id: 'techne',
+    nome: 'Techne',
+    descricao: 'Criatividade e técnica. Aprenda fazendo, com projetos práticos.',
+    cor: 'from-amber-600 to-orange-600',
+    imagem: '/images/agentes/aurora.png',
+    categoria: 'mentor',
+  },
 ];
 
-export default function RootLandingPage() {
+const AGENTES_MENTORES: Agente[] = [
+  { id: 'ethos-card', nome: 'Ethos', descricao: 'Ética & Filosofia', cor: 'from-purple-500 to-blue-500', imagem: '/images/agentes/ethos.png', categoria: 'mentor' },
+  { id: 'logos-card', nome: 'Logos', descricao: 'Lógica & Matemática', cor: 'from-blue-500 to-cyan-500', imagem: '/images/agentes/index.png', categoria: 'mentor' },
+  { id: 'pathos-card', nome: 'Pathos', descricao: 'Emoções & Arte', cor: 'from-pink-500 to-rose-500', imagem: '/images/agentes/lyra.png', categoria: 'mentor' },
+  { id: 'techne-card', nome: 'Techne', descricao: 'Criatividade & Tech', cor: 'from-amber-500 to-orange-500', imagem: '/images/agentes/aurora.png', categoria: 'mentor' },
+  { id: 'kairos-card', nome: 'Kairos', descricao: 'Oportunidade & Tempo', cor: 'from-emerald-500 to-teal-500', imagem: '/images/agentes/stratos.png', categoria: 'mentor' },
+];
+
+const AGENTES_NOVOS: Agente[] = [
+  { id: 'musica', nome: 'Melodia', descricao: 'Aprenda música de forma lúdica', cor: 'from-violet-500 to-purple-500', imagem: '/images/agentes/prism.png', categoria: 'novo' },
+  { id: 'ciencia', nome: 'Curie', descricao: 'Ciência para crianças curiosas', cor: 'from-sky-500 to-blue-500', imagem: '/images/agentes/terra.png', categoria: 'novo' },
+  { id: 'historia', nome: 'Heródoto', descricao: 'História como aventura', cor: 'from-amber-600 to-yellow-500', imagem: '/images/agentes/janus.png', categoria: 'novo' },
+  { id: 'natureza', nome: 'Gaia', descricao: 'Natureza e sustentabilidade', cor: 'from-green-500 to-emerald-500', imagem: '/images/agentes/terra.png', categoria: 'novo' },
+  { id: 'esporte', nome: 'Olympus', descricao: 'Movimento e saúde', cor: 'from-red-500 to-orange-500', imagem: '/images/agentes/volt.png', categoria: 'novo' },
+];
+
+const FAIXAS_ETARIAS = [
+  { id: 'kids', nome: 'Pequenos Exploradores', faixa: '7-10 anos', cor: 'from-yellow-400 to-orange-400', icon: '🚀' },
+  { id: 'tweens', nome: 'Jovens Pensadores', faixa: '11-14 anos', cor: 'from-blue-400 to-cyan-400', icon: '🧠' },
+  { id: 'teens', nome: 'Adolescentes', faixa: '15-17 anos', cor: 'from-purple-400 to-pink-400', icon: '💡' },
+  { id: 'adultos', nome: 'Adultos Curiosos', faixa: '18+ anos', cor: 'from-emerald-400 to-teal-400', icon: '🎯' },
+] as const;
+
+export default function Home() {
   const router = useRouter();
-  const [email, setEmail] = useState('');
-  const [faqOpen, setFaqOpen] = useState<number | null>(null);
+  const [agenteAtivo, setAgenteAtivo] = useState(0);
+  const [isMuted, setIsMuted] = useState(true);
+  const [isPaused, setIsPaused] = useState(false);
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+  const [hoveredCard, setHoveredCard] = useState<string | null>(null);
 
-  const cards = useMemo(() => {
-    return Array.from({ length: 40 }, (_, i) => ({
-      id: i,
-      src: AGENT_IMAGES[i % AGENT_IMAGES.length],
-      driftGroup: i % 2,
-      delay: (i % 10) * 0.25,
-    }));
-  }, []);
+  const carrosselRef = useRef<HTMLDivElement>(null);
+  const carrosselNovoRef = useRef<HTMLDivElement>(null);
 
-  const onSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    router.push(`/login?email=${encodeURIComponent(email)}`);
+  useEffect(() => {
+    if (isPaused) return;
+    const interval = globalThis.setInterval(() => {
+      setAgenteAtivo((prev) => (prev + 1) % AGENTES_DESTAQUE.length);
+    }, 8000);
+    return () => globalThis.clearInterval(interval);
+  }, [isPaused]);
+
+  const minSwipeDistance = 50;
+
+  const onTouchStart = (e: TouchEvent<HTMLElement>) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0]?.clientX ?? null);
   };
 
-  const trending = [
-    { name: 'NEXUS', role: 'O Arquiteto da Consciência', image: '/images/agentes/nexus.png' },
-    { name: 'VOLT', role: 'O Espírito da Energia Neural', image: '/images/agentes/volt.png' },
-    { name: 'KAOS', role: 'O Caos que Gera Ordem', image: '/images/agentes/kaos.png' },
-    { name: 'ETHOS', role: 'A Voz da Consciência', image: '/images/agentes/ethos.png' },
-    { name: 'AURORA', role: 'A Criadora de Mundos', image: '/images/agentes/aurora.png' },
-    { name: 'CIPHER', role: 'O Hacker do Futuro', image: '/images/agentes/cipher.png' },
-    { name: 'LYRA', role: 'A Harmonia dos Dados', image: '/images/agentes/lyra.png' },
-    { name: 'STRATOS', role: 'O Estrategista', image: '/images/agentes/stratos.png' },
-    { name: 'TERRA', role: 'A Guardiã da Natureza', image: '/images/agentes/terra.png' },
-    { name: 'PRISM', role: 'O Espectro das Ideias', image: '/images/agentes/prism.png' },
-  ] as const;
+  const onTouchMove = (e: TouchEvent<HTMLElement>) => {
+    setTouchEnd(e.targetTouches[0]?.clientX ?? null);
+  };
 
-  const reasons = [
-    {
-      icon: '📱',
-      title: 'Aprenda em qualquer dispositivo',
-      desc: 'Acesse no celular, tablet, laptop ou TV. Sua jornada de IA vai onde você for.',
-    },
-    {
-      icon: '⬇️',
-      title: 'Salve para estudar offline',
-      desc: 'Baixe módulos e continue aprendendo mesmo sem internet.',
-    },
-    {
-      icon: '🤖',
-      title: '22+ Agentes especializados',
-      desc: 'Cada agente tem personalidade, narrativa e área de expertise únicas.',
-    },
-    {
-      icon: '👨‍👩‍👧',
-      title: 'Perfis para toda a família',
-      desc: 'Crie perfis separados para adultos e crianças. Cada um no seu ritmo.',
-    },
-  ] as const;
+  const onTouchEnd = () => {
+    if (touchStart === null || touchEnd === null) return;
 
-  const faqs = [
-    {
-      q: 'O que é o MENTE.AI?',
-      a: 'É uma plataforma de educação em IA com agentes inteligentes que ensinam, debatem e evoluem junto com você através de narrativas imersivas.',
-    },
-    {
-      q: 'Quanto custa o MENTE.AI?',
-      a: 'Você começa grátis. Após o período de teste, planos a partir de R$ 12,90/semana.',
-    },
-    {
-      q: 'Em quais dispositivos posso usar?',
-      a: 'Em qualquer dispositivo com navegador: celular, tablet, laptop ou smart TV.',
-    },
-    {
-      q: 'Como faço para cancelar?',
-      a: 'Cancele quando quiser direto nas configurações da sua conta, sem burocracia.',
-    },
-    {
-      q: 'O que posso aprender no MENTE.AI?',
-      a: 'IA, machine learning, redes neurais, ética em IA, criatividade computacional e muito mais — tudo com agentes que tornam o aprendizado imersivo.',
-    },
-    {
-      q: 'É adequado para crianças?',
-      a: 'Sim! Temos perfis e conteúdos específicos para crianças a partir de 7 anos, com linguagem adaptada e agentes amigáveis.',
-    },
-  ] as const;
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+
+    if (isLeftSwipe) {
+      setAgenteAtivo((prev) => (prev + 1) % AGENTES_DESTAQUE.length);
+    }
+    if (isRightSwipe) {
+      setAgenteAtivo((prev) => (prev - 1 + AGENTES_DESTAQUE.length) % AGENTES_DESTAQUE.length);
+    }
+  };
+
+  const scrollCarrossel = (ref: RefObject<HTMLDivElement | null>, direction: 'left' | 'right') => {
+    if (!ref.current) return;
+    const scrollAmount = direction === 'left' ? -400 : 400;
+    ref.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+  };
+
+  const agenteAtual = AGENTES_DESTAQUE[agenteAtivo];
 
   return (
-    <div className="min-h-screen bg-black flex flex-col relative overflow-hidden">
+    <main className="min-h-screen bg-[#141414] text-white overflow-x-hidden">
       <style jsx global>{`
-        @keyframes landingDrift {
-          0% { transform: translateY(0); }
-          100% { transform: translateY(-20px); }
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@400;500;600;700;800&display=swap');
+        .font-heading { font-family: 'Montserrat', sans-serif; }
+        .font-body { font-family: 'Inter', sans-serif; }
       `}</style>
 
-      <div
-        className="absolute inset-0 z-0"
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))',
-          gap: '14px',
-          padding: '18px',
-          alignContent: 'start',
-        }}
-        aria-hidden="true"
+      <section
+        className="relative h-[85vh] w-full overflow-hidden"
+        onMouseEnter={() => setIsPaused(true)}
+        onMouseLeave={() => setIsPaused(false)}
+        onTouchStart={onTouchStart}
+        onTouchMove={onTouchMove}
+        onTouchEnd={onTouchEnd}
       >
-        {cards.map((c) => (
-          <div
-            key={c.id}
-            className="w-[120px] h-[180px] justify-self-center"
-            style={{
-              animationName: 'landingDrift',
-              animationDuration: '8s',
-              animationTimingFunction: 'ease-in-out',
-              animationIterationCount: 'infinite',
-              animationDirection: c.driftGroup === 0 ? 'alternate' : 'alternate-reverse',
-              animationDelay: `${c.delay}s`,
-            }}
-          >
-            <img
-              src={c.src}
-              alt=""
-              className="w-[120px] h-[180px] object-cover rounded-sm opacity-60"
-              draggable={false}
-            />
-          </div>
-        ))}
-      </div>
+        <div className="absolute inset-0">
+          <div className={`absolute inset-0 bg-gradient-to-br ${agenteAtual.cor} opacity-20`} />
+          {agenteAtual.video ? (
+            <video
+              className="absolute inset-0 w-full h-full object-cover"
+              autoPlay
+              loop
+              playsInline
+              muted={isMuted}
+            >
+              <source src={agenteAtual.video} type="video/mp4" />
+            </video>
+          ) : (
+            <Image src={agenteAtual.imagem} alt={agenteAtual.nome} fill className="object-cover" priority />
+          )}
+          <div className="absolute inset-0 bg-gradient-to-t from-[#141414] via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#141414]/80 via-transparent to-transparent" />
+        </div>
 
-      <div className="absolute inset-0 z-0 bg-gradient-to-b from-black/60 via-black/50 to-black/80" />
+        <div className="relative z-10 h-full flex flex-col justify-center px-6 md:px-12 lg:px-20 max-w-7xl">
+          <span className="text-red-600 font-heading font-bold text-lg mb-4 tracking-wider">MENTE.AI ORIGINAL</span>
+          <h1 className="font-heading text-5xl md:text-7xl lg:text-8xl font-bold mb-4 leading-tight">{agenteAtual.nome}</h1>
+          <p className="font-body text-lg md:text-xl text-gray-200 max-w-2xl mb-8 leading-relaxed">{agenteAtual.descricao}</p>
 
-      <div className="relative z-10 flex flex-col flex-1">
-        <header className="px-6 md:px-12 py-6">
-          <nav className="flex items-center justify-between">
-            <div className="flex items-center gap-6">
-              <div className="text-white font-black text-2xl tracking-tight">
-                MENTE<span style={{ color: '#00D9FF' }}>.AI</span>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <button
-                type="button"
-                className="hidden sm:inline-flex items-center gap-2 px-4 py-2 rounded border border-white/30 bg-black/30 text-white hover:bg-white/10 transition"
-                aria-label="Selecionar idioma"
-              >
-                <Globe className="w-4 h-4" />
-                <span className="text-sm font-semibold">Português</span>
-                <ChevronDown className="w-4 h-4 opacity-80" />
-              </button>
-
-              <button
-                type="button"
-                onClick={() => router.push('/login')}
-                className="bg-red-600 hover:bg-red-500 transition text-white font-bold px-5 py-2 rounded"
-              >
-                Entrar
-              </button>
-            </div>
-          </nav>
-        </header>
-
-        <main className="flex-1">
-          <section className="min-h-[70vh] flex items-center justify-center px-6 md:px-12">
-            <div className="text-center max-w-2xl">
-              <h1 className="text-5xl font-black text-white tracking-tight">
-                MENTE<span style={{ color: '#00D9FF' }}>.AI</span>
-              </h1>
-
-              <p className="text-xl text-zinc-300 mt-4 text-center max-w-lg mx-auto">
-                Aprenda IA com agentes que pensam, sentem e evoluem.
-              </p>
-              <p className="text-sm text-zinc-400 mt-2">
-                A partir de R$ 12,90/semana. Cancele quando quiser.
-              </p>
-
-              <form onSubmit={onSubmit} className="mt-6 flex flex-col sm:flex-row items-stretch justify-center gap-3 sm:gap-0">
-                <input
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  type="email"
-                  placeholder="Email"
-                  className="bg-white/10 border border-white/30 text-white placeholder-zinc-400 px-5 py-4 rounded-lg sm:rounded-l-lg sm:rounded-r-none w-full sm:w-80 outline-none"
-                  autoComplete="email"
-                />
-                <button
-                  type="submit"
-                  className="bg-red-600 hover:bg-red-500 text-white font-bold px-8 py-4 rounded-lg sm:rounded-r-lg sm:rounded-l-none whitespace-nowrap transition"
-                >
-                  Vamos lá →
-                </button>
-              </form>
-
-              <button
-                type="button"
-                onClick={() => router.push('/login')}
-                className="mt-4 text-zinc-400 underline text-sm"
-              >
-                Já tenho conta
-              </button>
-            </div>
-          </section>
-
-          <section className="border-t border-zinc-800 py-16 px-6 md:px-12">
-            <div className="bg-black/70 backdrop-blur-sm">
-              <h2 className="text-white text-2xl font-bold px-6 md:px-12 mb-4">Em Alta</h2>
-              <div className="flex gap-4 overflow-x-auto px-6 md:px-12 pb-2">
-                {trending.map((a, idx) => (
-                  <div key={a.name} className="w-[200px] flex-shrink-0 relative cursor-pointer">
-                    <div className="flex items-end">
-                      <div className="text-[80px] font-black text-zinc-700 leading-none -mr-4 z-10 relative">
-                        {idx + 1}
-                      </div>
-                      <div className="flex flex-col gap-2">
-                        <img
-                          src={a.image}
-                          alt={a.name}
-                          className="w-[160px] h-[90px] object-cover rounded-md"
-                          draggable={false}
-                        />
-                        <div className="w-[160px]">
-                          <p className="text-white text-sm font-bold truncate">{a.name}</p>
-                          <p className="text-zinc-400 text-xs truncate">{a.role}</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </section>
-
-          <section className="border-t border-zinc-800 py-16 px-6 md:px-12">
-            <div className="bg-black/70 backdrop-blur-sm max-w-5xl mx-auto">
-              <h2 className="text-white text-2xl font-bold mb-8">Mais motivos para aprender</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {reasons.map((r) => (
-                  <div
-                    key={r.title}
-                    className="bg-zinc-900/80 backdrop-blur-sm border border-zinc-700 rounded-xl p-6"
-                  >
-                    <div className="text-2xl">{r.icon}</div>
-                    <h3 className="mt-3 text-white text-lg font-bold">{r.title}</h3>
-                    <p className="mt-2 text-zinc-400 text-sm leading-relaxed">{r.desc}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </section>
-
-          <section className="border-t border-zinc-800 py-16 px-6 md:px-12">
-            <div className="bg-black/70 backdrop-blur-sm max-w-5xl mx-auto">
-              <h2 className="text-white text-2xl font-bold mb-6">Perguntas frequentes</h2>
-              <div className="overflow-hidden rounded-xl border border-zinc-700">
-                {faqs.map((item, idx) => {
-                  const open = faqOpen === idx;
-                  return (
-                    <div key={item.q} className="bg-zinc-800/80 border-b border-zinc-700 last:border-b-0">
-                      <button
-                        type="button"
-                        onClick={() => setFaqOpen((prev) => (prev === idx ? null : idx))}
-                        className="w-full flex items-center justify-between gap-6 px-6 py-5 text-left"
-                      >
-                        <span className="text-white text-base font-semibold">{item.q}</span>
-                        <span className="text-white">
-                          {open ? <X className="w-5 h-5" /> : <Plus className="w-5 h-5" />}
-                        </span>
-                      </button>
-                      {open ? (
-                        <div className="px-6 pb-6 text-zinc-300 text-sm leading-relaxed">
-                          {item.a}
-                        </div>
-                      ) : null}
-                    </div>
-                  );
-                })}
-              </div>
-
-              <div className="mt-10">
-                <p className="text-white text-base font-semibold mb-4">
-                  Quer começar? Informe seu email para criar sua conta.
-                </p>
-                <form onSubmit={onSubmit} className="flex flex-col sm:flex-row items-stretch gap-3 sm:gap-0">
-                  <input
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    type="email"
-                    placeholder="Email"
-                    className="bg-white/10 border border-white/30 text-white placeholder-zinc-400 px-5 py-4 rounded-lg sm:rounded-l-lg sm:rounded-r-none w-full sm:w-96 outline-none"
-                    autoComplete="email"
-                  />
-                  <button
-                    type="submit"
-                    className="bg-red-600 hover:bg-red-500 text-white font-bold px-8 py-4 rounded-lg sm:rounded-r-lg sm:rounded-l-none whitespace-nowrap transition"
-                  >
-                    Vamos lá →
-                  </button>
-                </form>
-              </div>
-            </div>
-          </section>
-        </main>
-      </div>
-
-      <footer className="relative z-10 border-t border-zinc-800 px-6 md:px-12 pb-10 pt-6 text-sm text-zinc-500">
-        <div className="max-w-5xl mx-auto">
-          <p className="mb-6">Dúvidas? Ligue 0800 000 0000</p>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-y-3 gap-x-8">
-            {[
-              'Perguntas frequentes',
-              'Central de Ajuda',
-              'Termos de Uso',
-              'Privacidade',
-              'Preferências de cookies',
-            ].map((label) => (
-              <a key={label} href="#" className="hover:text-zinc-300 transition-colors w-fit">
-                {label}
-              </a>
-            ))}
-          </div>
-
-          <div className="mt-6 flex items-center gap-3">
+          <div className="flex flex-wrap gap-4 mb-12">
             <button
               type="button"
-              className="inline-flex items-center gap-2 px-4 py-2 rounded border border-white/20 bg-black/30 text-zinc-300 hover:bg-white/10 transition"
-              aria-label="Selecionar idioma"
+              onClick={() => router.push('/home')}
+              className="flex items-center gap-2 bg-white text-black px-8 py-3 rounded-md font-semibold hover:bg-gray-200 transition-all duration-200 hover:scale-105"
             >
-              <Globe className="w-4 h-4" />
-              <span className="text-sm font-semibold">Português</span>
-              <ChevronDown className="w-4 h-4 opacity-80" />
+              <Play className="w-5 h-5 fill-black" />
+              Conversar
+            </button>
+            <button
+              type="button"
+              onClick={() => router.push('/agentes')}
+              className="flex items-center gap-2 bg-gray-500/30 backdrop-blur-sm text-white px-8 py-3 rounded-md font-semibold hover:bg-gray-500/50 transition-all duration-200"
+            >
+              <Info className="w-5 h-5" />
+              Saiba mais
             </button>
           </div>
 
-          <p className="mt-6">© 2026 MENTE.AI</p>
+          <div className="flex items-center gap-3">
+            {AGENTES_DESTAQUE.map((_, idx) => (
+              <button
+                key={idx}
+                type="button"
+                onClick={() => setAgenteAtivo(idx)}
+                className={`h-1 rounded-full transition-all duration-300 ${
+                  idx === agenteAtivo ? 'w-12 bg-white' : 'w-6 bg-gray-500 hover:bg-gray-400'
+                }`}
+              />
+            ))}
+            <button
+              type="button"
+              onClick={() => setIsMuted((v) => !v)}
+              className="ml-4 p-2 rounded-full border border-white/30 hover:bg-white/10 transition-colors"
+            >
+              {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+            </button>
+          </div>
+        </div>
+
+        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#141414] to-transparent" />
+      </section>
+
+      <section className="px-6 md:px-12 lg:px-20 -mt-20 relative z-20 mb-12">
+        <h2 className="font-heading text-xl md:text-2xl font-semibold mb-4 text-gray-200">Seus Mentores</h2>
+
+        <div className="relative group">
+          <button
+            type="button"
+            onClick={() => scrollCarrossel(carrosselRef, 'left')}
+            className="absolute left-0 top-0 bottom-0 z-30 w-12 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/70 flex items-center justify-center"
+            aria-label="Rolar para a esquerda"
+          >
+            <ChevronLeft className="w-8 h-8" />
+          </button>
+
+          <div
+            ref={carrosselRef}
+            className="flex gap-4 overflow-x-auto scroll-smooth pb-4 scrollbar-hide"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          >
+            {AGENTES_MENTORES.map((agente) => (
+              <div
+                key={agente.id}
+                onMouseEnter={() => setHoveredCard(agente.id)}
+                onMouseLeave={() => setHoveredCard(null)}
+                className={`relative flex-none w-[200px] md:w-[240px] aspect-[2/3] rounded-md overflow-hidden cursor-pointer transition-all duration-300 ${
+                  hoveredCard === agente.id ? 'scale-110 z-20' : 'scale-100'
+                }`}
+              >
+                <Image src={agente.imagem} alt={agente.nome} fill className="object-cover" />
+                <div className={`absolute inset-0 bg-gradient-to-t ${agente.cor} opacity-0 hover:opacity-30 transition-opacity`} />
+                <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/90 to-transparent">
+                  <h3 className="font-heading font-bold text-lg">{agente.nome}</h3>
+                  <p className="font-body text-sm text-gray-300">{agente.descricao}</p>
+                </div>
+                {hoveredCard === agente.id && <div className="absolute inset-0 border-2 border-white/50 rounded-md" />}
+              </div>
+            ))}
+          </div>
+
+          <button
+            type="button"
+            onClick={() => scrollCarrossel(carrosselRef, 'right')}
+            className="absolute right-0 top-0 bottom-0 z-30 w-12 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/70 flex items-center justify-center"
+            aria-label="Rolar para a direita"
+          >
+            <ChevronRight className="w-8 h-8" />
+          </button>
+        </div>
+      </section>
+
+      <section className="px-6 md:px-12 lg:px-20 mb-12">
+        <h2 className="font-heading text-xl md:text-2xl font-semibold mb-4 text-gray-200">Novo no NEXUS</h2>
+
+        <div className="relative group">
+          <button
+            type="button"
+            onClick={() => scrollCarrossel(carrosselNovoRef, 'left')}
+            className="absolute left-0 top-0 bottom-0 z-30 w-12 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/70 flex items-center justify-center"
+            aria-label="Rolar para a esquerda"
+          >
+            <ChevronLeft className="w-8 h-8" />
+          </button>
+
+          <div
+            ref={carrosselNovoRef}
+            className="flex gap-4 overflow-x-auto scroll-smooth pb-4 scrollbar-hide"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          >
+            {AGENTES_NOVOS.map((agente) => (
+              <div
+                key={agente.id}
+                className="relative flex-none w-[200px] md:w-[240px] aspect-video rounded-md overflow-hidden cursor-pointer hover:scale-105 transition-transform duration-300 group/card"
+              >
+                <Image src={agente.imagem} alt={agente.nome} fill className="object-cover" />
+                <div className={`absolute inset-0 bg-gradient-to-br ${agente.cor} opacity-40 group-hover/card:opacity-60 transition-opacity`} />
+                <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-4">
+                  <h3 className="font-heading font-bold text-xl mb-1">{agente.nome}</h3>
+                  <p className="font-body text-xs text-gray-200">{agente.descricao}</p>
+                  <span className="mt-2 px-3 py-1 bg-red-600 text-xs font-bold rounded-full">NOVO</span>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <button
+            type="button"
+            onClick={() => scrollCarrossel(carrosselNovoRef, 'right')}
+            className="absolute right-0 top-0 bottom-0 z-30 w-12 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/70 flex items-center justify-center"
+            aria-label="Rolar para a direita"
+          >
+            <ChevronRight className="w-8 h-8" />
+          </button>
+        </div>
+      </section>
+
+      <section className="px-6 md:px-12 lg:px-20 mb-20">
+        <h2 className="font-heading text-xl md:text-2xl font-semibold mb-4 text-gray-200">Escolha sua Jornada</h2>
+
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {FAIXAS_ETARIAS.map((faixa) => (
+            <div
+              key={faixa.id}
+              className={`relative aspect-[4/3] rounded-lg overflow-hidden cursor-pointer hover:scale-105 transition-all duration-300 group bg-gradient-to-br ${faixa.cor} p-6 flex flex-col justify-between`}
+            >
+              <span className="text-4xl">{faixa.icon}</span>
+              <div>
+                <h3 className="font-heading font-bold text-lg leading-tight mb-1">{faixa.nome}</h3>
+                <p className="font-body text-sm text-white/80">{faixa.faixa}</p>
+              </div>
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <footer className="px-6 md:px-12 lg:px-20 py-12 border-t border-gray-800">
+        <div className="max-w-7xl mx-auto text-center text-gray-500 font-body text-sm">
+          <p className="mb-2">© 2026 MENTE.AI — Metaverso Educacional</p>
+          <p>Ethos, Logos, Pathos e Techne aguardam você.</p>
         </div>
       </footer>
-    </div>
+    </main>
   );
 }
