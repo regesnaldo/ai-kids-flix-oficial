@@ -19,52 +19,52 @@ type Agente = {
 const AGENTES_DESTAQUE: Agente[] = [
   {
     id: 'ethos',
-    nome: 'Ethos',
-    descricao: 'Seu guia ético e filosófico. Aprenda a pensar criticamente sobre suas decisões.',
+    nome: 'ETHOS',
+    descricao: 'O Filósofo. Aprenda a pensar criticamente sobre ética, vieses e decisões na IA.',
     cor: 'from-purple-600 to-blue-600',
     imagem: '/images/agentes/ethos.png',
     categoria: 'mentor',
   },
   {
-    id: 'logos',
-    nome: 'Logos',
-    descricao: 'Mestre da lógica e raciocínio. Desenvolva seu pensamento analítico.',
+    id: 'nexus',
+    nome: 'NEXUS',
+    descricao: 'O Conector. Entenda como Transformers e atenção multi-head conectam ideias.',
     cor: 'from-blue-600 to-cyan-600',
-    imagem: '/images/agentes/index.png',
+    imagem: '/images/agentes/nexus.png',
     categoria: 'mentor',
   },
   {
-    id: 'pathos',
-    nome: 'Pathos',
-    descricao: 'Explore emoções e empatia. Entenda a si mesmo e aos outros.',
+    id: 'aurora',
+    nome: 'AURORA',
+    descricao: 'A Criadora. Explore espaços vetoriais e gere arte com palavras.',
     cor: 'from-pink-600 to-rose-600',
-    imagem: '/images/agentes/lyra.png',
+    imagem: '/images/agentes/aurora.png',
     categoria: 'mentor',
   },
   {
-    id: 'techne',
-    nome: 'Techne',
-    descricao: 'Criatividade e técnica. Aprenda fazendo, com projetos práticos.',
+    id: 'volt',
+    nome: 'VOLT',
+    descricao: 'O Energético. Sinta a descarga do backpropagation e redes neurais.',
     cor: 'from-amber-600 to-orange-600',
-    imagem: '/images/agentes/aurora.png',
+    imagem: '/images/agentes/volt.png',
     categoria: 'mentor',
   },
 ];
 
 const AGENTES_MENTORES: Agente[] = [
-  { id: 'ethos-card', nome: 'Ethos', descricao: 'Ética & Filosofia', cor: 'from-purple-500 to-blue-500', imagem: '/images/agentes/ethos.png', categoria: 'mentor' },
-  { id: 'logos-card', nome: 'Logos', descricao: 'Lógica & Matemática', cor: 'from-blue-500 to-cyan-500', imagem: '/images/agentes/index.png', categoria: 'mentor' },
-  { id: 'pathos-card', nome: 'Pathos', descricao: 'Emoções & Arte', cor: 'from-pink-500 to-rose-500', imagem: '/images/agentes/lyra.png', categoria: 'mentor' },
-  { id: 'techne-card', nome: 'Techne', descricao: 'Criatividade & Tech', cor: 'from-amber-500 to-orange-500', imagem: '/images/agentes/aurora.png', categoria: 'mentor' },
-  { id: 'kairos-card', nome: 'Kairos', descricao: 'Oportunidade & Tempo', cor: 'from-emerald-500 to-teal-500', imagem: '/images/agentes/stratos.png', categoria: 'mentor' },
+  { id: 'ethos', nome: 'ETHOS', descricao: 'Ética & Filosofia', cor: 'from-purple-500 to-blue-500', imagem: '/images/agentes/ethos.png', categoria: 'mentor' },
+  { id: 'nexus', nome: 'NEXUS', descricao: 'Conexão & Transformers', cor: 'from-blue-500 to-cyan-500', imagem: '/images/agentes/nexus.png', categoria: 'mentor' },
+  { id: 'aurora', nome: 'AURORA', descricao: 'Criatividade & Vetores', cor: 'from-pink-500 to-rose-500', imagem: '/images/agentes/aurora.png', categoria: 'mentor' },
+  { id: 'volt', nome: 'VOLT', descricao: 'Energia & Redes Neurais', cor: 'from-amber-500 to-orange-500', imagem: '/images/agentes/volt.png', categoria: 'mentor' },
+  { id: 'logos', nome: 'LOGOS', descricao: 'Lógica & Razão', cor: 'from-emerald-500 to-teal-500', imagem: '/images/agentes/nexus.png', categoria: 'mentor' },
 ];
 
 const AGENTES_NOVOS: Agente[] = [
-  { id: 'musica', nome: 'Melodia', descricao: 'Aprenda música de forma lúdica', cor: 'from-violet-500 to-purple-500', imagem: '/images/agentes/prism.png', categoria: 'novo' },
-  { id: 'ciencia', nome: 'Curie', descricao: 'Ciência para crianças curiosas', cor: 'from-sky-500 to-blue-500', imagem: '/images/agentes/terra.png', categoria: 'novo' },
-  { id: 'historia', nome: 'Heródoto', descricao: 'História como aventura', cor: 'from-amber-600 to-yellow-500', imagem: '/images/agentes/janus.png', categoria: 'novo' },
-  { id: 'natureza', nome: 'Gaia', descricao: 'Natureza e sustentabilidade', cor: 'from-green-500 to-emerald-500', imagem: '/images/agentes/terra.png', categoria: 'novo' },
-  { id: 'esporte', nome: 'Olympus', descricao: 'Movimento e saúde', cor: 'from-red-500 to-orange-500', imagem: '/images/agentes/volt.png', categoria: 'novo' },
+  { id: 'aurora', nome: 'AURORA', descricao: 'Crie arte com espaços vetoriais', cor: 'from-pink-500 to-rose-500', imagem: '/images/agentes/aurora.png', categoria: 'novo' },
+  { id: 'volt', nome: 'VOLT', descricao: 'Descarga de conhecimento neural', cor: 'from-amber-500 to-orange-500', imagem: '/images/agentes/volt.png', categoria: 'novo' },
+  { id: 'ethos', nome: 'ETHOS', descricao: 'Questões éticas sobre IA', cor: 'from-purple-500 to-blue-500', imagem: '/images/agentes/ethos.png', categoria: 'novo' },
+  { id: 'nexus', nome: 'NEXUS', descricao: 'Conecte conceitos de IA', cor: 'from-blue-500 to-cyan-500', imagem: '/images/agentes/nexus.png', categoria: 'novo' },
+  { id: 'logos', nome: 'LOGOS', descricao: 'O véio da lógica', cor: 'from-emerald-500 to-teal-500', imagem: '/images/agentes/nexus.png', categoria: 'novo' },
 ];
 
 const FAIXAS_ETARIAS = [
@@ -171,7 +171,7 @@ export default function Home() {
           <div className="flex flex-wrap gap-4 mb-12">
             <button
               type="button"
-              onClick={() => router.push('/home')}
+              onClick={() => router.push(`/agentes/${agenteAtual.id}`)}
               className="flex items-center gap-2 bg-white text-black px-8 py-3 rounded-md font-semibold hover:bg-gray-200 transition-all duration-200 hover:scale-105"
             >
               <Play className="w-5 h-5 fill-black" />
@@ -179,7 +179,7 @@ export default function Home() {
             </button>
             <button
               type="button"
-              onClick={() => router.push('/agentes')}
+              onClick={() => router.push(`/agentes/${agenteAtual.id}`)}
               className="flex items-center gap-2 bg-gray-500/30 backdrop-blur-sm text-white px-8 py-3 rounded-md font-semibold hover:bg-gray-500/50 transition-all duration-200"
             >
               <Info className="w-5 h-5" />
@@ -232,6 +232,7 @@ export default function Home() {
             {AGENTES_MENTORES.map((agente) => (
               <div
                 key={agente.id}
+                onClick={() => router.push(`/agentes/${agente.id}`)}
                 onMouseEnter={() => setHoveredCard(agente.id)}
                 onMouseLeave={() => setHoveredCard(null)}
                 className={`relative flex-none w-[200px] md:w-[240px] aspect-[2/3] rounded-md overflow-hidden cursor-pointer transition-all duration-300 ${
@@ -281,6 +282,7 @@ export default function Home() {
             {AGENTES_NOVOS.map((agente) => (
               <div
                 key={agente.id}
+                onClick={() => router.push(`/agentes/${agente.id}`)}
                 className="relative flex-none w-[200px] md:w-[240px] aspect-video rounded-md overflow-hidden cursor-pointer hover:scale-105 transition-transform duration-300 group/card"
               >
                 <Image src={agente.imagem} alt={agente.nome} fill className="object-cover" />
@@ -312,6 +314,7 @@ export default function Home() {
           {FAIXAS_ETARIAS.map((faixa) => (
             <div
               key={faixa.id}
+              onClick={() => router.push('/home')}
               className={`relative aspect-[4/3] rounded-lg overflow-hidden cursor-pointer hover:scale-105 transition-all duration-300 group bg-gradient-to-br ${faixa.cor} p-6 flex flex-col justify-between`}
             >
               <span className="text-4xl">{faixa.icon}</span>
@@ -328,7 +331,7 @@ export default function Home() {
       <footer className="px-6 md:px-12 lg:px-20 py-12 border-t border-gray-800">
         <div className="max-w-7xl mx-auto text-center text-gray-500 font-body text-sm">
           <p className="mb-2">© 2026 MENTE.AI — Metaverso Educacional</p>
-          <p>Ethos, Logos, Pathos e Techne aguardam você.</p>
+          <p>NEXUS, VOLT, AURORA e ETHOS aguardam você.</p>
         </div>
       </footer>
     </main>
