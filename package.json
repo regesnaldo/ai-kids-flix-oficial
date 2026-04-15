@@ -47,6 +47,7 @@
     "critters": "^0.0.23",
     "drizzle-orm": "^0.45.1",
     "framer-motion": "^11.18.2",
+    "jose": "^6.2.2",
     "lucide-react": "^0.574.0",
     "mysql2": "^3.18.2",
     "next": "16.1.6",
