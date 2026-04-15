@@ -1,10 +1,10 @@
 'use client';
 
-import Image from 'next/image';
-import Link from 'next/link';
 import { useRef, useState } from 'react';
+import Link from 'next/link';
 import HeroBanner from '@/components/home/HeroBanner';
 import AgentRow from '@/components/home/AgentRow';
+import ContinueWatching from '@/components/home/ContinueWatching';
 import AgentDetailModal from '@/components/home/AgentDetailModal';
 import InfoModal from '@/components/home/InfoModal';
 import { allAgents, AGENT_ROWS } from '@/data/all-agents';
@@ -27,7 +27,7 @@ function SeasonRow() {
 
   return (
     <div className="relative group/row mb-2">
-      <div className="flex items-end justify-between px-4 md:px-12 mb-4">
+      <div className="flex items-center justify-between px-4 md:px-12 mb-4">
         <h2 className="text-xl md:text-2xl font-bold text-white">
           {phase ? `Fase ${phase.id}: ${phase.name}` : 'Temporadas'}
         </h2>
@@ -35,7 +35,7 @@ function SeasonRow() {
           href="/explorar"
           className="text-xs font-semibold text-zinc-400 hover:text-white transition-colors"
         >
-          Explorar →
+          Ver tudo →
         </Link>
       </div>
 
@@ -48,8 +48,7 @@ function SeasonRow() {
           bg-gradient-to-r from-zinc-950 to-transparent
           flex items-center justify-center
           opacity-0 group-hover/row:opacity-100
-          transition-opacity duration-200
-          hover:from-black
+          transition-opacity duration-200 hover:from-black
         "
       >
         <span className="text-white text-3xl leading-none">‹</span>
@@ -64,8 +63,7 @@ function SeasonRow() {
           bg-gradient-to-l from-zinc-950 to-transparent
           flex items-center justify-center
           opacity-0 group-hover/row:opacity-100
-          transition-opacity duration-200
-          hover:from-black
+          transition-opacity duration-200 hover:from-black
         "
       >
         <span className="text-white text-3xl leading-none">›</span>
@@ -78,30 +76,28 @@ function SeasonRow() {
         {seasons.map((s) => (
           <Link
             key={s.id}
-            href={`/explorar?season=${encodeURIComponent(s.id)}`}
-            className="relative group/card flex-none w-44"
+            href={`/player?episode=${encodeURIComponent(s.episodes?.[0]?.id ?? '')}`}
+            className="relative group/card flex-none w-72"
           >
-            <div className="relative aspect-[2/3] rounded-lg overflow-hidden border border-white/10 bg-zinc-900/40 group-hover/card:border-cyan-400/30 transition-colors">
-              <Image
-                src={s.coverImageUrl}
-                alt={s.title}
-                fill
-                sizes="176px"
-                className="object-cover"
+            <div className="relative aspect-video rounded-lg overflow-hidden border border-white/10 bg-zinc-900/40 group-hover/card:border-cyan-400/30 transition-colors">
+              <div
+                className="absolute inset-0"
+                style={{
+                  background: `linear-gradient(135deg, ${s.primaryAgent ? '#3B82F6' : '#1a1a2e'}33, #0a0a1a)`,
+                }}
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/55 to-transparent" />
-              <div className="absolute inset-0 opacity-[0.22]" style={{ background: 'radial-gradient(circle at 30% 10%, rgba(0,240,255,0.22), transparent 55%)' }} />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 
               <div className="absolute bottom-0 left-0 right-0 p-3">
-                <p className="text-xs text-zinc-300/80 font-bold uppercase tracking-widest mb-1">
-                  Temporada {String(s.number).padStart(2, '0')}
+                <p className="text-[10px] text-cyan-200/80 font-bold uppercase tracking-widest mb-1">
+                  Temporada {String(s.number).padStart(2, '0')} · {s.episodes?.length ?? 0} episódios
                 </p>
-                <p className="text-sm font-extrabold text-white leading-tight line-clamp-2">
+                <p className="text-sm font-extrabold text-white leading-tight line-clamp-1">
                   {s.title}
                 </p>
-                <div className="mt-3 h-[3px] w-full bg-white/10 rounded-full overflow-hidden">
-                  <div className="h-full" style={{ width: '5%', background: '#00F0FF' }} />
-                </div>
+                <p className="text-[10px] text-zinc-500 mt-0.5 line-clamp-1">
+                  {s.synopsis?.slice(0, 80) ?? ''}…
+                </p>
               </div>
             </div>
           </Link>
@@ -130,7 +126,11 @@ export default function HomePage() {
     <main className="min-h-screen bg-zinc-950">
       <HeroBanner onInfoClick={() => setIsInfoOpen(true)} />
 
-      <section className="-mt-20 relative z-20 pb-24 pt-4 space-y-8" aria-label="Catálogo">
+      <section
+        className="-mt-20 relative z-20 pb-24 pt-4 space-y-8"
+        aria-label="Catálogo"
+      >
+        <ContinueWatching />
         <SeasonRow />
 
         {AGENT_ROWS.map((row) => (
@@ -141,17 +141,18 @@ export default function HomePage() {
             onAgentClick={handleOpenModal}
           />
         ))}
-
-        <AgentRow
-          title="Todos os Agentes"
-          agents={allAgents}
-          onAgentClick={handleOpenModal}
-        />
       </section>
 
-      <AgentDetailModal agent={selectedAgent} isOpen={isModalOpen} onClose={handleCloseModal} />
+      <AgentDetailModal
+        agent={selectedAgent}
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+      />
 
-      <InfoModal isOpen={isInfoOpen} onClose={() => setIsInfoOpen(false)} />
+      <InfoModal
+        isOpen={isInfoOpen}
+        onClose={() => setIsInfoOpen(false)}
+      />
     </main>
   );
 }
