@@ -17,7 +17,7 @@ export function getJwtSecretKey(): Uint8Array {
 
   if (!raw || raw.trim() === "") {
     throw new Error(
-      "[MENTE.AI] JWT_SECRET não definido. Adicione-o no .env.local:\n" + "JWT_SECRET=sua_chave_secreta_aqui"
+      "[MENTE.AI] JWT_SECRET não definido. Adicione-o no .env.local:\nJWT_SECRET=sua_chave_secreta_aqui"
     );
   }
 
@@ -32,14 +32,12 @@ export interface MenteAiJwtPayload extends JWTPayload {
 
 export async function signToken(payload: MenteAiJwtPayload): Promise<string> {
   const secretKey = getJwtSecretKey();
-  console.log("DEBUG AUTH: Secret Length:", secretKey.length);
   return new SignJWT(payload).setProtectedHeader({ alg: "HS256" }).setIssuedAt().setExpirationTime("7d").sign(secretKey);
 }
 
 export async function verifyToken(token: string): Promise<MenteAiJwtPayload | null> {
   try {
     const secretKey = getJwtSecretKey();
-    console.log("DEBUG AUTH: Secret Length:", secretKey.length);
     const { payload } = await jwtVerify(token, secretKey);
     return payload as MenteAiJwtPayload;
   } catch {

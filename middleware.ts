@@ -1,11 +1,26 @@
 import { NextRequest, NextResponse } from "next/server";
 import { jwtVerify } from "jose";
 
-const protectedRoutes = ["/home","/player","/sucesso","/perfis","/conta","/agentes","/explorar","/ranking","/laboratorio"];
-const apiProtectedRoutes = ["/api/profile","/api/notes","/api/xp","/api/badges"];
+const protectedRoutes = [
+  "/home",
+  "/dashboard",
+  "/aulas",
+  "/perfil",
+  "/perfis",
+  "/conta",
+  "/agentes",
+  "/explorar",
+  "/ranking",
+  "/player",
+  "/sucesso",
+  "/laboratorio",
+];
+
+const apiProtectedRoutes = ["/api/profiles", "/api/notes", "/api/xp", "/api/badges", "/api/dashboard"];
 const authRoutes = ["/login","/onboarding"];
 const publicRoutes = ["/logout"];
-const COOKIE_NAME = "token";
+const PRIMARY_COOKIE_NAME = "mente_ai_token";
+const LEGACY_COOKIE_NAME = "token";
 
 async function verifyToken(token: string) {
   const secret = process.env.JWT_SECRET;
@@ -20,12 +35,15 @@ async function verifyToken(token: string) {
 }
 
 function clearAuthCookie(response: NextResponse) {
-  response.cookies.set(COOKIE_NAME, "", {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    maxAge: 0,
-    path: "/",
-  });
+  for (const cookieName of [PRIMARY_COOKIE_NAME, LEGACY_COOKIE_NAME]) {
+    response.cookies.set(cookieName, "", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 0,
+      path: "/",
+    });
+  }
 }
 
 export async function middleware(request: NextRequest) {
@@ -41,7 +59,10 @@ export async function middleware(request: NextRequest) {
   const isApiProtected = apiProtectedRoutes.some((r) => pathname.startsWith(r));
   const isAuthRoute    = authRoutes.some((r) => pathname === r || pathname.startsWith(r + "/"));
 
-  const token           = request.cookies.get(COOKIE_NAME)?.value ?? null;
+  const token =
+    request.cookies.get(PRIMARY_COOKIE_NAME)?.value ??
+    request.cookies.get(LEGACY_COOKIE_NAME)?.value ??
+    null;
   const payload         = token ? await verifyToken(token) : null;
   const isAuthenticated = !!payload;
 

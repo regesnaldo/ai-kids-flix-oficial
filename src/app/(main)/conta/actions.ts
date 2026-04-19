@@ -8,11 +8,12 @@ import { revalidatePath } from "next/cache";
 import Stripe from "stripe";
 import { db } from "@/lib/db";
 import { favorites, interactiveDecisions, profiles, users, watchProgress } from "@/lib/db/schema";
+import { COOKIE_NAME } from "@/lib/auth";
 
 type ActionResult = { ok: boolean; message: string };
 
 type AuthPayload = {
-  userId?: number;
+  userId?: number | string;
 };
 
 type PortalMode = "manage" | "cancel";
@@ -28,7 +29,7 @@ function hashPassword(password: string): string {
 
 async function getActionUserId(): Promise<number> {
   const cookieStore = await cookies();
-  const token = cookieStore.get("token")?.value;
+  const token = cookieStore.get(COOKIE_NAME)?.value ?? cookieStore.get("token")?.value;
 
   if (!token || !process.env.JWT_SECRET) {
     throw new Error("Não autenticado.");
@@ -38,11 +39,13 @@ async function getActionUserId(): Promise<number> {
   const { payload } = await jwtVerify(token, secret);
   const auth = payload as AuthPayload;
 
-  if (!auth.userId || !Number.isInteger(auth.userId) || auth.userId <= 0) {
+  const userId = auth.userId ? Number(auth.userId) : NaN;
+
+  if (!Number.isInteger(userId) || userId <= 0) {
     throw new Error("Sessão inválida.");
   }
 
-  return auth.userId;
+  return userId;
 }
 
 export async function updateProfile(profileId: number, name: string, avatar?: string): Promise<ActionResult> {

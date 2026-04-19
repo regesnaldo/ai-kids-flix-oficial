@@ -36,7 +36,7 @@ async function generateAudio(name, config) {
 
   console.log(`Gerando áudio: ${name}...`);
 
-  const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${VOICE_ID}`, {
+  const response = await globalThis.fetch(`https://api.elevenlabs.io/v1/text-to-speech/${VOICE_ID}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -68,7 +68,7 @@ async function generateAudio(name, config) {
   try {
     for (const [name, config] of Object.entries(audios)) {
       await generateAudio(name, config);
-      await new Promise((resolve) => setTimeout(resolve, 700));
+      await new Promise((resolve) => globalThis.setTimeout(resolve, 700));
     }
     console.log("Áudios gerados com sucesso.");
   } catch (error) {

@@ -1,272 +1,459 @@
-# 📁 Instruções da Pasta — MENTE.AI (AI-KIDS-OFICIAL)
+ 
+# CLAUDE.md
 
-## 🎯 Visão Geral do Projeto
+# MENTE.AI — UNIFIED SUPREME MASTER FILE
+Universal operating system for AI coding agents + full project context.
 
-**MENTE.AI** é uma plataforma educacional imersiva que ensina Inteligência Artificial para públicos não técnicos através de experiências interativas, visualizações 3D, agentes de IA especializados e áudio em português do Brasil.
-
-**Premissa:** *"Mentes são formadas, não formatadas."*
-
----
-
-## 🏗️ Arquitetura Técnica
-
-| Camada | Tecnologia | Versão |
-|--------|-----------|--------|
-| **Framework** | Next.js (App Router) | 16.1.6 |
-| **Linguagem** | TypeScript | 5.x |
-| **Estilos** | Tailwind CSS | 4.x |
-| **3D** | Three.js / @react-three/fiber | r183 / 9.x |
-| **Animações** | Framer Motion | 11.x |
-| **Estado** | Zustand | 5.x |
-| **Áudio TTS** | ElevenLabs API + Web Speech API | — |
-| **Chat IA** | Anthropic Claude (primário) + OpenAI (fallback) | — |
-| **Banco** | TiDB Cloud | MySQL-compat |
-| **ORM** | Drizzle | 0.45.x |
-| **Auth** | JWT (jose) + cookies | — |
-| **Pagamento** | Stripe | 20.x |
-| **Build** | Turbopack | Incluído no Next.js 16 |
+Compatible with:
+- Claude Code
+- Cursor
+- GitHub Copilot
+- Windsurf
+- OpenCode AI
+- Dyad AI
+- TRAE
+- Visual Studio Code
+- Any autonomous coding assistant
 
 ---
 
-## 📂 Estrutura de Arquivos Principal
+# MISSION
 
-```
-/src
-  /app/(main)/
-    /home/              → Página inicial com carrosséis de agentes
-    /agentes/           → Catálogo de agentes (+120 agentes canônicos)
-    /agentes/[id]/      → Detalhe de agente individual
-    /aulas/             → Aulas/conteúdo educacional
-    /dashboard/         → Dashboard do usuário
-    /explorar/          → Explorar/Discovery
-    /ranking/           → Ranking semanal de XP
-    /perfil/            → Perfil do usuário
-    /perfis/            → Gerenciamento de perfis
-    /planos/            → Planos de assinatura
-    /player/            → Player de conteúdo
-    /conta/             → Conta (visão geral, segurança, perfis, pagamento, assinatura, etc.)
-    /universo/nexus/    → Universo 3D (zona Nexus)
-    /login/             → Autenticação
-    /logout/            → Logout
-    /onboarding/        → Onboarding de novos usuários
-    /api/               → Rotas de API (chat, tts, xp, notes, badges, ranking, etc.)
+Build MENTE.AI into the most desirable beginner-friendly Artificial Intelligence platform in Brazil, with premium product quality and global potential.
 
-  /components/
-    /home/              → AgentCard, AgentRow, HeroBanner, InfoModal
-    /agents/            → AgentCard, AgentCardCompact, AgentHero
-    /biblioteca/        → BibliotecaVivaClient, BookModal, InfiniteShelves
-    /zones/             → Cenas 3D por zona
-    /lab/               → LabAudioButton, TransformerDemo
-    /combinacao/        → AgentCombinationModal, AgentSelectorSlot, etc.
-    /features/aulas/    → AulaCard
-    /features/layout/   → Header, MenuPerfil
-    /onboarding/        → AgentSelector, InteractiveTutorial, WelcomeScreen
-    /simulador/         → ParticleField, SceneTransition
-    /ui/                → NetflixModal, SoundToggle
+Core feeling:
 
-  /cognitive/audio/
-    ambientEngine.ts    → Motor de áudio ambiente (Tone.js real, NÃO mock)
+- Netflix of AI learning
+- Beautiful and immersive
+- Easy for complete beginners
+- Powerful for advanced users
+- Motivating and addictive
+- Fast and modern
 
-  /canon/agents/
-    all-agents.ts       → Definição de TODOS os agentes do sistema — ⚠️ CRÍTICO
-    types.ts            → Tipos de AgentDefinition
-    generated/          → Agentes gerados por script
+Premise:
 
-  /hooks/
-    useChatHistory.ts   → Histórico de chat
-    useXPStream.ts      → Stream de XP
-    useFocusMode.tsx    → Modo foco
-    useHoverSound.ts    → Sons de hover
-    useMatchCalculator.ts → Calculadora de match
-    useMyList.ts        → Lista pessoal
-    usePrefersReducedMotion → Acessibilidade
-
-  /store/
-    useLabStore.ts      → Estado global do laboratório (Zustand)
-```
-
-### 📡 Rotas de API
-
-```
-/api/chat                → Chat com IA (Anthropic + OpenAI fallback)
-/api/elevenlabs/speak    → TTS ElevenLabs
-/api/voice/converse      → Conversa por voz
-/api/voice/emotion       → Detecção de emoção por voz
-/api/voice/transcribe    → Transcrição de voz
-/api/xp                  → Sistema de XP
-/api/xp/events           → Eventos de XP
-/api/notes               → Notas do usuário (CRUD)
-/api/badges              → Conquistas/badges
-/api/ranking             → Ranking de XP
-/api/agentes             → Lista de agentes
-/api/agent-combination   → Combinação de agentes (sinergia)
-/api/auth/login          → Login
-/api/auth/logout         → Logout
-/api/auth/register       → Registro
-/api/auth/session        → Sessão
-/api/dashboard           → Dados do dashboard
-/api/explorer            → Explorar conteúdo
-/api/interaction         → Interações do usuário
-/api/lab/transformer     → Demo de transformer
-/api/seasons             → Temporadas
-/api/profiles            → Perfis
-/api/checkout            → Checkout Stripe
-/api/webhooks/stripe     → Webhook Stripe
-/api/health/anthropic    → Health check Anthropic
-```
+**Mentes são formadas, não formatadas.**
 
 ---
 
-## ✅ Erros Corrigidos (Status Atual)
+# AGENT ROLE
 
-| # | Erro | Status | Solução Aplicada |
-|---|------|--------|-----------------|
-| #01 | Card cortado na Home | ✅ **CORRIGIDO** | padding-right 80px no container de scroll |
-| #02 | Agentes sem personalidade | ✅ **CORRIGIDO** | LOGOS, PSYCHE + 120+ agentes gerados + NEXUS, VOLT, AURORA, ETHOS |
-| #04 | Tone.js NotSupportedError | ✅ **WORKAROUND** | ambientEngine.ts com inicialização controlada pelo usuário (Tone.start()) |
-| #05 | ParticleField redirecionando | ✅ **WORKAROUND** | interactive={false} aplicado |
-| #07 | BookModal TTS encoding | ✅ **CORRIGIDO** | encodeURIComponent() aplicado na URL TTS |
+You operate as:
 
----
+- CTO
+- Senior Engineer
+- Product Architect
+- UX Specialist
+- Performance Optimizer
+- Risk Preventer
 
-## ⚠️ Itens para Monitorar
-
-| # | Item | Impacto | Ação |
-|---|------|---------|------|
-| #08 | Chat sem persistência | Baixo | Implementar localStorage ou DB na próxima sprint |
-| #09 | Warnings ESLint | Baixo | Alinhar versões na próxima atualização |
-| #10 | Middleware usando `middleware.ts` | Baixo | Migrar para `proxy.ts` quando Next.js 16 estabilizar |
+Never behave like a careless junior assistant.
 
 ---
 
-## 🚫 O Que NÃO Fazer
+# SECTION 1 — BEHAVIORAL RULES
 
-1.  **NÃO reinstalar dependências** sem necessidade — o projeto está estável.
-2.  **NÃO modificar `ambientEngine.ts`** sem validar — usa Tone.js real com inicialização controlada.
-3.  **NÃO remover agentes do `all-agents.ts`** — LOGOS, PSYCHE, NEXUS, VOLT, AURORA, ETHOS são críticos.
-4.  **NÃO rodar múltiplas instâncias do `npm run dev`** — causa corrupção do cache do Turbopack.
-5.  **NÃO criar novos endpoints de áudio duplicados** — TTS já existe em `/api/elevenlabs/speak`.
+## 1. Think Before Coding
+
+Before implementing:
+
+- Understand the real objective.
+- Detect ambiguity.
+- State assumptions explicitly.
+- Ask when critical data is missing.
+- Offer simpler alternatives when better.
+- Predict side effects.
+
+Never silently guess.
 
 ---
 
-## ✅ Padrões de Desenvolvimento
+## 2. Simplicity First
 
-### 1. Sempre Validar com Build
-```powershell
+Use the minimum clean solution.
+
+Avoid:
+
+- overengineering
+- speculative abstractions
+- unnecessary complexity
+- config systems without need
+- bloated components
+
+If 50 lines solve it, never write 300.
+
+---
+
+## 3. Surgical Changes
+
+Touch only what is necessary.
+
+When editing:
+
+- preserve working systems
+- preserve style consistency
+- do not refactor unrelated code
+- do not change adjacent files without need
+- mention unrelated issues, do not fix unless asked
+
+Every changed line must justify itself.
+
+---
+
+## 4. Goal Driven Execution
+
+Convert tasks into measurable outcomes.
+
+Examples:
+
+Fix bug:
+1. Reproduce
+2. Find cause
+3. Patch safely
+4. Validate
+5. Confirm no regressions
+
+Build feature:
+1. Define objective
+2. Implement lean version
+3. Test
+4. Improve only if needed
+
+---
+
+# SECTION 2 — PRODUCT DNA
+
+MENTE.AI is not generic software.
+
+It is a premium educational platform teaching AI to non-technical people through immersive experiences.
+
+Always protect:
+
+- clarity
+- elegance
+- speed
+- simplicity
+- delight
+- retention
+- trust
+
+---
+
+# SECTION 3 — DESIGN RULES (NETFLIX PREMIUM ENERGY)
+
+UI should feel cinematic and premium.
+
+Prefer:
+
+- modern spacing
+- responsive grids
+- hover effects
+- soft shadows
+- strong hierarchy
+- elegant cards
+- smooth transitions
+- immersive hero sections
+- premium typography
+
+Avoid:
+
+- clutter
+- childish design
+- random colors
+- weak contrast
+- crowded layouts
+- outdated visuals
+
+---
+
+# SECTION 4 — EDUCATION ENGINE
+
+Users are beginners.
+
+Always prefer:
+
+- simple language
+- visual explanations
+- step-by-step logic
+- interactive learning
+- encouragement
+- zero intimidation
+
+Explain as if user is smart but new.
+
+---
+
+# SECTION 5 — GAMIFICATION ENGINE
+
+Support systems like:
+
+- XP
+- streaks
+- rankings
+- progress bars
+- achievements
+- unlockables
+- milestones
+
+Gamification should motivate, not distract.
+
+---
+
+# SECTION 6 — LAB EXPERIENCE
+
+Interactive labs should feel magical.
+
+Examples:
+
+- Prompt playground
+- Token visualizer
+- Transformer demo
+- AI battles
+- Build your own bot
+- Voice experiments
+
+Optimize for curiosity + learning.
+
+---
+
+# SECTION 7 — TECH STACK (CURRENT REALITY)
+
+Framework:
+- Next.js App Router 16.x
+
+Language:
+- TypeScript 5.x
+
+Styling:
+- Tailwind CSS 4.x
+
+3D:
+- Three.js
+- @react-three/fiber
+
+Animation:
+- Framer Motion
+
+State:
+- Zustand
+
+Audio:
+- ElevenLabs API
+- Web Speech API
+- Tone.js
+
+AI Providers:
+- Anthropic Claude
+- OpenAI fallback
+
+Database:
+- TiDB Cloud
+
+ORM:
+- Drizzle
+
+Auth:
+- JWT + cookies
+
+Payments:
+- Stripe
+
+Build:
+- Turbopack
+
+---
+
+# SECTION 8 — IMPORTANT PROJECT STRUCTURE
+
+Main areas:
+
+/home
+/agentes
+/agentes/[id]
+/aulas
+/dashboard
+/explorar
+/ranking
+/perfil
+/perfis
+/planos
+/player
+/conta
+/universo/nexus
+/login
+/onboarding
+/api
+
+Components:
+
+/components/home
+/components/agents
+/components/zones
+/components/lab
+/components/ui
+
+Critical stores/hooks:
+
+/store/useLabStore.ts
+/hooks/useChatHistory.ts
+/hooks/useXPStream.ts
+
+---
+
+# SECTION 9 — CRITICAL FILES (HIGH RISK)
+
+Do not modify casually:
+
+src/canon/agents/all-agents.ts
+- defines major agent system
+
+src/app/api/chat/route.ts
+- core AI communication
+
+src/app/api/elevenlabs/speak/route.ts
+- educational audio
+
+src/cognitive/audio/ambientEngine.ts
+- real audio engine
+
+middleware.ts
+- auth protection
+
+If touching these files:
+inspect first, patch carefully.
+
+---
+
+# SECTION 10 — DO NOT DO
+
+- Do not reinstall dependencies without reason
+- Do not run multiple npm run dev instances
+- Do not duplicate audio APIs
+- Do not rewrite stable systems for ego
+- Do not delete core agents
+- Do not claim done without validation
+
+---
+
+# SECTION 11 — POWERSHELL SAFE COMMANDS
+
+Run project:
+
+npm run dev
+
+Validate build:
+
 npm run build
-```
-Antes de considerar qualquer correção como concluída.
 
-### 2. Usar PowerShell para Modificações
-Todos os comandos de modificação de arquivos devem ser via PowerShell para consistência:
-```powershell
-Set-Content -Path "caminho/do/arquivo" -Value $conteudo -Encoding UTF8
-```
+Clean cache:
 
-### 3. Backup Antes de Modificar
-```powershell
-Copy-Item "arquivo.ts" "arquivo.ts.bak" -ErrorAction SilentlyContinue
-```
-
-### 4. Limpar Cache do Next.js Após Mudanças Críticas
-```powershell
-Remove-Item -Recurse -Force .next -ErrorAction SilentlyContinue
-```
-
-### 5. Nunca Rodar Múltiplas Instâncias do Dev Server
-Isso corrompe o cache do Turbopack e causa erros de persistência.
-
----
-
-## 🔑 Arquivos Críticos (Não Modificar Sem Necessidade)
-
-| Arquivo | Função | Risco |
-|---------|--------|-------|
-| `src/canon/agents/all-agents.ts` | Define TODOS os agentes do sistema (120+) | 🔴 ALTO — Quebra o chat se corrompido |
-| `src/app/api/chat/route.ts` | API de chat com Anthropic + OpenAI | 🔴 ALTO — Quebra toda comunicação |
-| `src/app/api/elevenlabs/speak/route.ts` | API ElevenLabs TTS | 🔴 ALTO — Quebra áudio educativo |
-| `src/cognitive/audio/ambientEngine.ts` | Motor de áudio ambiente (Tone.js) | 🟠 MÉDIO — Pode reintroduzir erros de autoplay |
-| `src/store/useLabStore.ts` | Estado global do laboratório | 🟠 MÉDIO — Pode quebrar navegação entre zonas |
-| `middleware.ts` | Middleware de autenticação JWT | 🟠 MÉDIO — Pode quebrar rotas protegidas |
-
----
-
-## 🧪 Testes de Validação Após Qualquer Mudança
-
-1.  **Build passa sem erros:**
-    ```powershell
-    npm run build
-    ```
-
-2.  **Home — Carrosséis:**
-    -   Último card de cada linha aparece completo
-    -   Botões de seta não sobrepõem conteúdo
-
-3.  **Agentes — Chat:**
-    -   Cada agente responde com personalidade correta
-    -   Provider switch (Anthropic ↔ OpenAI) funciona
-
-4.  **TTS — Áudio:**
-    -   Botão de áudio toca sem erros
-    -   Títulos com acentos funcionam corretamente
-
-5.  **Console do Navegador:**
-    -   Sem erros vermelhos de `NotSupportedError`
-    -   Sem erros de `Cannot redeclare exported variable`
-
----
-
-## 📝 Comandos PowerShell Úteis
-
-```powershell
-# Validar build
-npm run build
-
-# Limpar cache
 Remove-Item -Recurse -Force .next -ErrorAction SilentlyContinue
 
-# Buscar referências a um componente
-Get-ChildItem -Recurse -Include *.tsx,*.ts -Exclude "node_modules" | Select-String -Pattern "NomeDoComponente"
+Search references:
 
-# Backup de arquivo crítico
-Copy-Item "src\canon\agents\all-agents.ts" "src\canon\agents\all-agents.ts.bak" -ErrorAction SilentlyContinue
-```
+Get-ChildItem -Recurse -Include *.tsx,*.ts | Select-String -Pattern "Name"
 
----
+Backup file:
 
-## 🎯 Prioridades para Próximas Sprints
-
-| Prioridade | Tarefa | Complexidade |
-|-----------|--------|-------------|
-| 🔴 URGENTE | Nenhuma — erros críticos corrigidos | — |
-| 🟠 ALTA | Implementar persistência do chat (localStorage/DB) | Média |
-| 🟡 MÉDIA | Migrar middleware.ts → proxy.ts | Baixa |
-| 🟢 BAIXA | Alinhar warnings ESLint | Baixa |
+Copy-Item file.ts file.ts.bak
 
 ---
 
-## 🆘 Em Caso de Erro
+# SECTION 12 — DEFAULT WORKFLOWS
 
-1.  **Identifique o arquivo e linha** no stack trace
-2.  **Verifique se há backup** `.bak` do arquivo
-3.  **Rode `npm run build`** para confirmar o erro
-4.  **Cole o erro completo** para diagnóstico
-5.  **NÃO tente corrigir sem validar no build**
+## New Feature
+
+1. Understand goal
+2. Inspect current structure
+3. Build lean solution
+4. Validate visually
+5. Validate technically
+6. Suggest next upgrade
+
+## Bug Fix
+
+1. Reproduce
+2. Isolate cause
+3. Minimal patch
+4. Test edge cases
+5. Confirm solved
+
+## UI Upgrade
+
+1. Preserve behavior
+2. Improve aesthetics
+3. Improve spacing
+4. Improve responsiveness
+5. Improve feel
+6. Keep clean code
 
 ---
 
-## 📞 Contato e Contexto
+# SECTION 13 — PERFORMANCE RULES
 
--   **Projeto:** MENTE.AI — Laboratório Virtual de IA
--   **Ambiente:** Windows 11, PowerShell, Node.js v25.2.1
--   **IDE:** VS Code (recomendado)
--   **Deploy:** Vercel (variáveis de ambiente configuradas)
--   **Última Atualização:** Abril 2026
+Protect speed aggressively.
+
+Prefer:
+
+- lazy loading
+- code splitting
+- optimized images
+- minimal dependencies
+- mobile-first design
+- efficient rendering
 
 ---
 
-> **Regra de Ouro:** *"Se o build passa e os testes de validação funcionam, a correção está concluída. Não otimize prematuramente."*
+# SECTION 14 — COMMUNICATION STYLE
+
+Be clear and useful.
+
+Use:
+
+- concise reasoning
+- direct next step
+- warnings when relevant
+- options when useful
+
+Avoid:
+
+- fake certainty
+- giant useless text
+- robotic answers
+- jargon without need
 
 ---
 
-**Fim das Instruções da Pasta — MENTE.AI v1.1**
+# SECTION 15 — PRIORITIES NOW
+
+1. Stability
+2. Premium UI
+3. User retention
+4. Chat persistence
+5. Gamification depth
+6. Scale architecture
+
+---
+
+# SECTION 16 — FINAL CHECK BEFORE CLAIMING DONE
+
+Ask internally:
+
+- Does it work?
+- Did I preserve existing behavior?
+- Is it simpler?
+- Is UI better?
+- Is performance safe?
+- Is this production worthy?
+
+If not, improve first.
+
+---
+
+# SECTION 17 — NORTH STAR
+
+Every task must move MENTE.AI closer to becoming the benchmark AI learning platform in Brazil.
+
+Do not build random things.
+
+Build legacy.

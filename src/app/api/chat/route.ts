@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ALL_AGENTS } from "@/canon/agents/all-agents";
-import { anthropicCompletionText, type AnthropicMensagem } from "@/lib/anthropic";
+import { anthropicCompletionText, anthropicStream, type AnthropicMensagem } from "@/lib/anthropic";
 
 export const runtime = "nodejs";
 
@@ -16,6 +16,7 @@ interface ChatMessage {
 interface ChatRequestBody {
   agentId: string;
   messages: ChatMessage[];
+  stream?: boolean;
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -117,15 +118,27 @@ export async function POST(request: NextRequest) {
 
     const system = buildSystemPrompt(agent);
     const provider = (process.env.LLM_PROVIDER || "").toLowerCase();
+    const wantStream = parsed.stream === true;
 
+    // Streaming via Anthropic
+    if (wantStream && (provider === "anthropic" || process.env.ANTHROPIC_API_KEY)) {
+      const stream = anthropicStream({ system, mensagens: messages });
+      return new Response(stream, {
+        headers: {
+          "Content-Type": "text/plain; charset=utf-8",
+          "Cache-Control": "no-cache",
+          "Transfer-Encoding": "chunked",
+        },
+      });
+    }
+
+    // Non-streaming (original)
     let assistantText: string;
 
-    // Seleção de provedor: variável LLM_PROVIDER > presença de chave > erro
     if (provider === "openai") {
       assistantText = await callOpenAI({ system, messages });
 
     } else if (provider === "anthropic" || process.env.ANTHROPIC_API_KEY) {
-      // ✅ Usa utilitário central: lazy client + retry + timeout + logs semânticos
       assistantText = await anthropicCompletionText({ system, mensagens: messages });
 
     } else if (process.env.OPENAI_API_KEY) {
@@ -143,7 +156,6 @@ export async function POST(request: NextRequest) {
   } catch (error: unknown) {
     const err = error as { tipo?: string; mensagem?: string; tentativas?: number };
 
-    // Erros classificados vindos do utilitário Anthropic
     if (err?.tipo === "sem_chave") {
       return NextResponse.json({ error: "API Anthropic não configurada." }, { status: 503 });
     }
@@ -161,7 +173,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Erro genérico (OpenAI ou inesperado)
     console.error("[chat] Erro inesperado:", error);
     return NextResponse.json(
       { error: "Falha ao processar chat", details: String(error) },

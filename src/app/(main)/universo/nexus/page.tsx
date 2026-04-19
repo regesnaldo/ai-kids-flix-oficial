@@ -1,10 +1,32 @@
 'use client';
 
 import { Suspense, useState, useCallback } from 'react';
-import { Canvas } from '@react-three/fiber';
-import { NexusScene } from '@/components/universo/NexusScene';
-import { NexusDialog, DialogueState } from '@/components/universo/NexusDialog';
-import { Loader } from '@react-three/drei';
+import dynamic from 'next/dynamic';
+
+const NexusScene = dynamic(
+  () => import('@/components/universo/NexusScene').then((mod) => mod.NexusScene),
+  {
+    ssr: false,
+    loading: () => <div className="w-full h-full bg-black animate-pulse" />
+  }
+);
+
+const NexusDialog = dynamic(
+  () => import('@/components/universo/NexusDialog').then((mod) => mod.NexusDialog),
+  { ssr: false }
+);
+
+const Loader = dynamic(
+  () => import('@react-three/drei').then((mod) => mod.Loader),
+  { ssr: false }
+);
+
+const Canvas = dynamic(
+  () => import('@react-three/fiber').then((mod) => mod.Canvas),
+  { ssr: false }
+);
+
+type DialogueState = 'initial' | 'responding' | 'awaiting';
 
 export default function NexusUniversePage() {
   const [dialogueState, setDialogueState] = useState<DialogueState>('initial');

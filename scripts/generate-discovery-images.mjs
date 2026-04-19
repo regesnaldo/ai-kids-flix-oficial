@@ -41,7 +41,7 @@ const prompts = [
 
 async function generateOne(promptText, outputPath) {
   const url = `${baseUrl}/models/${model}:predict?key=${encodeURIComponent(apiKey)}`;
-  const response = await fetch(url, {
+  const response = await globalThis.fetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({

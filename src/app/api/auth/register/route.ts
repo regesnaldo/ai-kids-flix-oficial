@@ -2,12 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { users } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
-import { createHash } from "crypto";
 import { setAuthCookie, signToken } from "@/lib/auth";
-
-function hashPassword(password: string): string {
-  return createHash("sha256").update(password).digest("hex");
-}
+import { hashPassword } from "@/lib/password";
 
 export async function POST(request: NextRequest) {
   try {
@@ -22,7 +18,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Email já cadastrado." }, { status: 409 });
     }
 
-    const hashedPassword = hashPassword(senha);
+    const hashedPassword = await hashPassword(senha);
 
     await db.insert(users).values({
       name: nome,

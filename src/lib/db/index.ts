@@ -3,10 +3,16 @@ import mysql from "mysql2/promise";
 import * as schema from "./schema";
 
 function normalizeDatabaseUrl(rawUrl: string): string {
+  let rawIsValid = true;
   try {
     new URL(rawUrl);
+  } catch {
+    rawIsValid = false;
+  }
+
+  if (rawIsValid) {
     return rawUrl;
-  } catch {}
+  }
 
   const sslIndex = rawUrl.indexOf("ssl=");
   if (sslIndex === -1) {

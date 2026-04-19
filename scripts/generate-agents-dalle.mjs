@@ -69,7 +69,7 @@ async function generateOne(agent) {
     headers["X-Title"] = process.env.OPENROUTER_APP_NAME || "MENTE.AI";
   }
 
-  const response = await fetch(`${apiBaseUrl}/images/generations`, {
+  const response = await globalThis.fetch(`${apiBaseUrl}/images/generations`, {
     method: "POST",
     headers,
     body: JSON.stringify({

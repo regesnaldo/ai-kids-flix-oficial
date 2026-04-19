@@ -194,3 +194,96 @@ export async function anthropicFetchDireto(opcoes: OpcoesFetchDireto): Promise<s
     clearTimeout(timer);
   }
 }
+
+// ─── Versão STREAMING ──────────────────────────────────────────────────────────
+
+interface OpcoesStream {
+  system?: string;
+  mensagens: AnthropicMensagem[];
+  modelo?: string;
+  maxTokens?: number;
+}
+
+/**
+ * Retorna um ReadableStream com chunks da resposta da Anthropic.
+ * Útil para streaming em tempo real no chat.
+ */
+export function anthropicStream(
+  opcoes: OpcoesStream
+): ReadableStream<Uint8Array> {
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) {
+    const error = new Error("ANTHROPIC_API_KEY não configurada.");
+    throw Object.assign(error, { tipo: "sem_chave" });
+  }
+
+  const modelo = opcoes.modelo ?? process.env.ANTHROPIC_MODEL ?? ANTHROPIC_MODELO_PADRAO;
+  const maxTokens = opcoes.maxTokens ?? 900;
+
+  const body: Record<string, unknown> = {
+    model: modelo,
+    max_tokens: maxTokens,
+    messages: opcoes.mensagens,
+    stream: true,
+  };
+  if (opcoes.system) body.system = opcoes.system;
+
+  const stream = new ReadableStream<Uint8Array>({
+    async start(controller) {
+      try {
+        const response = await fetch("https://api.anthropic.com/v1/messages", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-api-key": apiKey,
+            "anthropic-version": "2023-06-01",
+          },
+          body: JSON.stringify(body),
+        });
+
+        if (!response.ok) {
+          const detail = await response.text();
+          throw new Error(`Anthropic HTTP ${response.status}: ${detail}`);
+        }
+
+        if (!response.body) {
+          throw new Error("Corpo da resposta vazio");
+        }
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = "";
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split("\n");
+          buffer = lines.pop() || "";
+
+          for (const line of lines) {
+            if (line.startsWith("data: ") && !line.includes("[DONE]")) {
+              const jsonStr = line.slice(6);
+              try {
+                const data = JSON.parse(jsonStr);
+                if (data.type === "content_block_delta" && data.delta?.type === "text_delta") {
+                  controller.enqueue(new TextEncoder().encode(data.delta.text));
+                }
+              } catch {
+                // Skip invalid JSON lines
+              }
+            }
+          }
+        }
+
+        controller.close();
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : "Erro no stream";
+        controller.error(new Error(msg));
+      }
+    },
+  });
+
+  return stream;
+}

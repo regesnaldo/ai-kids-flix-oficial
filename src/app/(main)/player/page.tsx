@@ -20,18 +20,49 @@ function AudioButton({ text }: { text: string }) {
   const [playing, setPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  function handleClick() {
+  async function handleClick() {
     if (loading) return;
     if (playing && audioRef.current) { audioRef.current.pause(); setPlaying(false); return; }
     if (audioRef.current) { audioRef.current.currentTime = 0; audioRef.current.play(); setPlaying(true); return; }
     setLoading(true);
-    const audio = document.createElement("audio");
-    audio.src = "/api/tts?text=" + encodeURIComponent(text);
-    audio.addEventListener("canplaythrough", function h() { audio.removeEventListener("canplaythrough", h); setLoading(false); setPlaying(true); audio.play(); });
-    audio.addEventListener("ended", () => setPlaying(false));
-    audio.addEventListener("error", () => { setLoading(false); setPlaying(false); });
-    audioRef.current = audio;
-    audio.load();
+    try {
+      const res = await fetch("/api/elevenlabs/speak", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text }),
+      });
+
+      if (!res.ok) throw new Error("TTS failed");
+
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+
+      const audio = document.createElement("audio");
+      audio.src = url;
+      audio.addEventListener(
+        "canplaythrough",
+        function h() {
+          audio.removeEventListener("canplaythrough", h);
+          setLoading(false);
+          setPlaying(true);
+          void audio.play();
+        },
+      );
+      audio.addEventListener("ended", () => {
+        setPlaying(false);
+        URL.revokeObjectURL(url);
+      });
+      audio.addEventListener("error", () => {
+        setLoading(false);
+        setPlaying(false);
+        URL.revokeObjectURL(url);
+      });
+      audioRef.current = audio;
+      audio.load();
+    } catch {
+      setLoading(false);
+      setPlaying(false);
+    }
   }
 
   return (
@@ -48,23 +79,24 @@ function PlayerContent() {
   const episodeId = useMemo(() => {
     const trimmed = rawEpisodeParam.trim();
     if (/^S\d{2}E\d{2}$/i.test(trimmed)) return trimmed.toUpperCase();
-    return null;
+    return "S01E01";
   }, [rawEpisodeParam]);
 
   const episodeFromCatalog = useMemo(() => {
-    if (!episodeId) return null;
     return getEpisodeById(episodeId) ?? null;
   }, [episodeId]);
 
   const seasonFromCatalog = useMemo(() => {
-    if (!episodeId) return null;
     const seasonId = episodeId.slice(0, 3);
     return getSeasonById(seasonId) ?? null;
   }, [episodeId]);
 
-  const seriesTitle = seasonFromCatalog?.title ?? rawSeriesTitle;
-  const episodeTitle = episodeFromCatalog?.title ?? rawEpisodeParam;
-  const episodeDescription = episodeFromCatalog?.description ?? "";
+  const resolvedEpisode = episodeFromCatalog ?? getEpisodeById("S01E01") ?? null;
+  const resolvedSeason = seasonFromCatalog ?? getSeasonById("S01") ?? null;
+
+  const seriesTitle = resolvedSeason?.title ?? rawSeriesTitle;
+  const episodeTitle = resolvedEpisode?.title ?? rawEpisodeParam;
+  const episodeDescription = resolvedEpisode?.description ?? "";
 
   const [questions, setQuestions] = useState<InteractiveQuestion[]>([]);
   const [selected, setSelected] = useState<string | null>(null);
@@ -81,6 +113,8 @@ function PlayerContent() {
   const [rewardsOpen, setRewardsOpen] = useState(false);
   const [introBlack, setIntroBlack] = useState(true);
   const [introIn, setIntroIn] = useState(false);
+  const resumeAppliedRef = useRef(false);
+  const resumePctRef = useRef(0);
 
   async function generateQuestions() {
     setLoading(true); setSelected(null);
@@ -159,6 +193,12 @@ function PlayerContent() {
     if (!v || !Number.isFinite(v.duration) || v.duration <= 0) return;
     quizTriggerAtRef.current = Math.max(2, v.duration * 0.5);
     quizArmedRef.current = true;
+
+    if (missionOpen && !resumeAppliedRef.current) {
+      resumeAppliedRef.current = true;
+      v.currentTime = v.duration * Math.max(0, Math.min(1, resumePctRef.current));
+      void v.play();
+    }
   };
 
   const onVideoTimeUpdate = () => {
@@ -202,9 +242,17 @@ function PlayerContent() {
   };
 
   const currentQuestion = questions[0] ?? null;
-  const seasonEpisodes = seasonFromCatalog?.episodes ?? [];
-  const agentLabel = episodeFromCatalog?.agentId ?? "NEXUS";
-  const portalProgressPct = episodeId ? Math.round(((watchMap[episodeId]?.watchedPct ?? 0) * 100)) : 0;
+  const seasonEpisodes = resolvedSeason?.episodes ?? [];
+  const agentLabel = resolvedEpisode?.agentId ?? "NEXUS";
+  const portalProgressPct = Math.round(((watchMap[episodeId]?.watchedPct ?? 0) * 100));
+  const currentXp = resolvedEpisode?.xpReward ?? 0;
+
+  const nextEpisode = useMemo(() => {
+    if (!resolvedSeason) return null;
+    const idx = resolvedSeason.episodes.findIndex((e) => e.id === episodeId);
+    if (idx === -1) return resolvedSeason.episodes[0] ?? null;
+    return resolvedSeason.episodes[idx + 1] ?? null;
+  }, [resolvedSeason, episodeId]);
 
   const xpEarned = useMemo(() => {
     if (seasonEpisodes.length === 0) return 0;
@@ -249,14 +297,8 @@ function PlayerContent() {
     setQuizOpen(false);
     setMissionOpen(true);
 
-    const v = videoRef.current;
-    if (v && episodeId) {
-      const pct = watchMap[episodeId]?.watchedPct ?? 0;
-      if (Number.isFinite(v.duration) && v.duration > 0) {
-        v.currentTime = v.duration * pct;
-      }
-      void v.play();
-    }
+    resumeAppliedRef.current = false;
+    resumePctRef.current = watchMap[episodeId]?.watchedPct ?? 0;
   };
 
   const closeMission = () => {
@@ -455,9 +497,15 @@ function PlayerContent() {
               className="w-[210px] px-4 py-4 rounded-2xl border border-white/10 bg-black/35 hover:bg-black/45 transition text-white"
               style={{ boxShadow: "0 10px 28px rgba(0,0,0,0.45)" }}
             >
-              <div className="text-sm font-extrabold leading-tight">Continuar</div>
-              <div className="text-sm font-extrabold leading-tight">Missão:</div>
-              <div className="text-sm font-extrabold leading-tight">{episodeId ?? "S01E01"}</div>
+              <div className="text-sm font-extrabold leading-tight">{portalProgressPct > 0 ? "Continuar" : "Iniciar"}</div>
+              <div className="text-sm font-extrabold leading-tight">{episodeId}</div>
+              <div className="mt-2 text-[11px] text-zinc-300 font-semibold line-clamp-2">{episodeTitle}</div>
+
+              <div className="mt-3 flex items-center justify-center gap-2 text-[11px] text-zinc-300 font-semibold">
+                <span>Mentor {agentLabel}</span>
+                <span className="text-zinc-500">•</span>
+                <span>{currentXp} XP</span>
+              </div>
 
               <div className="mt-4 h-[3px] w-full bg-white/10 rounded-full overflow-hidden">
                 <div className="h-full" style={{ width: `${portalProgressPct}%`, background: "#00D9FF" }} />
@@ -468,6 +516,16 @@ function PlayerContent() {
                 <Play className="w-3.5 h-3.5 text-cyan-200" />
               </div>
             </button>
+
+            {nextEpisode ? (
+              <a
+                href={`/player?episode=${encodeURIComponent(nextEpisode.id)}`}
+                className="mt-3 text-[11px] font-bold text-cyan-200/90 hover:text-cyan-100 transition"
+                aria-label={`Próximo episódio: ${nextEpisode.id}`}
+              >
+                Próximo episódio: {nextEpisode.id}
+              </a>
+            ) : null}
           </div>
 
           <div
@@ -616,10 +674,21 @@ function PlayerContent() {
                   {episodeTitle}
                 </p>
                 {episodeDescription ? <p className="text-sm text-zinc-400 mt-1">{episodeDescription}</p> : null}
+                <p className="text-[11px] text-zinc-500 mt-2">
+                  Mentor {agentLabel} • {currentXp} XP
+                </p>
               </div>
               <div className="text-right">
                 <p className="text-[11px] text-zinc-400 font-bold tracking-widest uppercase">Progresso</p>
                 <p className="text-sm font-extrabold text-white">{portalProgressPct}%</p>
+                {nextEpisode ? (
+                  <a
+                    href={`/player?episode=${encodeURIComponent(nextEpisode.id)}`}
+                    className="mt-2 inline-block text-[11px] font-bold text-cyan-200/90 hover:text-cyan-100 transition"
+                  >
+                    Próximo: {nextEpisode.id}
+                  </a>
+                ) : null}
               </div>
             </div>
           </div>

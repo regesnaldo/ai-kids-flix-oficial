@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useChatHistory, type ChatMessage } from '@/hooks/useChatHistory';
 
 interface AgentChatProps {
@@ -9,16 +9,12 @@ interface AgentChatProps {
   agentApproach: string;
 }
 
-function newId() {
-  return `${Date.now()}_${Math.random().toString(16).slice(2)}`;
-}
-
 export default function AgentChat({ agentId, agentName, agentApproach }: AgentChatProps) {
   const initialMessage = `Olá! Eu sou ${agentName}. ${agentApproach}`;
-  const { messages, setMessages, addMessage, clearHistory, error: storageError } = useChatHistory(
+  const { messages, setMessages, addMessage, clearHistory } = useChatHistory(
     agentId,
     initialMessage,
-    { maxMessages: 20 } // Limita a 20 mensagens
+    { maxMessages: 20 }
   );
   
   const [input, setInput] = useState('');
@@ -30,6 +26,22 @@ export default function AgentChat({ agentId, agentName, agentApproach }: AgentCh
     endRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isSending]);
 
+  const streamingMessageRef = useRef<string | null>(null);
+
+  const handleStreamChunk = useCallback((chunk: string) => {
+    const currentText = streamingMessageRef.current || '';
+    const newText = currentText + chunk;
+    streamingMessageRef.current = newText;
+    
+    setMessages(prev => {
+      const lastMsg = prev[prev.length - 1];
+      if (lastMsg && lastMsg.role === 'assistant') {
+        return [...prev.slice(0, -1), { ...lastMsg, content: newText }];
+      }
+      return prev;
+    });
+  }, [setMessages]);
+
   async function sendMessage() {
     const text = input.trim();
     if (!text || isSending) return;
@@ -38,8 +50,11 @@ export default function AgentChat({ agentId, agentName, agentApproach }: AgentCh
     setIsSending(true);
     setInput('');
 
-    // Adiciona mensagem do usuário
     addMessage('user', text);
+    streamingMessageRef.current = '';
+
+    const tempMsgId = `stream_${Date.now()}`;
+    setMessages(prev => [...prev, { id: tempMsgId, role: 'assistant', content: '', timestamp: Date.now() }]);
 
     try {
       const res = await fetch('/api/chat', {
@@ -48,25 +63,40 @@ export default function AgentChat({ agentId, agentName, agentApproach }: AgentCh
         body: JSON.stringify({
           agentId,
           messages: messages.map((m) => ({ role: m.role, content: m.content })),
+          stream: true,
         }),
       });
 
-      const data: any = await res.json().catch(() => ({}));
       if (!res.ok) {
+        const data: any = await res.json().catch(() => ({}));
         const msg = typeof data?.error === 'string' ? data.error : 'Falha ao enviar mensagem';
         setError(msg);
+        setMessages(prev => prev.filter(m => m.id !== tempMsgId));
         return;
       }
 
-      const assistantText = typeof data?.message === 'string' ? data.message : '';
-      if (!assistantText.trim()) {
+      if (!res.body) {
         setError('Resposta vazia do servidor');
+        setMessages(prev => prev.filter(m => m.id !== tempMsgId));
         return;
       }
 
-      addMessage('assistant', assistantText);
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value, { stream: true });
+        handleStreamChunk(chunk);
+      }
+
+      streamingMessageRef.current = null;
+
     } catch (e) {
       setError('Erro de rede ao enviar mensagem');
+      setMessages(prev => prev.filter(m => m.id !== tempMsgId));
     } finally {
       setIsSending(false);
     }
@@ -76,6 +106,7 @@ export default function AgentChat({ agentId, agentName, agentApproach }: AgentCh
     clearHistory();
     setError(null);
     setInput('');
+    streamingMessageRef.current = null;
   }
 
   return (

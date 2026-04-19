@@ -2,26 +2,60 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { users } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
-import { createHash } from "crypto";
 import { clearAuthCookie, setAuthCookie, signToken } from "@/lib/auth";
+import { verifyPassword } from "@/lib/password";
 
-function hashPassword(password: string): string {
-  return createHash("sha256").update(password).digest("hex");
+const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000;
+const RATE_LIMIT_MAX_ATTEMPTS = 5;
+
+const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
+
+function checkRateLimit(ip: string): boolean {
+  const now = Date.now();
+  const record = rateLimitMap.get(ip);
+
+  if (!record || now > record.resetAt) {
+    rateLimitMap.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
+    return true;
+  }
+
+  if (record.count >= RATE_LIMIT_MAX_ATTEMPTS) {
+    return false;
+  }
+
+  record.count++;
+  return true;
 }
 
 export async function POST(request: NextRequest) {
   try {
+    const clientIp = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() 
+      ?? request.headers.get("x-real-ip") 
+      ?? "unknown";
+
+    if (!checkRateLimit(clientIp)) {
+      return NextResponse.json(
+        { error: "Muitas tentativas. Tente novamente em 15 minutos." },
+        { status: 429 }
+      );
+    }
+
     const { email, senha } = await request.json();
 
     if (!email || !senha) {
       return NextResponse.json({ error: "Preencha todos os campos." }, { status: 400 });
     }
 
-    const hashedPassword = hashPassword(senha);
-
     const user = await db.select().from(users).where(eq(users.email, email)).limit(1);
 
-    if (user.length === 0 || user[0].password !== hashedPassword) {
+    if (user.length === 0 || !user[0].password) {
+      const response = NextResponse.json({ error: "Email ou senha incorretos." }, { status: 401 });
+      return clearAuthCookie(response);
+    }
+
+    const isValid = await verifyPassword(senha, user[0].password);
+
+    if (!isValid) {
       const response = NextResponse.json({ error: "Email ou senha incorretos." }, { status: 401 });
       return clearAuthCookie(response);
     }
