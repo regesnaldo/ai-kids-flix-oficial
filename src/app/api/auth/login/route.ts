@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { users } from "@/lib/db/schema";
+import { users, type User } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
-import { clearAuthCookie, setAuthCookie, signToken } from "@/lib/auth";
-import { verifyPassword } from "@/lib/password";
+import { clearAuthCookie, getJwtSecretKey, setAuthCookie, signToken } from "@/lib/auth";
+import { verifyPassword, hashPassword, needsMigration } from "@/lib/password";
 
 const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000;
 const RATE_LIMIT_MAX_ATTEMPTS = 5;
@@ -27,11 +27,52 @@ function checkRateLimit(ip: string): boolean {
   return true;
 }
 
+const NETWORK_CODES = new Set(["ENOTFOUND", "ECONNREFUSED", "ETIMEDOUT", "EAI_AGAIN", "ENETUNREACH"]);
+
+function isDbNetworkError(err: unknown): boolean {
+  if (!err || typeof err !== "object") return false;
+  const e = err as Record<string, unknown>;
+  if (typeof e.code === "string" && NETWORK_CODES.has(e.code)) return true;
+  // Check if nested cause has the code (Drizzle wraps mysql2 errors)
+  if (e.cause && typeof (e.cause as Record<string, unknown>).code === "string") {
+    return NETWORK_CODES.has((e.cause as Record<string, unknown>).code as string);
+  }
+  // Fallback: check message string
+  const msg = typeof e.message === "string" ? e.message : "";
+  return NETWORK_CODES.has(msg.split(" ")[1] ?? "");
+}
+
+function mapSubscriptionPlanToJwtPlan(value: unknown): "free" | "premio" | "familiar" {
+  if (value === "PREMIUM") return "premio";
+  if (value === "FAMILY") return "familiar";
+  return "free";
+}
+
 export async function POST(request: NextRequest) {
+  // Validate required env vars upfront — prevents cryptic 500s
   try {
-    const clientIp = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() 
-      ?? request.headers.get("x-real-ip") 
-      ?? "unknown";
+    getJwtSecretKey();
+  } catch {
+    console.error("[LOGIN] JWT_SECRET não configurado. Adicione JWT_SECRET ao .env.local.");
+    return NextResponse.json(
+      { error: "Serviço temporariamente indisponível." },
+      { status: 503 }
+    );
+  }
+
+  if (!process.env.DATABASE_URL) {
+    console.error("[LOGIN] DATABASE_URL não configurado.");
+    return NextResponse.json(
+      { error: "Serviço temporariamente indisponível." },
+      { status: 503 }
+    );
+  }
+
+  try {
+    const clientIp =
+      request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
+      request.headers.get("x-real-ip") ??
+      "unknown";
 
     if (!checkRateLimit(clientIp)) {
       return NextResponse.json(
@@ -40,53 +81,72 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { email, senha } = await request.json();
+    const body = (await request.json()) as { email?: unknown; senha?: unknown };
+    const email = typeof body.email === "string" ? body.email.trim().toLowerCase() : "";
+    const senha = typeof body.senha === "string" ? body.senha : "";
 
     if (!email || !senha) {
       return NextResponse.json({ error: "Preencha todos os campos." }, { status: 400 });
     }
 
-    const user = await db.select().from(users).where(eq(users.email, email)).limit(1);
+    let rows: User[];
+    try {
+      rows = await db.select().from(users).where(eq(users.email, email)).limit(1);
+    } catch (dbError) {
+      console.error("[LOGIN] Erro na consulta ao banco:", dbError);
+      const isNetworkError = isDbNetworkError(dbError);
+      return NextResponse.json(
+        { error: isNetworkError ? "Banco de dados indisponível. Tente novamente em instantes." : "Erro interno ao processar login." },
+        { status: isNetworkError ? 503 : 500 }
+      );
+    }
 
-    if (user.length === 0 || !user[0].password) {
+    if (rows.length === 0 || !rows[0].password) {
       const response = NextResponse.json({ error: "Email ou senha incorretos." }, { status: 401 });
       return clearAuthCookie(response);
     }
 
-    const isValid = await verifyPassword(senha, user[0].password);
+    const user = rows[0];
+
+    const isValid = await verifyPassword(senha, user.password ?? "");
 
     if (!isValid) {
       const response = NextResponse.json({ error: "Email ou senha incorretos." }, { status: 401 });
       return clearAuthCookie(response);
     }
 
+    // Migrate legacy SHA-256 passwords to bcrypt on successful login
+    if (needsMigration(user.password ?? "")) {
+      try {
+        const newHash = await hashPassword(senha);
+        await db.update(users).set({ password: newHash }).where(eq(users.id, user.id));
+      } catch (migErr) {
+        // Non-fatal: log and continue — user is authenticated
+        console.warn("[LOGIN] Falha ao migrar hash SHA-256 para bcrypt:", migErr);
+      }
+    }
+
     const token = await signToken({
-      userId: String(user[0].id),
-      email: String(email),
-      plan: "free",
+      userId: String(user.id),
+      email,
+      plan: mapSubscriptionPlanToJwtPlan(user.subscriptionPlan),
     });
 
     const response = NextResponse.json({
       success: true,
       message: "Login realizado!",
-      user: { id: user[0].id, name: user[0].name, email: user[0].email, plan: user[0].subscriptionPlan },
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        plan: user.subscriptionPlan,
+      },
     });
 
-    for (const path of ["/", "/api", "/api/auth", "/api/auth/login"]) {
-      response.cookies.set("token", "", {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-        maxAge: 0,
-        path,
-      });
-    }
-
     return setAuthCookie(response, token);
-
   } catch (error) {
-    console.error("LOGIN ERROR:", error);
-    const response = NextResponse.json({ error: "Erro ao fazer login.", details: String(error) }, { status: 500 });
+    console.error("[LOGIN] Erro inesperado:", error);
+    const response = NextResponse.json({ error: "Erro ao fazer login." }, { status: 500 });
     return clearAuthCookie(response);
   }
 }

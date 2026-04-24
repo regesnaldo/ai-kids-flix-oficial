@@ -9,6 +9,7 @@ import { cookies } from "next/headers";
 import type { NextRequest, NextResponse } from "next/server";
 
 export const COOKIE_NAME = "mente_ai_token" as const;
+export const LEGACY_COOKIE_NAME = "token" as const;
 
 const COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24 * 7;
 
@@ -58,21 +59,23 @@ export function setAuthCookie(response: NextResponse, token: string): NextRespon
 
 export async function getAuthCookie(): Promise<string | null> {
   const store = await cookies();
-  return store.get(COOKIE_NAME)?.value ?? null;
+  return store.get(COOKIE_NAME)?.value ?? store.get(LEGACY_COOKIE_NAME)?.value ?? null;
 }
 
 export function getAuthCookieFromRequest(request: NextRequest): string | null {
-  return request.cookies.get(COOKIE_NAME)?.value ?? null;
+  return request.cookies.get(COOKIE_NAME)?.value ?? request.cookies.get(LEGACY_COOKIE_NAME)?.value ?? null;
 }
 
 export function clearAuthCookie(response: NextResponse): NextResponse {
-  response.cookies.set(COOKIE_NAME, "", {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    maxAge: 0,
-    path: "/",
-  });
+  for (const cookieName of [COOKIE_NAME, LEGACY_COOKIE_NAME]) {
+    response.cookies.set(cookieName, "", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 0,
+      path: "/",
+    });
+  }
   return response;
 }
 
