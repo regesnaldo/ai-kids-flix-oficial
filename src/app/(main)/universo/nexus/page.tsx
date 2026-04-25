@@ -1,7 +1,6 @@
 'use client'
 
-import { Canvas } from '@react-three/fiber'
-import { Suspense, useEffect, useCallback, useRef } from 'react'
+import { useEffect, useCallback, useRef } from 'react'
 import dynamic from 'next/dynamic'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useNexusStore } from '@/store/useNexusStore'
@@ -13,15 +12,17 @@ import {
   speakAsNexus,
 } from '@/lib/laboratorio/nexus-orchestrator'
 
-// Imports lazy — evita SSR de componentes Three.js
-const NexusScene = dynamic(
-  () => import('@/components/universo/NexusScene').then((m) => m.NexusScene),
-  { ssr: false, loading: () => <div className="w-full h-full bg-black" /> }
-)
-
 const NexusDialog = dynamic(
   () => import('@/components/universo/NexusDialog').then((m) => m.NexusDialog),
   { ssr: false }
+)
+
+const NexusCanvas = dynamic(
+  () => import('@/components/universo/NexusCanvas'),
+  {
+    ssr: false,
+    loading: () => <div className="w-full h-full bg-black" />,
+  }
 )
 
 // ── Utilitario ────────────────────────────────────────────────────────────────
@@ -198,15 +199,7 @@ export default function NexusUniversePage() {
 
       {/* Canvas 3D — sempre presente em background */}
       <div className="absolute inset-0 z-0">
-        <Canvas
-          camera={{ position: [0, 0, 15], fov: 60 }}
-          gl={{ antialias: true, alpha: true }}
-          dpr={[1, 2]}
-        >
-          <Suspense fallback={null}>
-            <NexusScene />
-          </Suspense>
-        </Canvas>
+        <NexusCanvas />
       </div>
 
       {/* Vinheta de profundidade */}
