@@ -4,7 +4,6 @@ import { useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Float, PointMaterial, Points } from '@react-three/drei';
 import * as THREE from 'three';
-import { useNexusStore } from '@/store/useNexusStore';
 
 const PARTICLE_COUNT = 2000;
 const NEXUS_COLOR = new THREE.Color('#00FFFF');
@@ -27,7 +26,7 @@ function generateParticlePositions(count: number): Float32Array {
 export function Particles({ size = 0.08 }: { size?: number }) {
   const pointsRef = useRef<THREE.Points>(null);
   const positions = useMemo(() => generateParticlePositions(PARTICLE_COUNT), []);
-  const { particleSpeed } = useNexusStore();
+  const particleSpeed = 0.4
 
   useFrame((state) => {
     if (!pointsRef.current) return;
@@ -52,4 +51,3 @@ export function Particles({ size = 0.08 }: { size?: number }) {
     </Float>
   );
 }
-
