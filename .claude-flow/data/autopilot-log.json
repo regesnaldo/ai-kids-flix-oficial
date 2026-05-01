@@ -1,0 +1,15 @@
+[
+  {
+    "ts": 1776812076537,
+    "event": "enabled",
+    "sessionId": "e642867b-b61e-4b8e-9c57-a8236fd523f7",
+    "maxIterations": 50
+  },
+  {
+    "ts": 1776812695702,
+    "event": "re-engaging",
+    "iteration": 1,
+    "completed": 0,
+    "remaining": 5
+  }
+]

@@ -45,6 +45,8 @@ interface AnimatedVisualizerProps {
   block: VisualizerBlock;
   isActive: boolean;
   activeUniverse?: UniverseId;
+  fillContainer?: boolean;
+  showHud?: boolean;
 }
 
 const DEFAULT_UNIVERSE: UniverseId = "NEXUS";
@@ -142,7 +144,13 @@ export function inferUniverseForConcept(concept: string): UniverseId {
   return DEFAULT_UNIVERSE;
 }
 
-export function AnimatedVisualizer({ block, isActive, activeUniverse }: AnimatedVisualizerProps) {
+export function AnimatedVisualizer({
+  block,
+  isActive,
+  activeUniverse,
+  fillContainer = false,
+  showHud = true,
+}: AnimatedVisualizerProps) {
   const universe = block.universe ?? activeUniverse ?? DEFAULT_UNIVERSE;
   const universeMeta = universeDescriptors[universe];
 
@@ -161,27 +169,41 @@ export function AnimatedVisualizer({ block, isActive, activeUniverse }: Animated
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: -12, scale: 0.985 }}
           transition={{ duration: 0.45 }}
-          className="relative w-full h-64 md:h-96 rounded-2xl overflow-hidden border border-white/10 bg-black"
+          className={`relative w-full overflow-hidden bg-transparent ${fillContainer ? "h-full rounded-none border-0" : "h-64 md:h-96 rounded-2xl border border-white/10"}`}
           style={lyraTintStyle}
         >
-          <div className={`absolute inset-0 bg-gradient-to-br ${universeMeta.tint} pointer-events-none z-10`} />
+          <div className={`absolute inset-0 bg-gradient-to-br ${universeMeta.tint} pointer-events-none z-0`} />
 
-          <Canvas camera={{ position: [0, 0, 18], fov: 45 }}>
+          <Canvas
+            camera={{ position: [0, 0, 18], fov: 45 }}
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: "100%",
+              height: "100%",
+              zIndex: 1,
+              pointerEvents: "none",
+              background: "transparent",
+            }}
+          >
             <UniverseScene universe={universe} />
             {universe === "LYRA" && (
               <Sparkles count={160} scale={24} size={3} speed={0.8} color="#EC4899" />
             )}
           </Canvas>
 
-          <div className="absolute inset-x-4 bottom-4 z-20 flex items-center justify-between gap-2 rounded-xl border border-white/15 bg-black/45 px-4 py-2 backdrop-blur-md">
-            <div className="min-w-0">
-              <p className="truncate text-xs uppercase tracking-wider text-cyan-300/90">{universe} Universe</p>
-              <p className="truncate text-sm text-white/90">{universeMeta.title}</p>
+          {showHud && (
+            <div className="absolute inset-x-4 bottom-4 z-20 flex items-center justify-between gap-2 rounded-xl border border-white/15 bg-black/45 px-4 py-2 backdrop-blur-md">
+              <div className="min-w-0">
+                <p className="truncate text-xs uppercase tracking-wider text-cyan-300/90">{universe} Universe</p>
+                <p className="truncate text-sm text-white/90">{universeMeta.title}</p>
+              </div>
+              <span className="max-w-[45%] truncate rounded-full border border-white/20 px-3 py-1 text-xs text-white/80">
+                {block.concept}
+              </span>
             </div>
-            <span className="max-w-[45%] truncate rounded-full border border-white/20 px-3 py-1 text-xs text-white/80">
-              {block.concept}
-            </span>
-          </div>
+          )}
         </motion.div>
       )}
     </AnimatePresence>

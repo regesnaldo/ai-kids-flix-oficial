@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import FlipBookLesson from "@/components/features/aula-viva/FlipBookLesson";
 import { getLessonFromPrompt, FlipBookLesson as FlipBookLessonType } from "@/components/features/aula-viva/mockData";
+import { AnimatedVisualizer, VisualizerBlock } from "@/components/features/aula-viva/AnimatedVisualizer";
 import { 
   Sparkles, 
   Loader2, 
@@ -23,6 +24,14 @@ const suggestedPrompts = [
   "O que são agentes de IA e como eles decidem?",
   "Quero entender os fundamentos de IA"
 ];
+
+const DEFAULT_BACKGROUND_BLOCK: VisualizerBlock = {
+  id: "aula-viva-default-background",
+  title: "Aula Viva Background",
+  concept: "Energia criativa para aprendizado",
+  type: "particles",
+  universe: "VOLT",
+};
 
 // Loading animation component
 function LoadingAnimation() {
@@ -374,61 +383,19 @@ export default function AulaVivaPage() {
   
   return (
     <div className="relative min-h-screen overflow-hidden">
-      {/* Animated background */}
-      <div className="fixed inset-0 -z-10">
-        {/* Base gradient */}
-        <div 
-          className="absolute inset-0"
-          style={{
-            background: 'radial-gradient(ellipse at top, #0a0e27 0%, #050816 50%, #0a0a1a 100%)'
-          }}
+      {/* 3D cinematic background */}
+      <div className="absolute inset-0 pointer-events-none" style={{ zIndex: -1 }}>
+        <AnimatedVisualizer
+          block={DEFAULT_BACKGROUND_BLOCK}
+          isActive
+          activeUniverse="VOLT"
+          fillContainer
+          showHud={false}
         />
-        
-        {/* Animated gradient orbs */}
-        <motion.div
-          animate={{
-            x: [0, 50, 0],
-            y: [0, -30, 0],
-            scale: [1, 1.1, 1]
-          }}
-          transition={{ duration: 20, repeat: Infinity }}
-          className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-gradient-to-br from-neon-cyan/10 to-transparent rounded-full blur-3xl"
-        />
-        <motion.div
-          animate={{
-            x: [0, -50, 0],
-            y: [0, 30, 0],
-            scale: [1.1, 1, 1.1]
-          }}
-          transition={{ duration: 25, repeat: Infinity }}
-          className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-gradient-to-br from-neon-purple/10 to-transparent rounded-full blur-3xl"
-        />
-        <motion.div
-          animate={{
-            x: [0, 30, 0],
-            y: [0, 50, 0]
-          }}
-          transition={{ duration: 30, repeat: Infinity }}
-          className="absolute top-1/2 right-0 w-[400px] h-[400px] bg-gradient-to-br from-neon-pink/5 to-transparent rounded-full blur-3xl"
-        />
-        
-        {/* Grid pattern overlay */}
-        <div className="absolute inset-0 opacity-5">
-          <div 
-            className="w-full h-full"
-            style={{
-              backgroundImage: `
-                linear-gradient(rgba(0,240,255,0.3) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0,240,255,0.3) 1px, transparent 1px)
-              `,
-              backgroundSize: '80px 80px'
-            }}
-          />
-        </div>
       </div>
       
       {/* Main content */}
-      <div className="relative z-10 container mx-auto px-4 py-6 md:py-12 lg:py-16">
+      <div className="relative z-10 container mx-auto px-4 py-6 md:py-12 lg:py-16 bg-transparent">
         {/* Header */}
         <PremiumHeader />
         

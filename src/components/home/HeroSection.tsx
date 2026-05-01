@@ -59,7 +59,7 @@ function CosmosCanvas() {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const particles = Array.from({ length: 120 }, (_, i) => ({
+    const particles = Array.from({ length: 80 }, (_, i) => ({
       x: Math.random(),
       y: Math.random(),
       size: 0.8 + Math.random() * 1.8,
@@ -94,7 +94,7 @@ function CosmosCanvas() {
         const py = p.y * height + pointer.current.y * p.depth;
 
         ctx.beginPath();
-        ctx.fillStyle = `hsla(${p.hue}, 92%, 70%, 0.35)`;
+        ctx.fillStyle = `hsla(${p.hue}, 90%, 68%, 0.22)`;
         ctx.arc(px, py, p.size, 0, Math.PI * 2);
         ctx.fill();
       });
@@ -121,7 +121,7 @@ export default function HeroSection({ onEnterNexus, onEmotionChange }: HeroSecti
   const subtitle = useTypewriterCycle(subtitles);
   const [input, setInput] = useState('');
 
-  const letters = useMemo(() => 'MENTE.AI HOME'.split(''), []);
+  const letters = useMemo(() => 'Aprenda IA como uma série'.split(''), []);
 
   useEffect(() => {
     onEmotionChange(detectEmotionFromInput(input));
@@ -137,19 +137,24 @@ export default function HeroSection({ onEnterNexus, onEmotionChange }: HeroSecti
           SHOWCASE EXPERIENCE
         </div>
 
-        <h1 className="text-4xl font-black leading-[0.95] text-white sm:text-5xl md:text-6xl">
+        <motion.h1
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.55, ease: 'easeOut' }}
+          className="text-4xl font-black leading-[0.95] text-white sm:text-5xl md:text-6xl"
+        >
           {letters.map((letter, index) => (
             <motion.span
               key={`${letter}-${index}`}
-              initial={{ opacity: 0, y: 18 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.045, duration: 0.35 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: index * 0.018, duration: 0.2 }}
               className="inline-block"
             >
               {letter === ' ' ? '\u00A0' : letter}
             </motion.span>
           ))}
-        </h1>
+        </motion.h1>
 
         <p className="mt-4 min-h-[2rem] text-sm text-white/80 sm:text-base">
           {subtitle}
@@ -165,7 +170,7 @@ export default function HeroSection({ onEnterNexus, onEmotionChange }: HeroSecti
             animate={{ boxShadow: ['0 0 10px var(--cognitive-glow)', '0 0 24px var(--cognitive-glow)', '0 0 10px var(--cognitive-glow)'] }}
             transition={{ duration: 1.6, repeat: Infinity }}
           >
-            Enter NEXUS
+            Começar grátis
           </motion.button>
 
           <div className="group relative inline-flex items-center gap-2 rounded-lg border border-white/20 bg-white/5 px-3 py-2 text-xs text-white/75">
