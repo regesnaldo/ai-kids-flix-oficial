@@ -457,3 +457,136 @@ Every task must move MENTE.AI closer to becoming the benchmark AI learning platf
 Do not build random things.
 
 Build legacy.
+
+---
+
+# SKILL: MENTE.AI FRONTEND DEVELOPER
+
+**Version**: 1.0  
+**Created**: 2026-05-10  
+**Target**: Technical Agent (claude_local)  
+**Purpose**: Reusable permanent context for all MENTE.AI frontend tasks
+
+## TECH STACK (EXACT VERSIONS)
+
+### Core Framework
+- Next.js 16.2.6 + TypeScript 5.9.3
+- React 19.2.4 + React DOM 19.2.4
+- Tailwind CSS 4 + PostCSS 4
+
+### Animations & 3D
+- Framer Motion 11.18.2
+- React Three Fiber 9.5.0
+- Three.js 0.183.2
+- @tsparticles/react 3.0.0, @tsparticles/slim 3.9.1
+
+### Audio & Voice
+- Tone.js 15.1.22
+- ElevenLabs API integration
+
+### AI & Agents
+- LangChain
+- @anthropic-ai/sdk 0.95.1
+- OpenAI 4.77.0
+
+### Authentication & Security
+- JWT: jose 6.2.2
+- Password: bcryptjs 2.4.3
+- Cookie Name: mente_ai_token (NON-NEGOTIABLE)
+
+### Database & ORM
+- Drizzle ORM 0.45.1 (MANDATORY — never Prisma)
+- Drizzle Kit 0.31.9
+- mysql2 3.18.2
+
+### Other
+- Stripe 20.4.1 (payments)
+- Radix UI 1.4.3
+- Lucide React 0.574.0
+- Class Variance Authority 0.7.1
+
+## HARD CONSTRAINTS (CRITICAL)
+
+### Command Environment
+✅ PowerShell ONLY
+❌ NO Linux/Mac commands (ls, echo, cat, grep, find forbidden)
+
+### Protected Files
+❌ Never modify: src/app/(main)/layout.tsx
+❌ Never modify: middleware.ts (project root)
+✅ Safe: Individual page files, components, lib utilities
+
+### Database
+❌ NEVER use Prisma
+✅ ONLY use Drizzle ORM
+Location: src/lib/db/schema.ts
+
+### Build & Deployment
+✅ npm run build after EVERY file change → ZERO errors
+✅ npm run typecheck after build → ZERO errors
+✅ One commit per task with conventional messages
+✅ Branch: feat/lab-redesign (NEVER main)
+
+### Authentication
+- Cookie name: mente_ai_token (hardcoded requirement)
+- JWT signing via jose
+- Auth routes: /api/auth/login, /register, /logout, /session
+
+## THE 12 CORE AGENTS
+
+| Agent | Color | Role | Category |
+|-------|-------|------|----------|
+| **NEXUS** | #3B82F6 | Connector | **CENTRAL ALWAYS** |
+| VOLT | #F59E0B | Energy | Motivação |
+| AURORA | #34D399 | Vision | Visão |
+| KAOS | #E50914 | Innovation | Inovação |
+| CIPHER | #F97316 | Analysis | Análise |
+| LYRA | #06B6D4 | Harmony | Harmonia |
+| ETHOS | #8B5CF6 | Ethics | Ética |
+| AXIOM | #6366F1 | Logic | Lógica |
+| STRATOS | #10B981 | Strategy | Estratégia |
+| TERRA | #84CC16 | Data | Dados |
+| PRISM | #A855F7 | Perspective | Perspectiva |
+| JANUS | #EC4899 | Probability | Probabilidade |
+
+## DESIGN REFERENCE
+
+**Visual Standard**: /explorar page + AgentCard component  
+**Animation Pattern**: AgentHero component (entrance animations, ambient glows)  
+**Color System**: Dark zinc-950 (#0a0a1a base), agent-specific theme colors with glows  
+**Typography**: Portuguese-only, cinematic and elegant (not corporate)  
+**Animations**: 0.3-0.4s standard, max 0.5s, use "easeOut" default, keep smooth
+
+## COMMON IMPORTS
+
+```typescript
+import { motion, AnimatePresence } from "framer-motion";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import AgentCard from "@/components/agents/AgentCard";
+import { agentsShowcase } from "@/data/agents-showcase";
+import { getJwtSecretKey, signToken } from "@/lib/auth";
+import { db } from "@/lib/db";
+import { users } from "@/lib/db/schema";
+```
+
+## BEFORE ANY TASK
+
+1. Read this CLAUDE.md
+2. Review /explorar page (design reference)
+3. Review AgentHero component (animation reference)
+4. Plan changes before coding
+5. Explain what will change
+
+## VERIFICATION BEFORE COMMIT
+
+✅ All text is Portuguese  
+✅ npm run build → zero errors  
+✅ npm run typecheck → zero errors  
+✅ No layout.tsx or middleware.ts changes  
+✅ Drizzle ORM only (no Prisma)  
+✅ Cookie name is mente_ai_token (if auth)  
+✅ NEXUS featured appropriately (if visual)  
+✅ Animations smooth and responsive  
+✅ Commit message clear and conventional  
+✅ Branch is feat/lab-redesign
