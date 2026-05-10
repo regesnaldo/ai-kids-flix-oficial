@@ -39,7 +39,17 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const body = (await request.json()) as { nome?: unknown; email?: unknown; senha?: unknown };
+    let body: { nome?: unknown; email?: unknown; senha?: unknown };
+    try {
+      body = (await request.json()) as { nome?: unknown; email?: unknown; senha?: unknown };
+    } catch (parseError) {
+      console.error("[REGISTER] Erro ao fazer parse JSON:", parseError);
+      return NextResponse.json(
+        { error: "Formato de requisição inválido. Envie um JSON válido." },
+        { status: 400 }
+      );
+    }
+
     const nome = typeof body.nome === "string" ? body.nome.trim() : "";
     const email = typeof body.email === "string" ? body.email.trim().toLowerCase() : "";
     const senha = typeof body.senha === "string" ? body.senha : "";

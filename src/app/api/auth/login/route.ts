@@ -81,7 +81,17 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const body = (await request.json()) as { email?: unknown; senha?: unknown };
+    let body: { email?: unknown; senha?: unknown };
+    try {
+      body = (await request.json()) as { email?: unknown; senha?: unknown };
+    } catch (parseError) {
+      console.error("[LOGIN] Erro ao fazer parse JSON:", parseError);
+      return NextResponse.json(
+        { error: "Formato de requisição inválido. Envie um JSON válido." },
+        { status: 400 }
+      );
+    }
+
     const email = typeof body.email === "string" ? body.email.trim().toLowerCase() : "";
     const senha = typeof body.senha === "string" ? body.senha : "";
 
