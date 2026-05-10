@@ -24,8 +24,8 @@ export default function ExplorationRow({
       <h2
         style={{
           color: "#fff",
-          fontSize: "2rem",
-          marginBottom: "10px",
+          fontSize: "24px",
+          marginBottom: "8px",
           fontWeight: "700",
         }}
       >
@@ -34,9 +34,10 @@ export default function ExplorationRow({
       {subtitle && (
         <p
           style={{
-            color: "#a0aec0",
-            fontSize: "1.1rem",
-            marginBottom: "40px",
+            color: "rgba(255,255,255,0.5)",
+            fontSize: "14px",
+            marginBottom: "32px",
+            margin: "8px 0 32px",
           }}
         >
           {subtitle}
@@ -45,11 +46,14 @@ export default function ExplorationRow({
 
       <div
         style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-          gap: "24px",
+          display: "flex",
           overflowX: "auto",
+          overflowY: "hidden",
+          gap: "24px",
           paddingBottom: "20px",
+          scrollBehavior: "smooth",
+          scrollSnapType: "x mandatory",
+          WebkitOverflowScrolling: "touch",
         }}
       >
         {children}

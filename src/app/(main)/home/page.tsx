@@ -192,7 +192,7 @@ export default function HomePage() {
             position: 'relative',
             background: 'radial-gradient(circle at center, rgba(59, 130, 246, 0.1) 0%, transparent 70%)',
             borderRadius: '20px',
-            padding: '60px 40px'
+            padding: '120px 40px'
           }}
         >
           {/* NEXUS Image with Glow */}
@@ -317,11 +317,36 @@ export default function HomePage() {
         </motion.div>
 
         {/* SECTION 2: Featured Agent Council */}
-        <ExplorationRow
-          title="O Conselho de Mentores"
-          subtitle="Os 12 arquétipos que moldam o universo MENTE.AI"
-          delay={0.2}
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2, ease: "easeOut" }}
+          style={{ marginTop: '80px' }}
         >
+          <h2 style={{
+            color: '#fff',
+            fontSize: '24px',
+            marginBottom: '8px',
+            fontWeight: '700'
+          }}>
+            O Conselho de Mentores
+          </h2>
+          <p style={{
+            color: 'rgba(255,255,255,0.5)',
+            fontSize: '14px',
+            marginBottom: '32px'
+          }}>
+            Os 12 arquétipos que moldam o universo MENTE.AI
+          </p>
+
+          <div style={{
+            display: 'flex',
+            overflowX: 'auto',
+            gap: '24px',
+            paddingBottom: '20px',
+            scrollBehavior: 'smooth',
+            scrollSnapType: 'x mandatory'
+          }}>
           <AnimatePresence>
             {agentsShowcase.slice(0, 12).map((agent, index) => (
               <motion.div
@@ -334,7 +359,8 @@ export default function HomePage() {
               </motion.div>
             ))}
           </AnimatePresence>
-        </ExplorationRow>
+          </div>
+        </motion.div>
 
         {/* SECTION 3: Journey Pathways */}
         <motion.div
@@ -345,24 +371,27 @@ export default function HomePage() {
         >
           <h2 style={{
             color: '#fff',
-            fontSize: '2rem',
-            marginBottom: '10px',
+            fontSize: '24px',
+            marginBottom: '8px',
             fontWeight: '700'
           }}>
             Suas Jornadas de Aprendizado
           </h2>
           <p style={{
-            color: '#a0aec0',
-            fontSize: '1.1rem',
-            marginBottom: '40px'
+            color: 'rgba(255,255,255,0.5)',
+            fontSize: '14px',
+            marginBottom: '32px'
           }}>
             Caminhos personalizados para sua evolução
           </p>
 
           <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-            gap: '24px'
+            display: 'flex',
+            overflowX: 'auto',
+            gap: '24px',
+            paddingBottom: '20px',
+            scrollBehavior: 'smooth',
+            scrollSnapType: 'x mandatory'
           }}>
             <AnimatePresence>
               {journeys.map((journey, index) => (
@@ -448,24 +477,27 @@ export default function HomePage() {
         >
           <h2 style={{
             color: '#fff',
-            fontSize: '2rem',
-            marginBottom: '10px',
+            fontSize: '24px',
+            marginBottom: '8px',
             fontWeight: '700'
           }}>
             Explore por Domínio
           </h2>
           <p style={{
-            color: '#a0aec0',
-            fontSize: '1.1rem',
-            marginBottom: '40px'
+            color: 'rgba(255,255,255,0.5)',
+            fontSize: '14px',
+            marginBottom: '32px'
           }}>
             Escolha um universo e mergulhe em suas profundezas
           </p>
 
           <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-            gap: '24px'
+            display: 'flex',
+            overflowX: 'auto',
+            gap: '24px',
+            paddingBottom: '20px',
+            scrollBehavior: 'smooth',
+            scrollSnapType: 'x mandatory'
           }}>
             <AnimatePresence>
               {topCategories.map((category, index) => (
@@ -496,24 +528,27 @@ export default function HomePage() {
         >
           <h2 style={{
             color: '#fff',
-            fontSize: '2rem',
-            marginBottom: '10px',
+            fontSize: '24px',
+            marginBottom: '8px',
             fontWeight: '700'
           }}>
             Descubra Conexões
           </h2>
           <p style={{
-            color: '#a0aec0',
-            fontSize: '1.1rem',
-            marginBottom: '40px'
+            color: 'rgba(255,255,255,0.5)',
+            fontSize: '14px',
+            marginBottom: '32px'
           }}>
             Agentes que se complementam
           </p>
 
           <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-            gap: '24px'
+            display: 'flex',
+            overflowX: 'auto',
+            gap: '24px',
+            paddingBottom: '20px',
+            scrollBehavior: 'smooth',
+            scrollSnapType: 'x mandatory'
           }}>
             <AnimatePresence>
               {pairings.map((pairing, index) => {
@@ -637,9 +672,9 @@ export default function HomePage() {
         top: 0,
         height: '100vh',
         width: '340px',
-        background: '#1a1a2e',
-        borderLeft: '2px solid rgba(59, 130, 246, 0.6)',
-        boxShadow: '-10px 0 30px rgba(59, 130, 246, 0.15)',
+        background: '#0a0a1a',
+        borderLeft: '2px solid #3B82F6',
+        boxShadow: '0 0 20px rgba(59, 130, 246, 0.3), -10px 0 30px rgba(59, 130, 246, 0.15)',
         overflow: 'hidden'
       }}>
         <NexusPanel

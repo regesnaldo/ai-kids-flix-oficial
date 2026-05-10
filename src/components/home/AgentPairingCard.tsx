@@ -19,25 +19,18 @@ export default function AgentPairingCard({
     <motion.div
       whileHover={{ scale: 1.02 }}
       style={{
-        padding: "24px",
-        background: `linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(139, 92, 246, 0.05))`,
-        border: "1px solid rgba(139, 92, 246, 0.4)",
+        padding: "20px",
+        background: "#0d0d1f",
+        border: "1px solid rgba(255,255,255,0.08)",
         borderRadius: "12px",
         cursor: "pointer",
         transition: "all 0.3s ease",
         display: "flex",
         flexDirection: "column",
         gap: "16px",
-      }}
-      onMouseEnter={(e) => {
-        const el = e.currentTarget;
-        el.style.borderColor = "rgba(139, 92, 246, 1)";
-        el.style.boxShadow = "0 0 30px rgba(139, 92, 246, 0.4)";
-      }}
-      onMouseLeave={(e) => {
-        const el = e.currentTarget;
-        el.style.borderColor = "rgba(139, 92, 246, 0.4)";
-        el.style.boxShadow = "none";
+        scrollSnapAlign: "start",
+        flex: "0 0 auto",
+        minWidth: "280px",
       }}
     >
       <h3

@@ -32,25 +32,18 @@ export default function JourneyCard({
       whileHover={{ scale: 1.02 }}
       onClick={() => router.push(`/aulas?jornada=${id}`)}
       style={{
-        padding: "24px",
-        background: `linear-gradient(135deg, rgba(${parseInt(color.slice(1, 3), 16)}, ${parseInt(color.slice(3, 5), 16)}, ${parseInt(color.slice(5, 7), 16)}, 0.1), rgba(${parseInt(color.slice(1, 3), 16)}, ${parseInt(color.slice(3, 5), 16)}, ${parseInt(color.slice(5, 7), 16)}, 0.05))`,
-        border: `1px solid ${color}40`,
+        padding: "20px",
+        background: "#0d0d1f",
+        border: "1px solid rgba(255,255,255,0.08)",
         borderRadius: "12px",
         cursor: "pointer",
         transition: "all 0.3s ease",
         display: "flex",
         flexDirection: "column",
         gap: "16px",
-      }}
-      onMouseEnter={(e) => {
-        const el = e.currentTarget;
-        el.style.borderColor = color;
-        el.style.boxShadow = `0 0 30px ${color}40`;
-      }}
-      onMouseLeave={(e) => {
-        const el = e.currentTarget;
-        el.style.borderColor = `${color}40`;
-        el.style.boxShadow = "none";
+        scrollSnapAlign: "start",
+        flex: "0 0 auto",
+        minWidth: "280px",
       }}
     >
       <div>
