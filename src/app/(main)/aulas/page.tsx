@@ -2,62 +2,53 @@
 
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
+import { Check, ChevronDown, Lock } from 'lucide-react';
 import { CATALOG } from '@/constants/catalog';
 import type { Season, Episode } from '@/constants/catalog';
 
-const WATCH_STORAGE_KEY = 'mente_ai_watch_progress_v1';
+const TYPE_LABEL: Record<string, string> = {
+  narrativa: 'NARRATIVA',
+  teoria: 'TEORIA',
+  laboratorio: 'LABORATÓRIO',
+  desafio: 'DESAFIO',
+  reflexao: 'REFLEXÃO',
+};
 
-function getWatchMap(): Record<string, { watchedPct: number; completed: boolean }> {
-  try {
-    const raw = globalThis.localStorage?.getItem(WATCH_STORAGE_KEY);
-    if (!raw) return {};
-    const parsed = JSON.parse(raw);
-    return parsed && typeof parsed === 'object' ? parsed : {};
-  } catch {
-    return {};
-  }
+const TYPE_STYLE: Record<string, string> = {
+  narrativa: 'text-violet-300 bg-violet-500/15 border-violet-400/30',
+  teoria: 'text-sky-300 bg-sky-500/15 border-sky-400/30',
+  laboratorio: 'text-amber-300 bg-amber-500/15 border-amber-400/30',
+  desafio: 'text-rose-300 bg-rose-500/15 border-rose-400/30',
+  reflexao: 'text-emerald-300 bg-emerald-500/15 border-emerald-400/30',
+};
+
+function isSeasonLocked(season: Season): boolean {
+  return season.number !== 1 || (season.episodes?.length ?? 0) === 0;
+}
+
+function getEpisodeThumb(agentId: string): string {
+  return `/images/agentes/${agentId.toLowerCase()}.png`;
 }
 
 export default function AulasPage() {
-  const [watchMap] = useState(getWatchMap);
-  const [selectedPhase, setSelectedPhase] = useState(1);
+  const [isSeasonMenuOpen, setIsSeasonMenuOpen] = useState(false);
 
-  const phases = useMemo(() => {
-    return CATALOG.filter((p) => p.seasons?.length > 0);
+  const seasons = useMemo(() => {
+    return CATALOG.flatMap((phase) => phase.seasons ?? []).sort((a, b) => a.number - b.number);
   }, []);
 
-  const activePhase = phases.find((p) => p.id === selectedPhase) ?? phases[0];
-  const seasons = activePhase?.seasons ?? [];
-
-  const episodeTypeIcon: Record<string, string> = {
-    teoria: '📖',
-    laboratorio: '🧪',
-    desafio: '🎯',
-    narrativa: '🎬',
-    reflexao: '💭',
-  };
-
-  const episodeTypeColor: Record<string, string> = {
-    teoria: '#00D9FF',
-    laboratorio: '#F59E0B',
-    desafio: '#E50914',
-    narrativa: '#8B5CF6',
-    reflexao: '#10B981',
-  };
-
-  const totalEpisodes = seasons.reduce((acc, s) => acc + (s.episodes?.length ?? 0), 0);
-  const completedCount = Object.values(watchMap).filter((w) => w.completed).length;
+  const unlockedSeason = seasons.find((season) => !isSeasonLocked(season)) ?? seasons[0];
+  const [selectedSeasonId, setSelectedSeasonId] = useState(unlockedSeason?.id ?? '');
+  const selectedSeason = seasons.find((season) => season.id === selectedSeasonId) ?? unlockedSeason;
+  const episodes = selectedSeason?.episodes ?? [];
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-white">
-      {/* Header */}
-      <header className="border-b border-white/10 bg-black/40 backdrop-blur-md sticky top-0 z-40">
-        <div className="mx-auto max-w-7xl px-6 md:px-12 py-5 flex items-center justify-between">
+    <div className="min-h-screen bg-[#0a0a1a] text-white">
+      <header className="border-b border-white/10 bg-black/30 backdrop-blur-md sticky top-0 z-40">
+        <div className="mx-auto max-w-6xl px-6 md:px-10 py-5 flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-extrabold">Aulas e Módulos</h1>
-            <p className="text-xs text-zinc-400 mt-0.5">
-              {totalEpisodes} módulos · {completedCount} concluídos
-            </p>
+            <h1 className="text-2xl font-extrabold">Episódios</h1>
+            <p className="text-xs text-zinc-400 mt-0.5">Explore a jornada da temporada</p>
           </div>
           <Link href="/home" className="text-sm text-zinc-400 hover:text-white transition">
             Voltar
@@ -65,119 +56,110 @@ export default function AulasPage() {
         </div>
       </header>
 
-      {/* Fases */}
-      <div className="mx-auto max-w-7xl px-6 md:px-12 py-6">
-        <div className="flex gap-2 overflow-x-auto scrollbar-hide mb-8">
-          {phases.map((p) => (
-            <button
-              key={p.id}
-              onClick={() => setSelectedPhase(p.id)}
-              className={`px-4 py-2 rounded-lg text-sm font-semibold whitespace-nowrap transition-all ${
-                selectedPhase === p.id
-                  ? 'bg-cyan-500/15 text-cyan-200 border border-cyan-400/25'
-                  : 'text-zinc-400 hover:text-white border border-white/10 bg-white/5 hover:bg-white/10'
-              }`}
-            >
-              Fase {p.id}: {p.name}
-            </button>
-          ))}
-        </div>
+      <main className="mx-auto max-w-6xl px-6 md:px-10 py-8">
+        <div className="relative w-full max-w-sm mb-8">
+          <button
+            type="button"
+            onClick={() => setIsSeasonMenuOpen((open) => !open)}
+            className="w-full flex items-center justify-between rounded-xl border border-white/15 bg-white/[0.03] px-4 py-3 text-left hover:bg-white/[0.06] transition"
+          >
+            <span className="font-semibold">
+              Temporada {String(selectedSeason?.number ?? 1).padStart(2, '0')} - {selectedSeason?.title ?? 'Sem título'}
+            </span>
+            <ChevronDown className={`h-4 w-4 text-zinc-400 transition ${isSeasonMenuOpen ? 'rotate-180' : ''}`} />
+          </button>
 
-        {/* Progresso da fase */}
-        <div className="mb-8 p-4 rounded-xl border border-white/10 bg-white/[0.03]">
-          <div className="flex items-center justify-between mb-2">
-            <p className="text-sm font-bold text-zinc-300">Progresso da Fase</p>
-            <p className="text-xs text-zinc-500">{completedCount}/{totalEpisodes} módulos</p>
-          </div>
-          <div className="h-2 w-full bg-white/10 rounded-full overflow-hidden">
-            <div
-              className="h-full rounded-full transition-all"
-              style={{
-                width: `${totalEpisodes > 0 ? (completedCount / totalEpisodes) * 100 : 0}%`,
-                background: '#00D9FF',
-              }}
-            />
-          </div>
-        </div>
+          {isSeasonMenuOpen && (
+            <ul className="absolute z-20 mt-2 w-full overflow-hidden rounded-xl border border-white/15 bg-[#101024] shadow-2xl">
+              {seasons.map((season) => {
+                const locked = isSeasonLocked(season);
+                const selected = season.id === selectedSeason?.id;
 
-        {/* Temporadas */}
-        <div className="space-y-8">
-          {seasons.map((season) => (
-            <div key={season.id}>
-              <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-                <span style={{ color: season.isNew ? '#00D9FF' : '#a1a1aa' }}>
-                  {season.isNew ? '✨' : '📁'}
-                </span>
-                Temporada {String(season.number).padStart(2, '0')} — {season.title}
-                <span className="text-xs font-normal text-zinc-500">
-                  ({season.episodes?.length ?? 0} episódios · {season.totalXp} XP)
-                </span>
-              </h2>
-
-              <p className="text-sm text-zinc-400 mb-4 line-clamp-1">{season.synopsis}</p>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                {season.episodes?.map((ep) => {
-                  const progress = watchMap[ep.id];
-                  const pct = progress ? Math.round(progress.watchedPct * 100) : 0;
-                  const icon = episodeTypeIcon[ep.type] ?? '📖';
-                  const typeColor = episodeTypeColor[ep.type] ?? '#a1a1aa';
-
-                  return (
-                    <Link
-                      key={ep.id}
-                      href={`/player?episode=${encodeURIComponent(ep.id)}`}
-                      className={`group relative rounded-xl border p-4 transition-all ${
-                        progress?.completed
-                          ? 'border-cyan-400/20 bg-cyan-500/5'
-                          : 'border-white/10 bg-white/[0.02] hover:border-white/20 hover:bg-white/[0.04]'
+                return (
+                  <li key={season.id}>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (!locked) {
+                          setSelectedSeasonId(season.id);
+                          setIsSeasonMenuOpen(false);
+                        }
+                      }}
+                      className={`w-full flex items-center justify-between px-4 py-3 text-sm transition ${
+                        locked
+                          ? 'text-zinc-500 cursor-not-allowed bg-white/[0.01]'
+                          : 'text-zinc-200 hover:bg-white/[0.07]'
                       }`}
                     >
-                      {/* Status badge */}
-                      <div className="flex items-start justify-between mb-2">
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full border"
-                          style={{
-                            color: typeColor,
-                            borderColor: `${typeColor}40`,
-                            background: `${typeColor}10`,
-                          }}
-                        >
-                          {icon} {ep.type.toUpperCase()}
-                        </span>
-                        {progress?.completed && (
-                          <span className="text-[10px] font-bold text-cyan-300 bg-cyan-500/15 border border-cyan-400/25 px-2 py-0.5 rounded-full">
-                            ✓ Concluído
-                          </span>
-                        )}
-                      </div>
-
-                      <p className="text-sm font-bold text-white mb-1">
-                        E{String(ep.number).padStart(2, '0')}: {ep.title}
-                      </p>
-                      <p className="text-[11px] text-zinc-400 line-clamp-2 mb-3">{ep.description}</p>
-
-                      <div className="flex items-center justify-between text-[10px] text-zinc-500">
-                        <span>{ep.durationMinutes} min · {ep.xpReward} XP</span>
-                        <span>Agente {ep.agentId}</span>
-                      </div>
-
-                      {/* Progress bar */}
-                      {pct > 0 && (
-                        <div className="mt-2 h-[3px] w-full bg-white/10 rounded-full overflow-hidden">
-                          <div
-                            className="h-full rounded-full"
-                            style={{ width: `${pct}%`, background: '#00D9FF' }}
-                          />
-                        </div>
-                      )}
-                    </Link>
-                  );
-                })}
-              </div>
-            </div>
-          ))}
+                      <span>
+                        Temporada {String(season.number).padStart(2, '0')} - {season.title}
+                      </span>
+                      <span className="flex items-center gap-2">
+                        {locked ? <Lock className="h-4 w-4" /> : null}
+                        {selected ? <Check className="h-4 w-4 text-sky-300" /> : null}
+                      </span>
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
         </div>
-      </div>
+
+        <section className="border-t border-white/10">
+          {episodes.map((ep: Episode) => {
+            const locked = ep.status !== 'disponivel';
+            const href = `/player?episode=${encodeURIComponent(ep.id)}`;
+
+            return (
+              <Link
+                key={ep.id}
+                href={locked ? '#' : href}
+                onClick={(event) => {
+                  if (locked) event.preventDefault();
+                }}
+                className="group grid grid-cols-[40px_160px_1fr] items-center gap-4 border-b border-white/10 py-4 hover:bg-white/[0.04] transition px-2"
+              >
+                <div className="text-zinc-400 text-lg font-semibold text-center">
+                  {String(ep.number).padStart(2, '0')}
+                </div>
+
+                <div className="relative h-[90px] w-[160px] overflow-hidden rounded-md bg-zinc-900">
+                  <img
+                    src={getEpisodeThumb(ep.agentId)}
+                    alt={ep.title}
+                    className={`h-full w-full object-cover ${locked ? 'brightness-50' : ''}`}
+                    loading="lazy"
+                    onError={(e) => {
+                      (e.currentTarget as HTMLImageElement).src = '/images/agentes/nexus.png';
+                    }}
+                  />
+                  {locked ? (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+                      <Lock className="h-5 w-5 text-zinc-200" />
+                    </div>
+                  ) : null}
+                </div>
+
+                <div className="min-w-0">
+                  <div className="flex items-center justify-between gap-4">
+                    <h2 className="text-base md:text-lg font-semibold truncate">{ep.title}</h2>
+                    <span className={`shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-bold ${TYPE_STYLE[ep.type] ?? TYPE_STYLE.teoria}`}>
+                      {TYPE_LABEL[ep.type] ?? ep.type.toUpperCase()}
+                    </span>
+                  </div>
+
+                  <p className="mt-1 text-sm text-zinc-400 truncate">{ep.description}</p>
+
+                  <div className="mt-2 text-xs text-zinc-500 text-right">
+                    {ep.durationMinutes} min • {ep.xpReward} XP
+                  </div>
+                </div>
+              </Link>
+            );
+          })}
+        </section>
+      </main>
     </div>
   );
 }
