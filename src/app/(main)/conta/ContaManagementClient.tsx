@@ -59,8 +59,8 @@ const sidebarItems = [
     ),
   },
   {
-    label: "Voltar à Netflix",
-    href: "#",
+    label: "Voltar ao MENTE.AI",
+    href: "/home",
     icon: (
       <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8">
         <path d="M10 6 4 12l6 6" />

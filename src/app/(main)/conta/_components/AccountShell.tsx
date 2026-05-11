@@ -120,7 +120,7 @@ export default function AccountShell({ active, title, subtitle, children }: Acco
               >
                 <span className="flex items-center gap-3">
                   <ArrowLeft className="h-5 w-5 text-zinc-600" />
-                  Voltar à Netflix
+                  Voltar ao MENTE.AI
                 </span>
                 <ChevronRight className="h-4 w-4 text-zinc-400 transition-transform group-hover:translate-x-0.5" />
               </Link>

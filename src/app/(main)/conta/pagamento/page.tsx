@@ -6,6 +6,7 @@ import { getAccountData } from "../_lib/account-data";
 
 const paymentActions = [
   { label: "Gerenciar forma de pagamento", href: "/conta/pagamento/metodo" },
+  { label: "Ver e alterar plano de assinatura", href: "/planos" },
   { label: "Resgatar cartão pré-pago", href: "/conta/pagamento/resgatar" },
   { label: "Ver histórico de pagamento", href: "/conta/pagamento/historico" },
   { label: "Gerenciar detalhes de cobrança", href: "/conta/pagamento/cobranca" },
