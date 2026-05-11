@@ -5,6 +5,7 @@ import { BookOpen, Check, ChevronDown, FlaskConical, Gamepad2, Lock, Play, Setti
 import { getEpisodeById, getSeasonById } from "@/constants/catalog";
 
 interface InteractiveQuestion { question: string; options: string[]; }
+interface ChatTurn { role: "user" | "assistant"; content: string; }
 
 type WatchState = {
   watchedPct: number;
@@ -97,6 +98,8 @@ function PlayerContent() {
   const seriesTitle = resolvedSeason?.title ?? rawSeriesTitle;
   const episodeTitle = resolvedEpisode?.title ?? rawEpisodeParam;
   const episodeDescription = resolvedEpisode?.description ?? "";
+  const episodeVideoUrl = (((resolvedEpisode as (typeof resolvedEpisode & { videoUrl?: string | null }))?.videoUrl ?? "").trim());
+  const hasEpisodeVideo = episodeVideoUrl.length > 0;
 
   const [questions, setQuestions] = useState<InteractiveQuestion[]>([]);
   const [selected, setSelected] = useState<string | null>(null);
@@ -113,6 +116,11 @@ function PlayerContent() {
   const [rewardsOpen, setRewardsOpen] = useState(false);
   const [introBlack, setIntroBlack] = useState(true);
   const [introIn, setIntroIn] = useState(false);
+  const [chatMessages, setChatMessages] = useState<ChatTurn[]>([]);
+  const [chatInput, setChatInput] = useState("");
+  const [chatSending, setChatSending] = useState(false);
+  const [chatError, setChatError] = useState<string | null>(null);
+  const [chatCompleted, setChatCompleted] = useState(false);
   const resumeAppliedRef = useRef(false);
   const resumePctRef = useRef(0);
 
@@ -296,9 +304,17 @@ function PlayerContent() {
     setSelected(null);
     setQuizOpen(false);
     setMissionOpen(true);
+    setChatCompleted(false);
+    setChatError(null);
 
     resumeAppliedRef.current = false;
     resumePctRef.current = watchMap[episodeId]?.watchedPct ?? 0;
+
+    if (!hasEpisodeVideo) {
+      setChatMessages([
+        { role: "assistant", content: `Olá! Eu sou o NEXUS. Vamos explorar "${episodeTitle}" juntos?` },
+      ]);
+    }
   };
 
   const closeMission = () => {
@@ -307,6 +323,45 @@ function PlayerContent() {
     setSelected(null);
     const v = videoRef.current;
     if (v) v.pause();
+  };
+
+  const sendNexusMessage = async () => {
+    const text = chatInput.trim();
+    if (!text || chatSending) return;
+
+    const nextUserTurn: ChatTurn = { role: "user", content: text };
+    const history = [...chatMessages, nextUserTurn];
+    setChatMessages(history);
+    setChatInput("");
+    setChatSending(true);
+    setChatError(null);
+
+    try {
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          agentId: "nexus",
+          messages: history.map((m) => ({ role: m.role, content: m.content })),
+          stream: false,
+        }),
+      });
+      if (!res.ok) throw new Error("Falha ao consultar NEXUS");
+
+      const data = await res.json();
+      const reply = typeof data?.reply === "string" ? data.reply : "Vamos continuar. O que você quer explorar agora?";
+      setChatMessages((prev) => [...prev, { role: "assistant", content: reply }]);
+    } catch {
+      setChatError("Não foi possível conectar com o NEXUS agora. Tente novamente.");
+    } finally {
+      setChatSending(false);
+    }
+  };
+
+  const completeChatInteraction = () => {
+    if (!episodeId) return;
+    updateEpisodeProgress(episodeId, { watchedPct: 1, completed: true });
+    setChatCompleted(true);
   };
 
   return (
@@ -577,93 +632,150 @@ function PlayerContent() {
               <X className="w-5 h-5 text-white" />
             </button>
 
-            <div
-              className={`relative w-full rounded-2xl overflow-hidden bg-black border transition ${
-                syncPulse ? "animate-pulse border-cyan-400/50" : "border-white/10"
-              }`}
-              style={{
-                boxShadow: syncPulse ? "0 0 0 1px rgba(34,211,238,0.15), 0 0 42px rgba(0,240,255,0.12)" : "none",
-              }}
-            >
-              <div className="relative w-full aspect-video">
-                <video
-                  ref={videoRef}
-                  className="absolute inset-0 w-full h-full object-cover"
-                  controls
-                  playsInline
-                  preload="auto"
-                  onLoadedMetadata={onVideoLoadedMetadata}
-                  onTimeUpdate={onVideoTimeUpdate}
-                  onEnded={onVideoEnded}
-                  style={{ filter: "contrast(1.05) brightness(0.9) saturate(1.15)" }}
-                >
-                  <source src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4" type="video/mp4" />
-                </video>
+            {hasEpisodeVideo ? (
+              <div
+                className={`relative w-full rounded-2xl overflow-hidden bg-black border transition ${
+                  syncPulse ? "animate-pulse border-cyan-400/50" : "border-white/10"
+                }`}
+                style={{
+                  boxShadow: syncPulse ? "0 0 0 1px rgba(34,211,238,0.15), 0 0 42px rgba(0,240,255,0.12)" : "none",
+                }}
+              >
+                <div className="relative w-full aspect-video">
+                  <video
+                    ref={videoRef}
+                    className="absolute inset-0 w-full h-full object-cover"
+                    controls
+                    playsInline
+                    preload="auto"
+                    onLoadedMetadata={onVideoLoadedMetadata}
+                    onTimeUpdate={onVideoTimeUpdate}
+                    onEnded={onVideoEnded}
+                    style={{ filter: "contrast(1.05) brightness(0.9) saturate(1.15)" }}
+                  >
+                    <source src={episodeVideoUrl} type="video/mp4" />
+                  </video>
 
-                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
+                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
 
-                <div
-                  className="pointer-events-none absolute inset-0 bg-black transition-opacity duration-700"
-                  style={{ opacity: resumeOverlay ? 1 : 0 }}
-                />
+                  <div
+                    className="pointer-events-none absolute inset-0 bg-black transition-opacity duration-700"
+                    style={{ opacity: resumeOverlay ? 1 : 0 }}
+                  />
 
-                {quizOpen && currentQuestion ? (
-                  <div className="absolute inset-0 flex items-center justify-center p-4">
-                    <div className="w-full max-w-xl rounded-2xl border border-cyan-400/20 bg-zinc-950/80 backdrop-blur-md p-6 shadow-2xl">
-                      <div className="flex items-start gap-3">
-                        <AudioButton text={currentQuestion.question} />
-                        <div className="min-w-0 flex-1">
-                          <p className="text-xs text-cyan-200/90 font-bold tracking-widest uppercase">Sincronia Neural</p>
-                          <p className="text-base font-semibold text-white mt-2 leading-relaxed">{currentQuestion.question}</p>
+                  {quizOpen && currentQuestion ? (
+                    <div className="absolute inset-0 flex items-center justify-center p-4">
+                      <div className="w-full max-w-xl rounded-2xl border border-cyan-400/20 bg-zinc-950/80 backdrop-blur-md p-6 shadow-2xl">
+                        <div className="flex items-start gap-3">
+                          <AudioButton text={currentQuestion.question} />
+                          <div className="min-w-0 flex-1">
+                            <p className="text-xs text-cyan-200/90 font-bold tracking-widest uppercase">Sincronia Neural</p>
+                            <p className="text-base font-semibold text-white mt-2 leading-relaxed">{currentQuestion.question}</p>
+                          </div>
                         </div>
-                      </div>
 
-                      <div className="mt-4 space-y-2">
-                        {currentQuestion.options.map((opt) => {
-                          const active = selected === opt;
-                          return (
-                            <button
-                              key={opt}
-                              type="button"
-                              onClick={() => setSelected(opt)}
-                              className={`w-full text-left px-4 py-3 rounded-xl border transition ${
-                                active ? "border-cyan-400/45 bg-cyan-500/10" : "border-white/10 bg-white/5 hover:border-cyan-400/25"
-                              }`}
-                            >
-                              <span className="text-sm text-white">{opt}</span>
-                            </button>
-                          );
-                        })}
-                      </div>
+                        <div className="mt-4 space-y-2">
+                          {currentQuestion.options.map((opt) => {
+                            const active = selected === opt;
+                            return (
+                              <button
+                                key={opt}
+                                type="button"
+                                onClick={() => setSelected(opt)}
+                                className={`w-full text-left px-4 py-3 rounded-xl border transition ${
+                                  active ? "border-cyan-400/45 bg-cyan-500/10" : "border-white/10 bg-white/5 hover:border-cyan-400/25"
+                                }`}
+                              >
+                                <span className="text-sm text-white">{opt}</span>
+                              </button>
+                            );
+                          })}
+                        </div>
 
-                      <div className="mt-5 flex items-center justify-between gap-3">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setQuizOpen(false);
-                            const v = videoRef.current;
-                            if (v) void v.play();
-                          }}
-                          className="px-4 py-3 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-semibold transition"
-                        >
-                          Pular
-                        </button>
-                        <button
-                          type="button"
-                          onClick={confirmQuiz}
-                          disabled={!selected}
-                          className="px-5 py-3 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/25 disabled:opacity-40 disabled:hover:bg-cyan-500/20 text-cyan-100 font-bold transition border border-cyan-400/25"
-                        >
-                          Confirmar
-                        </button>
-                      </div>
+                        <div className="mt-5 flex items-center justify-between gap-3">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setQuizOpen(false);
+                              const v = videoRef.current;
+                              if (v) void v.play();
+                            }}
+                            className="px-4 py-3 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-semibold transition"
+                          >
+                            Pular
+                          </button>
+                          <button
+                            type="button"
+                            onClick={confirmQuiz}
+                            disabled={!selected}
+                            className="px-5 py-3 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/25 disabled:opacity-40 disabled:hover:bg-cyan-500/20 text-cyan-100 font-bold transition border border-cyan-400/25"
+                          >
+                            Confirmar
+                          </button>
+                        </div>
 
-                      {loading ? <p className="mt-4 text-xs text-zinc-400">Gerando perguntas...</p> : null}
+                        {loading ? <p className="mt-4 text-xs text-zinc-400">Gerando perguntas...</p> : null}
+                      </div>
                     </div>
-                  </div>
-                ) : null}
+                  ) : null}
+                </div>
               </div>
-            </div>
+            ) : (
+              <div className="w-full rounded-2xl border border-white/10 bg-black/50 p-5 md:p-6">
+                <p className="text-xs font-extrabold tracking-widest text-cyan-200/90 uppercase">Interação com NEXUS</p>
+                <h3 className="mt-2 text-xl font-extrabold text-white">{episodeTitle}</h3>
+                {episodeDescription ? <p className="mt-1 text-sm text-zinc-400">{episodeDescription}</p> : null}
+
+                <div className="mt-5 h-[320px] overflow-y-auto space-y-3 pr-1">
+                  {chatMessages.map((m, idx) => (
+                    <div key={`${m.role}-${idx}`} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
+                      <div className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm ${m.role === "user" ? "bg-cyan-500/20 text-cyan-50" : "bg-white/10 text-white"}`}>
+                        {m.content}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {chatError ? <p className="mt-3 text-xs text-red-300">{chatError}</p> : null}
+
+                <div className="mt-4 flex items-end gap-3">
+                  <textarea
+                    value={chatInput}
+                    onChange={(e) => setChatInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && !e.shiftKey) {
+                        e.preventDefault();
+                        void sendNexusMessage();
+                      }
+                    }}
+                    placeholder="Digite sua mensagem para o NEXUS..."
+                    className="flex-1 min-h-[50px] max-h-28 resize-none rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-zinc-500 focus:outline-none"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => { void sendNexusMessage(); }}
+                    disabled={chatSending || !chatInput.trim()}
+                    className="px-5 py-3 rounded-xl bg-cyan-500/20 border border-cyan-400/30 text-cyan-100 font-bold disabled:opacity-50"
+                  >
+                    {chatSending ? "Enviando..." : "Enviar"}
+                  </button>
+                </div>
+
+                <div className="mt-4 flex items-center justify-between rounded-xl border border-white/10 bg-white/5 px-4 py-3">
+                  <p className="text-xs text-zinc-300">
+                    Recompensa ao concluir interação: <span className="font-extrabold text-cyan-200">{currentXp} XP</span>
+                  </p>
+                  <button
+                    type="button"
+                    onClick={completeChatInteraction}
+                    disabled={chatCompleted || !chatMessages.some((m) => m.role === "assistant" && m.content.trim())}
+                    className="px-4 py-2 rounded-lg bg-cyan-500/20 border border-cyan-400/30 text-cyan-100 text-xs font-bold disabled:opacity-50"
+                  >
+                    {chatCompleted ? "XP creditado" : "Concluir interação"}
+                  </button>
+                </div>
+              </div>
+            )}
 
             <div className="mt-4 flex items-center justify-between">
               <div>
