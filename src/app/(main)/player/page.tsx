@@ -123,6 +123,7 @@ function PlayerContent() {
   const [chatCompleted, setChatCompleted] = useState(false);
   const resumeAppliedRef = useRef(false);
   const resumePctRef = useRef(0);
+  const autoOpenedChatRef = useRef(false);
 
   async function generateQuestions() {
     setLoading(true); setSelected(null);
@@ -324,6 +325,13 @@ function PlayerContent() {
     const v = videoRef.current;
     if (v) v.pause();
   };
+
+  useEffect(() => {
+    if (autoOpenedChatRef.current) return;
+    if (hasEpisodeVideo) return;
+    autoOpenedChatRef.current = true;
+    openMission();
+  }, [hasEpisodeVideo, episodeId]);
 
   const sendNexusMessage = async () => {
     const text = chatInput.trim();
