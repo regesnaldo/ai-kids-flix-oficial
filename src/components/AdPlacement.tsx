@@ -7,9 +7,10 @@ import { X } from "lucide-react";
 type AdPlacementProps = {
   onClose: () => void;
   seconds?: number;
+  nextEpisodeHref?: string | null;
 };
 
-export default function AdPlacement({ onClose, seconds = 8 }: AdPlacementProps) {
+export default function AdPlacement({ onClose, seconds = 15, nextEpisodeHref = null }: AdPlacementProps) {
   const [remaining, setRemaining] = useState(seconds);
 
   useEffect(() => {
@@ -60,16 +61,38 @@ export default function AdPlacement({ onClose, seconds = 8 }: AdPlacementProps) 
                 </p>
               </div>
 
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <Link
-                  href="/conta"
-                  className="inline-flex items-center justify-center rounded-lg bg-white text-zinc-950 px-4 py-2 text-sm font-bold hover:bg-zinc-200 transition"
-                >
-                  Anunciar no MENTE.AI
-                </Link>
-                <p className="text-xs text-zinc-400">
-                  Continuando em <span className="font-bold text-zinc-200">{remaining}s</span>
-                </p>
+              <div className="flex flex-col gap-3">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <Link
+                    href="/conta"
+                    className="inline-flex items-center justify-center rounded-lg bg-white text-zinc-950 px-4 py-2 text-sm font-bold hover:bg-zinc-200 transition"
+                  >
+                    Anunciar no MENTE.AI
+                  </Link>
+                  <p className="text-xs text-zinc-400">
+                    Fechar em <span className="font-bold text-zinc-200">{remaining}s</span>...
+                  </p>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2">
+                  {remaining <= seconds - 5 ? (
+                    <button
+                      type="button"
+                      onClick={onClose}
+                      className="inline-flex items-center justify-center rounded-lg border border-white/15 bg-white/5 px-4 py-2 text-xs font-bold text-zinc-200 hover:bg-white/10 transition"
+                    >
+                      Pular anúncio
+                    </button>
+                  ) : null}
+                  {nextEpisodeHref ? (
+                    <Link
+                      href={nextEpisodeHref}
+                      className="inline-flex items-center justify-center rounded-lg border border-cyan-400/30 bg-cyan-500/15 px-4 py-2 text-xs font-bold text-cyan-100 hover:bg-cyan-500/20 transition"
+                    >
+                      Próximo episódio
+                    </Link>
+                  ) : null}
+                </div>
               </div>
             </div>
           </div>

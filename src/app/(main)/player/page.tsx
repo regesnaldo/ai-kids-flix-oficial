@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useMemo, useRef, useState, Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { BookOpen, Check, ChevronDown, FlaskConical, Gamepad2, Lock, Play, Settings, Star, Target, X } from "lucide-react";
 import { getEpisodeById, getSeasonById } from "@/constants/catalog";
 import AdPlacement from "@/components/AdPlacement";
@@ -76,7 +76,6 @@ function AudioButton({ text }: { text: string }) {
 }
 
 function PlayerContent() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const rawSeriesTitle = searchParams.get("series") || "MENTE.AI";
   const rawEpisodeParam = searchParams.get("episode") || "Episodio 1";
@@ -125,7 +124,7 @@ function PlayerContent() {
   const [chatError, setChatError] = useState<string | null>(null);
   const [chatCompleted, setChatCompleted] = useState(false);
   const [showAdPlacement, setShowAdPlacement] = useState(false);
-  const [pendingNextHref, setPendingNextHref] = useState<string | null>(null);
+  const [nextEpisodeHrefForAd, setNextEpisodeHrefForAd] = useState<string | null>(null);
   const resumeAppliedRef = useRef(false);
   const resumePctRef = useRef(0);
   const autoOpenedChatRef = useRef(false);
@@ -244,7 +243,7 @@ function PlayerContent() {
     } catch {
       return;
     }
-    setPendingNextHref(`/player?episode=${encodeURIComponent(nextEpisode.id)}`);
+    setNextEpisodeHrefForAd(`/player?episode=${encodeURIComponent(nextEpisode.id)}`);
     setShowAdPlacement(true);
   };
 
@@ -393,16 +392,12 @@ function PlayerContent() {
     } catch {
       return;
     }
-    setPendingNextHref(`/player?episode=${encodeURIComponent(nextEpisode.id)}`);
+    setNextEpisodeHrefForAd(`/player?episode=${encodeURIComponent(nextEpisode.id)}`);
     setShowAdPlacement(true);
   };
 
   const closeAdPlacement = () => {
     setShowAdPlacement(false);
-    if (pendingNextHref) {
-      router.push(pendingNextHref);
-      setPendingNextHref(null);
-    }
   };
 
   return (
@@ -848,7 +843,7 @@ function PlayerContent() {
         </div>
       ) : null}
 
-      {showAdPlacement ? <AdPlacement onClose={closeAdPlacement} /> : null}
+      {showAdPlacement ? <AdPlacement onClose={closeAdPlacement} nextEpisodeHref={nextEpisodeHrefForAd} /> : null}
     </div>
   );
 }
