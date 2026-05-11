@@ -1,8 +1,9 @@
 "use client";
 import { useEffect, useMemo, useRef, useState, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { BookOpen, Check, ChevronDown, FlaskConical, Gamepad2, Lock, Play, Settings, Star, Target, X } from "lucide-react";
 import { getEpisodeById, getSeasonById } from "@/constants/catalog";
+import AdPlacement from "@/components/AdPlacement";
 
 interface InteractiveQuestion { question: string; options: string[]; }
 interface ChatTurn { role: "user" | "assistant"; content: string; }
@@ -15,6 +16,7 @@ type WatchState = {
 
 const WATCH_STORAGE_KEY = "mente_ai_watch_progress_v1";
 const VISIT_STORAGE_KEY = "mente_ai_last_visit_v1";
+const AD_SESSION_KEY = "mente_ai_inter_episode_ad_shown_v1";
 
 function AudioButton({ text }: { text: string }) {
   const [loading, setLoading] = useState(false);
@@ -74,6 +76,7 @@ function AudioButton({ text }: { text: string }) {
 }
 
 function PlayerContent() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const rawSeriesTitle = searchParams.get("series") || "MENTE.AI";
   const rawEpisodeParam = searchParams.get("episode") || "Episodio 1";
@@ -121,6 +124,8 @@ function PlayerContent() {
   const [chatSending, setChatSending] = useState(false);
   const [chatError, setChatError] = useState<string | null>(null);
   const [chatCompleted, setChatCompleted] = useState(false);
+  const [showAdPlacement, setShowAdPlacement] = useState(false);
+  const [pendingNextHref, setPendingNextHref] = useState<string | null>(null);
   const resumeAppliedRef = useRef(false);
   const resumePctRef = useRef(0);
   const autoOpenedChatRef = useRef(false);
@@ -231,6 +236,16 @@ function PlayerContent() {
   const onVideoEnded = () => {
     if (!episodeId) return;
     updateEpisodeProgress(episodeId, { watchedPct: 1, completed: true });
+    if (!nextEpisode?.id) return;
+    try {
+      const alreadyShown = globalThis.sessionStorage?.getItem(AD_SESSION_KEY) === "1";
+      if (alreadyShown) return;
+      globalThis.sessionStorage?.setItem(AD_SESSION_KEY, "1");
+    } catch {
+      return;
+    }
+    setPendingNextHref(`/player?episode=${encodeURIComponent(nextEpisode.id)}`);
+    setShowAdPlacement(true);
   };
 
   const applySyncReward = () => {
@@ -370,6 +385,24 @@ function PlayerContent() {
     if (!episodeId) return;
     updateEpisodeProgress(episodeId, { watchedPct: 1, completed: true });
     setChatCompleted(true);
+    if (!nextEpisode?.id) return;
+    try {
+      const alreadyShown = globalThis.sessionStorage?.getItem(AD_SESSION_KEY) === "1";
+      if (alreadyShown) return;
+      globalThis.sessionStorage?.setItem(AD_SESSION_KEY, "1");
+    } catch {
+      return;
+    }
+    setPendingNextHref(`/player?episode=${encodeURIComponent(nextEpisode.id)}`);
+    setShowAdPlacement(true);
+  };
+
+  const closeAdPlacement = () => {
+    setShowAdPlacement(false);
+    if (pendingNextHref) {
+      router.push(pendingNextHref);
+      setPendingNextHref(null);
+    }
   };
 
   return (
@@ -814,6 +847,8 @@ function PlayerContent() {
           </div>
         </div>
       ) : null}
+
+      {showAdPlacement ? <AdPlacement onClose={closeAdPlacement} /> : null}
     </div>
   );
 }
