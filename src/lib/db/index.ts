@@ -38,18 +38,12 @@ function normalizeDatabaseUrl(rawUrl: string): string {
   }
 }
 
-const poolOptions: mysql.PoolOptions = {
-  waitForConnections: true,
-  connectionLimit: 10,
-  ssl: {
-    rejectUnauthorized: true,
-  },
-};
+let pool: mysql.Pool;
 
 if (process.env.DATABASE_URL) {
-  (poolOptions as mysql.PoolOptions & { url?: string }).url = normalizeDatabaseUrl(process.env.DATABASE_URL);
+  pool = mysql.createPool(normalizeDatabaseUrl(process.env.DATABASE_URL));
+} else {
+  throw new Error("DATABASE_URL is not defined");
 }
-
-const pool = mysql.createPool(poolOptions);
 
 export const db = drizzle(pool, { schema, mode: "default" });
