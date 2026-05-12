@@ -85,6 +85,9 @@ export async function POST(request: NextRequest) {
     });
 
     const newUser = await db.select().from(users).where(eq(users.email, email)).limit(1);
+    if (!newUser || !newUser[0]) {
+      return NextResponse.json({ error: "Erro ao criar usuário." }, { status: 500 });
+    }
 
     const token = await signToken({
       userId: String(newUser[0].id),

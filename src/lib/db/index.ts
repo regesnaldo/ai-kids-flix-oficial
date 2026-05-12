@@ -47,7 +47,7 @@ const poolOptions: mysql.PoolOptions = {
 };
 
 if (process.env.DATABASE_URL) {
-  poolOptions.uri = normalizeDatabaseUrl(process.env.DATABASE_URL);
+  (poolOptions as mysql.PoolOptions & { url?: string }).url = normalizeDatabaseUrl(process.env.DATABASE_URL);
 }
 
 const pool = mysql.createPool(poolOptions);
