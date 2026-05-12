@@ -11,10 +11,31 @@ interface BookModalProps { agent: Agent; onClose: () => void; }
 const playAudioWithFallback = async (audioUrl: string, text: string) => {
   try {
     if ('speechSynthesis' in window) speechSynthesis.cancel();
-    const audio = new Audio(audioUrl);
+    let audioSourceUrl = audioUrl;
+
+    if (text) {
+      const encodedText = encodeURIComponent(text);
+      const ttsResponse = await fetch('/api/elevenlabs/speak', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: encodedText }),
+      });
+      if (ttsResponse.ok) {
+        const ttsBlob = await ttsResponse.blob();
+        audioSourceUrl = URL.createObjectURL(ttsBlob);
+      }
+    }
+
+    const audio = new Audio(audioSourceUrl);
     audio.preload = 'auto';
     await Promise.race([audio.play(), new Promise((_,rej)=>setTimeout(()=>rej('timeout'),3000))]);
-    audio.onended = () => { audio.src=''; audio.pause(); };
+    audio.onended = () => { 
+      if (audioSourceUrl.startsWith('blob:')) {
+        URL.revokeObjectURL(audioSourceUrl);
+      }
+      audio.src=''; 
+      audio.pause(); 
+    };
     return audio;
   } catch (e) {
     console.warn('MP3 falhou, usando TTS:', e);

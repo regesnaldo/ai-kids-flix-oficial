@@ -57,11 +57,11 @@ function useIsolatedTTS() {
 
     try {
       // Tenta ElevenLabs primeiro se voiceId estiver disponível
-      if (useElevenLabs && voiceId && process.env.NEXT_PUBLIC_ELEVENLABS_API_KEY) {
+      if (useElevenLabs && voiceId) {
         // Cria AudioContext isolado para ElevenLabs
         const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
         
-        const response = await fetch('/api/tts', {
+        const response = await fetch('/api/elevenlabs/speak', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -71,7 +71,8 @@ function useIsolatedTTS() {
         });
 
         if (!response.ok) {
-          throw new Error(`ElevenLabs API error: ${response.status}`);
+          const errorText = await response.text().catch(() => "");
+          throw new Error(errorText || `ElevenLabs API error: ${response.status}`);
         }
 
         const audioBuffer = await response.arrayBuffer();
