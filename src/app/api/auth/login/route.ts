@@ -84,12 +84,8 @@ export async function POST(request: NextRequest) {
     let body: { email?: unknown; senha?: unknown };
     try {
       body = (await request.json()) as { email?: unknown; senha?: unknown };
-    } catch (parseError) {
-      console.error("[LOGIN] Erro ao fazer parse JSON:", parseError);
-      return NextResponse.json(
-        { error: "Formato de requisição inválido. Envie um JSON válido." },
-        { status: 400 }
-      );
+    } catch {
+      return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
     }
 
     const email = typeof body.email === "string" ? body.email.trim().toLowerCase() : "";
