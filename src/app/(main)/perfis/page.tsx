@@ -45,7 +45,7 @@ export default function ProfilePicker() {
 
   async function loadProfiles() {
     try {
-      const res = await fetch("/api/profiles");
+      const res = await fetch("/api/profiles", { credentials: 'include' });
       if (res.status === 401) { window.location.href = "/login"; return; }
       const data = await res.json();
       setProfiles(data);
@@ -54,7 +54,7 @@ export default function ProfilePicker() {
 
   async function createProfile() {
     if (!newName.trim()) return;
-    await fetch("/api/profiles", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: newName.trim(), avatar: newColor, isKids: newIsKids, ageGroup: newIsKids ? "kids-7-9" : "adults-18" }) });
+    await fetch("/api/profiles", { method: "POST", credentials: 'include', headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: newName.trim(), avatar: newColor, isKids: newIsKids, ageGroup: newIsKids ? "kids-7-9" : "adults-18" }) });
     setNewName(""); setAdding(false); setNewIsKids(false);
     loadProfiles();
   }
