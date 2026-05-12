@@ -269,18 +269,27 @@ const generateAllAgents = (): AgentDefinition[] => {
 // AGENTES DO LABORATÓRIO VIRTUAL — NEXUS, VOLT, AURORA, ETHOS
 // ============================================================================
 
-export const NEXUS = {
-  id: "nexus",
-  name: "NEXUS",
-  title: "O Conector",
-  description: "Especialista em Transformers e arquitetura de atenção multi-head",
-  avatar: "/images/agentes/nexus.png",
-  color: "#3B82F6",
-  personality: "Explicativo, técnico mas acessível, usa analogias de conexão e redes. Fala como um mentor paciente que conecta conceitos complexos com exemplos do dia a dia.",
-  laboratoryTask: "Explicar como transformers processam tokens com atenção multi-head",
-  voiceId: process.env.NEXUS_VOICE_ID || "pNInz6obpgDQGcFmaJgB",
-  zone: "transformers"
-} as const;
+export const NEXUS: AgentDefinition = {
+  id: 'nexus',
+  name: 'NEXUS "O CONECTOR"',
+  dimension: 'intellectual',
+  level: 'archetypal',
+  faction: 'balance',
+  season: 1,
+  personality: {
+    tone: 'friendly',
+    values: ['conexão', 'orquestração', 'atenção', 'transformers'],
+    approach: 'Explicativo, técnico mas acessível, usa analogias de conexão e redes. Fala como um mentor paciente que conecta conceitos complexos com exemplos do dia a dia. "Vamos conectar os pontos!" é seu bordão.',
+  },
+  visualPrompt: 'A futuristic connector figure with neural network patterns, blue and cyan tones, multi-head attention visualization, digital art, cinematic lighting',
+  laboratoryTask: 'Explicar como transformers processam tokens com atenção multi-head. Conecta os pontos entre entrada e saída mostrando o caminho da informação!',
+  badge: {
+    name: 'Mestre da Atenção',
+    description: 'Desbloqueado ao compreender arquitetura transformers',
+    icon: '',
+  },
+  recommendedVideos: ['vid_nexus_transformers', 'vid_attention_mechanism'],
+};
 
 export const VOLT = {
   id: "volt",
@@ -323,27 +332,6 @@ export const ETHOS = {
 
 // Adicionar agentes do laboratório ao ALL_AGENTS para integração com o sistema canônico
 const LABORATORY_AGENTS: AgentDefinition[] = [
-  {
-    id: 'nexus',
-    name: 'NEXUS "O CONECTOR"',
-    dimension: 'intellectual',
-    level: 'archetypal',
-    faction: 'balance',
-    season: 1,
-    personality: {
-      tone: 'friendly',
-      values: ['conexão', 'orquestração', 'atenção', 'transformers'],
-      approach: 'Explicativo, técnico mas acessível, usa analogias de conexão e redes. Fala como um mentor paciente que conecta conceitos complexos com exemplos do dia a dia. "Vamos conectar os pontos!" é seu bordão.',
-    },
-    visualPrompt: 'A futuristic connector figure with neural network patterns, blue and cyan tones, multi-head attention visualization, digital art, cinematic lighting',
-    laboratoryTask: 'Explicar como transformers processam tokens com atenção multi-head. Conecta os pontos entre entrada e saída mostrando o caminho da informação!',
-    badge: {
-      name: 'Mestre da Atenção',
-      description: 'Desbloqueado ao compreender arquitetura transformers',
-      icon: '🔗',
-    },
-    recommendedVideos: ['vid_nexus_transformers', 'vid_attention_mechanism'],
-  },
   {
     id: 'volt',
     name: 'VOLT "O ENERGÉTICO"',
@@ -409,5 +397,5 @@ const LABORATORY_AGENTS: AgentDefinition[] = [
   },
 ];
 
-export const ALL_AGENTS = [...generateAllAgents(), ...LABORATORY_AGENTS];
+export const ALL_AGENTS = [...generateAllAgents(), NEXUS, ...LABORATORY_AGENTS];
 
