@@ -115,7 +115,7 @@ export default function HomePage() {
     setNexusResponse('');
     try {
       const data = await sendMessageToNexus(message);
-      setNexusResponse(data.reply);
+      setNexusResponse(data.response);
     } catch (error) {
       setNexusResponse('Error: Please try again.');
     } finally {
