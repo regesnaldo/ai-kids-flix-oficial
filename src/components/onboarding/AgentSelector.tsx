@@ -41,7 +41,7 @@ export default function AgentSelector({ onSelect, onSkip }: AgentSelectorProps) 
     const idSet = new Set(SUGGESTED_AGENT_IDS);
     const list = ALL_AGENTS.filter((a) => idSet.has(a.id));
     if (list.length > 0) return list;
-    return ALL_AGENTS.slice(0, 6);
+    return ALL_AGENTS.slice(0, 4);
   }, []);
 
   return (
@@ -71,14 +71,17 @@ export default function AgentSelector({ onSelect, onSkip }: AgentSelectorProps) 
                   isSelected ? "bg-white/15 scale-105 ring-2 ring-white/40" : "bg-white/10 hover:bg-white/20",
                 ].join(" ")}
               >
-                <div className={["bg-gray-900 rounded-xl p-6 h-full", isSelected ? `ring-2 ${borderByFaction[agent.faction] || "ring-white/20"}` : ""].join(" ")}>
+                <div className={[
+                  "bg-gray-900 rounded-xl p-6 h-full",
+                  isSelected ? `ring-2 ${borderByFaction[agent.faction?.toString() ?? ""] || "ring-white/20"}` : ""
+                ].join(" ")}>
                   <div className="h-40 bg-gradient-to-br from-purple-600 via-blue-600 to-gray-900 rounded-lg mb-4 flex items-center justify-center">
-                    <div className="text-5xl">{getDimensionEmoji(agent.dimension)}</div>
+                    <div className="text-5xl">{getDimensionEmoji(agent.dimension ?? "")}</div>
                   </div>
 
                   <h3 className="text-xl font-bold text-white mb-2">{agent.name}</h3>
                   <p className="text-sm text-gray-300 mb-3">
-                    {t(`dimensions.${agent.dimension}`)} • {t(`levels.${agent.level}`)}
+                    {t(`dimensions.${agent.dimension ?? ""}`)} • {t(`levels.${agent.level ?? ""}`)}
                   </p>
                   <p className="text-sm text-white/80 line-clamp-2">{agent.personality.approach}</p>
 
