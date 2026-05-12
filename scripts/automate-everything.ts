@@ -37,7 +37,7 @@ const steps = [
 ];
 
 let completedSteps = 0;
-let failedSteps: string[] = [];
+const failedSteps: string[] = [];
 
 steps.forEach((step, index) => {
   console.log(`\n[${index + 1}/${steps.length}] ${step.name}...`);
@@ -47,7 +47,7 @@ steps.forEach((step, index) => {
     execSync(step.command, { stdio: 'inherit' });
     console.log(`\n✅ CONCLUÍDO: ${step.name}`);
     completedSteps++;
-  } catch (error) {
+  } catch (_error) {
     console.error(`\n❌ FALHOU: ${step.name}`);
     failedSteps.push(step.name);
   }

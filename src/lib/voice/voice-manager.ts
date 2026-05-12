@@ -2,12 +2,21 @@
  * Voice Manager — Orquestrador do fluxo de voz do MENTE.AI
  *
  * Fluxo completo:
- *   Usuário fala → Whisper transcreve → Hume detecta emoção
- *   → LangChain gera resposta → ElevenLabs sintetiza voz
+ *   Usuário fala → API /api/voice/converse (server) processa:
+ *     Whisper transcreve → Hume detecta emoção → Claude responde → ElevenLabs (opcional) sintetiza
  */
 
-import { transcribeAudio, type TranscriptionResult } from './whisper';
-import { detectEmotion, getEmotionPromptHint, type EmotionResult } from './hume';
+export interface TranscriptionResult {
+  text: string;
+  language: string;
+  duration?: number;
+}
+
+export interface EmotionResult {
+  dominant: { name: string; score: number };
+  top3: Array<{ name: string; score: number }>;
+  category: 'positive' | 'negative' | 'neutral' | 'curious' | 'anxious';
+}
 
 export interface VoiceInteractionInput {
   audioBlob: Blob;
@@ -33,63 +42,51 @@ export interface VoiceInteractionResult {
 export async function processVoiceInteraction(
   input: VoiceInteractionInput
 ): Promise<VoiceInteractionResult> {
-  const startTime = Date.now();
+  const formData = new FormData();
+  formData.append('audio', input.audioBlob, 'audio.webm');
+  formData.append('agentId', input.agentId);
+  formData.append('agentVoiceId', input.agentVoiceId);
+  formData.append('history', JSON.stringify(input.conversationHistory ?? []));
 
-  // 1. Transcrição e detecção emocional em paralelo (economiza ~1-2s)
-  const [transcriptionResult, emotionResult] = await Promise.allSettled([
-    transcribeAudio(input.audioBlob),
-    detectEmotion(input.audioBlob),
-  ]);
+  const res = await fetch('/api/voice/converse', { method: 'POST', body: formData });
+  const data = (await res.json()) as {
+    userText?: string;
+    agentText?: string;
+    agentAudioBase64?: string | null;
+    emotion?: EmotionResult | null;
+    latencyMs?: number;
+    error?: string;
+  };
 
-  if (transcriptionResult.status === 'rejected') {
-    throw new Error(`Falha na transcrição: ${transcriptionResult.reason}`);
+  if (!res.ok) {
+    throw new Error(data.error || `Falha em /api/voice/converse: ${res.status}`);
   }
 
-  const transcription = transcriptionResult.value;
-  const emotion = emotionResult.status === 'fulfilled' ? emotionResult.value : null;
-  const emotionHint = getEmotionPromptHint(emotion);
-
-  // 2. Chamar API de chat com contexto emocional
-  const chatResponse = await fetch('/api/chat', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      agentId: input.agentId,
-      message: transcription.text,
-      emotionHint,
-      emotionCategory: emotion?.category ?? 'neutral',
-      history: input.conversationHistory ?? [],
-    }),
-  });
-
-  if (!chatResponse.ok) {
-    throw new Error(`Falha no chat: ${chatResponse.status}`);
-  }
-
-  const chatData = await chatResponse.json() as { response: string };
-  const agentResponseText = chatData.response;
-
-  // 3. Sintetizar voz da resposta com ElevenLabs
   let agentAudioUrl: string | null = null;
-  try {
-    const ttsResponse = await fetch(
-      `/api/tts?text=${encodeURIComponent(agentResponseText)}&voiceId=${input.agentVoiceId}`
-    );
-    if (ttsResponse.ok) {
-      const audioBlob = await ttsResponse.blob();
-      agentAudioUrl = URL.createObjectURL(audioBlob);
-    }
-  } catch (ttsErr) {
-    console.warn('[VoiceManager] TTS falhou, retornando só texto:', ttsErr);
+  if (data.agentAudioBase64) {
+    const audioBlob = base64ToBlob(data.agentAudioBase64, 'audio/mpeg');
+    agentAudioUrl = URL.createObjectURL(audioBlob);
   }
 
   return {
-    transcription,
-    emotion,
-    agentResponseText,
+    transcription: {
+      text: data.userText ?? '',
+      language: 'pt',
+    },
+    emotion: data.emotion ?? null,
+    agentResponseText: data.agentText ?? '',
     agentAudioUrl,
-    latencyMs: Date.now() - startTime,
+    latencyMs: data.latencyMs ?? 0,
   };
+}
+
+function base64ToBlob(base64: string, mimeType: string): Blob {
+  const binaryString = globalThis.atob(base64);
+  const bytes = new Uint8Array(binaryString.length);
+  for (let i = 0; i < binaryString.length; i++) {
+    bytes[i] = binaryString.charCodeAt(i);
+  }
+  return new Blob([bytes], { type: mimeType });
 }
 
 /**

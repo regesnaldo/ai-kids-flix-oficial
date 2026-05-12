@@ -1,5 +1,10 @@
 'use client';
 
+/**
+ * MENTE.AI — Hero Banner com Billboard rotativo
+ * Billboard de destaque com rotação automática entre agentes.
+ */
+
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -73,43 +78,22 @@ export default function HeroBanner({ onInfoClick }: HeroBannerProps) {
   const router = useRouter();
   const [activeIndex, setActiveIndex] = useState(0);
   const [paused, setPaused] = useState(false);
-  const [muted, setMuted] = useState(true);
   const [progressKey, setProgressKey] = useState(0);
   const intervalRef = useRef<ReturnType<typeof globalThis.setInterval> | null>(null);
 
   const agent = HERO_AGENTS[activeIndex] ?? HERO_AGENTS[0];
 
   useEffect(() => {
-    try {
-      const stored = globalThis.localStorage?.getItem('mente_ai_muted');
-      if (stored === '0') setMuted(false);
-      if (stored === '1') setMuted(true);
-    } catch (_e) {
-      void _e;
-    }
-  }, []);
-
-  useEffect(() => {
-    const onStorage = (e: StorageEvent) => {
-      if (e.key !== 'mente_ai_muted') return;
-      if (e.newValue === '0') setMuted(false);
-      if (e.newValue === '1') setMuted(true);
+    const restartTimer = () => {
+      if (intervalRef.current) globalThis.clearInterval(intervalRef.current);
+      intervalRef.current = null;
+      if (paused) return;
+      intervalRef.current = globalThis.setInterval(() => {
+        setActiveIndex((i) => (i + 1) % HERO_AGENTS.length);
+        setProgressKey((k) => k + 1);
+      }, ROTATION_MS);
     };
-    globalThis.addEventListener?.('storage', onStorage);
-    return () => globalThis.removeEventListener?.('storage', onStorage);
-  }, []);
 
-  const restartTimer = () => {
-    if (intervalRef.current) globalThis.clearInterval(intervalRef.current);
-    intervalRef.current = null;
-    if (paused) return;
-    intervalRef.current = globalThis.setInterval(() => {
-      setActiveIndex((i) => (i + 1) % HERO_AGENTS.length);
-      setProgressKey((k) => k + 1);
-    }, ROTATION_MS);
-  };
-
-  useEffect(() => {
     restartTimer();
     return () => {
       if (intervalRef.current) globalThis.clearInterval(intervalRef.current);
@@ -121,22 +105,9 @@ export default function HeroBanner({ onInfoClick }: HeroBannerProps) {
     setProgressKey((k) => k + 1);
   }, [activeIndex]);
 
-  const toggleMuted = () => {
-    setMuted((prev) => {
-      const next = !prev;
-      try {
-        globalThis.localStorage?.setItem('mente_ai_muted', next ? '1' : '0');
-      } catch (_e) {
-        void _e;
-      }
-      return next;
-    });
-  };
-
   const goTo = (idx: number) => {
     setActiveIndex(idx);
     setProgressKey((k) => k + 1);
-    restartTimer();
   };
 
   return (
@@ -145,61 +116,80 @@ export default function HeroBanner({ onInfoClick }: HeroBannerProps) {
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
+      {/* Base */}
       <div className="absolute inset-0 bg-zinc-950" />
 
+      {/* Imagem do agente como background com blur */}
       <AnimatePresence mode="sync">
         <motion.img
           key={agent.id}
           src={agent.image}
-          alt={agent.name}
-          className="absolute inset-0 w-full h-full object-cover"
+          alt=""
+          aria-hidden="true"
+          className="absolute inset-0 w-full h-full object-cover object-top"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.7, ease: 'easeInOut' }}
-          style={{ filter: 'brightness(0.55)' }}
+          style={{
+            filter: 'brightness(0.3) blur(4px) saturate(1.5)',
+            transform: 'scale(1.1)',
+          }}
+          onError={(e) => {
+            (e.target as HTMLImageElement).style.display = 'none';
+          }}
         />
       </AnimatePresence>
 
+      {/* Gradiente radial com cor do agente */}
       <motion.div
         key={`radial-${agent.id}`}
         className="absolute inset-0"
-        initial={{ opacity: 0.12 }}
-        animate={{ opacity: 0.18 }}
-        exit={{ opacity: 0.12 }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
         transition={{ duration: 0.7, ease: 'easeInOut' }}
         style={{
-          background: `radial-gradient(ellipse 70% 55% at 60% 40%, ${agent.accentColor}28 0%, transparent 62%)`,
+          background: `radial-gradient(ellipse 80% 60% at 70% 35%, ${agent.accentColor}22 0%, transparent 60%),
+                       radial-gradient(ellipse 50% 80% at 20% 80%, ${agent.accentColor}11 0%, transparent 50%)`,
         }}
       />
 
-      <div className="absolute inset-0 bg-black/55" />
+      {/* Overlay escuro */}
+      <div className="absolute inset-0 bg-black/50" />
 
-      <div className="pointer-events-none absolute inset-0 opacity-[0.035]" style={{
-        backgroundImage:
-          'linear-gradient(rgba(255,255,255,0.8) 1px, transparent 1px), ' +
-          'linear-gradient(90deg, rgba(255,255,255,0.8) 1px, transparent 1px)',
-        backgroundSize: '60px 60px',
-      }} />
+      {/* Grid sutil */}
+      <div
+        className="pointer-events-none absolute inset-0 opacity-[0.03]"
+        style={{
+          backgroundImage:
+            'linear-gradient(rgba(255,255,255,0.8) 1px, transparent 1px), ' +
+            'linear-gradient(90deg, rgba(255,255,255,0.8) 1px, transparent 1px)',
+          backgroundSize: '60px 60px',
+        }}
+      />
 
-      <div className="absolute bottom-0 w-full h-[30vh] bg-gradient-to-t from-[#000000] via-[#000000]/80 to-transparent z-10" />
+      {/* Gradiente inferior */}
+      <div className="absolute bottom-0 w-full h-[35vh] bg-gradient-to-t from-[#000000] via-[#000000]/80 to-transparent z-10" />
 
+      {/* ── Conteúdo ── */}
       <div className="relative z-10 w-full max-w-7xl mx-auto px-6 md:px-12 py-20">
         <AnimatePresence mode="wait">
           <motion.div
             key={`copy-${agent.id}`}
-            initial={{ opacity: 0, y: 18 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 18 }}
+            exit={{ opacity: 0, y: 20 }}
             transition={{ duration: 0.55, ease: 'easeOut' }}
-            className="max-w-3xl space-y-6"
+            className="max-w-2xl space-y-6"
           >
+            {/* Badge */}
             <div>
               <span
-                className="inline-flex items-center gap-2 px-4 py-1.5 text-white text-xs font-extrabold rounded-full border"
+                className="inline-flex items-center gap-2 px-4 py-1.5 text-xs font-extrabold rounded-full border backdrop-blur-sm"
                 style={{
-                  background: `${agent.accentColor}22`,
-                  borderColor: `${agent.accentColor}55`,
+                  background: `${agent.accentColor}18`,
+                  borderColor: `${agent.accentColor}50`,
                   color: agent.accentColor,
                 }}
               >
@@ -208,24 +198,29 @@ export default function HeroBanner({ onInfoClick }: HeroBannerProps) {
               </span>
             </div>
 
+            {/* Título */}
             <div className="space-y-3">
-              <h1 className="text-6xl md:text-8xl font-black text-white leading-[0.95] tracking-tight">
+              <h1 className="text-5xl sm:text-6xl md:text-8xl font-black text-white leading-[0.95] tracking-tight drop-shadow-2xl">
                 {agent.name}
               </h1>
-              <p className="text-xl md:text-2xl text-zinc-200 font-semibold">
+              <p className="text-lg md:text-2xl text-zinc-200 font-semibold">
                 {agent.role}
               </p>
-              <p className="text-base md:text-lg text-zinc-300 leading-relaxed max-w-2xl">
+              <p className="text-sm md:text-lg text-zinc-300 leading-relaxed max-w-xl">
                 {agent.description}
               </p>
             </div>
 
-            <div className="flex flex-wrap gap-4 pt-1">
+            {/* Botões */}
+            <div className="flex flex-wrap gap-3 pt-1">
               <button
                 type="button"
                 onClick={() => router.push(`/player?episode=${agent.episode}`)}
-                className="inline-flex items-center gap-2 px-6 py-3 text-zinc-950 font-extrabold rounded-xl transition-colors shadow-md"
-                style={{ backgroundColor: agent.accentColor }}
+                className="inline-flex items-center gap-2 px-6 py-3 text-zinc-950 font-extrabold rounded-xl transition-colors shadow-lg"
+                style={{
+                  backgroundColor: agent.accentColor,
+                  boxShadow: `0 8px 32px ${agent.accentColor}40`,
+                }}
               >
                 <Play className="w-5 h-5" />
                 Iniciar Missão
@@ -235,7 +230,7 @@ export default function HeroBanner({ onInfoClick }: HeroBannerProps) {
               <button
                 type="button"
                 onClick={onInfoClick}
-                className="inline-flex items-center gap-2 px-6 py-3 bg-zinc-700/80 text-white font-semibold rounded-xl hover:bg-zinc-600 transition-colors border border-zinc-600"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-zinc-700/60 backdrop-blur-sm text-white font-semibold rounded-xl hover:bg-zinc-600/80 transition-colors border border-zinc-500/50"
               >
                 <Info className="w-5 h-5" />
                 Mais Informações
@@ -245,7 +240,8 @@ export default function HeroBanner({ onInfoClick }: HeroBannerProps) {
         </AnimatePresence>
       </div>
 
-      <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2">
+      {/* ── Indicadores ── */}
+      <div className="absolute bottom-12 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2.5">
         {HERO_AGENTS.map((a, i) => {
           const active = i === activeIndex;
           return (
@@ -254,16 +250,17 @@ export default function HeroBanner({ onInfoClick }: HeroBannerProps) {
               type="button"
               aria-label={`Ir para ${a.name}`}
               onClick={() => goTo(i)}
-              className="h-[3px] rounded-full transition-all"
+              className="h-[3px] rounded-full transition-all duration-300"
               style={{
                 width: active ? 28 : 10,
-                backgroundColor: active ? agent.accentColor : 'rgba(255,255,255,0.30)',
+                backgroundColor: active ? agent.accentColor : 'rgba(255,255,255,0.25)',
               }}
             />
           );
         })}
       </div>
 
+      {/* Barra de progresso */}
       {!paused ? (
         <div className="absolute bottom-0 left-0 right-0 z-20 h-[2px] bg-white/10">
           <motion.div
@@ -277,29 +274,21 @@ export default function HeroBanner({ onInfoClick }: HeroBannerProps) {
         </div>
       ) : null}
 
+      {/* Scroll indicator */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1.2 }}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20"
+        className="absolute bottom-14 left-1/2 -translate-x-1/2 z-20"
       >
-        <div className="w-6 h-10 border-2 border-white/30 rounded-full flex justify-center">
+        <div className="w-6 h-10 border-2 border-white/25 rounded-full flex justify-center">
           <motion.div
             animate={{ y: [0, 14, 0] }}
             transition={{ repeat: Infinity, duration: 1.6, ease: 'easeInOut' }}
-            className="w-1 h-3 bg-white/60 rounded-full mt-2"
+            className="w-1 h-3 bg-white/50 rounded-full mt-2"
           />
         </div>
       </motion.div>
-
-      <button
-        type="button"
-        onClick={toggleMuted}
-        className="absolute bottom-6 right-6 z-20 w-10 h-10 rounded-full bg-black/50 border border-white/15 backdrop-blur-sm flex items-center justify-center text-white hover:border-white/30 transition"
-        aria-label={muted ? 'Ativar som' : 'Silenciar'}
-      >
-        {muted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
-      </button>
     </section>
   );
 }

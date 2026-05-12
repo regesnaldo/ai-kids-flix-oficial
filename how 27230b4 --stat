@@ -1,0 +1,71 @@
+[33m27230b4[m[33m ([m[1;31morigin/feat/home-futuristic[m[33m)[m feat: futuristic home dashboard with 22 agent images and horizontal cards
+[33ma0bac2b[m Merge pull request #28 from regesnaldo/feat/notes-transformer-ranking
+[33m5cf4a60[m[33m ([m[1;31morigin/feat/notes-transformer-ranking[m[33m)[m feat: integrate AgentNotes and TransformerDemo into pages
+[33m033747a[m Merge pull request #27 from regesnaldo/feat/notes-transformer-ranking
+[33m952d62a[m feat: notes per agent + transformer demo + XP ranking system
+[33mf612dcf[m feat: lab v2 updates — biblioteca, BookModal, HeroSection
+[33m6ae2293[m Merge pull request #26 from regesnaldo/feat/lab-upgrade-v2
+[33mffbc4e1[m[33m ([m[1;31morigin/feat/lab-upgrade-v2[m[33m)[m feat: lab v2 - simulador, BookModal TTS, LivingBook 3D, InfiniteShelves, Tone.js
+[33me70808d[m[33m ([m[1;32mhotfix-ci-failures-25[m[33m)[m Merge pull request #25 from regesnaldo/test/architecture-validation
+[33m37071e6[m[33m ([m[1;31morigin/test/architecture-validation[m[33m, [m[1;32mtest/architecture-validation[m[33m)[m feat: add cognitive lab with agent carousel and UI components
+[33mc650bcd[m chore: add .env.local template with API key placeholder
+[33mc103ffa[m feat: Onboarding aprimorado + melhorias nos Agentes
+[33mc3fcf6d[m feat: Update 2026-03-17 22:56 - MENTE.AI development
+[33mdcbf9a8[m Merge pull request #24 from regesnaldo/feat/profile-picker
+[33m109ec5a[m[33m ([m[1;31morigin/feat/profile-picker[m[33m)[m feat: home Netflix com agentes, navbar, laboratorio, componentes
+[33m7698309[m Dynamic carousel using agents list
+[33m7650ba6[m Extend agents safely
+[33m911726d[m Restore original AGENTS layout
+[33md9ab26a[m Fix agents.ts closing array
+[33mab5c2d2[m Fix newline after use client
+[33m629e1f2[m Fix use client order
+[33mfb9d400[m Replace hardcoded agents with agents.ts
+[33m7d5a620[m Connect agents.ts to home
+[33me1dcb16[m Fix agents file
+[33mb6eefa7[m Merge pull request #22 from regesnaldo/feat/profile-picker
+[33m1165765[m feat: página de seleção de perfis estilo Netflix, API /api/profiles, tabela profiles no schema
+[33ma7021b0[m Merge pull request #21 from regesnaldo/fix/remove-test-mp3
+[33mbb08ddc[m[33m ([m[1;31morigin/fix/remove-test-mp3[m[33m, [m[1;32mfix/remove-test-mp3[m[33m)[m fix: remover arquivo teste.mp3 do repositório
+[33m6683b8a[m Merge pull request #20 from regesnaldo/feat/dashboard-usuario
+[33mcc39df3[m[33m ([m[1;31morigin/feat/dashboard-usuario[m[33m)[m feat: TTS ElevenLabs com voz humanizada nas perguntas interativas
+[33mfa69576[m Merge pull request #19 from regesnaldo/feat/dashboard-usuario
+[33md1739d3[m feat: dashboard futurista sem emojis, visual profissional
+[33m89c37f7[m Merge pull request #18 from regesnaldo/feat/dashboard-usuario
+[33m46b7947[m feat: dashboard do usuário com stats, progresso e API /api/dashboard
+[33ma933fb1[m Merge pull request #17 from regesnaldo/feat/middleware-jwt
+[33m71f3a83[m[33m ([m[1;31morigin/feat/middleware-jwt[m[33m)[m feat: middleware JWT proteção de rotas autenticadas
+[33m31b9c27[m Merge pull request #16 from regesnaldo/feat/badges-backend
+[33m27fbd8d[m Merge branch 'main' of https://github.com/regesnaldo/ai-kids-flix-oficial
+[33mfcd5297[m[33m ([m[1;31morigin/feat/badges-backend[m[33m)[m feat: icone olho senha com lucide-react
+[33mdd27ca3[m feat: fix SSL TiDB + login/cadastro JWT funcionando
+[33m4266147[m feat: auth JWT login e cadastro com senha
+[33mf707149[m Merge pull request #15 from regesnaldo/feat/badges-backend
+[33m69eb473[m fix: apiVersion Stripe clover
+[33m733925d[m feat: checkout Stripe real integrado com pagamento
+[33m8c65ff8[m Merge pull request #14 from regesnaldo/feat/badges-backend
+[33m52bd312[m feat: menu de navegacao conectado com item ativo destacado
+[33mbd2ca9a[m Merge pull request #13 from regesnaldo/feat/badges-backend
+[33m1b97e6d[m feat: pagina de login e cadastro
+[33m007bab8[m Merge pull request #12 from regesnaldo/feat/badges-backend
+[33m1070108[m feat: botao Saiba Mais conectado a pagina de planos
+[33m8e95348[m Merge pull request #11 from regesnaldo/feat/badges-backend
+[33m4a51eb6[m feat: pagina de planos com FREE PREMIO, BASICO, PREMIO e FAMILIAR em paralelo
+[33m8b1a570[m Merge pull request #10 from regesnaldo/feat/badges-backend
+[33m4f2bed1[m fix: botao Comecar a Pensar navegando para o player
+[33m6435305[m Merge pull request #9 from regesnaldo/feat/badges-backend
+[33m5eef449[m feat: interaction com seed para variar perguntas + 4 perguntas por sessao
+[33ma29372b[m Merge pull request #8 from regesnaldo/feat/badges-backend
+[33md00094f[m fix: player page com Suspense para useSearchParams
+[33mfa5e588[m feat: player page + interaction com linguagem acessivel
+[33m3344836[m feat: rota /api/interaction com Claude Haiku funcionando
+[33me124aeb[m Merge pull request #7 from regesnaldo/feat/badges-backend
+[33m8bfef71[m feat: drizzle.config.ts + tabelas criadas no TiDB Cloud
+[33meb856fe[m feat: schema completo do Manus migrado para Next.js
+[33mb8f06cb[m Merge pull request #6 from regesnaldo/feat/badges-backend
+[33m2de75f3[m[33m ([m[1;31morigin/fix/layout-master-home[m[33m, [m[1;32mfix/layout-master-home[m[33m)[m feat: badges conectados ao backend /api/badges
+[33m059da87[m Merge pull request #5 from regesnaldo/fix/layout-master-home
+[33maf67ac8[m fix: Layout Master unico - Home dentro de (main) com visual premium
+[33m71e6cfc[m Merge pull request #4 from regesnaldo/feat/rebrand-mente-ai
+[33m49eff35[m feat: rebrand to MENTE.AI with manifesto
+[33m60607fd[m Merge pull request #3 from regesnaldo/fix/db-schema-build
+[33mf70bd40[m fix: add db module and schema to resolve build errors

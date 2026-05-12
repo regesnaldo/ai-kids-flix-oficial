@@ -3,8 +3,10 @@ import { useEffect, useMemo, useRef, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { BookOpen, Check, ChevronDown, FlaskConical, Gamepad2, Lock, Play, Settings, Star, Target, X } from "lucide-react";
 import { getEpisodeById, getSeasonById } from "@/constants/catalog";
+import AdPlacement from "@/components/AdPlacement";
 
 interface InteractiveQuestion { question: string; options: string[]; }
+interface ChatTurn { role: "user" | "assistant"; content: string; }
 
 type WatchState = {
   watchedPct: number;
@@ -14,24 +16,56 @@ type WatchState = {
 
 const WATCH_STORAGE_KEY = "mente_ai_watch_progress_v1";
 const VISIT_STORAGE_KEY = "mente_ai_last_visit_v1";
+const AD_SESSION_KEY = "mente_ai_inter_episode_ad_shown_v1";
 
 function AudioButton({ text }: { text: string }) {
   const [loading, setLoading] = useState(false);
   const [playing, setPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  function handleClick() {
+  async function handleClick() {
     if (loading) return;
     if (playing && audioRef.current) { audioRef.current.pause(); setPlaying(false); return; }
     if (audioRef.current) { audioRef.current.currentTime = 0; audioRef.current.play(); setPlaying(true); return; }
     setLoading(true);
-    const audio = document.createElement("audio");
-    audio.src = "/api/tts?text=" + encodeURIComponent(text);
-    audio.addEventListener("canplaythrough", function h() { audio.removeEventListener("canplaythrough", h); setLoading(false); setPlaying(true); audio.play(); });
-    audio.addEventListener("ended", () => setPlaying(false));
-    audio.addEventListener("error", () => { setLoading(false); setPlaying(false); });
-    audioRef.current = audio;
-    audio.load();
+    try {
+      const res = await fetch("/api/elevenlabs/speak", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text }),
+      });
+
+      if (!res.ok) throw new Error("TTS failed");
+
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+
+      const audio = document.createElement("audio");
+      audio.src = url;
+      audio.addEventListener(
+        "canplaythrough",
+        function h() {
+          audio.removeEventListener("canplaythrough", h);
+          setLoading(false);
+          setPlaying(true);
+          void audio.play();
+        },
+      );
+      audio.addEventListener("ended", () => {
+        setPlaying(false);
+        URL.revokeObjectURL(url);
+      });
+      audio.addEventListener("error", () => {
+        setLoading(false);
+        setPlaying(false);
+        URL.revokeObjectURL(url);
+      });
+      audioRef.current = audio;
+      audio.load();
+    } catch {
+      setLoading(false);
+      setPlaying(false);
+    }
   }
 
   return (
@@ -48,23 +82,26 @@ function PlayerContent() {
   const episodeId = useMemo(() => {
     const trimmed = rawEpisodeParam.trim();
     if (/^S\d{2}E\d{2}$/i.test(trimmed)) return trimmed.toUpperCase();
-    return null;
+    return "S01E01";
   }, [rawEpisodeParam]);
 
   const episodeFromCatalog = useMemo(() => {
-    if (!episodeId) return null;
     return getEpisodeById(episodeId) ?? null;
   }, [episodeId]);
 
   const seasonFromCatalog = useMemo(() => {
-    if (!episodeId) return null;
     const seasonId = episodeId.slice(0, 3);
     return getSeasonById(seasonId) ?? null;
   }, [episodeId]);
 
-  const seriesTitle = seasonFromCatalog?.title ?? rawSeriesTitle;
-  const episodeTitle = episodeFromCatalog?.title ?? rawEpisodeParam;
-  const episodeDescription = episodeFromCatalog?.description ?? "";
+  const resolvedEpisode = episodeFromCatalog ?? getEpisodeById("S01E01") ?? null;
+  const resolvedSeason = seasonFromCatalog ?? getSeasonById("S01") ?? null;
+
+  const seriesTitle = resolvedSeason?.title ?? rawSeriesTitle;
+  const episodeTitle = resolvedEpisode?.title ?? rawEpisodeParam;
+  const episodeDescription = resolvedEpisode?.description ?? "";
+  const episodeVideoUrl = (((resolvedEpisode as (typeof resolvedEpisode & { videoUrl?: string | null }))?.videoUrl ?? "").trim());
+  const hasEpisodeVideo = episodeVideoUrl.length > 0;
 
   const [questions, setQuestions] = useState<InteractiveQuestion[]>([]);
   const [selected, setSelected] = useState<string | null>(null);
@@ -81,6 +118,16 @@ function PlayerContent() {
   const [rewardsOpen, setRewardsOpen] = useState(false);
   const [introBlack, setIntroBlack] = useState(true);
   const [introIn, setIntroIn] = useState(false);
+  const [chatMessages, setChatMessages] = useState<ChatTurn[]>([]);
+  const [chatInput, setChatInput] = useState("");
+  const [chatSending, setChatSending] = useState(false);
+  const [chatError, setChatError] = useState<string | null>(null);
+  const [chatCompleted, setChatCompleted] = useState(false);
+  const [showAdPlacement, setShowAdPlacement] = useState(false);
+  const [nextEpisodeHrefForAd, setNextEpisodeHrefForAd] = useState<string | null>(null);
+  const resumeAppliedRef = useRef(false);
+  const resumePctRef = useRef(0);
+  const autoOpenedChatRef = useRef(false);
 
   async function generateQuestions() {
     setLoading(true); setSelected(null);
@@ -159,6 +206,12 @@ function PlayerContent() {
     if (!v || !Number.isFinite(v.duration) || v.duration <= 0) return;
     quizTriggerAtRef.current = Math.max(2, v.duration * 0.5);
     quizArmedRef.current = true;
+
+    if (missionOpen && !resumeAppliedRef.current) {
+      resumeAppliedRef.current = true;
+      v.currentTime = v.duration * Math.max(0, Math.min(1, resumePctRef.current));
+      void v.play();
+    }
   };
 
   const onVideoTimeUpdate = () => {
@@ -182,6 +235,16 @@ function PlayerContent() {
   const onVideoEnded = () => {
     if (!episodeId) return;
     updateEpisodeProgress(episodeId, { watchedPct: 1, completed: true });
+    if (!nextEpisode?.id) return;
+    try {
+      const alreadyShown = globalThis.sessionStorage?.getItem(AD_SESSION_KEY) === "1";
+      if (alreadyShown) return;
+      globalThis.sessionStorage?.setItem(AD_SESSION_KEY, "1");
+    } catch {
+      return;
+    }
+    setNextEpisodeHrefForAd(`/player?episode=${encodeURIComponent(nextEpisode.id)}`);
+    setShowAdPlacement(true);
   };
 
   const applySyncReward = () => {
@@ -202,9 +265,17 @@ function PlayerContent() {
   };
 
   const currentQuestion = questions[0] ?? null;
-  const seasonEpisodes = seasonFromCatalog?.episodes ?? [];
-  const agentLabel = episodeFromCatalog?.agentId ?? "NEXUS";
-  const portalProgressPct = episodeId ? Math.round(((watchMap[episodeId]?.watchedPct ?? 0) * 100)) : 0;
+  const seasonEpisodes = resolvedSeason?.episodes ?? [];
+  const agentLabel = resolvedEpisode?.agentId ?? "NEXUS";
+  const portalProgressPct = Math.round(((watchMap[episodeId]?.watchedPct ?? 0) * 100));
+  const currentXp = resolvedEpisode?.xpReward ?? 0;
+
+  const nextEpisode = useMemo(() => {
+    if (!resolvedSeason) return null;
+    const idx = resolvedSeason.episodes.findIndex((e) => e.id === episodeId);
+    if (idx === -1) return resolvedSeason.episodes[0] ?? null;
+    return resolvedSeason.episodes[idx + 1] ?? null;
+  }, [resolvedSeason, episodeId]);
 
   const xpEarned = useMemo(() => {
     if (seasonEpisodes.length === 0) return 0;
@@ -248,14 +319,16 @@ function PlayerContent() {
     setSelected(null);
     setQuizOpen(false);
     setMissionOpen(true);
+    setChatCompleted(false);
+    setChatError(null);
 
-    const v = videoRef.current;
-    if (v && episodeId) {
-      const pct = watchMap[episodeId]?.watchedPct ?? 0;
-      if (Number.isFinite(v.duration) && v.duration > 0) {
-        v.currentTime = v.duration * pct;
-      }
-      void v.play();
+    resumeAppliedRef.current = false;
+    resumePctRef.current = watchMap[episodeId]?.watchedPct ?? 0;
+
+    if (!hasEpisodeVideo) {
+      setChatMessages([
+        { role: "assistant", content: `Olá! Eu sou o NEXUS. Vamos explorar "${episodeTitle}" juntos?` },
+      ]);
     }
   };
 
@@ -265,6 +338,66 @@ function PlayerContent() {
     setSelected(null);
     const v = videoRef.current;
     if (v) v.pause();
+  };
+
+  useEffect(() => {
+    if (autoOpenedChatRef.current) return;
+    if (hasEpisodeVideo) return;
+    autoOpenedChatRef.current = true;
+    openMission();
+  }, [hasEpisodeVideo, episodeId]);
+
+  const sendNexusMessage = async () => {
+    const text = chatInput.trim();
+    if (!text || chatSending) return;
+
+    const nextUserTurn: ChatTurn = { role: "user", content: text };
+    const history = [...chatMessages, nextUserTurn];
+    setChatMessages(history);
+    setChatInput("");
+    setChatSending(true);
+    setChatError(null);
+
+    try {
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          agentId: "nexus",
+          messages: history.map((m) => ({ role: m.role, content: m.content })),
+          stream: false,
+        }),
+      });
+      if (!res.ok) throw new Error("Falha ao consultar NEXUS");
+
+      const data = await res.json();
+      const reply = typeof data?.reply === "string" ? data.reply : "Vamos continuar. O que você quer explorar agora?";
+      setChatMessages((prev) => [...prev, { role: "assistant", content: reply }]);
+    } catch {
+      setChatError("Não foi possível conectar com o NEXUS agora. Tente novamente.");
+    } finally {
+      setChatSending(false);
+    }
+  };
+
+  const completeChatInteraction = () => {
+    if (!episodeId) return;
+    updateEpisodeProgress(episodeId, { watchedPct: 1, completed: true });
+    setChatCompleted(true);
+    if (!nextEpisode?.id) return;
+    try {
+      const alreadyShown = globalThis.sessionStorage?.getItem(AD_SESSION_KEY) === "1";
+      if (alreadyShown) return;
+      globalThis.sessionStorage?.setItem(AD_SESSION_KEY, "1");
+    } catch {
+      return;
+    }
+    setNextEpisodeHrefForAd(`/player?episode=${encodeURIComponent(nextEpisode.id)}`);
+    setShowAdPlacement(true);
+  };
+
+  const closeAdPlacement = () => {
+    setShowAdPlacement(false);
   };
 
   return (
@@ -455,9 +588,15 @@ function PlayerContent() {
               className="w-[210px] px-4 py-4 rounded-2xl border border-white/10 bg-black/35 hover:bg-black/45 transition text-white"
               style={{ boxShadow: "0 10px 28px rgba(0,0,0,0.45)" }}
             >
-              <div className="text-sm font-extrabold leading-tight">Continuar</div>
-              <div className="text-sm font-extrabold leading-tight">Missão:</div>
-              <div className="text-sm font-extrabold leading-tight">{episodeId ?? "S01E01"}</div>
+              <div className="text-sm font-extrabold leading-tight">{portalProgressPct > 0 ? "Continuar" : "Iniciar"}</div>
+              <div className="text-sm font-extrabold leading-tight">{episodeId}</div>
+              <div className="mt-2 text-[11px] text-zinc-300 font-semibold line-clamp-2">{episodeTitle}</div>
+
+              <div className="mt-3 flex items-center justify-center gap-2 text-[11px] text-zinc-300 font-semibold">
+                <span>Mentor {agentLabel}</span>
+                <span className="text-zinc-500">•</span>
+                <span>{currentXp} XP</span>
+              </div>
 
               <div className="mt-4 h-[3px] w-full bg-white/10 rounded-full overflow-hidden">
                 <div className="h-full" style={{ width: `${portalProgressPct}%`, background: "#00D9FF" }} />
@@ -468,6 +607,16 @@ function PlayerContent() {
                 <Play className="w-3.5 h-3.5 text-cyan-200" />
               </div>
             </button>
+
+            {nextEpisode ? (
+              <a
+                href={`/player?episode=${encodeURIComponent(nextEpisode.id)}`}
+                className="mt-3 text-[11px] font-bold text-cyan-200/90 hover:text-cyan-100 transition"
+                aria-label={`Próximo episódio: ${nextEpisode.id}`}
+              >
+                Próximo episódio: {nextEpisode.id}
+              </a>
+            ) : null}
           </div>
 
           <div
@@ -519,93 +668,150 @@ function PlayerContent() {
               <X className="w-5 h-5 text-white" />
             </button>
 
-            <div
-              className={`relative w-full rounded-2xl overflow-hidden bg-black border transition ${
-                syncPulse ? "animate-pulse border-cyan-400/50" : "border-white/10"
-              }`}
-              style={{
-                boxShadow: syncPulse ? "0 0 0 1px rgba(34,211,238,0.15), 0 0 42px rgba(0,240,255,0.12)" : "none",
-              }}
-            >
-              <div className="relative w-full aspect-video">
-                <video
-                  ref={videoRef}
-                  className="absolute inset-0 w-full h-full object-cover"
-                  controls
-                  playsInline
-                  preload="auto"
-                  onLoadedMetadata={onVideoLoadedMetadata}
-                  onTimeUpdate={onVideoTimeUpdate}
-                  onEnded={onVideoEnded}
-                  style={{ filter: "contrast(1.05) brightness(0.9) saturate(1.15)" }}
-                >
-                  <source src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4" type="video/mp4" />
-                </video>
+            {hasEpisodeVideo ? (
+              <div
+                className={`relative w-full rounded-2xl overflow-hidden bg-black border transition ${
+                  syncPulse ? "animate-pulse border-cyan-400/50" : "border-white/10"
+                }`}
+                style={{
+                  boxShadow: syncPulse ? "0 0 0 1px rgba(34,211,238,0.15), 0 0 42px rgba(0,240,255,0.12)" : "none",
+                }}
+              >
+                <div className="relative w-full aspect-video">
+                  <video
+                    ref={videoRef}
+                    className="absolute inset-0 w-full h-full object-cover"
+                    controls
+                    playsInline
+                    preload="auto"
+                    onLoadedMetadata={onVideoLoadedMetadata}
+                    onTimeUpdate={onVideoTimeUpdate}
+                    onEnded={onVideoEnded}
+                    style={{ filter: "contrast(1.05) brightness(0.9) saturate(1.15)" }}
+                  >
+                    <source src={episodeVideoUrl} type="video/mp4" />
+                  </video>
 
-                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
+                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
 
-                <div
-                  className="pointer-events-none absolute inset-0 bg-black transition-opacity duration-700"
-                  style={{ opacity: resumeOverlay ? 1 : 0 }}
-                />
+                  <div
+                    className="pointer-events-none absolute inset-0 bg-black transition-opacity duration-700"
+                    style={{ opacity: resumeOverlay ? 1 : 0 }}
+                  />
 
-                {quizOpen && currentQuestion ? (
-                  <div className="absolute inset-0 flex items-center justify-center p-4">
-                    <div className="w-full max-w-xl rounded-2xl border border-cyan-400/20 bg-zinc-950/80 backdrop-blur-md p-6 shadow-2xl">
-                      <div className="flex items-start gap-3">
-                        <AudioButton text={currentQuestion.question} />
-                        <div className="min-w-0 flex-1">
-                          <p className="text-xs text-cyan-200/90 font-bold tracking-widest uppercase">Sincronia Neural</p>
-                          <p className="text-base font-semibold text-white mt-2 leading-relaxed">{currentQuestion.question}</p>
+                  {quizOpen && currentQuestion ? (
+                    <div className="absolute inset-0 flex items-center justify-center p-4">
+                      <div className="w-full max-w-xl rounded-2xl border border-cyan-400/20 bg-zinc-950/80 backdrop-blur-md p-6 shadow-2xl">
+                        <div className="flex items-start gap-3">
+                          <AudioButton text={currentQuestion.question} />
+                          <div className="min-w-0 flex-1">
+                            <p className="text-xs text-cyan-200/90 font-bold tracking-widest uppercase">Sincronia Neural</p>
+                            <p className="text-base font-semibold text-white mt-2 leading-relaxed">{currentQuestion.question}</p>
+                          </div>
                         </div>
-                      </div>
 
-                      <div className="mt-4 space-y-2">
-                        {currentQuestion.options.map((opt) => {
-                          const active = selected === opt;
-                          return (
-                            <button
-                              key={opt}
-                              type="button"
-                              onClick={() => setSelected(opt)}
-                              className={`w-full text-left px-4 py-3 rounded-xl border transition ${
-                                active ? "border-cyan-400/45 bg-cyan-500/10" : "border-white/10 bg-white/5 hover:border-cyan-400/25"
-                              }`}
-                            >
-                              <span className="text-sm text-white">{opt}</span>
-                            </button>
-                          );
-                        })}
-                      </div>
+                        <div className="mt-4 space-y-2">
+                          {currentQuestion.options.map((opt) => {
+                            const active = selected === opt;
+                            return (
+                              <button
+                                key={opt}
+                                type="button"
+                                onClick={() => setSelected(opt)}
+                                className={`w-full text-left px-4 py-3 rounded-xl border transition ${
+                                  active ? "border-cyan-400/45 bg-cyan-500/10" : "border-white/10 bg-white/5 hover:border-cyan-400/25"
+                                }`}
+                              >
+                                <span className="text-sm text-white">{opt}</span>
+                              </button>
+                            );
+                          })}
+                        </div>
 
-                      <div className="mt-5 flex items-center justify-between gap-3">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setQuizOpen(false);
-                            const v = videoRef.current;
-                            if (v) void v.play();
-                          }}
-                          className="px-4 py-3 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-semibold transition"
-                        >
-                          Pular
-                        </button>
-                        <button
-                          type="button"
-                          onClick={confirmQuiz}
-                          disabled={!selected}
-                          className="px-5 py-3 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/25 disabled:opacity-40 disabled:hover:bg-cyan-500/20 text-cyan-100 font-bold transition border border-cyan-400/25"
-                        >
-                          Confirmar
-                        </button>
-                      </div>
+                        <div className="mt-5 flex items-center justify-between gap-3">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setQuizOpen(false);
+                              const v = videoRef.current;
+                              if (v) void v.play();
+                            }}
+                            className="px-4 py-3 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-semibold transition"
+                          >
+                            Pular
+                          </button>
+                          <button
+                            type="button"
+                            onClick={confirmQuiz}
+                            disabled={!selected}
+                            className="px-5 py-3 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/25 disabled:opacity-40 disabled:hover:bg-cyan-500/20 text-cyan-100 font-bold transition border border-cyan-400/25"
+                          >
+                            Confirmar
+                          </button>
+                        </div>
 
-                      {loading ? <p className="mt-4 text-xs text-zinc-400">Gerando perguntas...</p> : null}
+                        {loading ? <p className="mt-4 text-xs text-zinc-400">Gerando perguntas...</p> : null}
+                      </div>
                     </div>
-                  </div>
-                ) : null}
+                  ) : null}
+                </div>
               </div>
-            </div>
+            ) : (
+              <div className="w-full rounded-2xl border border-white/10 bg-black/50 p-5 md:p-6">
+                <p className="text-xs font-extrabold tracking-widest text-cyan-200/90 uppercase">Interação com NEXUS</p>
+                <h3 className="mt-2 text-xl font-extrabold text-white">{episodeTitle}</h3>
+                {episodeDescription ? <p className="mt-1 text-sm text-zinc-400">{episodeDescription}</p> : null}
+
+                <div className="mt-5 h-[320px] overflow-y-auto space-y-3 pr-1">
+                  {chatMessages.map((m, idx) => (
+                    <div key={`${m.role}-${idx}`} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
+                      <div className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm ${m.role === "user" ? "bg-cyan-500/20 text-cyan-50" : "bg-white/10 text-white"}`}>
+                        {m.content}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {chatError ? <p className="mt-3 text-xs text-red-300">{chatError}</p> : null}
+
+                <div className="mt-4 flex items-end gap-3">
+                  <textarea
+                    value={chatInput}
+                    onChange={(e) => setChatInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && !e.shiftKey) {
+                        e.preventDefault();
+                        void sendNexusMessage();
+                      }
+                    }}
+                    placeholder="Digite sua mensagem para o NEXUS..."
+                    className="flex-1 min-h-[50px] max-h-28 resize-none rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-zinc-500 focus:outline-none"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => { void sendNexusMessage(); }}
+                    disabled={chatSending || !chatInput.trim()}
+                    className="px-5 py-3 rounded-xl bg-cyan-500/20 border border-cyan-400/30 text-cyan-100 font-bold disabled:opacity-50"
+                  >
+                    {chatSending ? "Enviando..." : "Enviar"}
+                  </button>
+                </div>
+
+                <div className="mt-4 flex items-center justify-between rounded-xl border border-white/10 bg-white/5 px-4 py-3">
+                  <p className="text-xs text-zinc-300">
+                    Recompensa ao concluir interação: <span className="font-extrabold text-cyan-200">{currentXp} XP</span>
+                  </p>
+                  <button
+                    type="button"
+                    onClick={completeChatInteraction}
+                    disabled={chatCompleted || !chatMessages.some((m) => m.role === "assistant" && m.content.trim())}
+                    className="px-4 py-2 rounded-lg bg-cyan-500/20 border border-cyan-400/30 text-cyan-100 text-xs font-bold disabled:opacity-50"
+                  >
+                    {chatCompleted ? "XP creditado" : "Concluir interação"}
+                  </button>
+                </div>
+              </div>
+            )}
 
             <div className="mt-4 flex items-center justify-between">
               <div>
@@ -616,15 +822,28 @@ function PlayerContent() {
                   {episodeTitle}
                 </p>
                 {episodeDescription ? <p className="text-sm text-zinc-400 mt-1">{episodeDescription}</p> : null}
+                <p className="text-[11px] text-zinc-500 mt-2">
+                  Mentor {agentLabel} • {currentXp} XP
+                </p>
               </div>
               <div className="text-right">
                 <p className="text-[11px] text-zinc-400 font-bold tracking-widest uppercase">Progresso</p>
                 <p className="text-sm font-extrabold text-white">{portalProgressPct}%</p>
+                {nextEpisode ? (
+                  <a
+                    href={`/player?episode=${encodeURIComponent(nextEpisode.id)}`}
+                    className="mt-2 inline-block text-[11px] font-bold text-cyan-200/90 hover:text-cyan-100 transition"
+                  >
+                    Próximo: {nextEpisode.id}
+                  </a>
+                ) : null}
               </div>
             </div>
           </div>
         </div>
       ) : null}
+
+      {showAdPlacement ? <AdPlacement onClose={closeAdPlacement} nextEpisodeHref={nextEpisodeHrefForAd} /> : null}
     </div>
   );
 }

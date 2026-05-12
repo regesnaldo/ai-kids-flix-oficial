@@ -18,7 +18,7 @@ export const agentsShowcase: AgentShowcase[] = [
     categoryColor: "#8b5cf6",
     description:
       "Conecta ideias, pessoas e conhecimentos. O cérebro central que orquestra tudo.",
-    image: "/agents/nexus.png",
+    image: "/images/agentes/nexus.png",
     themeGlow: "#8b5cf6",
   },
   {
@@ -29,7 +29,7 @@ export const agentsShowcase: AgentShowcase[] = [
     categoryColor: "#f97316",
     description:
       "Carrega de energia e motivação. Transforma dúvida em ação imediata.",
-    image: "/agents/volt.png",
+    image: "/images/agentes/volt.png",
     themeGlow: "#f97316",
   },
   {
@@ -40,7 +40,7 @@ export const agentsShowcase: AgentShowcase[] = [
     categoryColor: "#06b6d4",
     description:
       "Vê os dois lados de tudo. Mestre em debate e pensamento crítico.",
-    image: "/agents/janus.png",
+    image: "/images/agentes/janus.png",
     themeGlow: "#06b6d4",
   },
   {
@@ -51,7 +51,7 @@ export const agentsShowcase: AgentShowcase[] = [
     categoryColor: "#3b82f6",
     description:
       "Planeja três passos à frente. Transforma caos em plano de ação.",
-    image: "/agents/stratos.png",
+    image: "/images/agentes/stratos.png",
     themeGlow: "#3b82f6",
   },
   {
@@ -61,7 +61,7 @@ export const agentsShowcase: AgentShowcase[] = [
     category: "INOVAÇÃO",
     categoryColor: "#ef4444",
     description: "Quebra regras e padrões. Criatividade sem limites nem filtros.",
-    image: "/agents/kaos.png",
+    image: "/images/agentes/kaos.png",
     themeGlow: "#ef4444",
   },
   {
@@ -72,7 +72,7 @@ export const agentsShowcase: AgentShowcase[] = [
     categoryColor: "#10b981",
     description:
       "Guarda moral do time. Questiona consequências e responsabilidades.",
-    image: "/agents/ethos.png",
+    image: "/images/agentes/ethos.png",
     themeGlow: "#10b981",
   },
   {
@@ -83,7 +83,7 @@ export const agentsShowcase: AgentShowcase[] = [
     categoryColor: "#ec4899",
     description:
       "Transforma dados em arte. Narrativa, música e expressão visual.",
-    image: "/agents/lyra.png",
+    image: "/images/agentes/lyra.png",
     themeGlow: "#ec4899",
   },
   {
@@ -94,7 +94,7 @@ export const agentsShowcase: AgentShowcase[] = [
     categoryColor: "#6366f1",
     description:
       "Precisão matemática absoluta. Zero margem para erro ou ambiguidade.",
-    image: "/agents/axiom.png",
+    image: "/images/agentes/axiom.png",
     themeGlow: "#6366f1",
   },
   {
@@ -105,7 +105,7 @@ export const agentsShowcase: AgentShowcase[] = [
     categoryColor: "#a855f7",
     description:
       "Enxerga o futuro antes de todos. Tendências, padrões e previsões.",
-    image: "/agents/aurora.png",
+    image: "/images/agentes/aurora.png",
     themeGlow: "#a855f7",
   },
   {
@@ -116,7 +116,7 @@ export const agentsShowcase: AgentShowcase[] = [
     categoryColor: "#14b8a6",
     description:
       "Protege, encripta e desvenda. Mestre em segurança e privacidade.",
-    image: "/agents/cipher.png",
+    image: "/images/agentes/cipher.png",
     themeGlow: "#14b8a6",
   },
   {
@@ -127,7 +127,7 @@ export const agentsShowcase: AgentShowcase[] = [
     categoryColor: "#22c55e",
     description:
       "Conecta tecnologia com natureza. Equilíbrio e sustentabilidade.",
-    image: "/agents/terra.png",
+    image: "/images/agentes/terra.png",
     themeGlow: "#22c55e",
   },
   {
@@ -138,7 +138,7 @@ export const agentsShowcase: AgentShowcase[] = [
     categoryColor: "#f59e0b",
     description:
       "Decompõe a luz em espectro. Análise profunda e multidimensional.",
-    image: "/agents/prism.png",
+    image: "/images/agentes/prism.png",
     themeGlow: "#f59e0b",
   },
 ];

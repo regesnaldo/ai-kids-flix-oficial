@@ -46,11 +46,11 @@ export function useChatHistory(
 ) {
   const {
     maxMessages = 20,
-    storageKeyPrefix = 'mente-ai-chat',
+    storageKeyPrefix = 'chat_history',
   } = options;
 
   const storageKey = useMemo(
-    () => `${storageKeyPrefix}-${agentId}`,
+    () => `${storageKeyPrefix}_${agentId}`,
     [agentId, storageKeyPrefix],
   );
 

@@ -1,157 +1,729 @@
-'use client';
+"use client";
+import { useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
+import Image from "next/image";
+import { sendMessageToNexus } from "@/lib/api";
+import NexusPanel from "@/components/NexusPanel";
+import AgentCard from "@/components/agents/AgentCard";
+import ExplorationRow from "@/components/home/ExplorationRow";
+import JourneyCard from "@/components/home/JourneyCard";
+import CategoryCard from "@/components/home/CategoryCard";
+import AgentPairingCard from "@/components/home/AgentPairingCard";
+import { agentsShowcase } from "@/data/agents-showcase";
+import { allAgents } from "@/data/all-agents";
 
-import Image from 'next/image';
-import Link from 'next/link';
-import { useRef, useState } from 'react';
-import HeroBanner from '@/components/home/HeroBanner';
-import AgentRow from '@/components/home/AgentRow';
-import AgentDetailModal from '@/components/home/AgentDetailModal';
-import InfoModal from '@/components/home/InfoModal';
-import { allAgents, AGENT_ROWS } from '@/data/all-agents';
-import type { HomeAgent } from '@/data/all-agents';
-import { CATALOG } from '@/constants/catalog';
+const sidebarItems = [
+  { name: "Início", href: "/home" },
+  { name: "Séries", href: "/aulas" },
+  { name: "Explorar", href: "/explorar" },
+  { name: "Temas", href: "/temas" },
+  { name: "Minha Jornada", href: "/perfil" },
+  { name: "Agentes IA", href: "/agentes" },
+];
 
-function SeasonRow() {
-  const rowRef = useRef<HTMLDivElement>(null);
-  const phase = CATALOG.find((p) => p.id === 1) ?? CATALOG[0];
-  const seasons = phase?.seasons ?? [];
-
-  const scroll = (dir: 'left' | 'right') => {
-    rowRef.current?.scrollBy({
-      left: dir === 'left' ? -520 : 520,
-      behavior: 'smooth',
-    });
-  };
-
-  if (seasons.length === 0) return null;
-
+function SidebarItem({ item, isActive }: { item: typeof sidebarItems[0]; isActive: boolean }) {
   return (
-    <div className="relative group/row mb-2">
-      <div className="flex items-end justify-between px-4 md:px-12 mb-4">
-        <h2 className="text-xl md:text-2xl font-bold text-white">
-          {phase ? `Fase ${phase.id}: ${phase.name}` : 'Temporadas'}
-        </h2>
-        <Link
-          href="/explorar"
-          className="text-xs font-semibold text-zinc-400 hover:text-white transition-colors"
-        >
-          Explorar →
-        </Link>
+    <Link href={item.href} style={{ textDecoration: 'none' }}>
+      <div style={{
+        padding: '12px 16px',
+        color: isActive ? '#8B5CF6' : '#fff',
+        backgroundColor: isActive ? 'rgba(139, 92, 246, 0.1)' : 'transparent',
+        cursor: 'pointer',
+        marginBottom: '4px'
+      }}>
+        {item.name}
       </div>
-
-      <button
-        type="button"
-        aria-label="Rolar temporadas para a esquerda"
-        onClick={() => scroll('left')}
-        className="
-          absolute left-0 top-8 bottom-8 z-20 w-12
-          bg-gradient-to-r from-zinc-950 to-transparent
-          flex items-center justify-center
-          opacity-0 group-hover/row:opacity-100
-          transition-opacity duration-200
-          hover:from-black
-        "
-      >
-        <span className="text-white text-3xl leading-none">‹</span>
-      </button>
-
-      <button
-        type="button"
-        aria-label="Rolar temporadas para a direita"
-        onClick={() => scroll('right')}
-        className="
-          absolute right-0 top-8 bottom-8 z-20 w-12
-          bg-gradient-to-l from-zinc-950 to-transparent
-          flex items-center justify-center
-          opacity-0 group-hover/row:opacity-100
-          transition-opacity duration-200
-          hover:from-black
-        "
-      >
-        <span className="text-white text-3xl leading-none">›</span>
-      </button>
-
-      <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-zinc-950 to-transparent z-10" />
-      <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-zinc-950 to-transparent z-10" />
-
-      <div ref={rowRef} className="flex gap-3 overflow-x-auto scrollbar-hide px-4 md:px-12 pb-3">
-        {seasons.map((s) => (
-          <Link
-            key={s.id}
-            href={`/explorar?season=${encodeURIComponent(s.id)}`}
-            className="relative group/card flex-none w-44"
-          >
-            <div className="relative aspect-[2/3] rounded-lg overflow-hidden border border-white/10 bg-zinc-900/40 group-hover/card:border-cyan-400/30 transition-colors">
-              <Image
-                src={s.coverImageUrl}
-                alt={s.title}
-                fill
-                sizes="176px"
-                className="object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/55 to-transparent" />
-              <div className="absolute inset-0 opacity-[0.22]" style={{ background: 'radial-gradient(circle at 30% 10%, rgba(0,240,255,0.22), transparent 55%)' }} />
-
-              <div className="absolute bottom-0 left-0 right-0 p-3">
-                <p className="text-xs text-zinc-300/80 font-bold uppercase tracking-widest mb-1">
-                  Temporada {String(s.number).padStart(2, '0')}
-                </p>
-                <p className="text-sm font-extrabold text-white leading-tight line-clamp-2">
-                  {s.title}
-                </p>
-                <div className="mt-3 h-[3px] w-full bg-white/10 rounded-full overflow-hidden">
-                  <div className="h-full" style={{ width: '5%', background: '#00F0FF' }} />
-                </div>
-              </div>
-            </div>
-          </Link>
-        ))}
-      </div>
-    </div>
+    </Link>
   );
 }
+
+
+
+
+
+// Journey definitions
+const journeys = [
+  {
+    id: "fundamentos",
+    title: "Fundamentos de IA",
+    description: "Aprenda os conceitos essenciais que formam a base de toda IA moderna.",
+    level: "Iniciante",
+    color: "#3B82F6",
+  },
+  {
+    id: "criatividade",
+    title: "Criatividade Radical",
+    description: "Desbloqueie seu potencial criativo com agentes especializados em inovação.",
+    level: "Intermediário",
+    color: "#E50914",
+  },
+  {
+    id: "etica",
+    title: "IA Ética e Responsável",
+    description: "Explore os desafios éticos e responsabilidades do desenvolvimento de IA.",
+    level: "Avançado",
+    color: "#8B5CF6",
+  },
+  {
+    id: "estrategia",
+    title: "Estratégia e Planejamento",
+    description: "Domine o pensamento estratégico aplicado a sistemas de IA complexos.",
+    level: "Avançado",
+    color: "#10B981",
+  },
+];
+
+// Agent pairings
+const pairings = [
+  {
+    agent1Id: "nexus",
+    agent2Id: "kaos",
+    title: "Criatividade Estruturada",
+    description: "A combinação perfeita entre conectividade e disrupção. Crie ideias revolucionárias dentro de estruturas sólidas.",
+  },
+  {
+    agent1Id: "aurora",
+    agent2Id: "ethos",
+    title: "Visão Ética",
+    description: "Clareza e responsabilidade caminham juntas. Veja o futuro com consciência moral.",
+  },
+  {
+    agent1Id: "volt",
+    agent2Id: "axiom",
+    title: "Energia Precisa",
+    description: "Motivação aliada à lógica pura. Transforme determinação em resultados exatos.",
+  },
+  {
+    agent1Id: "cipher",
+    agent2Id: "lyra",
+    title: "Análise Harmoniosa",
+    description: "Decodifique padrões complexos com elegância. Faça a análise tão bela quanto é precisa.",
+  },
+];
 
 export default function HomePage() {
-  const [selectedAgent, setSelectedAgent] = useState<HomeAgent | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isInfoOpen, setIsInfoOpen] = useState(false);
+  const router = useRouter();
+  const [nexusInput, setNexusInput] = useState('');
+  const [nexusResponse, setNexusResponse] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleOpenModal = (agent: HomeAgent) => {
-    setSelectedAgent(agent);
-    setIsModalOpen(true);
+  const sendToNexus = async (message: string) => {
+    if (!message.trim()) return;
+    setIsLoading(true);
+    setNexusResponse('');
+    try {
+      const data = await sendMessageToNexus(message);
+      setNexusResponse(data.reply);
+    } catch (error) {
+      setNexusResponse('Error: Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setTimeout(() => setSelectedAgent(null), 300);
-  };
+  // Group agents by category
+  const agentsByCategory: { [key: string]: typeof allAgents } = {};
+  allAgents.forEach((agent) => {
+    if (!agentsByCategory[agent.category]) {
+      agentsByCategory[agent.category] = [];
+    }
+    agentsByCategory[agent.category].push(agent);
+  });
+
+  // Get top categories
+  const topCategories = [
+    "Fundamentos",
+    "Inovação",
+    "Ética",
+    "Análise",
+    "Estratégia",
+  ].filter((cat) => agentsByCategory[cat]);
+
+  // Get agents for pairings
+  const getPairingAgents = (id: string) =>
+    allAgents.find((a) => a.id === id);
 
   return (
-    <main className="min-h-screen bg-zinc-950">
-      <HeroBanner onInfoClick={() => setIsInfoOpen(true)} />
+    <div style={{
+      display: 'flex',
+      minHeight: '100vh',
+      background: '#0a0a1a',
+      fontFamily: 'Arial, sans-serif'
+    }}>
+      {/* Sidebar */}
+      <div style={{
+        width: '240px',
+        background: '#1a1a2e',
+        padding: '20px 0',
+        position: 'fixed',
+        height: '100vh'
+      }}>
+        <div style={{ padding: '0 20px 20px', borderBottom: '1px solid #333' }}>
+          <div style={{ color: '#fff', fontSize: '24px', fontWeight: 'bold' }}>
+            MENTE.AI
+          </div>
+        </div>
+        <nav style={{ padding: '20px 0' }}>
+          {sidebarItems.map((item) => (
+            <SidebarItem key={item.name} item={item} isActive={item.name === 'Início'} />
+          ))}
+        </nav>
+      </div>
 
-      <section className="-mt-20 relative z-20 pb-24 pt-4 space-y-8" aria-label="Catálogo">
-        <SeasonRow />
+      {/* Main Content */}
+      <div style={{
+        flex: 1,
+        marginLeft: '240px',
+        padding: '40px'
+      }}>
+        {/* Hero Section - Cinematic */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          style={{
+            minHeight: '60vh',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            textAlign: 'center',
+            position: 'relative',
+            background: 'radial-gradient(circle at center, rgba(59, 130, 246, 0.1) 0%, transparent 70%)',
+            borderRadius: '20px',
+            padding: '120px 40px'
+          }}
+        >
+          {/* NEXUS Image with Glow */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5, delay: 0.2, ease: "easeOut" }}
+            style={{
+              position: 'relative',
+              marginBottom: '40px'
+            }}
+          >
+            <motion.div
+              animate={{ opacity: [0.7, 1, 0.7] }}
+              transition={{ duration: 2.5, repeat: Infinity }}
+              style={{
+                position: 'absolute',
+                inset: '-20px',
+                background: 'radial-gradient(circle, rgba(59, 130, 246, 0.5), transparent)',
+                borderRadius: '50%',
+                filter: 'blur(20px)',
+                zIndex: 0
+              }}
+            />
+            <div style={{
+              position: 'relative',
+              zIndex: 1,
+              width: '300px',
+              height: '300px',
+              borderRadius: '50%',
+              overflow: 'hidden',
+              border: '2px solid rgba(59, 130, 246, 0.5)',
+              boxShadow: '0 0 40px rgba(59, 130, 246, 0.4)'
+            }}>
+              <Image
+                src="/images/agentes/nexus.png"
+                alt="NEXUS - O Conector"
+                width={300}
+                height={300}
+                priority
+                style={{ objectFit: 'cover' }}
+              />
+            </div>
+          </motion.div>
 
-        {AGENT_ROWS.map((row) => (
-          <AgentRow
-            key={row.title}
-            title={row.title}
-            agents={row.agents}
-            onAgentClick={handleOpenModal}
-          />
-        ))}
+          {/* Hero Text */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.4, ease: "easeOut" }}
+            style={{ maxWidth: '600px' }}
+          >
+            <h1 style={{
+              fontSize: '3.5rem',
+              fontWeight: 'bold',
+              color: '#fff',
+              margin: '0 0 20px',
+              lineHeight: 1.2
+            }}>
+              Onde mentes são formadas, não formatadas
+            </h1>
+            <p style={{
+              fontSize: '1.3rem',
+              color: '#a0aec0',
+              margin: '0 0 40px',
+              lineHeight: 1.6
+            }}>
+              NEXUS conecta você ao conhecimento infinito dos agentes de IA. Cada um uma perspectiva única no universo do aprendizado.
+            </p>
+            <div style={{ display: 'flex', gap: '20px', justifyContent: 'center' }}>
+              <button
+                onClick={() => router.push('/agentes')}
+                style={{
+                  padding: '14px 32px',
+                  background: 'linear-gradient(135deg, #3B82F6, #1d4ed8)',
+                  border: 'none',
+                  borderRadius: '8px',
+                  color: '#fff',
+                  fontSize: '1.1rem',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  boxShadow: '0 0 20px rgba(59, 130, 246, 0.4)',
+                  transition: 'all 0.3s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.boxShadow = '0 0 30px rgba(59, 130, 246, 0.6)';
+                  e.currentTarget.style.transform = 'scale(1.05)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.boxShadow = '0 0 20px rgba(59, 130, 246, 0.4)';
+                  e.currentTarget.style.transform = 'scale(1)';
+                }}
+              >
+                Conhecer os Agentes
+              </button>
+              <button
+                onClick={() => router.push('/perfil')}
+                style={{
+                  padding: '14px 32px',
+                  background: 'transparent',
+                  border: '2px solid rgba(59, 130, 246, 0.6)',
+                  borderRadius: '8px',
+                  color: '#3B82F6',
+                  fontSize: '1.1rem',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 1)';
+                  e.currentTarget.style.background = 'rgba(59, 130, 246, 0.1)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.6)';
+                  e.currentTarget.style.background = 'transparent';
+                }}
+              >
+                Minha Jornada
+              </button>
+            </div>
+          </motion.div>
 
-        <AgentRow
-          title="Todos os Agentes"
-          agents={allAgents}
-          onAgentClick={handleOpenModal}
-        />
-      </section>
+          {/* NEXUS Chat Input */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.6, ease: "easeOut" }}
+            style={{
+              width: '100%',
+              maxWidth: '500px',
+              marginTop: '40px',
+            }}
+          >
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <input
+                type="text"
+                value={nexusInput}
+                onChange={(e) => setNexusInput(e.target.value)}
+                placeholder="Pergunte algo ao NEXUS..."
+                disabled={isLoading}
+                style={{
+                  flex: 1,
+                  padding: '12px 16px',
+                  borderRadius: '8px',
+                  border: '1px solid rgba(59, 130, 246, 0.5)',
+                  background: 'rgba(59, 130, 246, 0.05)',
+                  color: '#fff',
+                  fontSize: '14px',
+                  outline: 'none',
+                  transition: 'all 0.3s ease',
+                }}
+                onFocus={(e) => {
+                  e.currentTarget.style.borderColor = '#3B82F6';
+                  e.currentTarget.style.background = 'rgba(59, 130, 246, 0.1)';
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.5)';
+                  e.currentTarget.style.background = 'rgba(59, 130, 246, 0.05)';
+                }}
+              />
+              <button
+                onClick={() => sendToNexus(nexusInput)}
+                disabled={isLoading || !nexusInput.trim()}
+                style={{
+                  padding: '12px 20px',
+                  background: '#3B82F6',
+                  border: 'none',
+                  borderRadius: '8px',
+                  color: '#fff',
+                  cursor: isLoading ? 'not-allowed' : 'pointer',
+                  opacity: isLoading ? 0.5 : 1,
+                  transition: 'all 0.3s ease',
+                }}
+              >
+                {isLoading ? '...' : 'Enviar'}
+              </button>
+            </div>
+          </motion.div>
+        </motion.div>
 
-      <AgentDetailModal agent={selectedAgent} isOpen={isModalOpen} onClose={handleCloseModal} />
+        {/* SECTION 2: Featured Agent Council */}
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2, ease: "easeOut" }}
+          style={{ marginTop: '80px' }}
+        >
+          <h2 style={{
+            color: '#fff',
+            fontSize: '24px',
+            marginBottom: '8px',
+            fontWeight: '700'
+          }}>
+            O Conselho de Mentores
+          </h2>
+          <p style={{
+            color: 'rgba(255,255,255,0.5)',
+            fontSize: '14px',
+            marginBottom: '32px'
+          }}>
+            Os 12 arquétipos que moldam o universo MENTE.AI
+          </p>
 
-      <InfoModal isOpen={isInfoOpen} onClose={() => setIsInfoOpen(false)} />
-    </main>
+          <div style={{
+            display: 'flex',
+            overflowX: 'auto',
+            gap: '24px',
+            paddingRight: '24px',
+            scrollPaddingRight: '24px',
+            paddingBottom: '20px',
+            scrollBehavior: 'smooth',
+            scrollSnapType: 'x mandatory'
+          }}>
+          <AnimatePresence>
+            {agentsShowcase.slice(0, 12).map((agent, index) => (
+              <motion.div
+                key={agent.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.1 * index }}
+              >
+                <AgentCard agent={agent} />
+              </motion.div>
+            ))}
+          </AnimatePresence>
+          </div>
+        </motion.div>
+
+        {/* SECTION 3: Journey Pathways */}
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.4, ease: "easeOut" }}
+          style={{ marginTop: '80px' }}
+        >
+          <h2 style={{
+            color: '#fff',
+            fontSize: '24px',
+            marginBottom: '8px',
+            fontWeight: '700'
+          }}>
+            Suas Jornadas de Aprendizado
+          </h2>
+          <p style={{
+            color: 'rgba(255,255,255,0.5)',
+            fontSize: '14px',
+            marginBottom: '32px'
+          }}>
+            Caminhos personalizados para sua evolução
+          </p>
+
+          <div style={{
+            display: 'flex',
+            overflowX: 'auto',
+            gap: '24px',
+            paddingBottom: '20px',
+            scrollBehavior: 'smooth',
+            scrollSnapType: 'x mandatory'
+          }}>
+            <AnimatePresence>
+              {journeys.map((journey, index) => (
+                <motion.div
+                  key={journey.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: 0.1 * index }}
+                >
+                  <JourneyCard {...journey} />
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </div>
+        </motion.div>
+
+        {/* SECTION 4: Continue Your Journey */}
+        <ExplorationRow
+          title="Continue de Onde Parou"
+          subtitle="Sua progressão aguarda"
+          delay={0.6}
+        >
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0 }}
+            style={{
+              padding: '32px',
+              background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(59, 130, 246, 0.1))',
+              border: '1px solid rgba(139, 92, 246, 0.3)',
+              borderRadius: '12px',
+              textAlign: 'center',
+              gridColumn: '1 / -1'
+            }}
+          >
+            <h3 style={{
+              color: '#fff',
+              fontSize: '1.3rem',
+              fontWeight: '600',
+              margin: '0 0 12px'
+            }}>
+              Comece sua primeira jornada
+            </h3>
+            <p style={{
+              color: '#a0aec0',
+              fontSize: '1rem',
+              margin: '0 0 20px',
+              lineHeight: 1.6
+            }}>
+              Escolha uma jornada acima para começar a explorar o universo MENTE.AI e conectar-se com agentes que transformarão sua maneira de aprender.
+            </p>
+            <button
+              onClick={() => router.push('/aulas')}
+              style={{
+                padding: '12px 24px',
+                background: '#8B5CF6',
+                border: 'none',
+                borderRadius: '8px',
+                color: '#fff',
+                fontSize: '1rem',
+                fontWeight: '600',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.opacity = '0.9';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.opacity = '1';
+              }}
+            >
+              Explorar Jornadas
+            </button>
+          </motion.div>
+        </ExplorationRow>
+
+        {/* SECTION 5: Agent Universes */}
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.8, ease: "easeOut" }}
+          style={{ marginTop: '80px' }}
+        >
+          <h2 style={{
+            color: '#fff',
+            fontSize: '24px',
+            marginBottom: '8px',
+            fontWeight: '700'
+          }}>
+            Explore por Domínio
+          </h2>
+          <p style={{
+            color: 'rgba(255,255,255,0.5)',
+            fontSize: '14px',
+            marginBottom: '32px'
+          }}>
+            Escolha um universo e mergulhe em suas profundezas
+          </p>
+
+          <div style={{
+            display: 'flex',
+            overflowX: 'auto',
+            gap: '24px',
+            paddingBottom: '20px',
+            scrollBehavior: 'smooth',
+            scrollSnapType: 'x mandatory'
+          }}>
+            <AnimatePresence>
+              {topCategories.map((category, index) => (
+                <motion.div
+                  key={category}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: 0.1 * index }}
+                >
+                  <CategoryCard
+                    categoryName={category}
+                    agents={agentsByCategory[category] || []}
+                    agentCount={agentsByCategory[category]?.length || 0}
+                    color={agentsByCategory[category]?.[0]?.color || '#3B82F6'}
+                  />
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </div>
+        </motion.div>
+
+        {/* SECTION 6: Discovery Zone */}
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 1.0, ease: "easeOut" }}
+          style={{ marginTop: '80px' }}
+        >
+          <h2 style={{
+            color: '#fff',
+            fontSize: '24px',
+            marginBottom: '8px',
+            fontWeight: '700'
+          }}>
+            Descubra Conexões
+          </h2>
+          <p style={{
+            color: 'rgba(255,255,255,0.5)',
+            fontSize: '14px',
+            marginBottom: '32px'
+          }}>
+            Agentes que se complementam
+          </p>
+
+          <div style={{
+            display: 'flex',
+            overflowX: 'auto',
+            gap: '24px',
+            paddingBottom: '20px',
+            scrollBehavior: 'smooth',
+            scrollSnapType: 'x mandatory'
+          }}>
+            <AnimatePresence>
+              {pairings.map((pairing, index) => {
+                const agent1 = getPairingAgents(pairing.agent1Id);
+                const agent2 = getPairingAgents(pairing.agent2Id);
+                if (!agent1 || !agent2) return null;
+
+                return (
+                  <motion.div
+                    key={`${pairing.agent1Id}-${pairing.agent2Id}`}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, delay: 0.1 * index }}
+                  >
+                    <AgentPairingCard
+                      agent1={agent1}
+                      agent2={agent2}
+                      title={pairing.title}
+                      description={pairing.description}
+                    />
+                  </motion.div>
+                );
+              })}
+            </AnimatePresence>
+          </div>
+        </motion.div>
+
+        {/* SECTION 7: CTA Zone */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5, delay: 1.2, ease: "easeOut" }}
+          style={{
+            marginTop: '80px',
+            padding: '60px 40px',
+            background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(59, 130, 246, 0.1))',
+            border: '1px solid rgba(139, 92, 246, 0.3)',
+            borderRadius: '20px',
+            textAlign: 'center',
+            marginBottom: '40px'
+          }}
+        >
+          <h2 style={{
+            color: '#fff',
+            fontSize: '2.5rem',
+            fontWeight: 'bold',
+            margin: '0 0 20px',
+            lineHeight: 1.2
+          }}>
+            Pronto para transformar sua mente?
+          </h2>
+          <p style={{
+            color: '#a0aec0',
+            fontSize: '1.2rem',
+            margin: '0 0 40px',
+            lineHeight: 1.6,
+            maxWidth: '600px',
+            marginLeft: 'auto',
+            marginRight: 'auto'
+          }}>
+            Acesse o conhecimento infinito de 22 agentes especializados. Comece grátis e descubra como a IA pode ampliar suas capacidades.
+          </p>
+          <div style={{ display: 'flex', gap: '20px', justifyContent: 'center' }}>
+            <button
+              onClick={() => router.push('/aulas')}
+              style={{
+                padding: '14px 32px',
+                background: '#8B5CF6',
+                border: 'none',
+                borderRadius: '8px',
+                color: '#fff',
+                fontSize: '1.1rem',
+                fontWeight: '600',
+                cursor: 'pointer',
+                boxShadow: '0 0 20px rgba(139, 92, 246, 0.4)',
+                transition: 'all 0.3s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.boxShadow = '0 0 30px rgba(139, 92, 246, 0.6)';
+                e.currentTarget.style.transform = 'scale(1.05)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.boxShadow = '0 0 20px rgba(139, 92, 246, 0.4)';
+                e.currentTarget.style.transform = 'scale(1)';
+              }}
+            >
+              Comece Grátis
+            </button>
+            <button
+              onClick={() => router.push('/planos')}
+              style={{
+                padding: '14px 32px',
+                background: 'transparent',
+                border: '2px solid rgba(139, 92, 246, 0.6)',
+                borderRadius: '8px',
+                color: '#8B5CF6',
+                fontSize: '1.1rem',
+                fontWeight: '600',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = 'rgba(139, 92, 246, 1)';
+                e.currentTarget.style.background = 'rgba(139, 92, 246, 0.1)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = 'rgba(139, 92, 246, 0.6)';
+                e.currentTarget.style.background = 'transparent';
+              }}
+            >
+              Ver Planos Premium
+            </button>
+          </div>
+        </motion.div>
+      </div>
+
+    </div>
   );
-}
+  }

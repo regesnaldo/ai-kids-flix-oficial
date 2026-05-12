@@ -9,13 +9,19 @@ import type { EmotionResult } from '@/lib/voice/hume';
 
 export type DialogueState = 'initial' | 'responding' | 'awaiting';
 
-interface NexusDialogProps {
-  dialogueState: DialogueState;
-  selectedOption: string | null;
-  onOptionSelect: (option: string) => void;
-  onResponseComplete: () => void;
-  onSpeak: (text: string) => void;
-  isSpeaking: boolean;
+export interface NexusDialogProps {
+  dialogueState: DialogueState
+  selectedOption: string | null
+  onOptionSelect: (option: string) => void
+  onResponseComplete: () => void
+  onSpeak: (text: string) => void
+  isSpeaking: boolean
+  // Novas props adicionadas pela page.tsx
+  audioEnabled: boolean
+  onToggleAudio: () => void
+  firstQuestion: string
+  initialOptions: string[]
+  latestNexusMessage?: string
 }
 
 const DIALOGUE_CONTENT = {
@@ -61,9 +67,20 @@ function ResponseButton({ text, onClick, disabled }: { text: string; onClick: ()
 const NEXUS_AGENT_ID = 'nexus';
 const NEXUS_VOICE_ID = process.env.NEXT_PUBLIC_ELEVENLABS_VOICE_ID_NEXUS ?? '';
 
-export function NexusDialog({ dialogueState, selectedOption, onOptionSelect, onResponseComplete, onSpeak, isSpeaking }: NexusDialogProps) {
+export function NexusDialog({
+  dialogueState,
+  selectedOption,
+  onOptionSelect,
+  onResponseComplete,
+  onSpeak,
+  isSpeaking,
+  audioEnabled,
+  onToggleAudio,
+  firstQuestion,
+  initialOptions,
+  latestNexusMessage,
+}: NexusDialogProps) {
   const [showOptions, setShowOptions] = useState(false);
-  const [audioEnabled, setAudioEnabled] = useState(true);
   const [detectedEmotion, setDetectedEmotion] = useState<EmotionResult | null>(null);
   const [voiceHistory, setVoiceHistory] = useState<Array<{ role: 'user' | 'assistant'; content: string }>>([]);
   const isInitial = dialogueState === 'initial' && !selectedOption;
@@ -94,7 +111,7 @@ export function NexusDialog({ dialogueState, selectedOption, onOptionSelect, onR
     onOptionSelect(`[voz] ${result.userText}`);
   }, [onOptionSelect]);
 
-  const options = Object.keys(DIALOGUE_CONTENT.responses);
+  const options = initialOptions ?? Object.keys(DIALOGUE_CONTENT.responses)
   return (
     <div className="absolute bottom-0 left-0 right-0 p-4 md:p-8 pointer-events-auto">
       <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="max-w-3xl mx-auto">
@@ -117,7 +134,7 @@ export function NexusDialog({ dialogueState, selectedOption, onOptionSelect, onR
                 onError={(msg) => console.warn('[NEXUS] Voz:', msg)}
                 className="text-xs"
               />
-              <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} onClick={() => setAudioEnabled(!audioEnabled)}
+              <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} onClick={onToggleAudio}
                 className={`p-2 rounded-lg transition-colors ${audioEnabled ? 'text-blue-400 hover:bg-blue-500/20' : 'text-gray-500'}`}>
                 {audioEnabled ? <Volume2 size={18} /> : <VolumeX size={18} />}
               </motion.button>

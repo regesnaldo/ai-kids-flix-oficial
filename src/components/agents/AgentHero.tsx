@@ -358,7 +358,7 @@ export default function AgentHero() {
                 {/* Action buttons */}
                 <div className="ah-buttons">
                   <Link
-                    href={`/agente/${agent.id}`}
+                    href={`/agentes/${agent.id}`}
                     className="ah-btn-primary"
                     aria-label={`Iniciar conversa com ${agent.name}`}
                   >

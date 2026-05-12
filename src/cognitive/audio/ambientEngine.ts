@@ -16,6 +16,7 @@ class AmbientEngine {
   private currentEmotion: Emotion = "neutro";
   private listeners = new Set<Listener>();
   private isInitialized = false;
+  private hasUserInteracted = false;
   private synth: Tone.PolySynth | null = null;
   private reverb: Tone.Reverb | null = null;
   private volume: Tone.Volume | null = null;
@@ -24,7 +25,16 @@ class AmbientEngine {
     this.listeners.forEach(fn => fn()); 
   }
 
+  private markUserInteraction = () => {
+    this.hasUserInteracted = true;
+  };
+
   subscribe(listener: Listener) {
+    if (typeof window !== "undefined") {
+      window.addEventListener("pointerdown", this.markUserInteraction, { once: true });
+      window.addEventListener("touchstart", this.markUserInteraction, { once: true });
+      window.addEventListener("keydown", this.markUserInteraction, { once: true });
+    }
     this.listeners.add(listener);
     return () => { 
       this.listeners.delete(listener); 
@@ -37,6 +47,16 @@ class AmbientEngine {
    */
   async initialize() {
     if (this.isInitialized) return true;
+    if (typeof navigator !== "undefined" && "userActivation" in navigator) {
+      const userActivation = (navigator as Navigator & { userActivation?: { hasBeenActive?: boolean } }).userActivation;
+      if (userActivation?.hasBeenActive) {
+        this.hasUserInteracted = true;
+      }
+    }
+    if (!this.hasUserInteracted) {
+      console.warn("🔈 Inicialização de áudio bloqueada até interação do usuário.");
+      return false;
+    }
 
     try {
       // Aguarda o Tone.js estar pronto
@@ -65,7 +85,7 @@ class AmbientEngine {
    * Deve ser chamado APÓS initialize()
    */
   async playEmotion(emotion: Emotion) {
-    if (!this.isInitialized || this.isMuted || !this.synth) {
+    if (!this.hasUserInteracted || !this.isInitialized || this.isMuted || !this.synth) {
       console.warn("Áudio não inicializado ou mutado");
       return;
     }
