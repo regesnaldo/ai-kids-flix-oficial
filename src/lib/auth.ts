@@ -50,7 +50,7 @@ export function setAuthCookie(response: NextResponse, token: string): NextRespon
   response.cookies.set(COOKIE_NAME, token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
+    sameSite: "none",
     maxAge: COOKIE_MAX_AGE_SECONDS,
     path: "/",
   });
@@ -71,7 +71,7 @@ export function clearAuthCookie(response: NextResponse): NextResponse {
     response.cookies.set(cookieName, "", {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+      sameSite: "none",
       maxAge: 0,
       path: "/",
     });
