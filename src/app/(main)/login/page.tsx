@@ -25,7 +25,7 @@ export default function Login() {
       const res = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
       const data = await res.json();
       if (!res.ok) { setErro(data.error || "Erro ao processar."); }
-      else { setSucesso(tab === "entrar" ? "Login realizado!" : "Cadastro realizado!"); setTimeout(() => { window.location.href = "/perfis"; }, 1000); }
+      else { setSucesso(tab === "entrar" ? "Login realizado!" : "Cadastro realizado!"); setTimeout(() => { window.location.href = "/home"; }, 1000); }
     } catch { setErro("Erro de conexao."); } finally { setLoading(false); }
   }
 
