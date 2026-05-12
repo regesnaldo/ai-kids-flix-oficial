@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { ALL_AGENTS } from "@/canon/agents/all-agents";
 
 type AgentSelectorProps = {
@@ -8,43 +9,42 @@ type AgentSelectorProps = {
   onSkip: () => void;
 };
 
-const AGENT_COLORS: Record<string, { bg: string; glow: string; emoji: string }> = {
-  nexus:   { bg: "from-blue-600 to-cyan-500",    glow: "shadow-blue-500/50",   emoji: "🔗" },
-  kaos:    { bg: "from-red-600 to-orange-500",   glow: "shadow-red-500/50",    emoji: "🌀" },
-  cipher:  { bg: "from-green-700 to-emerald-500",glow: "shadow-green-500/50",  emoji: "🔐" },
-  lyra:    { bg: "from-pink-500 to-purple-500",  glow: "shadow-pink-500/50",   emoji: "🎵" },
-  axiom:   { bg: "from-sky-600 to-blue-400",     glow: "shadow-sky-500/50",    emoji: "🔬" },
-  stratos: { bg: "from-slate-600 to-blue-700",   glow: "shadow-slate-500/50",  emoji: "♟️" },
-  terra:   { bg: "from-green-600 to-teal-500",   glow: "shadow-green-500/50",  emoji: "🌿" },
-  prism:   { bg: "from-violet-600 to-fuchsia-500",glow: "shadow-violet-500/50",emoji: "🔮" },
-  janus:   { bg: "from-yellow-500 to-orange-400",glow: "shadow-yellow-500/50", emoji: "🃏" },
-  volt:    { bg: "from-yellow-400 to-amber-500", glow: "shadow-yellow-400/50", emoji: "⚡" },
-  aurora:  { bg: "from-pink-400 to-rose-500",    glow: "shadow-pink-400/50",   emoji: "🌅" },
-  ethos:   { bg: "from-amber-600 to-yellow-500", glow: "shadow-amber-500/50",  emoji: "⚖️" },
+const AGENT_COLORS: Record<string, { glow: string; border: string }> = {
+  nexus:   { glow: "shadow-cyan-500/60",    border: "border-cyan-500/60" },
+  kaos:    { glow: "shadow-red-500/60",     border: "border-red-500/60" },
+  cipher:  { glow: "shadow-emerald-500/60", border: "border-emerald-500/60" },
+  lyra:    { glow: "shadow-pink-500/60",    border: "border-pink-500/60" },
+  axiom:   { glow: "shadow-sky-500/60",     border: "border-sky-500/60" },
+  stratos: { glow: "shadow-slate-400/60",   border: "border-slate-400/60" },
+  terra:   { glow: "shadow-green-500/60",   border: "border-green-500/60" },
+  prism:   { glow: "shadow-violet-500/60",  border: "border-violet-500/60" },
+  janus:   { glow: "shadow-yellow-400/60",  border: "border-yellow-400/60" },
+  volt:    { glow: "shadow-amber-400/60",   border: "border-amber-400/60" },
+  aurora:  { glow: "shadow-rose-400/60",    border: "border-rose-400/60" },
+  ethos:   { glow: "shadow-amber-600/60",   border: "border-amber-600/60" },
 };
 
 export default function AgentSelector({ onSelect, onSkip }: AgentSelectorProps) {
   const [selected, setSelected] = useState<string | null>(null);
-
   const agents = ALL_AGENTS.slice(0, 12);
-
   const selectedAgent = agents.find((a) => a.id === selected);
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] py-12 px-4">
-      <div className="max-w-5xl mx-auto">
+    <div className="min-h-screen bg-[#07070f] py-12 px-4">
+      <div className="max-w-6xl mx-auto">
 
-        <div className="text-center text-white mb-10">
-          <h2 className="text-4xl font-bold mb-3 bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
-            Escolha seu Agente Guia
+        <div className="text-center mb-12">
+          <p className="text-xs tracking-[0.4em] text-cyan-400/70 uppercase mb-3">Metaverso MENTE.AI</p>
+          <h2 className="text-5xl font-black mb-4 text-white">
+            Escolha seu <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-400">Agente Guia</span>
           </h2>
-          <p className="text-lg text-white/60">Quem vai acompanhar sua jornada no metaverso?</p>
+          <p className="text-lg text-white/50">Quem vai acompanhar sua jornada no metaverso?</p>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 mb-10">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 mb-12">
           {agents.map((agent) => {
             const isSelected = selected === agent.id;
-            const colors = AGENT_COLORS[agent.id] ?? { bg: "from-purple-600 to-blue-600", glow: "shadow-purple-500/50", emoji: "🧠" };
+            const colors = AGENT_COLORS[agent.id] ?? { glow: "shadow-purple-500/60", border: "border-purple-500/60" };
 
             return (
               <button
@@ -52,23 +52,30 @@ export default function AgentSelector({ onSelect, onSkip }: AgentSelectorProps) 
                 type="button"
                 onClick={() => setSelected(agent.id)}
                 className={[
-                  "relative rounded-2xl p-[2px] transition-all duration-300 cursor-pointer",
+                  "relative rounded-2xl overflow-hidden transition-all duration-300 cursor-pointer group border",
                   isSelected
-                    ? `bg-gradient-to-br ${colors.bg} shadow-lg ${colors.glow} scale-105`
-                    : "bg-white/10 hover:bg-white/20 hover:scale-102",
+                    ? `${colors.border} shadow-xl ${colors.glow} scale-105`
+                    : "border-white/10 hover:border-white/30 hover:scale-102",
                 ].join(" ")}
               >
-                <div className="bg-[#0f0f1a] rounded-2xl p-4 h-full text-left">
-                  <div className={`h-24 bg-gradient-to-br ${colors.bg} rounded-xl mb-3 flex items-center justify-center shadow-lg ${colors.glow}`}>
-                    <span className="text-4xl">{colors.emoji}</span>
-                  </div>
-                  <h3 className="text-sm font-bold text-white mb-1 truncate">{agent.name}</h3>
-                  <p className="text-xs text-white/50 line-clamp-2">{agent.personality.approach.slice(0, 60)}...</p>
+                <div className="relative h-52 bg-[#0f0f1a]">
+                  <Image
+                    src={`/images/agentes/${agent.id}.png`}
+                    alt={agent.name}
+                    fill
+                    className="object-cover object-top opacity-90 group-hover:opacity-100 transition-opacity duration-300"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#07070f] via-[#07070f]/20 to-transparent" />
                   {isSelected && (
-                    <div className="absolute top-2 right-2 bg-green-500 text-white text-xs px-2 py-0.5 rounded-full font-medium">
-                      ✓
+                    <div className="absolute top-3 right-3 bg-green-500 text-white text-xs px-2 py-1 rounded-full font-bold z-10">
+                      ✓ Selecionado
                     </div>
                   )}
+                </div>
+
+                <div className="p-4 bg-[#0f0f1a]">
+                  <h3 className="text-sm font-bold text-white mb-1 truncate">{agent.name}</h3>
+                  <p className="text-xs text-white/40 line-clamp-2">{agent.personality.approach.slice(0, 70)}...</p>
                 </div>
               </button>
             );
@@ -80,26 +87,20 @@ export default function AgentSelector({ onSelect, onSkip }: AgentSelectorProps) 
             onClick={() => selected && onSelect(selected)}
             disabled={!selected}
             className={[
-              "px-8 py-4 rounded-full font-semibold text-lg transition-all duration-300",
+              "px-10 py-4 rounded-full font-bold text-lg transition-all duration-300",
               selected
-                ? "bg-gradient-to-r from-purple-500 to-cyan-500 text-white hover:scale-105 shadow-lg shadow-purple-500/30"
-                : "bg-white/10 text-white/40 cursor-not-allowed",
+                ? "bg-gradient-to-r from-cyan-500 to-purple-500 text-white hover:scale-105 shadow-lg shadow-purple-500/30"
+                : "bg-white/5 text-white/30 cursor-not-allowed border border-white/10",
             ].join(" ")}
           >
-            {selected ? `Continuar com ${selectedAgent?.name} ✨` : "Selecione um agente"}
+            {selected ? `Entrar com ${selectedAgent?.name} →` : "Selecione um agente"}
           </button>
           <button
             onClick={onSkip}
-            className="px-8 py-4 bg-white/5 border border-white/20 rounded-full font-semibold text-lg hover:bg-white/10 transition text-white/70"
+            className="px-10 py-4 bg-transparent border border-white/20 rounded-full font-semibold text-lg hover:bg-white/5 transition text-white/50"
           >
-            Pular por enquanto
+            Pular
           </button>
-        </div>
-
-        <div className="text-center mt-6">
-          <a href="/agentes" className="text-purple-400/60 hover:text-purple-300 transition text-sm">
-            Ver todos os 12 agentes →
-          </a>
         </div>
 
       </div>
