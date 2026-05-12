@@ -1,5 +1,6 @@
 "use client";
 import { useState, useRef, useCallback } from "react";
+import LabAudioButton from "./LabAudioButton";
 
 interface Alternative { token: string; probability: number; }
 interface TokenStep { token: string; probability: number; alternatives: Alternative[]; tokenIndex: number; }
@@ -15,7 +16,6 @@ export default function TransformerDemo() {
   const [builtText, setBuiltText] = useState("");
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
-  const [audioState, setAudioState] = useState<"idle"|"loading"|"playing">("idle");
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const generate = useCallback(async (text?: string) => {
@@ -52,28 +52,14 @@ export default function TransformerDemo() {
     } catch { setLoading(false); }
   }, [prompt]);
 
-  async function playAudio() {
-    setAudioState("loading");
-    try {
-      const text = "Esta demo mostra como um modelo de linguagem gera texto. A cada passo, o modelo calcula a probabilidade de cada palavra possível e escolhe uma delas. As barras mostram essa probabilidade em tempo real.";
-      const res = await fetch(`/api/tts?text=${encodeURIComponent(text)}`);
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      const audio = new Audio(url);
-      setAudioState("playing");
-      audio.play();
-      audio.onended = () => { setAudioState("idle"); URL.revokeObjectURL(url); };
-    } catch { setAudioState("idle"); }
-  }
-
   return (
     <div style={{ color: "#E2D9F3", fontFamily: "sans-serif" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
         <h3 style={{ margin: 0, fontSize: 16, color: "#C4B5FD" }}>⚡ Transformers em Ação</h3>
-        <button onClick={playAudio} disabled={audioState === "loading"}
-          style={{ background: audioState === "playing" ? "#6D28D9" : "#7C3AED", border: "none", borderRadius: 8, padding: "5px 12px", color: "#fff", cursor: "pointer", fontSize: 12 }}>
-          {audioState === "loading" ? "⏳" : audioState === "playing" ? "🔊 Tocando..." : "🔊 Ouvir"}
-        </button>
+        <LabAudioButton
+          text="Esta demo mostra como um modelo de linguagem gera texto. A cada passo, o modelo calcula a probabilidade de cada palavra possível e escolhe uma delas. As barras mostram essa probabilidade em tempo real."
+          agentName="Transformer Demo"
+        />
       </div>
 
       <div style={{ display: "flex", gap: 8, marginBottom: 12, flexWrap: "wrap" }}>

@@ -105,6 +105,7 @@ const pairings = [
 
 export default function HomePage() {
   const router = useRouter();
+  const [nexusInput, setNexusInput] = useState('');
   const [nexusResponse, setNexusResponse] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -175,7 +176,6 @@ export default function HomePage() {
       <div style={{
         flex: 1,
         marginLeft: '240px',
-        marginRight: '340px',
         padding: '40px'
       }}>
         {/* Hero Section - Cinematic */}
@@ -314,6 +314,63 @@ export default function HomePage() {
               </button>
             </div>
           </motion.div>
+
+          {/* NEXUS Chat Input */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.6, ease: "easeOut" }}
+            style={{
+              width: '100%',
+              maxWidth: '500px',
+              marginTop: '40px',
+            }}
+          >
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <input
+                type="text"
+                value={nexusInput}
+                onChange={(e) => setNexusInput(e.target.value)}
+                placeholder="Pergunte algo ao NEXUS..."
+                disabled={isLoading}
+                style={{
+                  flex: 1,
+                  padding: '12px 16px',
+                  borderRadius: '8px',
+                  border: '1px solid rgba(59, 130, 246, 0.5)',
+                  background: 'rgba(59, 130, 246, 0.05)',
+                  color: '#fff',
+                  fontSize: '14px',
+                  outline: 'none',
+                  transition: 'all 0.3s ease',
+                }}
+                onFocus={(e) => {
+                  e.currentTarget.style.borderColor = '#3B82F6';
+                  e.currentTarget.style.background = 'rgba(59, 130, 246, 0.1)';
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.5)';
+                  e.currentTarget.style.background = 'rgba(59, 130, 246, 0.05)';
+                }}
+              />
+              <button
+                onClick={() => sendToNexus(nexusInput)}
+                disabled={isLoading || !nexusInput.trim()}
+                style={{
+                  padding: '12px 20px',
+                  background: '#3B82F6',
+                  border: 'none',
+                  borderRadius: '8px',
+                  color: '#fff',
+                  cursor: isLoading ? 'not-allowed' : 'pointer',
+                  opacity: isLoading ? 0.5 : 1,
+                  transition: 'all 0.3s ease',
+                }}
+              >
+                {isLoading ? '...' : 'Enviar'}
+              </button>
+            </div>
+          </motion.div>
         </motion.div>
 
         {/* SECTION 2: Featured Agent Council */}
@@ -343,6 +400,8 @@ export default function HomePage() {
             display: 'flex',
             overflowX: 'auto',
             gap: '24px',
+            paddingRight: '24px',
+            scrollPaddingRight: '24px',
             paddingBottom: '20px',
             scrollBehavior: 'smooth',
             scrollSnapType: 'x mandatory'
@@ -665,24 +724,6 @@ export default function HomePage() {
         </motion.div>
       </div>
 
-      {/* NEXUS Panel - Styled */}
-      <div style={{
-        position: 'fixed',
-        right: 0,
-        top: 0,
-        height: '100vh',
-        width: '340px',
-        background: '#0a0a1a',
-        borderLeft: '2px solid #3B82F6',
-        boxShadow: '0 0 20px rgba(59, 130, 246, 0.3), -10px 0 30px rgba(59, 130, 246, 0.15)',
-        overflow: 'hidden'
-      }}>
-        <NexusPanel
-          response={nexusResponse}
-          loading={isLoading}
-          onSendMessage={sendToNexus}
-        />
-      </div>
     </div>
   );
   }
