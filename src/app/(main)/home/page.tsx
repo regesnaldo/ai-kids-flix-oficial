@@ -50,14 +50,14 @@ const journeys = [
     title: "Fundamentos de IA",
     description: "Aprenda os conceitos essenciais que formam a base de toda IA moderna.",
     level: "Iniciante",
-    color: "#3B82F6",
+    color: "#8B5CF6",
   },
   {
     id: "criatividade",
     title: "Criatividade Radical",
     description: "Desbloqueie seu potencial criativo com agentes especializados em inovação.",
     level: "Intermediário",
-    color: "#E50914",
+    color: "#8B5CF6",
   },
   {
     id: "etica",
@@ -71,7 +71,7 @@ const journeys = [
     title: "Estratégia e Planejamento",
     description: "Domine o pensamento estratégico aplicado a sistemas de IA complexos.",
     level: "Avançado",
-    color: "#10B981",
+    color: "#8B5CF6",
   },
 ];
 
@@ -565,6 +565,10 @@ export default function HomePage() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4, delay: 0.1 * index }}
+                  style={{
+                    border: '1px solid rgba(147, 51, 234, 0.3)',
+                    borderRadius: '12px',
+                  }}
                 >
                   <CategoryCard
                     categoryName={category}
@@ -668,7 +672,7 @@ export default function HomePage() {
             marginLeft: 'auto',
             marginRight: 'auto'
           }}>
-            Acesse o conhecimento infinito de 22 agentes especializados. Comece grátis e descubra como a IA pode ampliar suas capacidades.
+            Acesse o conhecimento infinito de 12 agentes canônicos. Comece grátis e descubra como a IA pode ampliar suas capacidades.
           </p>
           <div style={{ display: 'flex', gap: '20px', justifyContent: 'center' }}>
             <button
