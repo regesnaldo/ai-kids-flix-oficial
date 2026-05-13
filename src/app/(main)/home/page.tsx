@@ -18,7 +18,6 @@ const sidebarItems = [
   { name: "Início", href: "/home" },
   { name: "Séries", href: "/aulas" },
   { name: "Explorar", href: "/explorar" },
-  { name: "Temas", href: "/temas" },
   { name: "Minha Jornada", href: "/perfil" },
   { name: "Agentes IA", href: "/agentes" },
 ];
