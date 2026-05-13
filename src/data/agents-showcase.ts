@@ -1,3 +1,13 @@
+/**
+ * MENTE.AI — Showcase derivado do catálogo canônico
+ * src/data/agents-showcase.ts
+ *
+ * Adapter que mapeia ALL_AGENTS (@/canon) para o shape AgentShowcase.
+ * Fonte única de verdade: @/canon/agents/all-agents.ts (12 agentes canônicos).
+ */
+
+import { ALL_AGENTS, type AgentDefinition } from "@/canon/agents/all-agents";
+
 export interface AgentShowcase {
   id: string;
   name: string;
@@ -9,136 +19,55 @@ export interface AgentShowcase {
   themeGlow: string;
 }
 
-export const agentsShowcase: AgentShowcase[] = [
-  {
-    id: "nexus",
-    name: "NEXUS",
-    subtitle: "O Conector",
-    category: "INTELIGÊNCIA",
-    categoryColor: "#8b5cf6",
-    description:
-      "Conecta ideias, pessoas e conhecimentos. O cérebro central que orquestra tudo.",
-    image: "/images/agentes/nexus.png",
-    themeGlow: "#8b5cf6",
-  },
-  {
-    id: "volt",
-    name: "VOLT",
-    subtitle: "O Energético",
-    category: "ENERGIA",
-    categoryColor: "#f97316",
-    description:
-      "Carrega de energia e motivação. Transforma dúvida em ação imediata.",
-    image: "/images/agentes/volt.png",
-    themeGlow: "#f97316",
-  },
-  {
-    id: "janus",
-    name: "JANUS",
-    subtitle: "O Dual",
-    category: "PERSPECTIVA",
-    categoryColor: "#06b6d4",
-    description:
-      "Vê os dois lados de tudo. Mestre em debate e pensamento crítico.",
-    image: "/images/agentes/janus.png",
-    themeGlow: "#06b6d4",
-  },
-  {
-    id: "stratos",
-    name: "STRATOS",
-    subtitle: "O Estrategista",
-    category: "ESTRATÉGIA",
-    categoryColor: "#3b82f6",
-    description:
-      "Planeja três passos à frente. Transforma caos em plano de ação.",
-    image: "/images/agentes/stratos.png",
-    themeGlow: "#3b82f6",
-  },
-  {
-    id: "kaos",
-    name: "KAOS",
-    subtitle: "O Disruptor",
-    category: "INOVAÇÃO",
-    categoryColor: "#ef4444",
-    description: "Quebra regras e padrões. Criatividade sem limites nem filtros.",
-    image: "/images/agentes/kaos.png",
-    themeGlow: "#ef4444",
-  },
-  {
-    id: "ethos",
-    name: "ETHOS",
-    subtitle: "O Ético",
-    category: "ÉTICA",
-    categoryColor: "#10b981",
-    description:
-      "Guarda moral do time. Questiona consequências e responsabilidades.",
-    image: "/images/agentes/ethos.png",
-    themeGlow: "#10b981",
-  },
-  {
-    id: "lyra",
-    name: "LYRA",
-    subtitle: "A Artista",
-    category: "CRIATIVIDADE",
-    categoryColor: "#ec4899",
-    description:
-      "Transforma dados em arte. Narrativa, música e expressão visual.",
-    image: "/images/agentes/lyra.png",
-    themeGlow: "#ec4899",
-  },
-  {
-    id: "axiom",
-    name: "AXIOM",
-    subtitle: "O Lógico",
-    category: "LÓGICA",
-    categoryColor: "#6366f1",
-    description:
-      "Precisão matemática absoluta. Zero margem para erro ou ambiguidade.",
-    image: "/images/agentes/axiom.png",
-    themeGlow: "#6366f1",
-  },
-  {
-    id: "aurora",
-    name: "AURORA",
-    subtitle: "A Visionária",
-    category: "VISÃO",
-    categoryColor: "#a855f7",
-    description:
-      "Enxerga o futuro antes de todos. Tendências, padrões e previsões.",
-    image: "/images/agentes/aurora.png",
-    themeGlow: "#a855f7",
-  },
-  {
-    id: "cipher",
-    name: "CIPHER",
-    subtitle: "O Decodificador",
-    category: "SEGURANÇA",
-    categoryColor: "#14b8a6",
-    description:
-      "Protege, encripta e desvenda. Mestre em segurança e privacidade.",
-    image: "/images/agentes/cipher.png",
-    themeGlow: "#14b8a6",
-  },
-  {
-    id: "terra",
-    name: "TERRA",
-    subtitle: "A Naturalista",
-    category: "SUSTENTABILIDADE",
-    categoryColor: "#22c55e",
-    description:
-      "Conecta tecnologia com natureza. Equilíbrio e sustentabilidade.",
-    image: "/images/agentes/terra.png",
-    themeGlow: "#22c55e",
-  },
-  {
-    id: "prism",
-    name: "PRISM",
-    subtitle: "O Analítico",
-    category: "ANÁLISE",
-    categoryColor: "#f59e0b",
-    description:
-      "Decompõe a luz em espectro. Análise profunda e multidimensional.",
-    image: "/images/agentes/prism.png",
-    themeGlow: "#f59e0b",
-  },
-];
+const COLOR_BY_ID: Record<string, string> = {
+  nexus: "#3B82F6",
+  kaos: "#EF4444",
+  cipher: "#10B981",
+  lyra: "#EC4899",
+  axiom: "#0EA5E9",
+  stratos: "#64748B",
+  terra: "#22C55E",
+  prism: "#8B5CF6",
+  janus: "#F59E0B",
+  volt: "#F59E0B",
+  aurora: "#EC4899",
+  ethos: "#F59E0B",
+};
+
+const CATEGORY_BY_DIMENSION: Record<AgentDefinition["dimension"], string> = {
+  intellectual: "INTELIGÊNCIA",
+  creative: "INOVAÇÃO",
+  ethical: "ÉTICA",
+  scientific: "ANÁLISE",
+  practical: "ESTRATÉGIA",
+  emotional: "EMPATIA",
+  aesthetic: "CRIATIVIDADE",
+  philosophical: "FILOSOFIA",
+  social: "CONEXÃO",
+  political: "LIDERANÇA",
+  spiritual: "ESPIRITUALIDADE",
+  mystical: "MÍSTICA",
+};
+
+function extractSubtitle(name: string): string {
+  const match = name.match(/"([^"]+)"/);
+  if (!match) return name;
+  const epithet = match[1].toLowerCase();
+  return epithet.charAt(0).toUpperCase() + epithet.slice(1);
+}
+
+function toAgentShowcase(agent: AgentDefinition): AgentShowcase {
+  const color = COLOR_BY_ID[agent.id] ?? "#8B5CF6";
+  return {
+    id: agent.id,
+    name: agent.name.split('"')[0].trim(),
+    subtitle: extractSubtitle(agent.name),
+    category: CATEGORY_BY_DIMENSION[agent.dimension],
+    categoryColor: color,
+    description: agent.laboratoryTask,
+    image: `/images/agentes/${agent.id}.png`,
+    themeGlow: color,
+  };
+}
+
+export const agentsShowcase: AgentShowcase[] = ALL_AGENTS.map(toAgentShowcase);
