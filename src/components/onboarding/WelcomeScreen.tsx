@@ -61,7 +61,7 @@ export default function WelcomeScreen({ onNext, onSkip }: WelcomeScreenProps) {
 
         <div className="max-w-md mx-auto mb-10">
           <p className="text-lg text-white/90 leading-relaxed">
-            Conecte-se com <span className="font-semibold text-purple-300">120 agentes</span> de inteligência
+            Conecte-se com <span className="font-semibold text-purple-300">12 agentes</span> de inteligência
             emocional e descubra novas perspectivas sobre você mesmo.
           </p>
         </div>
@@ -77,7 +77,7 @@ export default function WelcomeScreen({ onNext, onSkip }: WelcomeScreenProps) {
             onClick={onSkip}
             className="px-8 py-4 bg-white/10 backdrop-blur-sm border border-white/30 rounded-full font-semibold text-lg hover:bg-white/20 transition"
           >
-            Ir direto ao Laboratório
+            Entrar no Metaverso
           </button>
         </div>
 
