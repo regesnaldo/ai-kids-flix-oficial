@@ -16,11 +16,11 @@ export default function OnboardingPage() {
   const [step, setStep] = useState<OnboardingStep>("welcome");
   const [selectedAgent, setSelectedAgent] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!shouldShowOnboarding()) {
-      router.push("/home");
-    }
-  }, [router]);
+  // useEffect(() => {
+  //   if (!shouldShowOnboarding()) {
+  //     router.push("/home");
+  //   }
+  // }, [router]);
 
   const handleWelcomeNext = () => setStep("agent");
   const handleWelcomeSkip = () => {
