@@ -4,6 +4,9 @@ import { interactiveDecisions } from "@/lib/db/schema";
 // NOTE (Phase 0): universeTransitions and userProfiles are Phase 2 tables.
 // All inserts/updates to those tables are stubbed out until migrations land.
 import { getUserProfile } from "@/engine/profiler";
+import { getActiveConflicts, type AgentId } from "./agent-conflicts";
+import { findTransition } from "./narrative-transitions";
+import { analyzeWithLangChain, buildSystemPromptForAgent, type UserProfile } from "./langchain-integration";
 
 export type Archetype = "analytical" | "rebel" | "paralyzed" | "empathetic" | "strategic" | "creative";
 export type UniverseId = "NEXUS" | "AXIOM" | "KAOS" | "ETHOS" | "VOLT" | "TERRA" | "LYRA" | "STRATOS" | "PRISM" | "AURORA";
@@ -14,6 +17,10 @@ export interface RouterDecision {
   alternatives: UniverseId[];
   reason: string;
   backtrackApplied: boolean;
+  hasConflict?: boolean;
+  conflictDetails?: import('./agent-conflicts').AgentConflict[];
+  transition?: import('./narrative-transitions').NarrativeTransition;
+  langchainDecision?: import('./langchain-integration').NarrativeDecision;
 }
 
 const ARCHETYPE_DESTINATIONS: Record<Archetype, UniverseId[]> = {
@@ -160,11 +167,50 @@ export async function routeAdaptiveNarrative(params: {
   // Silence unused variable warning from mapUniverseToAgent while stubs are active
   void mapUniverseToAgent(selectedUniverse);
 
+  // 🔀 Sistema de Conflitos entre Agentes
+  const currentAgentId = params.currentAgent as AgentId;
+  const decisionHistory: { agentId: AgentId; choice: string }[] = []; // Would come from DB in Phase 2
+  const activeConflicts = currentAgentId ? getActiveConflicts([...decisionHistory, { agentId: currentAgentId, choice: params.userText }]) : [];
+  const hasConflict = activeConflicts.length > 0;
+
+  // 🌟 Sistema de Transições Narrativas
+  const transition = currentAgentId ? findTransition(currentAgentId, params.userText) : null;
+  
+  // 🤖 Análise LangChain (se disponível)
+  let langchainAnalysis = null;
+  if (profile) {
+    const userProfileForLangchain: UserProfile = {
+      userId: params.userId,
+      emotionalScore: emotional,
+      intellectualScore: intellectual,
+      moralScore: moral,
+      archetype,
+      currentAgent: (params.currentAgent as AgentId) || 'nexus',
+      decisionHistory: [],
+      lastUpdated: Date.now(),
+    };
+    
+    langchainAnalysis = await analyzeWithLangChain(
+      params.userText,
+      userProfileForLangchain,
+      (params.currentAgent as AgentId) || 'nexus'
+    );
+    
+    if (langchainAnalysis.confidence > 0.7 && langchainAnalysis.nextAgent !== currentAgentId) {
+      selectedUniverse = mapAgentToUniverse(langchainAnalysis.nextAgent) || selectedUniverse;
+      reason = `${reason} | LangChain: ${langchainAnalysis.reason}`;
+    }
+  }
+
   return {
     archetype,
     selectedUniverse,
     alternatives,
     reason,
     backtrackApplied,
+    hasConflict,
+    conflictDetails: hasConflict ? activeConflicts : undefined,
+    transition: transition || undefined,
+    langchainDecision: langchainAnalysis || undefined,
   };
 }
