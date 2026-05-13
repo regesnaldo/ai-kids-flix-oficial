@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 interface Profile { id: number; name: string; avatar: string; ageGroup: string; isKids: boolean; }
 
@@ -34,6 +35,8 @@ function AddProfileCard({ onClick }: { onClick: () => void }) {
 }
 
 export default function ProfilePicker() {
+  const router = useRouter();
+  useEffect(() => { router.replace('/home'); }, [router]);
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
   const [adding, setAdding] = useState(false);
