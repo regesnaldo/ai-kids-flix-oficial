@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import { ALL_AGENTS } from "@/canon/agents/all-agents";
 
 type AgentSelectorProps = {
@@ -59,11 +58,10 @@ export default function AgentSelector({ onSelect, onSkip }: AgentSelectorProps) 
                 ].join(" ")}
               >
                 <div className="relative h-52 bg-[#0f0f1a]">
-                  <Image
+                  <img
                     src={`/images/agentes/${agent.id}.png`}
                     alt={agent.name}
-                    fill
-                    className="object-cover object-top opacity-90 group-hover:opacity-100 transition-opacity duration-300"
+                    className="w-full h-full object-cover object-top opacity-90 group-hover:opacity-100 transition-opacity duration-300"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#07070f] via-[#07070f]/20 to-transparent" />
                   {isSelected && (
