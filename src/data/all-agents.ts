@@ -2,7 +2,7 @@
  * MENTE.AI — Catálogo completo de agentes nomeados
  * src/data/all-agents.ts
  *
- * 22 agentes com imagens reais em /public/images/agentes/
+ * 12 agentes canônicos com imagens reais em /public/images/agentes/
  * Usados na página inicial estilo Netflix.
  */
 
