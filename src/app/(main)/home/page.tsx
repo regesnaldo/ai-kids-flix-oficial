@@ -311,6 +311,30 @@ export default function HomePage() {
               >
                 Minha Jornada
               </button>
+              <button
+                onClick={() => router.push('/universo/nexus')}
+                style={{
+                  padding: '14px 32px',
+                  background: 'transparent',
+                  border: '2px solid rgba(255, 255, 255, 0.6)',
+                  borderRadius: '8px',
+                  color: '#fff',
+                  fontSize: '1.1rem',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 1)';
+                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.6)';
+                  e.currentTarget.style.background = 'transparent';
+                }}
+              >
+                Entrar no Universo NEXUS →
+              </button>
             </div>
           </motion.div>
 
