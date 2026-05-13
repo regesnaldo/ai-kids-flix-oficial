@@ -79,6 +79,6 @@ export const allAgents: HomeAgent[] = ALL_AGENTS.map(toHomeAgent);
 export const AGENT_ROWS = [
   { title: "Em Destaque",         agents: allAgents.slice(0, 6)  },
   { title: "Mais Populares",      agents: allAgents.slice(6, 12) },
-  { title: "Para Iniciantes",     agents: allAgents.filter((a) => a.level === "Iniciante") },
+  { title: "Conhecer os Agentes", agents: allAgents.slice(0, 4)  },
   { title: "Nível Avançado",      agents: allAgents.filter((a) => a.level === "Avançado" || a.level === "Expert") },
 ];

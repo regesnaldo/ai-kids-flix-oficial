@@ -7,20 +7,20 @@ import { allAgents } from '@/data/all-agents';
 import { TEMAS } from '@/components/TemasDropdown';
 
 const themeMap: Record<string, string[]> = {
-  'ia-generativa': ['aurora', 'aether', 'kaos'],
-  'machine-learning': ['analytikos', 'quantum', 'cipher'],
+  'ia-generativa': ['aurora', 'kaos', 'lyra'],
+  'machine-learning': ['cipher', 'axiom', 'nexus'],
   'redes-neurais': ['volt', 'nexus', 'lyra'],
-  'fundamentos': ['tabula', 'terra', 'index'],
-  'deep-learning': ['axiom', 'typus', 'analytikos'],
-  'computer-vision': ['cipher', 'typus', 'prism'],
-  'nlp': ['lyra', 'prism', 'morphe'],
-  'etica-ia': ['ethos', 'janus', 'stasis'],
-  'ia-criatividade': ['kaos', 'aether', 'paleta'],
+  'fundamentos': ['nexus', 'terra', 'axiom'],
+  'deep-learning': ['axiom', 'cipher', 'prism'],
+  'computer-vision': ['cipher', 'prism', 'lyra'],
+  'nlp': ['lyra', 'prism', 'nexus'],
+  'etica-ia': ['ethos', 'janus', 'terra'],
+  'ia-criatividade': ['kaos', 'aurora', 'lyra'],
   'robotica': ['volt', 'terra', 'stratos'],
-  'ia-criancas': ['tabula', 'lyra', 'index'],
-  'ia-negocios': ['stratos', 'praevius', 'index'],
-  'seguranca': ['cipher', 'ethos', 'stasis'],
-  'futuro-ia': ['quantum', 'praevius', 'kaos'],
+  'ia-criancas': ['lyra', 'aurora', 'nexus'],
+  'ia-negocios': ['stratos', 'axiom', 'nexus'],
+  'seguranca': ['cipher', 'ethos', 'prism'],
+  'futuro-ia': ['kaos', 'aurora', 'stratos'],
   'projetos': ['terra', 'stratos', 'volt'],
 };
 
