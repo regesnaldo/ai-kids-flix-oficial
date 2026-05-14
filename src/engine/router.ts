@@ -7,6 +7,14 @@ import { getUserProfile } from "@/engine/profiler";
 import { getActiveConflicts, type AgentId } from "./agent-conflicts";
 import { findTransition } from "./narrative-transitions";
 import { analyzeWithLangChain, buildSystemPromptForAgent, type UserProfile } from "./langchain-integration";
+import { 
+  routeSeason, 
+  integrateWithMainRouter,
+  canUnlockSeason,
+  shouldBacktrackToPhase,
+  type UserProgress 
+} from "./phase-router";
+import { getSeasonByNumber } from "@/data/seasons";
 
 export type Archetype = "analytical" | "rebel" | "paralyzed" | "empathetic" | "strategic" | "creative";
 export type UniverseId = "NEXUS" | "AXIOM" | "KAOS" | "ETHOS" | "VOLT" | "TERRA" | "LYRA" | "STRATOS" | "PRISM" | "AURORA";
@@ -21,6 +29,12 @@ export interface RouterDecision {
   conflictDetails?: import('./agent-conflicts').AgentConflict[];
   transition?: import('./narrative-transitions').NarrativeTransition;
   langchainDecision?: import('./langchain-integration').NarrativeDecision;
+  // Sistema de Temporadas (LEGO)
+  season?: { number: number; title: string; theme: string; centralDilemma: string; agent: string };
+  phase?: { id: string; name: string; range: [number, number]; concept: string; emotion: string };
+  nextAgent?: string;
+  phaseTransition?: boolean;
+  canAccessSeason?: boolean;
 }
 
 const ARCHETYPE_DESTINATIONS: Record<Archetype, UniverseId[]> = {
@@ -202,6 +216,27 @@ export async function routeAdaptiveNarrative(params: {
     }
   }
 
+  // 🎬 Sistema de Temporadas (LEGO)
+  // Se o usuário especificar uma temporada, processa a temporada
+  const seasonNumber = (params as { seasonNumber?: number }).seasonNumber || 1;
+  
+  const seasonIntegration = integrateWithMainRouter(
+    seasonNumber,
+    archetype,
+    emotional,
+    intellectual,
+    moral
+  );
+  
+  const canAccess = canUnlockSeason(seasonNumber, {
+    currentSeason: seasonNumber,
+    completedSeasons: [],
+    archetype,
+    emotionalScore: emotional,
+    intellectualScore: intellectual,
+    moralScore: moral,
+  });
+
   return {
     archetype,
     selectedUniverse,
@@ -209,6 +244,12 @@ export async function routeAdaptiveNarrative(params: {
     reason,
     backtrackApplied,
     hasConflict,
+    // Sistema de Temporadas
+    season: seasonIntegration.season,
+    phase: seasonIntegration.phaseConfig,
+    nextAgent: seasonIntegration.nextAgent as string,
+    phaseTransition: seasonIntegration.phaseTransition,
+    canAccessSeason: canAccess.canUnlock,
     conflictDetails: hasConflict ? activeConflicts : undefined,
     transition: transition || undefined,
     langchainDecision: langchainAnalysis || undefined,
