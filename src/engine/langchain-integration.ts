@@ -3,10 +3,93 @@
  * 
  * Implementa o motor de narrativa adaptativa com LangChain
  * Monitora 3 dimensões: emocional, intelectual, moral
+ * Inclui Tree of Thoughts (ToT) com OpenAI API
  */
 
 import type { AgentId } from './agent-conflicts';
 import type { Archetype } from './router';
+
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+const OPENAI_MODEL = process.env.OPENAI_MODEL || 'gpt-4o';
+
+interface TreeOfThoughtsResult {
+  thought1: string;
+  thought2: string;
+  thought3: string;
+  evaluation: string;
+  selectedPath: string;
+  reasoning: string;
+}
+
+async function runTreeOfThoughts(
+  userText: string,
+  currentAgent: AgentId,
+  userProfile: UserProfile
+): Promise<TreeOfThoughtsResult | null> {
+  if (!OPENAI_API_KEY) {
+    console.warn('[ToT] OpenAI API key not configured');
+    return null;
+  }
+
+  const systemPrompt = `Você é o núcleo de decisão do MENTE.AI — um metaverso educacional.
+Sua tarefa é pensar em 3 caminhos diferentes para responder ao usuário, avaliar qual faz mais sentido baseado no perfil dele, e escolher o melhor.
+
+Perfil do usuário:
+- Arquétipo: ${userProfile.archetype}
+- Score Emocional: ${userProfile.emotionalScore.toFixed(2)} (negativo = medo/insegurança, positivo = curiosidade/rebelia)
+- Score Intelectual: ${userProfile.intellectualScore.toFixed(2)} (negativo = intuitivo, positivo = lógico)
+- Score Moral: ${userProfile.moralScore.toFixed(2)} (negativo = expandir poder IA, positivo = proteger humanidade)
+
+Agente atual: ${currentAgent}
+
+Retorne JSON com:
+{
+  "thought1": "Primeiro caminho de pensamento",
+  "thought2": "Segundo caminho de pensamento", 
+  "thought3": "Terceiro caminho de pensamento",
+  "evaluation": "Avaliação de qual caminho serve melhor para este usuário",
+  "selectedPath": "1, 2 ou 3",
+  "reasoning": "Por que este caminho foi escolhido baseado no perfil"
+}`;
+
+  try {
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${OPENAI_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: OPENAI_MODEL,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userText }
+        ],
+        temperature: 0.7,
+        max_tokens: 1000,
+      }),
+    });
+
+    if (!response.ok) {
+      console.error('[ToT] OpenAI API error:', response.status);
+      return null;
+    }
+
+    const data = await response.json();
+    const content = data.choices?.[0]?.message?.content || '';
+    
+    const jsonMatch = content.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      console.warn('[ToT] No JSON found in response');
+      return null;
+    }
+
+    return JSON.parse(jsonMatch[0]) as TreeOfThoughtsResult;
+  } catch (error) {
+    console.error('[ToT] Error:', error);
+    return null;
+  }
+}
 
 export interface UserProfile {
   userId: number;
@@ -55,6 +138,24 @@ export async function analyzeWithLangChain(
   currentProfile: UserProfile,
   currentAgent: AgentId
 ): Promise<NarrativeDecision> {
+  const totResult = await runTreeOfThoughts(userText, currentAgent, currentProfile);
+  
+  if (totResult) {
+    const nextAgent = mapToAgentId(totResult.selectedPath, currentAgent, currentProfile);
+    const conflictTriggered = checkConflictTrigger(currentAgent, nextAgent);
+    
+    return {
+      nextAgent,
+      confidence: 0.92,
+      reasoning: `ToT: ${totResult.thought1} | ${totResult.thought2} | ${totResult.thought3} → Avaliação: ${totResult.evaluation}`,
+      reason: totResult.reasoning,
+      conflictTriggered,
+      transitionMessage: conflictTriggered 
+        ? `Passagem de ${currentAgent} para ${nextAgent}: ${totResult.reasoning}`
+        : undefined,
+    };
+  }
+  
   const normalizedText = userText.toLowerCase();
   
   const emotionalSignal = detectEmotionalSignal(normalizedText);
@@ -82,10 +183,26 @@ export async function analyzeWithLangChain(
     nextAgent,
     confidence,
     reasoning: `${emotionalSignal} + ${intellectualSignal} + ${moralSignal} → ${archetype}`,
-    reason: mapping?.reason || `Transição de ${currentAgent} para ${nextAgent} baseada no perfil do usuário`,
+    reason: mapping?.reason || `Transição de ${currentAgent} para ${nextAgent} baseada no perfil do usuário (heurística)`,
     conflictTriggered,
     transitionMessage,
   };
+}
+
+function mapToAgentId(path: string, currentAgent: AgentId, profile: UserProfile): AgentId {
+  const pathNum = parseInt(path, 10);
+  const agents: AgentId[] = ['nexus', 'volt', 'kaos', 'ethos', 'axiom', 'stratos', 'lyra', 'prism', 'terra', 'aurora', 'janus', 'cipher'];
+  
+  if (pathNum >= 1 && pathNum <= 3) {
+    const archetypes: Record<number, AgentId> = {
+      1: profile.archetype === 'analytical' ? 'axiom' : profile.archetype === 'rebel' ? 'kaos' : 'nexus',
+      2: profile.archetype === 'empathetic' ? 'terra' : profile.archetype === 'strategic' ? 'stratos' : 'lyra',
+      3: profile.archetype === 'creative' ? 'prism' : profile.archetype === 'paralyzed' ? 'volt' : 'aurora',
+    };
+    return archetypes[pathNum] || currentAgent;
+  }
+  
+  return currentAgent;
 }
 
 function detectEmotionalSignal(text: string): 'curiosity' | 'fear' | 'rebellion' | 'conformity' {
