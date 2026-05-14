@@ -1,8 +1,8 @@
 import "./globals.css";
 
 export const metadata = {
-  title: "MENTE.AI — Laboratório de Inteligência Viva",
-  description: "MENTE.AI: Plataforma de autoconhecimento com agentes inteligentes e simulador emocional.",
+  title: "MENTE.AI — Metaverso Educacional de Inteligência Artificial",
+  description: "Metaverso educacional de inteligência artificial. Entre em universos únicos guiados pelos 12 agentes canônicos do MENTE.AI.",
   applicationName: "MENTE.AI",
 };
 

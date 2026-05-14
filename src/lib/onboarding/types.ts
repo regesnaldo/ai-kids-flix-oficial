@@ -39,29 +39,10 @@ export function getPreferences(): UserPreferences | null {
 }
 
 export function savePreferences(prefs: Partial<UserPreferences>): void {
-  if (typeof window === "undefined") return;
-  const existing = getPreferences();
-  const now = new Date().toISOString();
-
-  const updated: UserPreferences = {
-    userId: existing?.userId || generateUserId(),
-    name: existing?.name || "",
-    selectedGuideAgent: existing?.selectedGuideAgent || null,
-    onboardingCompleted: existing?.onboardingCompleted ?? false,
-    onboardingVersion: ONBOARDING_VERSION,
-    createdAt: existing?.createdAt || now,
-    updatedAt: now,
-    ...prefs,
-  };
-
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+  // Temporarily disabled for testing - no-op
 }
 
 export function shouldShowOnboarding(): boolean {
-  const prefs = getPreferences();
-  if (!prefs) return true;
-  if (!prefs.onboardingCompleted) return true;
-  if (prefs.onboardingVersion < ONBOARDING_VERSION) return true;
-  return false;
+  return true;
 }
 

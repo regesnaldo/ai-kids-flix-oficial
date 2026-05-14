@@ -193,7 +193,7 @@ export default function HeroSection() {
             className="max-w-xl text-sm leading-relaxed text-gray-400 md:text-base"
           >
             Uma plataforma com{' '}
-            <span className="font-semibold text-purple-300">120 agentes especializados</span>{' '}
+            <span className="font-semibold text-purple-300">12 agentes canônicos</span>{' '}
             em inteligência emocional, aprendizado profundo e autoconhecimento — cada um
             guiando sua jornada com precisão e propósito.
           </motion.p>
