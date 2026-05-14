@@ -3,7 +3,7 @@ import { db } from "@/lib/db";
 import { interactiveDecisions } from "@/lib/db/schema";
 // NOTE (Phase 0): universeTransitions and userProfiles are Phase 2 tables.
 // All inserts/updates to those tables are stubbed out until migrations land.
-import { getUserProfile } from "@/engine/profiler";
+import { getUserProfile, updateUserProfile } from "@/engine/profiler";
 import { getActiveConflicts, type AgentId } from "./agent-conflicts";
 import { findTransition } from "./narrative-transitions";
 import { analyzeWithLangChain, buildSystemPromptForAgent, type UserProfile } from "./langchain-integration";
@@ -142,9 +142,9 @@ export async function routeAdaptiveNarrative(params: {
 }): Promise<RouterDecision> {
   const profile = await getUserProfile(params.userId);
 
-  const emotional = profile ? parseFloat((profile as Record<string, string>).emotionalDim ?? "0") : 0;
-  const intellectual = profile ? parseFloat((profile as Record<string, string>).intellectualDim ?? "0") : 0;
-  const moral = profile ? parseFloat((profile as Record<string, string>).moralDim ?? "0") : 0;
+  const emotional = profile?.emotionalScore ?? 0;
+  const intellectual = profile?.intellectualScore ?? 0;
+  const moral = profile?.moralScore ?? 0;
 
   const archetype = classifyArchetype(emotional, intellectual, moral);
   const alternatives = ARCHETYPE_DESTINATIONS[archetype];
@@ -254,4 +254,25 @@ export async function routeAdaptiveNarrative(params: {
     transition: transition || undefined,
     langchainDecision: langchainAnalysis || undefined,
   };
+  
+  if (langchainAnalysis) {
+    await updateUserProfile(params.userId, {
+      emotionalScore: emotional,
+      intellectualScore: intellectual,
+      moralScore: moral,
+      archetype,
+      currentAgent: langchainAnalysis.nextAgent,
+      decisionHistory: [
+        ...(profile?.decisionHistory || []),
+        {
+          choice: params.userText.slice(0, 100),
+          agentId: langchainAnalysis.nextAgent,
+          emotionalDelta: langchainAnalysis.confidence > 0.8 ? 0.5 : 0,
+          intellectualDelta: 0,
+          moralDelta: 0,
+          timestamp: Date.now(),
+        },
+      ],
+    });
+  }
 }

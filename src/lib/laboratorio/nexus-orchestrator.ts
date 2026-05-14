@@ -92,18 +92,14 @@ export async function fetchNexusResponse(
   history: Array<{ role: 'user' | 'assistant'; content: string }>
 ): Promise<string> {
   try {
-    // Monta array de messages no formato que /api/chat espera
-    const messages = [
-      ...history.slice(-10),
-      { role: 'user' as const, content: userMessage },
-    ]
-
-    const response = await fetch('/api/chat', {
+    // 🚀 Usa a API que integra router LangChain no servidor
+    const response = await fetch('/api/universo/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        agentId: 'nexus',
-        messages,
+        message: userMessage,
+        history: history.map(h => ({ role: h.role, content: h.content })),
+        userId: 0, // anonymous - será trocado quando usuário login
       }),
     })
 
@@ -113,7 +109,16 @@ export async function fetchNexusResponse(
     }
 
     const data = await response.json()
-    return data.message ?? data.content ?? 'O silencio tambem e uma resposta.'
+    
+    // Log da decisão do router para debug
+    if (data.agent && data.agent !== 'nexus') {
+      console.log(`[NEXUS→Router] Transição: ${data.agent}`, {
+        archetype: data.archetype,
+        reason: data.routeReason,
+      })
+    }
+    
+    return data.message ?? 'O silencio tambem e uma resposta.'
   } catch (err) {
     console.error('[NEXUS] Erro ao buscar resposta:', err)
     return 'As vezes o caminho interrompe para que possamos notar onde estamos. Tente novamente.'

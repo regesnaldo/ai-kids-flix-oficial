@@ -129,7 +129,86 @@ export async function updateSilentProfile(
   return signals;
 }
 
-// Phase 0: userProfiles table not yet migrated — always returns null.
-export async function getUserProfile(_userId: number) {
+const STORAGE_KEY = 'mente_ai_user_profile';
+
+interface StoredProfile {
+  emotionalScore: number;
+  intellectualScore: number;
+  moralScore: number;
+  archetype: string;
+  currentAgent: string;
+  decisionHistory: Array<{
+    choice: string;
+    agentId: string;
+    emotionalDelta: number;
+    intellectualDelta: number;
+    moralDelta: number;
+    timestamp: number;
+  }>;
+  lastUpdated: number;
+}
+
+function getStoredProfile(): StoredProfile | null {
+  if (typeof window === 'undefined') return null;
+  const stored = localStorage.getItem(STORAGE_KEY);
+  if (!stored) return null;
+  try {
+    return JSON.parse(stored);
+  } catch {
+    return null;
+  }
+}
+
+function setStoredProfile(profile: StoredProfile): void {
+  if (typeof window === 'undefined') return;
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(profile));
+}
+
+export async function getUserProfile(userId: number): Promise<{
+  emotionalScore: number;
+  intellectualScore: number;
+  moralScore: number;
+  archetype: string;
+  currentAgent: string;
+  decisionHistory: Array<{
+    choice: string;
+    agentId: string;
+    emotionalDelta: number;
+    intellectualDelta: number;
+    moralDelta: number;
+    timestamp: number;
+  }>;
+  lastUpdated: number;
+} | null> {
+  // First try localStorage (works without login)
+  const local = getStoredProfile();
+  if (local) return local;
+  
+  // TODO: When user_profiles table is migrated, fetch from DB here
+  // For now, initialize new profile
   return null;
+}
+
+export async function updateUserProfile(
+  userId: number,
+  updates: Partial<StoredProfile>
+): Promise<void> {
+  const current = getStoredProfile() || {
+    emotionalScore: 0,
+    intellectualScore: 0,
+    moralScore: 0,
+    archetype: 'creative',
+    currentAgent: 'nexus',
+    decisionHistory: [],
+    lastUpdated: Date.now(),
+  };
+  
+  const updated = { ...current, ...updates, lastUpdated: Date.now() };
+  setStoredProfile(updated);
+  
+  // TODO: When user_profiles table is migrated, sync to DB here
+}
+
+export function getLocalProfile(): StoredProfile | null {
+  return getStoredProfile();
 }
