@@ -2,7 +2,8 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { Play, Info, ChevronLeft, ChevronRight, Star, Clock, Zap, TrendingUp } from "lucide-react";
+import { Play, Info, ChevronLeft, ChevronRight, Star, Clock, Zap } from "lucide-react";
+import { SuaJornada } from "@/components/SuaJornada";
 import { agentsShowcase } from "@/data/agents-showcase";
 import { allAgents } from "@/data/all-agents";
 
@@ -280,30 +281,13 @@ export default function HomePage() {
       <div className="pb-16">
         {/* Progress Dashboard */}
         {hasProgress && (
-          <div className="mx-4 md:mx-16 mb-10 p-6 rounded-xl" style={{ background: "linear-gradient(135deg, rgba(139,92,246,0.1), rgba(59,130,246,0.05))", border: "1px solid rgba(139,92,246,0.2)" }}>
-            <h3 className="text-white font-bold mb-4 flex items-center gap-2"><TrendingUp size={18} className="text-purple-400" /> Sua Jornada</h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="p-3 rounded-lg bg-white/5">
-                <p className="text-xs text-gray-400 mb-1">Episódios</p>
-                <p className="text-xl font-bold text-white">{completedCount}/100</p>
-              </div>
-              <div className="p-3 rounded-lg bg-white/5">
-                <p className="text-xs text-gray-400 mb-1">XP Total</p>
-                <p className="text-xl font-bold text-yellow-400">{totalXp}</p>
-              </div>
-              <div className="p-3 rounded-lg bg-white/5">
-                <p className="text-xs text-gray-400 mb-1">Arquétipo</p>
-                <p className="text-sm font-bold text-purple-400 capitalize">{profile.archetype || "Explorador"}</p>
-              </div>
-              <div className="p-3 rounded-lg bg-white/5">
-                <p className="text-xs text-gray-400 mb-1">Progresso</p>
-                <div className="mt-2 h-2 bg-white/10 rounded-full overflow-hidden">
-                  <div className="h-full rounded-full bg-purple-500" style={{ width: `${completedCount}%` }} />
-                </div>
-                <p className="text-xs text-gray-500 mt-1">{completedCount}% completo</p>
-              </div>
-            </div>
-          </div>
+          <SuaJornada
+            episodios={completedCount}
+            totalEpisodios={100}
+            xp={totalXp}
+            arquetipo={profile.archetype || "Explorador"}
+            progresso={completedCount}
+          />
         )}
 
         {/* Agent Council */}
