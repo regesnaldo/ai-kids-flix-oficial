@@ -9,7 +9,7 @@ export const runtime = "nodejs";
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { message, history, userId = 0 } = body;
+    const { message, history, userId = 0, agentOverride } = body;
 
     if (!message || typeof message !== "string") {
       return NextResponse.json({ error: "Message é obrigatório" }, { status: 400 });
@@ -17,13 +17,23 @@ export async function POST(request: NextRequest) {
 
     const userProfile = await getUserProfile(userId);
 
-    const routeDecision = await routeAdaptiveNarrative({
-      userId,
-      userText: message,
-      currentAgent: "nexus",
-    });
+    // Se agentOverride existe, usa esse agente diretamente (universo específico)
+    // Caso contrário, usa o roteamento LangChain
+    let selectedAgent: string
+    let routeDecision: Awaited<ReturnType<typeof routeAdaptiveNarrative>> | null = null
 
-    if (userProfile && routeDecision.langchainDecision) {
+    if (agentOverride) {
+      selectedAgent = agentOverride
+    } else {
+      routeDecision = await routeAdaptiveNarrative({
+        userId,
+        userText: message,
+        currentAgent: "nexus",
+      })
+      selectedAgent = routeDecision.langchainDecision?.nextAgent ?? "nexus"
+    }
+
+    if (userProfile && routeDecision?.langchainDecision) {
       await updateUserProfile(userId, {
         emotionalScore: routeDecision.langchainDecision.confidence > 0.8 
           ? (userProfile.emotionalScore || 0) + 0.5 
@@ -32,14 +42,14 @@ export async function POST(request: NextRequest) {
         currentAgent: routeDecision.langchainDecision.nextAgent,
       });
     }
-
-    const selectedAgent = routeDecision.langchainDecision?.nextAgent ?? "nexus";
     const agent = ALL_AGENTS.find((a) => a.id === selectedAgent);
 
-    console.log(`[universo/chat] → Agent: ${selectedAgent}`, {
-      archetype: routeDecision.archetype,
-      confidence: routeDecision.langchainDecision?.confidence,
-    });
+    if (routeDecision) {
+      console.log(`[universo/chat] → Agent: ${selectedAgent}`, {
+        archetype: routeDecision.archetype,
+        confidence: routeDecision.langchainDecision?.confidence,
+      });
+    }
 
     if (!agent) {
       return NextResponse.json({ error: "Agente não encontrado" }, { status: 404 });
@@ -71,8 +81,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       message: responseText,
       agent: selectedAgent,
-      archetype: routeDecision.archetype,
-      routeReason: routeDecision.langchainDecision?.reason,
+      archetype: routeDecision?.archetype || 'creative',
+      routeReason: routeDecision?.langchainDecision?.reason,
     });
 
   } catch (error) {

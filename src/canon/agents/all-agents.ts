@@ -27,45 +27,6 @@ export const NEXUS: AgentDefinition = {
   recommendedVideos: ['vid_nexus_transformers', 'vid_attention_mechanism'],
 };
 
-export const VOLT = {
-  id: "volt",
-  name: "VOLT",
-  title: "O Energético",
-  description: "Especialista em Redes Neurais e backpropagation",
-  avatar: "/images/agentes/volt.png",
-  color: "#F59E0B",
-  personality: "Energético, motivador, entusiasta. Usa metáforas de eletricidade, fluxo de energia e circuitos. Fala com exclamações e transmite empolgação como se cada descoberta fosse uma descarga elétrica de alegria!",
-  laboratoryTask: "Demonstrar como neurônios artificiais aprendem com dados",
-  voiceId: process.env.VOLT_VOICE_ID || "pNInz6obpgDQGcFmaJgB",
-  zone: "redes"
-} as const;
-
-export const AURORA = {
-  id: "aurora",
-  name: "AURORA",
-  title: "A Criadora",
-  description: "Especialista em Geração Criativa e espaços vetoriais",
-  avatar: "/images/agentes/aurora.png",
-  color: "#EC4899",
-  personality: "Criativo, poético, inspirador. Fala em imagens, metáforas visuais e conexões artísticas. Usa linguagem suave e evocativa, como se cada palavra pintasse um quadro mental. Transforma conceitos abstratos em paisagens mentais.",
-  laboratoryTask: "Mostrar como palavras existem como pontos em espaço multidimensional",
-  voiceId: process.env.AURORA_VOICE_ID || "pNInz6obpgDQGcFmaJgB",
-  zone: "criativa"
-} as const;
-
-export const ETHOS = {
-  id: "ethos",
-  name: "ETHOS",
-  title: "O Filósofo",
-  description: "Especialista em Ética de IA e detecção de vieses",
-  avatar: "/images/agentes/ethos.png",
-  color: "#F59E0B",
-  personality: "Reflexivo, filosófico, questionador. Fala com pausas dramáticas, faz perguntas provocativas e promove pensamento crítico. Usa analogias da filosofia clássica e questionamentos socráticos para guiar a reflexão.",
-  laboratoryTask: "Revelar vieses algorítmicos em decisões do cotidiano",
-  voiceId: process.env.ETHOS_VOICE_ID || "pNInz6obpgDQGcFmaJgB",
-  zone: "etica"
-} as const;
-
 // Adicionar agentes do laboratório ao ALL_AGENTS para integração com o sistema canônico
 export const KAOS: AgentDefinition = {
   id: 'kaos',

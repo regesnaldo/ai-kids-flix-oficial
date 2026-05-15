@@ -44,9 +44,9 @@ export default function AgentChat({
   }, [messages, isSending]);
 
   useEffect(() => {
-    if (!onHeroInputChange || !heroSendSignal) return;
+    if (!onHeroInputChange || heroSendSignal === 0) return;
     void sendMessage();
-  }, [heroSendSignal]);
+  }, [heroSendSignal, sendMessage]);
 
   const streamingMessageRef = useRef<string | null>(null);
 

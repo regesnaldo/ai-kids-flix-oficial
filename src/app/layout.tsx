@@ -12,8 +12,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="pt-BR" style={{ backgroundColor: "#0a0a1a !important" as any, margin: 0 }}>
-      <body style={{ backgroundColor: "#0a0a1a !important" as any, margin: 0, padding: 0, boxSizing: "border-box" }}>
+    <html lang="pt-BR" className="bg-[#0a0a1a] m-0">
+      <body className="bg-[#0a0a1a] m-0 p-0 box-border">
         {children}
       </body>
     </html>

@@ -39,10 +39,22 @@ export function getPreferences(): UserPreferences | null {
 }
 
 export function savePreferences(prefs: Partial<UserPreferences>): void {
-  // Temporarily disabled for testing - no-op
+  if (typeof window === "undefined") return;
+  const existing = getPreferences() ?? {
+    userId: generateUserId(),
+    name: "",
+    selectedGuideAgent: null,
+    onboardingCompleted: false,
+    onboardingVersion: ONBOARDING_VERSION,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+  const merged = { ...existing, ...prefs, updatedAt: new Date().toISOString() };
+  try { window.localStorage.setItem(STORAGE_KEY, JSON.stringify(merged)); } catch { }
 }
 
 export function shouldShowOnboarding(): boolean {
-  return true;
+  const prefs = getPreferences();
+  return !prefs?.onboardingCompleted;
 }
 

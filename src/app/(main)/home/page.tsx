@@ -1,756 +1,287 @@
 "use client";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
-import Image from "next/image";
-import { sendMessageToNexus } from "@/lib/api";
-import NexusPanel from "@/components/NexusPanel";
-import AgentCard from "@/components/agents/AgentCard";
-import ExplorationRow from "@/components/home/ExplorationRow";
-import JourneyCard from "@/components/home/JourneyCard";
-import CategoryCard from "@/components/home/CategoryCard";
-import AgentPairingCard from "@/components/home/AgentPairingCard";
+import { motion } from "framer-motion";
+import { Play, Info, ChevronLeft, ChevronRight, Star, Clock, Zap, Sparkles } from "lucide-react";
 import { agentsShowcase } from "@/data/agents-showcase";
-import { allAgents } from "@/data/all-agents";
 
-const sidebarItems = [
-  { name: "Início", href: "/home" },
-  { name: "Séries", href: "/aulas" },
-  { name: "Explorar", href: "/explorar" },
-  { name: "Minha Jornada", href: "/perfil" },
-  { name: "Agentes IA", href: "/agentes" },
+const WATCH_STORAGE_KEY = "mente_ai_watch_progress_v1";
+
+function getWatchMap(): Record<string, { watchedPct: number; completed: boolean }> {
+  try {
+    const raw = globalThis.localStorage?.getItem(WATCH_STORAGE_KEY);
+    if (!raw) return {};
+    return JSON.parse(raw);
+  } catch {
+    return {};
+  }
+}
+
+function getAgentImage(agentId: string): string {
+  return `/images/agentes/${agentId.toLowerCase()}.png`;
+}
+
+function HorizontalScroll({ children, title, subtitle }: { children: React.ReactNode; title: string; subtitle?: string }) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [showArrows, setShowArrows] = useState(false);
+
+  const scroll = (dir: number) => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollBy({ left: dir * 400, behavior: "smooth" });
+    }
+  };
+
+  return (
+    <div className="mb-10" onMouseEnter={() => setShowArrows(true)} onMouseLeave={() => setShowArrows(false)}>
+      <div className="flex items-center gap-4 mb-4 px-4 md:px-16">
+        <h2 className="text-xl font-bold text-white">{title}</h2>
+        {subtitle && <span className="text-sm text-gray-500 hidden md:inline">{subtitle}</span>}
+      </div>
+      <div className="relative">
+        {showArrows && (
+          <>
+            <button onClick={() => scroll(-1)} className="absolute left-2 top-0 bottom-0 w-10 flex items-center justify-center z-10 bg-black/50 hover:bg-black/80 rounded-r-lg transition"><ChevronLeft size={24} color="#fff" /></button>
+            <button onClick={() => scroll(1)} className="absolute right-2 top-0 bottom-0 w-10 flex items-center justify-center z-10 bg-black/50 hover:bg-black/80 rounded-l-lg transition"><ChevronRight size={24} color="#fff" /></button>
+          </>
+        )}
+        <div ref={scrollRef} className="flex gap-3 overflow-x-auto px-4 md:px-16 pb-4" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AgentCard({ agent }: { agent: typeof agentsShowcase[0] }) {
+  const [hovered, setHovered] = useState(false);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      whileHover={{ scale: 1.05, y: -5 }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      className="flex-shrink-0 cursor-pointer"
+      style={{ width: 180 }}
+    >
+      <Link href={`/agentes/${agent.id}`}>
+        <div
+          className="relative rounded-md overflow-hidden"
+          style={{ background: "#1A1A1A", aspectRatio: "2/3", boxShadow: hovered ? "0 8px 32px rgba(0,0,0,0.6)" : "0 2px 8px rgba(0,0,0,0.3)" }}
+        >
+          <img src={getAgentImage(agent.id)} alt={agent.name} className="h-full w-full object-cover" loading="lazy" onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }} />
+          <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.8), transparent)" }} />
+          {hovered && (
+            <motion.div
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+              className="absolute inset-0 flex items-center justify-center bg-black/50"
+            >
+              <div className="w-10 h-10 rounded-full flex items-center justify-center border-2 border-white/80">
+                <Play size={16} fill="#fff" color="#fff" />
+              </div>
+            </motion.div>
+          )}
+          <div className="absolute bottom-0 left-0 right-0 p-3">
+            <h4 className="text-sm font-bold text-white">{agent.name}</h4>
+            <p className="text-xs text-gray-300">{agent.subtitle}</p>
+          </div>
+        </div>
+      </Link>
+    </motion.div>
+  );
+}
+
+const journeys = [
+  { id: "fundamentos", title: "Fundamentos de IA", description: "Conceitos essenciais que formam a base de toda IA moderna.", level: "Iniciante", color: "#8B5CF6", episodes: 12 },
+  { id: "criatividade", title: "Criatividade Radical", description: "Desbloqueie seu potencial criativo com agentes especializados.", level: "Intermediário", color: "#F59E0B", episodes: 10 },
+  { id: "etica", title: "IA Ética", description: "Desafios éticos e responsabilidades do desenvolvimento de IA.", level: "Avançado", color: "#10B981", episodes: 8 },
+  { id: "estrategia", title: "Estratégia", description: "Pensamento estratégico aplicado a sistemas de IA.", level: "Avançado", color: "#E50914", episodes: 10 },
 ];
 
-function SidebarItem({ item, isActive }: { item: typeof sidebarItems[0]; isActive: boolean }) {
+function JourneyCard({ j }: { j: typeof journeys[0] }) {
   return (
-    <Link href={item.href} style={{ textDecoration: 'none' }}>
-      <div style={{
-        padding: '12px 16px',
-        color: isActive ? '#8B5CF6' : '#fff',
-        backgroundColor: isActive ? 'rgba(139, 92, 246, 0.1)' : 'transparent',
-        cursor: 'pointer',
-        marginBottom: '4px'
-      }}>
-        {item.name}
-      </div>
+    <Link href={`/aulas`}>
+      <motion.div
+        whileHover={{ scale: 1.03, y: -4 }}
+        className="flex-shrink-0 rounded-md overflow-hidden cursor-pointer"
+        style={{ width: 280, background: "#1A1A1A" }}
+      >
+        <div className="h-32 flex items-center justify-center" style={{ background: `linear-gradient(135deg, ${j.color}40, #1A1A1A)` }}>
+          <Sparkles size={40} style={{ color: j.color }} />
+        </div>
+        <div className="p-4">
+          <span className="text-xs font-medium px-2 py-0.5 rounded" style={{ background: j.color + "30", color: j.color }}>{j.level}</span>
+          <h3 className="text-white font-bold mt-2">{j.title}</h3>
+          <p className="text-gray-400 text-xs mt-1 line-clamp-2">{j.description}</p>
+          <p className="text-gray-500 text-xs mt-2">{j.episodes} episódios</p>
+        </div>
+      </motion.div>
     </Link>
   );
 }
 
-
-
-
-
-// Journey definitions
-const journeys = [
-  {
-    id: "fundamentos",
-    title: "Fundamentos de IA",
-    description: "Aprenda os conceitos essenciais que formam a base de toda IA moderna.",
-    level: "Iniciante",
-    color: "#8B5CF6",
-  },
-  {
-    id: "criatividade",
-    title: "Criatividade Radical",
-    description: "Desbloqueie seu potencial criativo com agentes especializados em inovação.",
-    level: "Intermediário",
-    color: "#8B5CF6",
-  },
-  {
-    id: "etica",
-    title: "IA Ética e Responsável",
-    description: "Explore os desafios éticos e responsabilidades do desenvolvimento de IA.",
-    level: "Avançado",
-    color: "#8B5CF6",
-  },
-  {
-    id: "estrategia",
-    title: "Estratégia e Planejamento",
-    description: "Domine o pensamento estratégico aplicado a sistemas de IA complexos.",
-    level: "Avançado",
-    color: "#8B5CF6",
-  },
-];
-
-// Agent pairings
-const pairings = [
-  {
-    agent1Id: "nexus",
-    agent2Id: "kaos",
-    title: "Criatividade Estruturada",
-    description: "A combinação perfeita entre conectividade e disrupção. Crie ideias revolucionárias dentro de estruturas sólidas.",
-  },
-  {
-    agent1Id: "aurora",
-    agent2Id: "ethos",
-    title: "Visão Ética",
-    description: "Clareza e responsabilidade caminham juntas. Veja o futuro com consciência moral.",
-  },
-  {
-    agent1Id: "volt",
-    agent2Id: "axiom",
-    title: "Energia Precisa",
-    description: "Motivação aliada à lógica pura. Transforme determinação em resultados exatos.",
-  },
-  {
-    agent1Id: "cipher",
-    agent2Id: "lyra",
-    title: "Análise Harmoniosa",
-    description: "Decodifique padrões complexos com elegância. Faça a análise tão bela quanto é precisa.",
-  },
-];
-
 export default function HomePage() {
-  const router = useRouter();
-  const [nexusInput, setNexusInput] = useState('');
-  const [nexusResponse, setNexusResponse] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [watchMap, setWatchMap] = useState<Record<string, { completed: boolean }>>({});
 
-  const sendToNexus = async (message: string) => {
-    if (!message.trim()) return;
-    setIsLoading(true);
-    setNexusResponse('');
-    try {
-      const data = await sendMessageToNexus(message);
-      setNexusResponse(data.response);
-    } catch (error) {
-      setNexusResponse('Error: Please try again.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  useEffect(() => {
+    setWatchMap(getWatchMap());
+  }, []);
 
-  // Group agents by category
-  const agentsByCategory: { [key: string]: typeof allAgents } = {};
-  allAgents.forEach((agent) => {
-    if (!agentsByCategory[agent.category]) {
-      agentsByCategory[agent.category] = [];
-    }
-    agentsByCategory[agent.category].push(agent);
-  });
-
-  // Get top categories
-  const topCategories = [
-    "Fundamentos",
-    "Inovação",
-    "Ética",
-    "Análise",
-    "Estratégia",
-  ].filter((cat) => agentsByCategory[cat]);
-
-  // Get agents for pairings
-  const getPairingAgents = (id: string) =>
-    allAgents.find((a) => a.id === id);
+  const completedCount = Object.values(watchMap).filter((w) => w.completed).length;
+  const hasProgress = completedCount > 0;
 
   return (
-    <div style={{
-      display: 'flex',
-      minHeight: '100vh',
-      background: '#0a0a1a',
-      fontFamily: 'Arial, sans-serif'
-    }}>
-      {/* Sidebar */}
-      <div style={{
-        width: '240px',
-        background: '#1a1a2e',
-        padding: '20px 0',
-        position: 'fixed',
-        height: '100vh'
-      }}>
-        <div style={{ padding: '0 20px 20px', borderBottom: '1px solid #333' }}>
-          <div style={{ color: '#fff', fontSize: '24px', fontWeight: 'bold' }}>
-            MENTE.AI
+    <div className="min-h-screen" style={{ background: "#0a0a1a" }}>
+      <nav
+        className="fixed top-0 left-0 right-0 z-50 px-6 py-4"
+        style={{ background: "linear-gradient(to bottom, #0a0a1a, transparent)" }}
+      >
+        <div className="flex items-center justify-between w-full" style={{ pointerEvents: "auto" }}>
+        <div className="flex items-center gap-8">
+          <Link href="/" className="text-2xl font-bold">
+            <span className="text-white">MENTE</span><span className="text-red-500">.AI</span>
+          </Link>
+          <div className="hidden md:flex items-center gap-6 text-sm">
+            <Link href="/" className="text-white font-semibold">Início</Link>
+            <Link href="/aulas" className="text-gray-400 hover:text-white transition">Séries</Link>
+            <Link href="/agentes" className="text-gray-400 hover:text-white transition">Agentes</Link>
+            <Link href="/explorar" className="text-gray-400 hover:text-white transition">Explorar</Link>
           </div>
         </div>
-        <nav style={{ padding: '20px 0' }}>
-          {sidebarItems.map((item) => (
-            <SidebarItem key={item.name} item={item} isActive={item.name === 'Início'} />
-          ))}
-        </nav>
+        {hasProgress && (
+          <div className="text-sm text-gray-400">
+            {completedCount} episódios concluídos
+          </div>
+        )}
+        </div>
+      </nav>
+
+      {/* Hero Banner */}
+      <div className="relative h-[80vh] min-h-[500px] max-h-[700px] overflow-hidden">
+        <div className="absolute inset-0">
+          <img
+            src="/images/agentes/nexus.png"
+            alt="NEXUS"
+            className="h-full w-full object-cover"
+            onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/images/placeholder.svg"; }}
+          />
+        </div>
+
+        <div className="absolute inset-0" style={{
+          background: `
+            linear-gradient(to right, #0a0a1a 0%, #0a0a1a40 50%, transparent 100%),
+            linear-gradient(to top, #0a0a1a 0%, transparent 50%),
+            linear-gradient(to bottom, #0a0a1a 80%, transparent 100%)
+          `,
+        }} />
+
+        <div className="absolute inset-0 flex items-center px-8 md:px-16">
+          <div className="relative z-10 max-w-xl">
+            <div className="flex items-center gap-3 mb-3">
+              <span className="text-xs font-semibold text-gray-400 tracking-wider">MENTE.AI ORIGINAL</span>
+              <span className="text-xs px-2 py-0.5 rounded font-medium bg-purple-500/20 text-purple-300 border border-purple-400/30">
+                NOVA TEMPORADA
+              </span>
+            </div>
+
+            <h1 className="text-5xl md:text-7xl font-bold text-white mb-4 leading-tight">
+              NEXUS
+            </h1>
+            <p className="text-sm md:text-base text-gray-300 mb-6 max-w-lg leading-relaxed">
+              Onde mentes são formadas, não formatadas. NEXUS conecta você ao conhecimento
+              infinito dos agentes de IA. Cada um uma perspectiva única no universo do aprendizado.
+            </p>
+
+            <div className="flex items-center gap-4">
+              <Link
+                href="/aulas"
+                className="flex items-center gap-2 px-8 py-3 rounded font-bold text-sm bg-white text-black hover:bg-white/90 transition"
+              >
+                <Play size={20} fill="#000" />
+                Assistir
+              </Link>
+
+              <Link
+                href="/agentes"
+                className="flex items-center gap-2 px-6 py-3 rounded font-medium text-sm bg-white/10 hover:bg-white/20 transition text-white"
+              >
+                <Info size={18} />
+                Saiba mais
+              </Link>
+            </div>
+
+            <div className="flex items-center gap-6 mt-6 text-xs text-gray-400">
+              <span className="flex items-center gap-1"><Star size={14} /> 12 Agentes</span>
+              <span className="flex items-center gap-1"><Zap size={14} /> 50 Temporadas</span>
+              <span className="flex items-center gap-1"><Clock size={14} /> 5 Fases</span>
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* Main Content */}
-      <div style={{
-        flex: 1,
-        marginLeft: '240px',
-        padding: '40px'
-      }}>
-        {/* Hero Section - Cinematic */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          style={{
-            minHeight: '60vh',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            textAlign: 'center',
-            position: 'relative',
-            background: 'radial-gradient(circle at center, rgba(59, 130, 246, 0.1) 0%, transparent 70%)',
-            borderRadius: '20px',
-            padding: '120px 40px'
-          }}
-        >
-          {/* NEXUS Image with Glow */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5, delay: 0.2, ease: "easeOut" }}
-            style={{
-              position: 'relative',
-              marginBottom: '40px'
-            }}
-          >
-            <motion.div
-              animate={{ opacity: [0.7, 1, 0.7] }}
-              transition={{ duration: 2.5, repeat: Infinity }}
-              style={{
-                position: 'absolute',
-                inset: '-20px',
-                background: 'radial-gradient(circle, rgba(59, 130, 246, 0.5), transparent)',
-                borderRadius: '50%',
-                filter: 'blur(20px)',
-                zIndex: 0
-              }}
-            />
-            <div style={{
-              position: 'relative',
-              zIndex: 1,
-              width: '300px',
-              height: '300px',
-              borderRadius: '50%',
-              overflow: 'hidden',
-              border: '2px solid rgba(59, 130, 246, 0.5)',
-              boxShadow: '0 0 40px rgba(59, 130, 246, 0.4)'
-            }}>
-              <Image
-                src="/images/agentes/nexus.png"
-                alt="NEXUS - O Conector"
-                width={300}
-                height={300}
-                priority
-                style={{ objectFit: 'cover' }}
-              />
+      <div className="pb-16">
+        {/* Continue Watching */}
+        {hasProgress && (
+          <HorizontalScroll title="Continuar Assistindo" subtitle="Continue de onde parou">
+            <div className="flex-shrink-0 w-72 rounded-md overflow-hidden" style={{ background: "#1A1A1A" }}>
+              <div className="h-40 flex items-center justify-center bg-white/5">
+                <Play size={32} className="text-gray-400" />
+              </div>
+              <div className="p-4">
+                <h4 className="text-white font-semibold text-sm">Continue sua jornada</h4>
+                <p className="text-gray-400 text-xs mt-1">{completedCount} episódios concluídos</p>
+                <Link href="/aulas" className="inline-block mt-3 text-xs font-bold text-white bg-white/10 px-4 py-2 rounded hover:bg-white/20 transition">
+                  Continuar
+                </Link>
+              </div>
             </div>
-          </motion.div>
+          </HorizontalScroll>
+        )}
 
-          {/* Hero Text */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.4, ease: "easeOut" }}
-            style={{ maxWidth: '600px' }}
-          >
-            <h1 style={{
-              fontSize: '3.5rem',
-              fontWeight: 'bold',
-              color: '#fff',
-              margin: '0 0 20px',
-              lineHeight: 1.2
-            }}>
-              Onde mentes são formadas, não formatadas
-            </h1>
-            <p style={{
-              fontSize: '1.3rem',
-              color: '#a0aec0',
-              margin: '0 0 40px',
-              lineHeight: 1.6
-            }}>
-              NEXUS conecta você ao conhecimento infinito dos agentes de IA. Cada um uma perspectiva única no universo do aprendizado.
-            </p>
-            <div style={{ display: 'flex', gap: '20px', justifyContent: 'center' }}>
-              <button
-                onClick={() => router.push('/agentes')}
-                style={{
-                  padding: '14px 32px',
-                  background: 'linear-gradient(135deg, #3B82F6, #1d4ed8)',
-                  border: 'none',
-                  borderRadius: '8px',
-                  color: '#fff',
-                  fontSize: '1.1rem',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  boxShadow: '0 0 20px rgba(59, 130, 246, 0.4)',
-                  transition: 'all 0.3s ease'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.boxShadow = '0 0 30px rgba(59, 130, 246, 0.6)';
-                  e.currentTarget.style.transform = 'scale(1.05)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.boxShadow = '0 0 20px rgba(59, 130, 246, 0.4)';
-                  e.currentTarget.style.transform = 'scale(1)';
-                }}
-              >
-                Conhecer os Agentes
-              </button>
-              <button
-                onClick={() => router.push('/perfil')}
-                style={{
-                  padding: '14px 32px',
-                  background: 'transparent',
-                  border: '2px solid rgba(59, 130, 246, 0.6)',
-                  borderRadius: '8px',
-                  color: '#3B82F6',
-                  fontSize: '1.1rem',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  transition: 'all 0.3s ease'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 1)';
-                  e.currentTarget.style.background = 'rgba(59, 130, 246, 0.1)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.6)';
-                  e.currentTarget.style.background = 'transparent';
-                }}
-              >
-                Minha Jornada
-              </button>
-              <button
-                onClick={() => router.push('/universo/nexus')}
-                style={{
-                  padding: '14px 32px',
-                  background: 'transparent',
-                  border: '2px solid rgba(255, 255, 255, 0.6)',
-                  borderRadius: '8px',
-                  color: '#fff',
-                  fontSize: '1.1rem',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  transition: 'all 0.3s ease'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 1)';
-                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.6)';
-                  e.currentTarget.style.background = 'transparent';
-                }}
-              >
-                Entrar no Universo NEXUS →
-              </button>
-            </div>
-          </motion.div>
+        {/* Agent Council */}
+        <HorizontalScroll title="O Conselho de Mentores" subtitle="Os 12 arquétipos do MENTE.AI">
+          {agentsShowcase.slice(0, 12).map((agent) => (
+            <AgentCard key={agent.id} agent={agent} />
+          ))}
+        </HorizontalScroll>
 
-          {/* NEXUS Chat Input */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.6, ease: "easeOut" }}
-            style={{
-              width: '100%',
-              maxWidth: '500px',
-              marginTop: '40px',
-            }}
-          >
-            <div style={{ display: 'flex', gap: '10px' }}>
-              <input
-                type="text"
-                value={nexusInput}
-                onChange={(e) => setNexusInput(e.target.value)}
-                placeholder="Pergunte algo ao NEXUS..."
-                disabled={isLoading}
-                style={{
-                  flex: 1,
-                  padding: '12px 16px',
-                  borderRadius: '8px',
-                  border: '1px solid rgba(59, 130, 246, 0.5)',
-                  background: 'rgba(59, 130, 246, 0.05)',
-                  color: '#fff',
-                  fontSize: '14px',
-                  outline: 'none',
-                  transition: 'all 0.3s ease',
-                }}
-                onFocus={(e) => {
-                  e.currentTarget.style.borderColor = '#3B82F6';
-                  e.currentTarget.style.background = 'rgba(59, 130, 246, 0.1)';
-                }}
-                onBlur={(e) => {
-                  e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.5)';
-                  e.currentTarget.style.background = 'rgba(59, 130, 246, 0.05)';
-                }}
-              />
-              <button
-                onClick={() => sendToNexus(nexusInput)}
-                disabled={isLoading || !nexusInput.trim()}
-                style={{
-                  padding: '12px 20px',
-                  background: '#3B82F6',
-                  border: 'none',
-                  borderRadius: '8px',
-                  color: '#fff',
-                  cursor: isLoading ? 'not-allowed' : 'pointer',
-                  opacity: isLoading ? 0.5 : 1,
-                  transition: 'all 0.3s ease',
-                }}
-              >
-                {isLoading ? '...' : 'Enviar'}
-              </button>
-            </div>
-          </motion.div>
-        </motion.div>
+        {/* Journey Pathways */}
+        <HorizontalScroll title="Jornadas de Aprendizado" subtitle="Caminhos para sua evolução">
+          {journeys.map((j) => (
+            <JourneyCard key={j.id} j={j} />
+          ))}
+        </HorizontalScroll>
 
-        {/* SECTION 2: Featured Agent Council */}
+        {/* CTA */}
         <motion.div
-          initial={{ opacity: 0, y: 40 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2, ease: "easeOut" }}
-          style={{ marginTop: '80px' }}
+          className="mx-4 md:mx-16 mt-12 p-12 rounded-xl text-center"
+          style={{ background: "linear-gradient(135deg, rgba(139,92,246,0.15), rgba(59,130,246,0.1))", border: "1px solid rgba(139,92,246,0.3)" }}
         >
-          <h2 style={{
-            color: '#fff',
-            fontSize: '24px',
-            marginBottom: '8px',
-            fontWeight: '700'
-          }}>
-            O Conselho de Mentores
-          </h2>
-          <p style={{
-            color: 'rgba(255,255,255,0.5)',
-            fontSize: '14px',
-            marginBottom: '32px'
-          }}>
-            Os 12 arquétipos que moldam o universo MENTE.AI
-          </p>
-
-          <div style={{
-            display: 'flex',
-            overflowX: 'auto',
-            gap: '24px',
-            paddingRight: '24px',
-            scrollPaddingRight: '24px',
-            paddingBottom: '20px',
-            scrollBehavior: 'smooth',
-            scrollSnapType: 'x mandatory'
-          }}>
-          <AnimatePresence>
-            {agentsShowcase.slice(0, 12).map((agent, index) => (
-              <motion.div
-                key={agent.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: 0.1 * index }}
-              >
-                <AgentCard agent={agent} />
-              </motion.div>
-            ))}
-          </AnimatePresence>
-          </div>
-        </motion.div>
-
-        {/* SECTION 3: Journey Pathways */}
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.4, ease: "easeOut" }}
-          style={{ marginTop: '80px' }}
-        >
-          <h2 style={{
-            color: '#fff',
-            fontSize: '24px',
-            marginBottom: '8px',
-            fontWeight: '700'
-          }}>
-            Suas Jornadas de Aprendizado
-          </h2>
-          <p style={{
-            color: 'rgba(255,255,255,0.5)',
-            fontSize: '14px',
-            marginBottom: '32px'
-          }}>
-            Caminhos personalizados para sua evolução
-          </p>
-
-          <div style={{
-            display: 'flex',
-            overflowX: 'auto',
-            gap: '24px',
-            paddingBottom: '20px',
-            scrollBehavior: 'smooth',
-            scrollSnapType: 'x mandatory'
-          }}>
-            <AnimatePresence>
-              {journeys.map((journey, index) => (
-                <motion.div
-                  key={journey.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: 0.1 * index }}
-                >
-                  <JourneyCard {...journey} />
-                </motion.div>
-              ))}
-            </AnimatePresence>
-          </div>
-        </motion.div>
-
-        {/* SECTION 4: Continue Your Journey */}
-        <ExplorationRow
-          title="Continue de Onde Parou"
-          subtitle="Sua progressão aguarda"
-          delay={0.6}
-        >
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0 }}
-            style={{
-              padding: '32px',
-              background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(59, 130, 246, 0.1))',
-              border: '1px solid rgba(139, 92, 246, 0.3)',
-              borderRadius: '12px',
-              textAlign: 'center',
-              gridColumn: '1 / -1'
-            }}
-          >
-            <h3 style={{
-              color: '#fff',
-              fontSize: '1.3rem',
-              fontWeight: '600',
-              margin: '0 0 12px'
-            }}>
-              Comece sua primeira jornada
-            </h3>
-            <p style={{
-              color: '#a0aec0',
-              fontSize: '1rem',
-              margin: '0 0 20px',
-              lineHeight: 1.6
-            }}>
-              Escolha uma jornada acima para começar a explorar o universo MENTE.AI e conectar-se com agentes que transformarão sua maneira de aprender.
-            </p>
-            <button
-              onClick={() => router.push('/aulas')}
-              style={{
-                padding: '12px 24px',
-                background: '#8B5CF6',
-                border: 'none',
-                borderRadius: '8px',
-                color: '#fff',
-                fontSize: '1rem',
-                fontWeight: '600',
-                cursor: 'pointer',
-                transition: 'all 0.3s ease'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.opacity = '0.9';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.opacity = '1';
-              }}
-            >
-              Explorar Jornadas
-            </button>
-          </motion.div>
-        </ExplorationRow>
-
-        {/* SECTION 5: Agent Universes */}
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.8, ease: "easeOut" }}
-          style={{ marginTop: '80px' }}
-        >
-          <h2 style={{
-            color: '#fff',
-            fontSize: '24px',
-            marginBottom: '8px',
-            fontWeight: '700'
-          }}>
-            Explore por Domínio
-          </h2>
-          <p style={{
-            color: 'rgba(255,255,255,0.5)',
-            fontSize: '14px',
-            marginBottom: '32px'
-          }}>
-            Escolha um universo e mergulhe em suas profundezas
-          </p>
-
-          <div style={{
-            display: 'flex',
-            overflowX: 'auto',
-            gap: '24px',
-            paddingBottom: '20px',
-            scrollBehavior: 'smooth',
-            scrollSnapType: 'x mandatory'
-          }}>
-            <AnimatePresence>
-              {topCategories.map((category, index) => (
-                <motion.div
-                  key={category}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: 0.1 * index }}
-                  style={{
-                    border: '1px solid rgba(147, 51, 234, 0.3)',
-                    borderRadius: '12px',
-                  }}
-                >
-                  <CategoryCard
-                    categoryName={category}
-                    agents={agentsByCategory[category] || []}
-                    agentCount={agentsByCategory[category]?.length || 0}
-                    color={agentsByCategory[category]?.[0]?.color || '#3B82F6'}
-                  />
-                </motion.div>
-              ))}
-            </AnimatePresence>
-          </div>
-        </motion.div>
-
-        {/* SECTION 6: Discovery Zone */}
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 1.0, ease: "easeOut" }}
-          style={{ marginTop: '80px' }}
-        >
-          <h2 style={{
-            color: '#fff',
-            fontSize: '24px',
-            marginBottom: '8px',
-            fontWeight: '700'
-          }}>
-            Descubra Conexões
-          </h2>
-          <p style={{
-            color: 'rgba(255,255,255,0.5)',
-            fontSize: '14px',
-            marginBottom: '32px'
-          }}>
-            Agentes que se complementam
-          </p>
-
-          <div style={{
-            display: 'flex',
-            overflowX: 'auto',
-            gap: '24px',
-            paddingBottom: '20px',
-            scrollBehavior: 'smooth',
-            scrollSnapType: 'x mandatory'
-          }}>
-            <AnimatePresence>
-              {pairings.map((pairing, index) => {
-                const agent1 = getPairingAgents(pairing.agent1Id);
-                const agent2 = getPairingAgents(pairing.agent2Id);
-                if (!agent1 || !agent2) return null;
-
-                return (
-                  <motion.div
-                    key={`${pairing.agent1Id}-${pairing.agent2Id}`}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4, delay: 0.1 * index }}
-                  >
-                    <AgentPairingCard
-                      agent1={agent1}
-                      agent2={agent2}
-                      title={pairing.title}
-                      description={pairing.description}
-                    />
-                  </motion.div>
-                );
-              })}
-            </AnimatePresence>
-          </div>
-        </motion.div>
-
-        {/* SECTION 7: CTA Zone */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5, delay: 1.2, ease: "easeOut" }}
-          style={{
-            marginTop: '80px',
-            padding: '60px 40px',
-            background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(59, 130, 246, 0.1))',
-            border: '1px solid rgba(139, 92, 246, 0.3)',
-            borderRadius: '20px',
-            textAlign: 'center',
-            marginBottom: '40px'
-          }}
-        >
-          <h2 style={{
-            color: '#fff',
-            fontSize: '2.5rem',
-            fontWeight: 'bold',
-            margin: '0 0 20px',
-            lineHeight: 1.2
-          }}>
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
             Pronto para transformar sua mente?
           </h2>
-          <p style={{
-            color: '#a0aec0',
-            fontSize: '1.2rem',
-            margin: '0 0 40px',
-            lineHeight: 1.6,
-            maxWidth: '600px',
-            marginLeft: 'auto',
-            marginRight: 'auto'
-          }}>
-            Acesse o conhecimento infinito de 12 agentes canônicos. Comece grátis e descubra como a IA pode ampliar suas capacidades.
+          <p className="text-gray-400 mb-8 max-w-md mx-auto">
+            Conhecimento infinito de 12 agentes canônicos. Comece grátis.
           </p>
-          <div style={{ display: 'flex', gap: '20px', justifyContent: 'center' }}>
-            <button
-              onClick={() => router.push('/aulas')}
-              style={{
-                padding: '14px 32px',
-                background: '#8B5CF6',
-                border: 'none',
-                borderRadius: '8px',
-                color: '#fff',
-                fontSize: '1.1rem',
-                fontWeight: '600',
-                cursor: 'pointer',
-                boxShadow: '0 0 20px rgba(139, 92, 246, 0.4)',
-                transition: 'all 0.3s ease'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.boxShadow = '0 0 30px rgba(139, 92, 246, 0.6)';
-                e.currentTarget.style.transform = 'scale(1.05)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.boxShadow = '0 0 20px rgba(139, 92, 246, 0.4)';
-                e.currentTarget.style.transform = 'scale(1)';
-              }}
+          <div className="flex gap-4 justify-center">
+            <Link
+              href="/aulas"
+              className="px-8 py-3 rounded font-bold text-sm bg-white text-black hover:bg-white/90 transition"
             >
               Comece Grátis
-            </button>
-            <button
-              onClick={() => router.push('/planos')}
-              style={{
-                padding: '14px 32px',
-                background: 'transparent',
-                border: '2px solid rgba(139, 92, 246, 0.6)',
-                borderRadius: '8px',
-                color: '#8B5CF6',
-                fontSize: '1.1rem',
-                fontWeight: '600',
-                cursor: 'pointer',
-                transition: 'all 0.3s ease'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.borderColor = 'rgba(139, 92, 246, 1)';
-                e.currentTarget.style.background = 'rgba(139, 92, 246, 0.1)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.borderColor = 'rgba(139, 92, 246, 0.6)';
-                e.currentTarget.style.background = 'transparent';
-              }}
+            </Link>
+            <Link
+              href="/planos"
+              className="px-8 py-3 rounded font-medium text-sm border border-white/20 text-white hover:bg-white/10 transition"
             >
-              Ver Planos Premium
-            </button>
+              Ver Planos
+            </Link>
           </div>
         </motion.div>
       </div>
-
     </div>
   );
-  }
+}
