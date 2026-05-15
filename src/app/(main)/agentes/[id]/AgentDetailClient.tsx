@@ -34,14 +34,23 @@ export default function AgentDetailClient({ agent }: AgentDetailClientProps) {
   }, [agent.dimension, agent.id, agent.level]);
 
   return (
-    <div className="min-h-screen bg-[#0a0a1a] text-white">
-      <div className="mx-auto max-w-7xl px-5 md:px-8 pt-8">
-        <Link
-          href="/agentes"
-          className="inline-flex items-center gap-2 text-white/70 hover:text-white mb-6 transition"
-        >
-          ← Voltar para todos os agentes
-        </Link>
+    <div className="min-h-screen" style={{ background: '#0a0a1a' }}>
+      <nav className="fixed top-0 left-0 right-0 z-50 px-6 py-4" style={{ background: 'linear-gradient(to bottom, #0a0a1a, transparent)' }}>
+        <div className="flex items-center justify-between w-full" style={{ pointerEvents: 'auto' }}>
+          <div className="flex items-center gap-8">
+            <Link href="/" className="text-2xl font-bold">
+              <span className="text-white">MENTE</span><span className="text-red-500">.AI</span>
+            </Link>
+            <div className="hidden md:flex items-center gap-6 text-sm">
+              <Link href="/" className="text-gray-400 hover:text-white transition">Início</Link>
+              <Link href="/aulas" className="text-gray-400 hover:text-white transition">Séries</Link>
+              <Link href="/agentes" className="text-white font-semibold">Agentes</Link>
+              <Link href="/explorar" className="text-gray-400 hover:text-white transition">Explorar</Link>
+            </div>
+          </div>
+        </div>
+      </nav>
+      <div className="mx-auto max-w-7xl px-5 md:px-8 pt-24">
 
         <section
           className="relative min-h-screen overflow-hidden rounded-3xl"
