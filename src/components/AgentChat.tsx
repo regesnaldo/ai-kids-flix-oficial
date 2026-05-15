@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Volume2, VolumeX } from 'lucide-react';
 import { useChatHistory } from '@/hooks/useChatHistory';
+import { UniverseTransition } from './UniverseTransition';
 
 interface AgentChatProps {
   agentId: string;
@@ -36,6 +37,7 @@ export default function AgentChat({
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [transition, setTransition] = useState<{ from: string; to: string; reason: string } | null>(null);
   const endRef = useRef<HTMLDivElement | null>(null);
   const speakingRef = useRef<SpeechSynthesisUtterance | null>(null);
 
@@ -127,6 +129,26 @@ export default function AgentChat({
       setMessages(prev => prev.filter(m => m.id !== tempMsgId));
     } finally {
       setIsSending(false);
+    }
+
+    if (streamingMessageRef.current) {
+      try {
+        const checkRes = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            agentId,
+            messages: [...messages, { role: 'user', content: text }, { role: 'assistant', content: streamingMessageRef.current }].map((m) => ({ role: m.role, content: m.content })),
+            stream: false,
+          }),
+        })
+        if (checkRes.ok) {
+          const checkData = await checkRes.json()
+          if (checkData.transitionTo && checkData.transitionTo !== agentId) {
+            setTransition({ from: agentId, to: checkData.transitionTo, reason: checkData.transitionReason || 'Transicao narrativa' })
+          }
+        }
+      } catch { }
     }
   }
 
@@ -272,6 +294,15 @@ export default function AgentChat({
           Enter envia • Shift+Enter quebra linha
         </p>
       </div>
+
+      {transition && (
+        <UniverseTransition
+          fromAgent={transition.from}
+          toAgent={transition.to}
+          reason={transition.reason}
+          onComplete={() => setTransition(null)}
+        />
+      )}
     </section>
   );
 }
