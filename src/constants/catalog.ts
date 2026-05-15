@@ -302,14 +302,74 @@ const SEASON_02: Season = {
   ],
 };
 
-const SEASONS_03_TO_10: Season[] = Array.from({ length: 8 }, (_, i) => ({
-  id: `S${String(i + 3).padStart(2, "0")}`,
-  number: i + 3,
-  title: `Temporada ${i + 3} — Em Breve`,
+const SEASON_03: Season = {
+  id: "S03", number: 3,
+  title: "O Paradoxo do Humor",
+  synopsis: "JANUS revela por que a inteligência artificial não conta piadas — e o que isso revela sobre nós mesmos.",
+  phaseId: 1, primaryAgent: "JANUS",
+  coverImageUrl: agentCover("janus"), totalXp: 580,
+  episodes: [
+    makeEpisode(3, 1, { title: "IA Não Tem Humor?", description: "JANUS explica por que máquinas não entendem piadas — e por que isso é um problema filosófico.", type: "narrativa", durationMinutes: 8, agentId: "JANUS", xpReward: 50, status: "disponivel" }),
+    makeEpisode(3, 2, { title: "O Que É Humor?", description: "Teoria do humor: incongruência, superioridade e alívio — qual delas uma IA poderia entender?", type: "teoria", durationMinutes: 10, agentId: "JANUS", xpReward: 55, status: "disponivel" }),
+    makeEpisode(3, 3, { title: "Laboratório: Detector de Trolling", description: "Treine um classificador para detectar sarcasmo em textos reais.", type: "laboratorio", durationMinutes: 16, agentId: "JANUS", xpReward: 70, status: "disponivel", labZone: "transformers" }),
+    makeEpisode(3, 4, { title: "Paradoxos Lógicos", description: "O paradoxo do mentiroso e outros quebra-cabeças que fazem IAs travar.", type: "teoria", durationMinutes: 9, agentId: "JANUS", xpReward: 55, status: "disponivel" }),
+    makeEpisode(3, 5, { title: "Desafio: Pegadinha da IA", description: "JANUS testa sua capacidade de detectar humor em frases geradas por IA.", type: "desafio", durationMinutes: 12, agentId: "JANUS", xpReward: 80, status: "disponivel" }),
+    makeEpisode(3, 6, { title: "A Exceção Que Confirma a Regra", description: "Como o humor quebra padrões — e por que isso é tão difícil para modelos estatísticos.", type: "teoria", durationMinutes: 10, agentId: "JANUS", xpReward: 55, status: "disponivel" }),
+    makeEpisode(3, 7, { title: "Laboratório: Gerador de Trocadilhos", description: "Use um modelo de linguagem para gerar trocadilhos — e avalie quais funcionam.", type: "laboratorio", durationMinutes: 14, agentId: "JANUS", xpReward: 65, status: "disponivel", labZone: "creative" }),
+    makeEpisode(3, 8, { title: "Quando o Humor Ofende", description: "ETHOS e JANUS debatem os limites do humor gerado por IA.", type: "narrativa", durationMinutes: 11, agentId: "ETHOS", xpReward: 60, status: "disponivel" }),
+    makeEpisode(3, 9, { title: "Máquinas que Riem", description: "Projetos reais de IA que tentam — e falham — em ser engraçadas.", type: "teoria", durationMinutes: 10, agentId: "JANUS", xpReward: 55, status: "disponivel" }),
+    makeEpisode(3, 10, { title: "Reflexão: O Que Te Faz Rir?", description: "JANUS convida você a analisar seu próprio senso de humor e o que ele revela.", type: "reflexao", durationMinutes: 7, agentId: "JANUS", xpReward: 50, status: "disponivel" }),
+  ],
+};
+
+const SEASON_04: Season = {
+  id: "S04", number: 4,
+  title: "O Tabuleiro Infinito",
+  synopsis: "STRATOS ensina pensamento estratégico através de jogos, simulações e planejamento com IA.",
+  phaseId: 1, primaryAgent: "STRATOS",
+  coverImageUrl: agentCover("stratos"), totalXp: 590,
+  episodes: [
+    makeEpisode(4, 1, { title: "Dez Movimentos à Frente", description: "STRATOS apresenta o conceito de árvore de decisão e pensamento antecipatório.", type: "narrativa", durationMinutes: 9, agentId: "STRATOS", xpReward: 50, status: "disponivel" }),
+    makeEpisode(4, 2, { title: "O Jogo da IA", description: "Como algoritmos de jogos (Minimax, Monte Carlo) pensam estrategicamente.", type: "teoria", durationMinutes: 11, agentId: "STRATOS", xpReward: 55, status: "disponivel" }),
+    makeEpisode(4, 3, { title: "Laboratório: Simulador de Xadrez", description: "Visualize a árvore de decisão de um jogo de xadrez simplificado.", type: "laboratorio", durationMinutes: 18, agentId: "STRATOS", xpReward: 75, status: "disponivel", labZone: "neural" }),
+    makeEpisode(4, 4, { title: "Estratégia vs Tática", description: "A diferença entre planejamento de longo prazo e ações imediatas na IA.", type: "teoria", durationMinutes: 10, agentId: "STRATOS", xpReward: 55, status: "disponivel" }),
+    makeEpisode(4, 5, { title: "Desafio: Jogo da Velha", description: "Implemente uma estratégia invencível para o jogo da velha com algoritmos de busca.", type: "desafio", durationMinutes: 15, agentId: "STRATOS", xpReward: 85, status: "disponivel" }),
+    makeEpisode(4, 6, { title: "O Dilema do Prisioneiro", description: "Teoria dos jogos aplicada a sistemas multiagente — cooperar ou trair?", type: "teoria", durationMinutes: 10, agentId: "STRATOS", xpReward: 55, status: "disponivel" }),
+    makeEpisode(4, 7, { title: "Laboratório: Simulação de Mercado", description: "Agentes competitivos em um mercado simulado — quem vence?", type: "laboratorio", durationMinutes: 16, agentId: "STRATOS", xpReward: 70, status: "disponivel", labZone: "ethics" }),
+    makeEpisode(4, 8, { title: "O General e o Soldado", description: "Como sistemas hierárquicos de IA tomam decisões em diferentes níveis.", type: "teoria", durationMinutes: 9, agentId: "STRATOS", xpReward: 55, status: "disponivel" }),
+    makeEpisode(4, 9, { title: "Planejamento Automatizado", description: "Algoritmos de planejamento usados em robótica e veículos autônomos.", type: "teoria", durationMinutes: 11, agentId: "STRATOS", xpReward: 60, status: "disponivel" }),
+    makeEpisode(4, 10, { title: "Reflexão: Seu Estilo Estratégico", description: "STRATOS analisa suas decisões e revela seu perfil estratégico dominante.", type: "reflexao", durationMinutes: 7, agentId: "STRATOS", xpReward: 50, status: "disponivel" }),
+  ],
+};
+
+const SEASON_05: Season = {
+  id: "S05", number: 5,
+  title: "Caos Criativo",
+  synopsis: "KAOS mostra que a desordem é o berço da criatividade — e como a IA usa o caos para inovar.",
+  phaseId: 1, primaryAgent: "KAOS",
+  coverImageUrl: agentCover("kaos"), totalXp: 585,
+  episodes: [
+    makeEpisode(5, 1, { title: "O Universo do Caos", description: "KAOS irrompe no metaverso e desafia todas as regras estabelecidas por NEXUS.", type: "narrativa", durationMinutes: 8, agentId: "KAOS", xpReward: 50, status: "disponivel" }),
+    makeEpisode(5, 2, { title: "Entropia e Criatividade", description: "Por que sistemas caóticos geram resultados mais criativos que sistemas ordenados.", type: "teoria", durationMinutes: 10, agentId: "KAOS", xpReward: 55, status: "disponivel" }),
+    makeEpisode(5, 3, { title: "Laboratório: Gerador de Ideias", description: "Use temperatura e top-k para controlar o caos criativo de um modelo de linguagem.", type: "laboratorio", durationMinutes: 15, agentId: "KAOS", xpReward: 70, status: "disponivel", labZone: "creative" }),
+    makeEpisode(5, 4, { title: "O Efeito Borboleta na IA", description: "Pequenas mudanças nos dados de entrada podem gerar resultados completamente diferentes.", type: "teoria", durationMinutes: 9, agentId: "KAOS", xpReward: 55, status: "disponivel" }),
+    makeEpisode(5, 5, { title: "Desafio: Caos Controlado", description: "Use parâmetros de temperatura para equilibrar criatividade e coerência nas respostas.", type: "desafio", durationMinutes: 13, agentId: "KAOS", xpReward: 80, status: "disponivel" }),
+    makeEpisode(5, 6, { title: "Redes Adversárias", description: "GANs: duas redes competindo — uma cria, a outra critica. O caos como método.", type: "teoria", durationMinutes: 12, agentId: "KAOS", xpReward: 60, status: "disponivel" }),
+    makeEpisode(5, 7, { title: "Laboratório: Caos Generativo", description: "Visualize o espaço latente de um modelo generativo e veja o caos criar arte.", type: "laboratorio", durationMinutes: 17, agentId: "KAOS", xpReward: 75, status: "disponivel", labZone: "creative" }),
+    makeEpisode(5, 8, { title: "Ordem vs Caos", description: "NEXUS e KAOS debatem: IA precisa de regras ou liberdade para evoluir?", type: "narrativa", durationMinutes: 10, agentId: "NEXUS", xpReward: 55, status: "disponivel" }),
+    makeEpisode(5, 9, { title: "Inovação Disruptiva", description: "Como startups de IA usam o caos para inovar mais rápido que grandes empresas.", type: "teoria", durationMinutes: 10, agentId: "KAOS", xpReward: 55, status: "disponivel" }),
+    makeEpisode(5, 10, { title: "Reflexão: Seu Lado Caótico", description: "KAOS revela seu nível de tolerância ao caos e como isso afeta sua criatividade.", type: "reflexao", durationMinutes: 7, agentId: "KAOS", xpReward: 50, status: "disponivel" }),
+  ],
+};
+
+const SEASONS_06_TO_10: Season[] = Array.from({ length: 5 }, (_, i) => ({
+  id: `S${String(i + 6).padStart(2, "0")}`,
+  number: i + 6,
+  title: `Temporada ${i + 6} — Em Breve`,
   synopsis: "Esta temporada está sendo produzida pela equipe MENTE.AI.",
   phaseId: 1 as PhaseId,
-  primaryAgent: (["JANUS", "STRATOS", "KAOS", "ETHOS", "LYRA", "AXIOM", "AURORA", "CIPHER"] as AgentId[])[i],
-  coverImageUrl: agentCover((["janus", "stratos", "kaos", "ethos", "lyra", "axiom", "aurora", "cipher"] as const)[i]),
+  primaryAgent: (["ETHOS", "LYRA", "AXIOM", "AURORA", "CIPHER"] as AgentId[])[i],
+  coverImageUrl: agentCover((["ethos", "lyra", "axiom", "aurora", "cipher"] as const)[i]),
   totalXp: 0,
   episodes: [],
 }));
@@ -335,7 +395,7 @@ export const CATALOG: Phase[] = [
     name: "Despertar",
     theme: "Fundamentos da Inteligência Artificial",
     colorHex: "#10B981",
-    seasons: [SEASON_01, SEASON_02, ...SEASONS_03_TO_10],
+    seasons: [SEASON_01, SEASON_02, SEASON_03, SEASON_04, SEASON_05, ...SEASONS_06_TO_10],
   },
   ...PLACEHOLDER_PHASES.map((p) => ({ ...p, seasons: [] })),
 ];
