@@ -3,6 +3,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
 import Link from "next/link";
 import Navigation from "@/components/Navigation";
+import { LogosOverlay } from "@/components/logos/LogosOverlay";
 import { shouldShowOnboarding } from "@/lib/onboarding/types";
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
@@ -45,6 +46,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
         <Navigation />
       </header>
       <main style={{ paddingTop: "70px" }}>{children}</main>
+      <LogosOverlay />
     </div>
   );
 }
