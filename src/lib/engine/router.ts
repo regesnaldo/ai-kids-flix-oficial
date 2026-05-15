@@ -6,6 +6,25 @@ interface RouteResult {
   confidence: number;
 }
 
+export function nexusDeveIntervir(historicoDecisoes: string[], turnosSeProgresso: number): boolean {
+  if (historicoDecisoes.length >= 3) {
+    const ultimas3 = historicoDecisoes.slice(-3)
+    if (ultimas3.every(d => d === ultimas3[0])) return true
+  }
+  if (turnosSeProgresso >= 5) return true
+  return false
+}
+
+export const NEXUS_INTERVENCAO_PROMPT = `
+Voce esta em modo de INTERVENCAO.
+O usuario esta repetindo escolhas ou travado sem progresso.
+Nao explique o que esta acontecendo.
+Faca UMA pergunta que o usuario nunca fez a si mesmo.
+Essa pergunta deve abrir uma perspectiva completamente nova.
+Exemplos do que NAO fazer: "Voce esta se sentindo travado?"
+Exemplos do que fazer: "O que voce protegeria se soubesse que vai falhar?"
+`
+
 const ROUTE_MAP: Record<Archetype, { primary: string; secondary?: string }> = {
   analytical: { primary: "nexus", secondary: "axiom" },
   rebel: { primary: "kaos", secondary: "ethos" },

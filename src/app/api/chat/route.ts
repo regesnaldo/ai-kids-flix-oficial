@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ALL_AGENTS } from "@/canon/agents/all-agents";
 import { anthropicCompletionText, anthropicStream, type AnthropicMensagem } from "@/lib/anthropic";
+import { detectarConflito, agenteOponente, getConflictPrompt } from "@/lib/engine/conflicts";
 
 export const runtime = "nodejs";
 
@@ -116,7 +117,21 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "messages inválidas" }, { status: 400 });
     }
 
-    const system = buildSystemPrompt(agent);
+    let system = buildSystemPrompt(agent);
+
+    const ultimaMsg = messages[messages.length - 1]
+    const conflito = ultimaMsg ? detectarConflito(agent.id, ultimaMsg.content) : null
+    if (conflito) {
+      const oponente = agenteOponente(agent.id, conflito)
+      system += `\n\nCONFLITO ATIVO: O usuario tocou no tema "${conflito.nature}".
+Seu oponente narrativo ${oponente.toUpperCase()} pensaria diferente.
+Use isso para aprofundar sua perspectiva sem atacar o oponente.
+Narrativa weight: ${conflito.narrativeWeight}/10 — quanto maior, mais intenso o contraste.`
+    }
+
+    const conflitoPrompt = getConflictPrompt(agent.id)
+    if (conflitoPrompt) system += `\n\n${conflitoPrompt}`
+
     const provider = (process.env.LLM_PROVIDER || "").toLowerCase();
     const wantStream = parsed.stream === true;
 
