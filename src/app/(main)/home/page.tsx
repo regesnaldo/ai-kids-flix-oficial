@@ -2,7 +2,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { Play, Info, ChevronLeft, ChevronRight, Star, Clock, Zap, Sparkles, TrendingUp, GraduationCap, Award } from "lucide-react";
+import { Play, Info, ChevronLeft, ChevronRight, Star, Clock, Zap, TrendingUp } from "lucide-react";
 import { agentsShowcase } from "@/data/agents-showcase";
 import { allAgents } from "@/data/all-agents";
 
@@ -191,9 +191,7 @@ function JourneyCard({ j }: { j: typeof journeys[0] }) {
   return (
     <Link href="/aulas">
       <motion.div whileHover={{ scale: 1.03, y: -4 }} className="flex-shrink-0 rounded-md overflow-hidden cursor-pointer" style={{ width: 260, background: "#1A1A1A" }}>
-        <div className="h-28 flex items-center justify-center" style={{ background: `linear-gradient(135deg, ${j.color}40, #1A1A1A)` }}>
-          <Sparkles size={32} style={{ color: j.color }} />
-        </div>
+        <div className="h-20" style={{ background: `linear-gradient(135deg, ${j.color}30, #1A1A1A)` }} />
         <div className="p-4">
           <span className="text-xs font-medium px-2 py-0.5 rounded" style={{ background: j.color + "30", color: j.color }}>{j.level}</span>
           <h3 className="text-white font-bold mt-2 text-sm">{j.title}</h3>
@@ -318,18 +316,21 @@ export default function HomePage() {
           {journeys.map((j) => <JourneyCard key={j.id} j={j} />)}
         </HorizontalScroll>
 
-        {/* Universe Grid Link */}
+        {/* Universe Grid 4x3 */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-          className="mx-4 md:mx-16 mb-10 p-8 rounded-xl text-center"
-          style={{ background: "linear-gradient(135deg, rgba(139,92,246,0.12), rgba(59,130,246,0.08))", border: "1px solid rgba(139,92,246,0.2)" }}>
-          <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">12 Universos</h2>
-          <p className="text-gray-400 mb-6 max-w-md mx-auto text-sm">Explore todos os universos 3D dos agentes canônicos.</p>
-          <div className="flex flex-wrap gap-2 justify-center">
+          className="mx-4 md:mx-16 mb-10 p-8 rounded-xl"
+          style={{ background: "#0F0F1A" }}>
+          <h2 className="text-2xl md:text-3xl font-bold text-white text-center mb-2">12 Universos</h2>
+          <p className="text-gray-400 mb-8 max-w-md mx-auto text-sm text-center">Explore todos os universos 3D dos agentes canônicos.</p>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
             {allAgents.map((a) => (
               <Link key={a.id} href={`/universo/${a.id}`}
-                className="px-4 py-2 rounded-full text-xs font-medium transition hover:scale-105"
-                style={{ background: `${a.color}20`, color: a.color, border: `1px solid ${a.color}40` }}>
-                {a.name}
+                className="p-5 rounded-lg cursor-pointer transition-all duration-200 group"
+                style={{ background: "#1A1A2E", border: "1px solid rgba(255,255,255,0.08)" }}
+                onMouseEnter={(e) => { e.currentTarget.style.borderColor = a.color; e.currentTarget.style.transform = "scale(1.03)"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"; e.currentTarget.style.transform = "scale(1)"; }}>
+                <div className="text-white font-bold text-sm group-hover:brightness-110">{a.name}</div>
+                <div className="text-gray-500 text-xs mt-1">{a.role}</div>
               </Link>
             ))}
           </div>
