@@ -110,12 +110,8 @@ export async function fetchNexusResponse(
 
     const data = await response.json()
     
-    // Log da decisão do router para debug
     if (data.agent && data.agent !== 'nexus') {
-      console.log(`[NEXUS→Router] Transição: ${data.agent}`, {
-        archetype: data.archetype,
-        reason: data.routeReason,
-      })
+      // router transition logged
     }
     
     return data.message ?? 'O silencio tambem e uma resposta.'

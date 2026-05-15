@@ -44,6 +44,7 @@ export interface Episode {
   xpReward: number;
   status: EpisodeStatus;
   labZone?: "transformers" | "neural" | "creative" | "ethics";
+  videoUrl?: string;
 }
 
 export interface Season {

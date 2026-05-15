@@ -70,7 +70,7 @@ function PlayerContent() {
   const resolved = episode ?? getEpisodeById("S01E01")!;
   const resolvedSeason = season ?? getSeasonById("S01")!;
 
-  const videoUrl = ((resolved as any)?.videoUrl || "").trim();
+  const videoUrl = (resolved?.videoUrl || "").trim();
   const hasVideo = videoUrl.length > 0;
   const agentId = resolved.agentId || "NEXUS";
   const episodes = resolvedSeason?.episodes || [];

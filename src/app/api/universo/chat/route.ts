@@ -45,10 +45,7 @@ export async function POST(request: NextRequest) {
     const agent = ALL_AGENTS.find((a) => a.id === selectedAgent);
 
     if (routeDecision) {
-      console.log(`[universo/chat] → Agent: ${selectedAgent}`, {
-        archetype: routeDecision.archetype,
-        confidence: routeDecision.langchainDecision?.confidence,
-      });
+      // routeDecision logged
     }
 
     if (!agent) {
