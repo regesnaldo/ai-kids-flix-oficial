@@ -29,63 +29,66 @@ export default function Login() {
     } catch { setErro("Erro de conexao."); } finally { setLoading(false); }
   }
 
-  const inp: React.CSSProperties = {
-    width: "100%", padding: "0.85rem 3rem 0.85rem 1rem", borderRadius: "8px",
-    border: "1px solid rgba(255,255,255,0.15)", backgroundColor: "#1a1f3a",
-    color: "#ffffff", fontSize: "1rem", outline: "none", boxSizing: "border-box",
-    WebkitBoxShadow: "0 0 0px 1000px #1a1f3a inset",
-    WebkitTextFillColor: "#ffffff",
-  };
-
   return (
-    <main style={{ backgroundColor: "#0a0e27", minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", padding: "2rem" }}>
-      <div style={{ width: "100%", maxWidth: "420px" }}>
-        <h1 style={{ textAlign: "center", fontSize: "2rem", fontWeight: 900, color: "#ffffff", marginBottom: "0.5rem" }}>
-          MENTE<span style={{ color: "#E50914" }}>.AI</span>
+    <main className="min-h-screen flex items-center justify-center p-8" style={{ background: "#0a0a1a" }}>
+      <div className="w-full max-w-[420px]">
+        <h1 className="text-center text-3xl font-black text-white mb-2">
+          MENTE<span className="text-red-500">.AI</span>
         </h1>
-        <p style={{ textAlign: "center", color: "#00d4ff", marginBottom: "2rem" }}>
-          Onde mentes sao formadas, nao formatadas...!
+        <p className="text-center text-cyan-400 mb-8 text-sm">
+          Onde mentes sao formadas, nao formatadas...
         </p>
-        <div style={{ display: "flex", backgroundColor: "rgba(255,255,255,0.05)", borderRadius: "10px", padding: "4px", marginBottom: "2rem" }}>
+
+        <div className="flex bg-white/5 rounded-lg p-1 mb-8">
           {["entrar", "cadastrar"].map((t) => (
             <button key={t} type="button" onClick={() => { setTab(t); setErro(""); setSucesso(""); }}
-              style={{ flex: 1, padding: "0.65rem", borderRadius: "8px", border: "none", cursor: "pointer", fontWeight: 700,
-                backgroundColor: tab === t ? "#ffffff" : "transparent",
-                color: tab === t ? "#0a0e27" : "rgba(255,255,255,0.5)" }}>
+              className={`flex-1 py-2.5 rounded-md border-none font-bold cursor-pointer transition text-sm ${
+                tab === t ? "bg-white text-[#0a0a1a]" : "bg-transparent text-white/50 hover:text-white/70"
+              }`}>
               {t === "entrar" ? "Entrar" : "Cadastrar"}
             </button>
           ))}
         </div>
-        <form onSubmit={handleSubmit} style={{ backgroundColor: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "16px", padding: "2rem" }}>
+
+        <form onSubmit={handleSubmit} className="bg-white/[0.04] border border-white/10 rounded-2xl p-8">
           {tab === "cadastrar" && (
-            <input style={{ ...inp, marginBottom: "1rem" }} placeholder="Seu nome completo" value={nome} onChange={(e) => setNome(e.target.value)} autoComplete="name" />
+            <input className="w-full px-4 py-3 rounded-lg border border-white/15 bg-[#1a1a2e] text-white text-sm outline-none mb-4 box-border placeholder:text-white/30 autofill:shadow-[inset_0_0_0px_1000px_#1a1a2e] "
+              placeholder="Seu nome completo" value={nome} onChange={(e) => setNome(e.target.value)} autoComplete="name" />
           )}
-          <input style={{ ...inp, marginBottom: "1rem" }} type="email" placeholder="Seu email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" />
-          <div style={{ position: "relative", marginBottom: "1rem" }}>
-            <input style={inp} placeholder="Sua senha" type={verSenha ? "text" : "password"} value={senha} onChange={(e) => setSenha(e.target.value)} autoComplete={tab === "entrar" ? "current-password" : "new-password"} />
+          <input className="w-full px-4 py-3 rounded-lg border border-white/15 bg-[#1a1a2e] text-white text-sm outline-none mb-4 box-border placeholder:text-white/30 autofill:shadow-[inset_0_0_0px_1000px_#1a1a2e]"
+            type="email" placeholder="Seu email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" />
+          
+          <div className="relative mb-4">
+            <input className="w-full px-4 py-3 rounded-lg border border-white/15 bg-[#1a1a2e] text-white text-sm outline-none pr-12 box-border placeholder:text-white/30 autofill:shadow-[inset_0_0_0px_1000px_#1a1a2e]"
+              placeholder="Sua senha" type={verSenha ? "text" : "password"} value={senha} onChange={(e) => setSenha(e.target.value)} autoComplete={tab === "entrar" ? "current-password" : "new-password"} />
             <button type="button" onClick={() => setVerSenha((v) => !v)}
-              style={{ position: "absolute", right: "0.75rem", top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: "#ffffff", display: "flex", padding: "4px" }}>
+              className="absolute right-3 top-1/2 -translate-y-1/2 bg-none border-none cursor-pointer text-white p-1 flex">
               {verSenha ? <EyeOff size={20} /> : <Eye size={20} />}
             </button>
           </div>
+
           {tab === "cadastrar" && (
-            <div style={{ position: "relative", marginBottom: "1rem" }}>
-              <input style={inp} placeholder="Confirmar senha" type={verConfirmar ? "text" : "password"} value={confirmar} onChange={(e) => setConfirmar(e.target.value)} autoComplete="new-password" />
+            <div className="relative mb-4">
+              <input className="w-full px-4 py-3 rounded-lg border border-white/15 bg-[#1a1a2e] text-white text-sm outline-none pr-12 box-border placeholder:text-white/30 autofill:shadow-[inset_0_0_0px_1000px_#1a1a2e]"
+                placeholder="Confirmar senha" type={verConfirmar ? "text" : "password"} value={confirmar} onChange={(e) => setConfirmar(e.target.value)} autoComplete="new-password" />
               <button type="button" onClick={() => setVerConfirmar((v) => !v)}
-                style={{ position: "absolute", right: "0.75rem", top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: "#ffffff", display: "flex", padding: "4px" }}>
+                className="absolute right-3 top-1/2 -translate-y-1/2 bg-none border-none cursor-pointer text-white p-1 flex">
                 {verConfirmar ? <EyeOff size={20} /> : <Eye size={20} />}
               </button>
             </div>
           )}
-          {erro && <p style={{ color: "#E50914", fontSize: "0.9rem", marginBottom: "1rem", textAlign: "center" }}>{erro}</p>}
-          {sucesso && <p style={{ color: "#10B981", fontSize: "0.9rem", marginBottom: "1rem", textAlign: "center" }}>{sucesso}</p>}
+
+          {erro && <p className="text-red-500 text-sm mb-4 text-center">{erro}</p>}
+          {sucesso && <p className="text-emerald-400 text-sm mb-4 text-center">{sucesso}</p>}
+
           <button type="submit" disabled={loading}
-            style={{ width: "100%", padding: "1rem", fontSize: "1rem", fontWeight: 700, borderRadius: "8px", border: "none", backgroundColor: "#E50914", color: "#ffffff", cursor: "pointer", opacity: loading ? 0.7 : 1 }}>
+            className="w-full py-4 text-base font-bold rounded-lg border-none bg-red-600 text-white cursor-pointer disabled:opacity-70 hover:bg-red-700 transition">
             {loading ? "Aguarde..." : tab === "entrar" ? "Entrar" : "Criar conta gratis"}
           </button>
+
           {tab === "entrar" && (
-            <p style={{ textAlign: "center", color: "rgba(255,255,255,0.4)", fontSize: "0.85rem", marginTop: "1rem" }}>
-              <span style={{ cursor: "pointer", color: "#00d4ff" }} onClick={() => setTab("cadastrar")}>
+            <p className="text-center text-white/40 text-sm mt-4">
+              <span className="cursor-pointer text-cyan-400 hover:text-cyan-300 transition" onClick={() => setTab("cadastrar")}>
                 Nao tem conta? Cadastre-se gratis
               </span>
             </p>
@@ -95,4 +98,3 @@ export default function Login() {
     </main>
   );
 }
-

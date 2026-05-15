@@ -10,26 +10,23 @@ const COLOR_KEYS = Object.keys(COLORS);
 function ProfileCard({ profile, onClick }: { profile: Profile; onClick: () => void }) {
   const color = COLORS[profile.avatar] || COLORS.blue;
   return (
-    <button onClick={onClick} style={{ background: "none", border: "none", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: "0.75rem", transition: "transform 0.2s" }}
-      onMouseEnter={(e) => e.currentTarget.style.transform = "scale(1.05)"}
-      onMouseLeave={(e) => e.currentTarget.style.transform = "scale(1)"}>
-      <div style={{ width: "120px", height: "120px", borderRadius: "12px", background: `linear-gradient(135deg, ${color}, ${color}88)`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "2.5rem", fontWeight: 800, color: "#fff", border: "3px solid transparent", transition: "border-color 0.2s" }}
-        onMouseEnter={(e) => e.currentTarget.style.borderColor = "rgba(255,255,255,0.5)"}
-        onMouseLeave={(e) => e.currentTarget.style.borderColor = "transparent"}>
+    <button onClick={onClick} className="group bg-none border-none cursor-pointer flex flex-col items-center gap-3 transition-transform duration-200 hover:scale-105">
+      <div className="w-[120px] h-[120px] rounded-xl flex items-center justify-center text-4xl font-extrabold text-white border-[3px] border-transparent transition-colors duration-200 group-hover:border-white/50"
+        style={{ background: `linear-gradient(135deg, ${color}, ${color}88)` }}>
         {profile.isKids ? "K" : profile.name[0].toUpperCase()}
       </div>
-      <span style={{ color: "rgba(255,255,255,0.7)", fontSize: "1rem" }}>{profile.name}</span>
+      <span className="text-white/70 text-base">{profile.name}</span>
     </button>
   );
 }
 
 function AddProfileCard({ onClick }: { onClick: () => void }) {
   return (
-    <button onClick={onClick} style={{ background: "none", border: "none", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: "0.75rem", transition: "transform 0.2s" }}
-      onMouseEnter={(e) => e.currentTarget.style.transform = "scale(1.05)"}
-      onMouseLeave={(e) => e.currentTarget.style.transform = "scale(1)"}>
-      <div style={{ width: "120px", height: "120px", borderRadius: "12px", background: "rgba(255,255,255,0.05)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "3rem", color: "rgba(255,255,255,0.3)", border: "3px solid rgba(255,255,255,0.1)" }}>+</div>
-      <span style={{ color: "rgba(255,255,255,0.5)", fontSize: "1rem" }}>Adicionar perfil</span>
+    <button onClick={onClick} className="group bg-none border-none cursor-pointer flex flex-col items-center gap-3 transition-transform duration-200 hover:scale-105">
+      <div className="w-[120px] h-[120px] rounded-xl bg-white/5 flex items-center justify-center text-5xl text-white/30 border-[3px] border-white/10 group-hover:border-white/30 group-hover:bg-white/10 transition">
+        +
+      </div>
+      <span className="text-white/50 text-base">Adicionar perfil</span>
     </button>
   );
 }
@@ -52,7 +49,7 @@ export default function ProfilePicker() {
       if (res.status === 401) { window.location.href = "/login"; return; }
       const data = await res.json();
       setProfiles(data);
-    } catch { /* silently handle fetch errors */ } finally { setLoading(false); }
+    } catch { } finally { setLoading(false); }
   }
 
   async function createProfile() {
@@ -69,28 +66,45 @@ export default function ProfilePicker() {
     window.location.href = "/home";
   }
 
-  if (loading) return (<main style={{ backgroundColor: "#141414", minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}><div style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.9rem", textTransform: "uppercase", letterSpacing: "0.15em" }}>Carregando...</div></main>);
+  if (loading) return (
+    <main className="min-h-screen flex items-center justify-center bg-[#0a0a1a]">
+      <div className="text-white/50 text-xs uppercase tracking-widest">Carregando...</div>
+    </main>
+  );
 
   return (
-    <main style={{ backgroundColor: "#141414", minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "2rem" }}>
-      <h1 style={{ color: "#fff", fontSize: "2.5rem", fontWeight: 400, marginBottom: "2.5rem" }}>Quem esta assistindo?</h1>
-      <div style={{ display: "flex", gap: "2rem", flexWrap: "wrap", justifyContent: "center", marginBottom: "3rem" }}>
+    <main className="min-h-screen flex flex-col items-center justify-center p-8 bg-[#0a0a1a]">
+      <h1 className="text-white text-3xl md:text-4xl font-normal mb-10">Quem esta assistindo?</h1>
+      <div className="flex gap-8 flex-wrap justify-center mb-12">
         {profiles.map((p) => (<ProfileCard key={p.id} profile={p} onClick={() => selectProfile(p)} />))}
         {profiles.length < 5 && <AddProfileCard onClick={() => setAdding(true)} />}
       </div>
+
       {adding && (
-        <div style={{ background: "rgba(255,255,255,0.05)", borderRadius: "12px", padding: "2rem", border: "1px solid rgba(255,255,255,0.1)", maxWidth: "400px", width: "100%" }}>
-          <h3 style={{ color: "#fff", margin: "0 0 1rem", fontSize: "1.1rem" }}>Novo perfil</h3>
-          <input value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="Nome do perfil" maxLength={20} style={{ width: "100%", padding: "0.75rem", borderRadius: "8px", border: "1px solid rgba(255,255,255,0.15)", background: "rgba(255,255,255,0.05)", color: "#fff", fontSize: "1rem", marginBottom: "1rem", boxSizing: "border-box" }} />
-          <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1rem" }}>
-            {COLOR_KEYS.map((c) => (<button key={c} onClick={() => setNewColor(c)} style={{ width: "36px", height: "36px", borderRadius: "50%", border: newColor === c ? "3px solid #fff" : "2px solid transparent", backgroundColor: COLORS[c], cursor: "pointer" }} />))}
+        <div className="bg-white/5 rounded-xl p-8 border border-white/10 max-w-[400px] w-full">
+          <h3 className="text-white text-lg mb-4">Novo perfil</h3>
+          <input value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="Nome do perfil" maxLength={20}
+            className="w-full px-3 py-3 rounded-lg border border-white/15 bg-white/5 text-white text-base mb-4 box-border outline-none placeholder:text-white/30" />
+          <div className="flex gap-2 mb-4">
+            {COLOR_KEYS.map((c) => (
+              <button key={c} onClick={() => setNewColor(c)}
+                className="w-9 h-9 rounded-full cursor-pointer transition-all"
+                style={{ background: COLORS[c], border: newColor === c ? "3px solid #fff" : "2px solid transparent" }} />
+            ))}
           </div>
-          <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: "rgba(255,255,255,0.7)", marginBottom: "1.5rem", cursor: "pointer" }}>
-            <input type="checkbox" checked={newIsKids} onChange={(e) => setNewIsKids(e.target.checked)} /> Perfil infantil
+          <label className="flex items-center gap-2 text-white/70 mb-6 cursor-pointer text-sm">
+            <input type="checkbox" checked={newIsKids} onChange={(e) => setNewIsKids(e.target.checked)} className="accent-white" />
+            Perfil infantil
           </label>
-          <div style={{ display: "flex", gap: "0.75rem" }}>
-            <button onClick={createProfile} style={{ flex: 1, padding: "0.75rem", borderRadius: "8px", border: "none", background: "#fff", color: "#141414", fontWeight: 700, cursor: "pointer", fontSize: "0.9rem" }}>Criar</button>
-            <button onClick={() => setAdding(false)} style={{ flex: 1, padding: "0.75rem", borderRadius: "8px", border: "1px solid rgba(255,255,255,0.2)", background: "transparent", color: "rgba(255,255,255,0.6)", cursor: "pointer", fontSize: "0.9rem" }}>Cancelar</button>
+          <div className="flex gap-3">
+            <button onClick={createProfile}
+              className="flex-1 py-3 rounded-lg border-none bg-white text-[#0a0a1a] font-bold cursor-pointer text-sm hover:bg-white/90 transition">
+              Criar
+            </button>
+            <button onClick={() => setAdding(false)}
+              className="flex-1 py-3 rounded-lg border border-white/20 bg-transparent text-white/60 cursor-pointer text-sm hover:text-white hover:bg-white/5 transition">
+              Cancelar
+            </button>
           </div>
         </div>
       )}
