@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { Canvas } from '@react-three/fiber'
 import dynamic from 'next/dynamic'
 
 const JanusScene = dynamic(

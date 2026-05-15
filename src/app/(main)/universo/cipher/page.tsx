@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { Canvas } from '@react-three/fiber'
 import dynamic from 'next/dynamic'
 
 const CipherScene = dynamic(
@@ -20,7 +21,7 @@ const AGENT = {
 export default function CipherUniversePage() {
   return (
     <main className="relative w-full h-screen overflow-hidden" style={{ background: '#0a0a1a' }}>
-      <div className="absolute inset-0 z-0"><CipherScene /></div>
+      <div className="absolute inset-0 z-0"><Canvas><CipherScene /></Canvas></div>
       <div className="absolute inset-0 z-5 pointer-events-none"
         style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.75) 0%, transparent 50%, rgba(0,0,0,0.3) 100%)' }}
       />
