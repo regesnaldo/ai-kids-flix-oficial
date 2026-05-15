@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ALL_AGENTS } from "@/canon/agents/all-agents";
 import { anthropicCompletionText, anthropicStream, type AnthropicMensagem } from "@/lib/anthropic";
-import { detectarConflito, agenteOponente, getConflictPrompt } from "@/lib/engine/conflicts";
+import { detectarConflito, agenteOponente, getConflictPrompt, AGENT_CONFLICTS } from "@/lib/engine/conflicts";
 
 export const runtime = "nodejs";
 
@@ -166,7 +166,28 @@ Narrativa weight: ${conflito.narrativeWeight}/10 — quanto maior, mais intenso 
       );
     }
 
-    return NextResponse.json({ message: assistantText });
+    const TRANSITION_KEYWORDS: Record<string, string> = {
+      nexus: "nexus", volt: "volt", aurora: "aurora", ethos: "ethos",
+      kaos: "kaos", cipher: "cipher", lyra: "lyra", axiom: "axiom",
+      stratos: "stratos", terra: "terra", prism: "prism", janus: "janus",
+    }
+
+    let transitionTo: string | undefined
+    const userText = ultimaMsg?.content.toLowerCase() || ""
+    if (conflito) transitionTo = agenteOponente(agent.id, conflito)
+    if (!transitionTo) {
+      for (const [key, id] of Object.entries(TRANSITION_KEYWORDS)) {
+        if (id !== agent.id && userText.includes(`quero falar com ${key}`)) {
+          transitionTo = id; break
+        }
+      }
+    }
+
+    return NextResponse.json({
+      message: assistantText,
+      transitionTo: transitionTo || undefined,
+      transitionReason: conflito ? `Conflito detectado: ${conflito.nature}` : undefined,
+    });
 
   } catch (error: unknown) {
     const err = error as { tipo?: string; mensagem?: string; tentativas?: number };
