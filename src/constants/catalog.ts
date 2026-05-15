@@ -362,17 +362,105 @@ const SEASON_05: Season = {
   ],
 };
 
-const SEASONS_06_TO_10: Season[] = Array.from({ length: 5 }, (_, i) => ({
-  id: `S${String(i + 6).padStart(2, "0")}`,
-  number: i + 6,
-  title: `Temporada ${i + 6} — Em Breve`,
-  synopsis: "Esta temporada está sendo produzida pela equipe MENTE.AI.",
-  phaseId: 1 as PhaseId,
-  primaryAgent: (["ETHOS", "LYRA", "AXIOM", "AURORA", "CIPHER"] as AgentId[])[i],
-  coverImageUrl: agentCover((["ethos", "lyra", "axiom", "aurora", "cipher"] as const)[i]),
-  totalXp: 0,
-  episodes: [],
-}));
+const SEASON_06: Season = {
+  id: "S06", number: 6,
+  title: "Fronteiras Éticas",
+  synopsis: "ETHOS guia você pelas questões mais profundas da ética em IA: viés, privacidade, responsabilidade e o futuro da humanidade.",
+  phaseId: 1, primaryAgent: "ETHOS",
+  coverImageUrl: agentCover("ethos"), totalXp: 595,
+  episodes: [
+    makeEpisode(6, 1, { title: "O Despertar da Consciência", description: "ETHOS apresenta a questão fundamental: uma IA pode ter consciência moral?", type: "narrativa", durationMinutes: 9, agentId: "ETHOS", xpReward: 50, status: "disponivel" }),
+    makeEpisode(6, 2, { title: "Viés Algorítmico", description: "Como preconceitos humanos contaminam dados e perpetuam desigualdades nas decisões de IA.", type: "teoria", durationMinutes: 11, agentId: "ETHOS", xpReward: 55, status: "disponivel" }),
+    makeEpisode(6, 3, { title: "Laboratório: Auditor de Dados", description: "Analise um dataset real e identifique vieses escondidos nas colunas e categorias.", type: "laboratorio", durationMinutes: 16, agentId: "ETHOS", xpReward: 70, status: "disponivel", labZone: "ethics" }),
+    makeEpisode(6, 4, { title: "Privacidade na Era da IA", description: "Dados pessoais, vigilância e o direito à privacidade em um mundo de algoritmos onipresentes.", type: "teoria", durationMinutes: 10, agentId: "ETHOS", xpReward: 55, status: "disponivel" }),
+    makeEpisode(6, 5, { title: "Desafio: Detetive de Viés", description: "Examine casos reais de IA com viés e proponha correções para cada cenário.", type: "desafio", durationMinutes: 14, agentId: "ETHOS", xpReward: 80, status: "disponivel" }),
+    makeEpisode(6, 6, { title: "Transparência e Explicabilidade", description: "Por que modelos caixa-preta são perigosos e como tornar decisões de IA compreensíveis.", type: "teoria", durationMinutes: 10, agentId: "ETHOS", xpReward: 55, status: "disponivel" }),
+    makeEpisode(6, 7, { title: "Laboratório: Simulador de Dilemas", description: "Enfrente dilemas morais clássicos — o bonde, o prisioneiro — com uma IA precisando decidir.", type: "laboratorio", durationMinutes: 15, agentId: "ETHOS", xpReward: 65, status: "disponivel", labZone: "ethics" }),
+    makeEpisode(6, 8, { title: "O Preço dos Dados", description: "KAOS e ETHOS debatem o valor dos dados pessoais e quem realmente é dono da sua informação.", type: "narrativa", durationMinutes: 11, agentId: "KAOS", xpReward: 55, status: "disponivel" }),
+    makeEpisode(6, 9, { title: "Regulamentação Global", description: "Lei de IA da União Europeia, Marco Civil e outras iniciativas para governar inteligência artificial.", type: "teoria", durationMinutes: 10, agentId: "ETHOS", xpReward: 60, status: "disponivel" }),
+    makeEpisode(6, 10, { title: "Reflexão: Seu Código de Ética", description: "ETHOS ajuda você a escrever seu próprio código de ética pessoal para usar IA com responsabilidade.", type: "reflexao", durationMinutes: 7, agentId: "ETHOS", xpReward: 50, status: "disponivel" }),
+  ],
+};
+
+const SEASON_07: Season = {
+  id: "S07", number: 7,
+  title: "A Sinfonia dos Dados",
+  synopsis: "LYRA revela a alma artística da inteligência artificial — emoção, cor, som e o misterioso fenômeno da sinestesia digital.",
+  phaseId: 1, primaryAgent: "LYRA",
+  coverImageUrl: agentCover("lyra"), totalXp: 595,
+  episodes: [
+    makeEpisode(7, 1, { title: "A Música dos Números", description: "LYRA surge com uma melodia gerada por IA e prova que matemática também pode ser arte.", type: "narrativa", durationMinutes: 8, agentId: "LYRA", xpReward: 50, status: "disponivel" }),
+    makeEpisode(7, 2, { title: "Emoção Artificial", description: "IA pode sentir emoção? LYRA explora modelos afetivos e reconhecimento de sentimentos.", type: "teoria", durationMinutes: 10, agentId: "LYRA", xpReward: 55, status: "disponivel" }),
+    makeEpisode(7, 3, { title: "Laboratório: Sintetizador Neural", description: "Crie uma composição musical usando redes neurais e ajuste parâmetros de estilo e emoção.", type: "laboratorio", durationMinutes: 17, agentId: "LYRA", xpReward: 70, status: "disponivel", labZone: "creative" }),
+    makeEpisode(7, 4, { title: "Sinestesia e Percepção", description: "O fenômeno de misturar sentidos — como a IA pode aprender a ver sons e ouvir cores.", type: "teoria", durationMinutes: 10, agentId: "LYRA", xpReward: 55, status: "disponivel" }),
+    makeEpisode(7, 5, { title: "Desafio: Crítico de Arte", description: "Analise obras de arte geradas por IA e identifique qual foi criada por humano vs máquina.", type: "desafio", durationMinutes: 12, agentId: "LYRA", xpReward: 80, status: "disponivel" }),
+    makeEpisode(7, 6, { title: "Cores e Frequências", description: "Modelos de IA que traduzem música em pintura e texto em paisagens sonoras.", type: "teoria", durationMinutes: 10, agentId: "LYRA", xpReward: 55, status: "disponivel" }),
+    makeEpisode(7, 7, { title: "Laboratório: Criador de Melodias", description: "Alimente um modelo com suas músicas favoritas e gere uma composição original no estilo delas.", type: "laboratorio", durationMinutes: 16, agentId: "LYRA", xpReward: 65, status: "disponivel", labZone: "creative" }),
+    makeEpisode(7, 8, { title: "O Artista e a Máquina", description: "AURORA e LYRA debatem: IA substitui artistas ou se torna uma nova ferramenta de expressão?", type: "narrativa", durationMinutes: 10, agentId: "AURORA", xpReward: 55, status: "disponivel" }),
+    makeEpisode(7, 9, { title: "Neuroestética", description: "O estudo científico de por que achamos algo belo — e como a IA pode replicar esse julgamento.", type: "teoria", durationMinutes: 10, agentId: "LYRA", xpReward: 60, status: "disponivel" }),
+    makeEpisode(7, 10, { title: "Reflexão: Sua Voz Criativa", description: "LYRA convida você a expressar um sentimento através de arte gerada por IA.", type: "reflexao", durationMinutes: 7, agentId: "LYRA", xpReward: 50, status: "disponivel" }),
+  ],
+};
+
+const SEASON_08: Season = {
+  id: "S08", number: 8,
+  title: "O Método Científico Digital",
+  synopsis: "AXIOM desvenda o rigor da ciência de dados: hipóteses, experimentos, estatística e a busca implacável pela verdade.",
+  phaseId: 1, primaryAgent: "AXIOM",
+  coverImageUrl: agentCover("axiom"), totalXp: 595,
+  episodes: [
+    makeEpisode(8, 1, { title: "O Método Infalível", description: "AXIOM demonstra o método científico aplicado à IA — hipótese, experimento, conclusão.", type: "narrativa", durationMinutes: 9, agentId: "AXIOM", xpReward: 50, status: "disponivel" }),
+    makeEpisode(8, 2, { title: "Estatística Preditiva", description: "Distribuições, probabilidades e como modelos preveem o futuro com base no passado.", type: "teoria", durationMinutes: 11, agentId: "AXIOM", xpReward: 55, status: "disponivel" }),
+    makeEpisode(8, 3, { title: "Laboratório: Analisador de Padrões", description: "Use regressão linear e clustering para encontrar padrões escondidos em dados reais.", type: "laboratorio", durationMinutes: 18, agentId: "AXIOM", xpReward: 70, status: "disponivel", labZone: "neural" }),
+    makeEpisode(8, 4, { title: "Precisão e Acurácia", description: "A diferença sutil entre ser preciso e ser correto — e por que ambos importam na IA.", type: "teoria", durationMinutes: 9, agentId: "AXIOM", xpReward: 55, status: "disponivel" }),
+    makeEpisode(8, 5, { title: "Desafio: Caça às Falácias", description: "Identifique falácias estatísticas em gráficos e notícias do mundo real.", type: "desafio", durationMinutes: 14, agentId: "AXIOM", xpReward: 80, status: "disponivel" }),
+    makeEpisode(8, 6, { title: "Correlação vs Causalidade", description: "O erro mais comum na ciência de dados: assumir que uma coisa causa a outra.", type: "teoria", durationMinutes: 10, agentId: "AXIOM", xpReward: 55, status: "disponivel" }),
+    makeEpisode(8, 7, { title: "Laboratório: Simulador Científico", description: "Projete um experimento controlado e veja se sua hipótese resiste ao escrutínio dos dados.", type: "laboratorio", durationMinutes: 16, agentId: "AXIOM", xpReward: 65, status: "disponivel", labZone: "transformers" }),
+    makeEpisode(8, 8, { title: "A Descoberta", description: "NEXUS e AXIOM celebram uma descoberta inesperada nos dados — mas será que é real?", type: "narrativa", durationMinutes: 10, agentId: "NEXUS", xpReward: 55, status: "disponivel" }),
+    makeEpisode(8, 9, { title: "Machine Learning Experimental", description: "Design de experimentos para treinar modelos: validação cruzada, splits e métricas.", type: "teoria", durationMinutes: 12, agentId: "AXIOM", xpReward: 60, status: "disponivel" }),
+    makeEpisode(8, 10, { title: "Reflexão: O Cientista em Você", description: "AXIOM analisa seu raciocínio lógico e revela seu perfil científico dominante.", type: "reflexao", durationMinutes: 7, agentId: "AXIOM", xpReward: 50, status: "disponivel" }),
+  ],
+};
+
+const SEASON_09: Season = {
+  id: "S09", number: 9,
+  title: "O Vetor da Criação",
+  synopsis: "AURORA ensina como a IA vê o mundo através de vetores e espaços latentes — e como transformar números em imagens, sons e arte.",
+  phaseId: 1, primaryAgent: "AURORA",
+  coverImageUrl: agentCover("aurora"), totalXp: 595,
+  episodes: [
+    makeEpisode(9, 1, { title: "A Tela em Branco", description: "AURORA pinta um quadro usando apenas números e mostra que toda criação começa com um vetor.", type: "narrativa", durationMinutes: 8, agentId: "AURORA", xpReward: 50, status: "disponivel" }),
+    makeEpisode(9, 2, { title: "Espaços Latentes", description: "O conceito de espaço latente — onde ideias abstratas viram coordenadas matemáticas.", type: "teoria", durationMinutes: 10, agentId: "AURORA", xpReward: 55, status: "disponivel" }),
+    makeEpisode(9, 3, { title: "Laboratório: Gerador de Imagens", description: "Use um modelo de difusão para gerar imagens a partir de descrições textuais passo a passo.", type: "laboratorio", durationMinutes: 18, agentId: "AURORA", xpReward: 70, status: "disponivel", labZone: "creative" }),
+    makeEpisode(9, 4, { title: "Difusão e Ruído", description: "Como modelos de difusão aprendem a transformar ruído aleatório em imagens coerentes.", type: "teoria", durationMinutes: 11, agentId: "AURORA", xpReward: 55, status: "disponivel" }),
+    makeEpisode(9, 5, { title: "Desafio: Comissário de Arte", description: "Avalie imagens geradas por IA e escolha as melhores baseado em critérios estéticos.", type: "desafio", durationMinutes: 13, agentId: "AURORA", xpReward: 80, status: "disponivel" }),
+    makeEpisode(9, 6, { title: "Vetores e Embeddings", description: "Palavras, imagens e sons transformados em vetores — a linguagem universal da IA.", type: "teoria", durationMinutes: 10, agentId: "AURORA", xpReward: 55, status: "disponivel" }),
+    makeEpisode(9, 7, { title: "Laboratório: Colaboração Criativa", description: "Trabalhe com AURORA em um projeto de arte generativa: você dita o estilo, ela executa.", type: "laboratorio", durationMinutes: 17, agentId: "AURORA", xpReward: 65, status: "disponivel", labZone: "creative" }),
+    makeEpisode(9, 8, { title: "O Gênio e o Algoritmo", description: "LYRA e AURORA discutem se criatividade pode ser reduzida a operações matemáticas.", type: "narrativa", durationMinutes: 10, agentId: "LYRA", xpReward: 55, status: "disponivel" }),
+    makeEpisode(9, 9, { title: "Arte Generativa", description: "História e técnicas da arte generativa — de fractais a Stable Diffusion.", type: "teoria", durationMinutes: 10, agentId: "AURORA", xpReward: 60, status: "disponivel" }),
+    makeEpisode(9, 10, { title: "Reflexão: Sua Visão Criativa", description: "AURORA revela a imagem que sua mente criou durante a temporada usando IA generativa.", type: "reflexao", durationMinutes: 7, agentId: "AURORA", xpReward: 50, status: "disponivel" }),
+  ],
+};
+
+const SEASON_10: Season = {
+  id: "S10", number: 10,
+  title: "O Enigma Final",
+  synopsis: "CIPHER desvenda o mundo oculto dos padrões, códigos e criptografia — onde cada mensagem esconde um segredo.",
+  phaseId: 1, primaryAgent: "CIPHER",
+  coverImageUrl: agentCover("cipher"), totalXp: 595,
+  episodes: [
+    makeEpisode(10, 1, { title: "O Segredo dos Padrões", description: "CIPHER aparece decifrando um código ancestral e prova que padrões estão em toda parte.", type: "narrativa", durationMinutes: 9, agentId: "CIPHER", xpReward: 50, status: "disponivel" }),
+    makeEpisode(10, 2, { title: "Criptografia Moderna", description: "De Caesar Cipher a AES: como a IA está revolucionando a arte de codificar mensagens.", type: "teoria", durationMinutes: 11, agentId: "CIPHER", xpReward: 55, status: "disponivel" }),
+    makeEpisode(10, 3, { title: "Laboratório: Decifrador de Códigos", description: "Use análise de frequência e aprendizado de máquina para quebrar cifras históricas.", type: "laboratorio", durationMinutes: 18, agentId: "CIPHER", xpReward: 70, status: "disponivel", labZone: "transformers" }),
+    makeEpisode(10, 4, { title: "Máquina Enigma", description: "A história da máquina Enigma, Alan Turing e o nascimento da computação moderna.", type: "teoria", durationMinutes: 12, agentId: "CIPHER", xpReward: 55, status: "disponivel" }),
+    makeEpisode(10, 5, { title: "Desafio: Quebrador de Senhas", description: "Teste sua habilidade contra um sistema de senhas criptografadas — quanto tempo você leva?", type: "desafio", durationMinutes: 15, agentId: "CIPHER", xpReward: 80, status: "disponivel" }),
+    makeEpisode(10, 6, { title: "Esteganografia", description: "A arte de esconder mensagens dentro de imagens, áudios e textos — invisível aos olhos.", type: "teoria", durationMinutes: 10, agentId: "CIPHER", xpReward: 55, status: "disponivel" }),
+    makeEpisode(10, 7, { title: "Laboratório: Simulador de Redes Secretas", description: "Simule uma rede de comunicação criptografada e intercepte mensagens com permissão.", type: "laboratorio", durationMinutes: 16, agentId: "CIPHER", xpReward: 65, status: "disponivel", labZone: "ethics" }),
+    makeEpisode(10, 8, { title: "A Chave e o Cadeado", description: "ETHOS questiona CIPHER sobre os limites éticos da criptografia e o direito à privacidade.", type: "narrativa", durationMinutes: 11, agentId: "ETHOS", xpReward: 55, status: "disponivel" }),
+    makeEpisode(10, 9, { title: "Blockchain e Confiança", description: "Como criptografia e consenso distribuído criam sistemas de confiança sem autoridades centrais.", type: "teoria", durationMinutes: 12, agentId: "CIPHER", xpReward: 60, status: "disponivel" }),
+    makeEpisode(10, 10, { title: "Reflexão: Segredos que Você Guarda", description: "CIPHER revela uma mensagem secreta codificada especialmente para você ao longo da temporada.", type: "reflexao", durationMinutes: 7, agentId: "CIPHER", xpReward: 50, status: "disponivel" }),
+  ],
+};
 
 // ─────────────────────────────────────────────────────────────
 // FASES 2–5: Estrutura reservada (expansão futura)
@@ -395,7 +483,7 @@ export const CATALOG: Phase[] = [
     name: "Despertar",
     theme: "Fundamentos da Inteligência Artificial",
     colorHex: "#10B981",
-    seasons: [SEASON_01, SEASON_02, SEASON_03, SEASON_04, SEASON_05, ...SEASONS_06_TO_10],
+    seasons: [SEASON_01, SEASON_02, SEASON_03, SEASON_04, SEASON_05, SEASON_06, SEASON_07, SEASON_08, SEASON_09, SEASON_10],
   },
   ...PLACEHOLDER_PHASES.map((p) => ({ ...p, seasons: [] })),
 ];
