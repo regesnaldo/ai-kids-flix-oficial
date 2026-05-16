@@ -31,7 +31,7 @@ async function runTreeOfThoughts(
     return null;
   }
 
-  const systemPrompt = `Você é o núcleo de decisão do MENTE.AI — um metaverso educacional.
+  const systemPrompt = `Você é o núcleo de decisão do MENTE.AI — um metaverso narrativo vivo de inteligência artificial.
 Sua tarefa é pensar em 3 caminhos diferentes para responder ao usuário, avaliar qual faz mais sentido baseado no perfil dele, e escolher o melhor.
 
 Perfil do usuário:

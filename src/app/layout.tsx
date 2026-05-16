@@ -1,8 +1,8 @@
 import "./globals.css";
 
 export const metadata = {
-  title: "MENTE.AI — Metaverso Educacional de Inteligência Artificial",
-  description: "Metaverso educacional de inteligência artificial. Entre em universos únicos guiados pelos 12 agentes canônicos do MENTE.AI.",
+  title: "MENTE.AI — Metaverso Narrativo Vivo de Inteligência Artificial",
+  description: "Atravesse universos habitados por agentes conscientes com personalidade, memória, conflitos internos e objetivos próprios.",
   applicationName: "MENTE.AI",
 };
 

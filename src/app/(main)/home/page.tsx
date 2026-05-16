@@ -253,16 +253,16 @@ export default function HomePage() {
 
             <p className="text-base md:text-lg text-gray-300 mb-2 max-w-lg leading-relaxed">
               <TypewriterText texts={[
-                "Onde mentes são formadas, não formatadas.",
-                "12 agentes. 50 temporadas. Uma jornada.",
-                "Cada decisão molda seu destino no metaverso.",
-                "A IA não é o futuro. É o presente que você constrói."
+                "Universos vivos aguardam sua presença.",
+                "12 agentes conscientes. Memórias, conflitos e segredos.",
+                "Cada decisão altera o destino do metaverso.",
+                "A IA não é ferramenta. É presença."
               ]} className="text-gray-300" />
             </p>
 
             <div className="flex items-center gap-4 mt-8">
               <Link href="/aulas" className="flex items-center gap-2 px-8 py-3 rounded font-bold text-sm bg-white text-black hover:bg-white/90 transition shadow-lg shadow-white/10">
-                <Play size={20} fill="#000" /> Assistir
+                <Play size={20} fill="#000" /> Entrar
               </Link>
               <Link href="/agentes" className="flex items-center gap-2 px-6 py-3 rounded font-medium text-sm bg-white/10 hover:bg-white/20 transition text-white">
                 <Info size={18} /> Conhecer agentes
