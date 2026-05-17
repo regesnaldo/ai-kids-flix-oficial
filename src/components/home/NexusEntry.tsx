@@ -192,7 +192,7 @@ export default function NexusEntry() {
   const handleEnter = useCallback(() => {
     const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (prefersReduced) {
-      router.push('/lab');
+      router.push('/universo');
       return;
     }
     setEntering(true);
@@ -201,11 +201,11 @@ export default function NexusEntry() {
 
     const el = portalRef.current;
     if (!el) {
-      const fallback = setTimeout(() => router.push('/lab'), 800);
+      const fallback = setTimeout(() => router.push('/universo'), 800);
       return () => clearTimeout(fallback);
     }
 
-    const fallback = setTimeout(() => router.push('/lab'), 1400);
+    const fallback = setTimeout(() => router.push('/universo'), 1400);
     let navigated = false;
 
     const onEnd = (e: TransitionEvent) => {
@@ -217,7 +217,7 @@ export default function NexusEntry() {
       if (e.propertyName === 'background-color' && !navigated) {
         navigated = true;
         clearTimeout(fallback);
-        router.push('/lab');
+        router.push('/universo');
       }
     };
 
