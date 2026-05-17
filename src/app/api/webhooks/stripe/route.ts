@@ -20,8 +20,8 @@ const PRICE_ID_TO_PLAN: Record<string, 'BASIC' | 'PREMIUM' | 'FAMILY'> = {
 function normalizeStripeId(value: unknown): string | null {
   if (!value) return null
   if (typeof value === 'string') return value
-  if (typeof value === 'object' && value && 'id' in (value as any) && typeof (value as any).id === 'string') {
-    return (value as any).id
+  if (typeof value === 'object' && value && 'id' in value && typeof (value as { id: unknown }).id === 'string') {
+    return (value as { id: string }).id
   }
   return null
 }

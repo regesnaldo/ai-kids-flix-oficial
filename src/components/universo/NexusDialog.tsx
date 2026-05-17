@@ -129,9 +129,9 @@ export function NexusDialog({
                 agentId={NEXUS_AGENT_ID}
                 agentVoiceId={NEXUS_VOICE_ID}
                 conversationHistory={voiceHistory}
-                onTranscription={(text) => console.log('[NEXUS] Usuário disse:', text)}
+                onTranscription={(text) => {/* console.log disabled */}}
                 onResponse={handleVoiceResponse}
-                onError={(msg) => console.warn('[NEXUS] Voz:', msg)}
+                onError={(msg) => {/* console.warn disabled */}}
                 className="text-xs"
               />
               <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} onClick={onToggleAudio}

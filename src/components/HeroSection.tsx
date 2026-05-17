@@ -181,7 +181,7 @@ export default function HeroSection() {
               </span>
             </h1>
             <p className="text-lg font-medium text-gray-300 md:text-xl">
-              Onde mentes são formadas, não formatadas
+              Onde universos respondem à sua presença
             </p>
           </motion.div>
 
@@ -192,10 +192,9 @@ export default function HeroSection() {
             transition={{ duration: 0.7, delay: 0.3 }}
             className="max-w-xl text-sm leading-relaxed text-gray-400 md:text-base"
           >
-            Uma plataforma com{' '}
+            Um metaverso narrativo vivo com{' '}
             <span className="font-semibold text-purple-300">12 agentes canônicos</span>{' '}
-            em inteligência emocional, aprendizado profundo e autoconhecimento — cada um
-            guiando sua jornada com precisão e propósito.
+            dotados de personalidade, memória, conflitos internos e objetivos próprios.
           </motion.p>
 
           {/* CTA buttons */}

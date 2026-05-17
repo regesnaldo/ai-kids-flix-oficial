@@ -1,165 +1,304 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
-import { Check, ChevronDown, Lock } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Play, Info, ChevronLeft, ChevronRight, Clock, Zap, Star } from 'lucide-react';
 import { CATALOG } from '@/constants/catalog';
 import type { Season, Episode } from '@/constants/catalog';
 
-const TYPE_LABEL: Record<string, string> = {
-  narrativa: 'NARRATIVA',
-  teoria: 'TEORIA',
-  laboratorio: 'LABORATÓRIO',
-  desafio: 'DESAFIO',
-  reflexao: 'REFLEXÃO',
-};
+const WATCH_STORAGE_KEY = 'mente_ai_watch_progress_v1';
 
-const TYPE_STYLE: Record<string, string> = {
-  narrativa: 'text-violet-300 bg-violet-500/15 border-violet-400/30',
-  teoria: 'text-sky-300 bg-sky-500/15 border-sky-400/30',
-  laboratorio: 'text-amber-300 bg-amber-500/15 border-amber-400/30',
-  desafio: 'text-rose-300 bg-rose-500/15 border-rose-400/30',
-  reflexao: 'text-emerald-300 bg-emerald-500/15 border-emerald-400/30',
-};
-
-function isSeasonLocked(season: Season): boolean {
-  return season.number !== 1 || (season.episodes?.length ?? 0) === 0;
+function getWatchMap(): Record<string, { watchedPct: number; completed: boolean }> {
+  try {
+    const raw = globalThis.localStorage?.getItem(WATCH_STORAGE_KEY);
+    if (!raw) return {};
+    const parsed = JSON.parse(raw);
+    return parsed && typeof parsed === 'object' ? parsed : {};
+  } catch {
+    return {};
+  }
 }
 
 function getEpisodeThumb(agentId: string): string {
   return `/images/agentes/${agentId.toLowerCase()}.png`;
 }
 
-export default function AulasPage() {
-  const [isSeasonMenuOpen, setIsSeasonMenuOpen] = useState(false);
+const TYPE_CONFIG: Record<string, { icon: string; color: string; label: string }> = {
+  teoria: { icon: '📖', color: '#00D9FF', label: 'Teoria' },
+  laboratorio: { icon: '🧪', color: '#F59E0B', label: 'Laboratório' },
+  desafio: { icon: '🎯', color: '#E50914', label: 'Desafio' },
+  narrativa: { icon: '🎬', color: '#8B5CF6', label: 'Narrativa' },
+  reflexao: { icon: '💭', color: '#10B981', label: 'Reflexão' },
+};
 
-  const seasons = useMemo(() => {
-    return CATALOG.flatMap((phase) => phase.seasons ?? []).sort((a, b) => a.number - b.number);
-  }, []);
-
-  const unlockedSeason = seasons.find((season) => !isSeasonLocked(season)) ?? seasons[0];
-  const [selectedSeasonId, setSelectedSeasonId] = useState(unlockedSeason?.id ?? '');
-  const selectedSeason = seasons.find((season) => season.id === selectedSeasonId) ?? unlockedSeason;
-  const episodes = selectedSeason?.episodes ?? [];
+function EpisodeCard({ episode }: { episode: Episode }) {
+  const config = TYPE_CONFIG[episode.type] || TYPE_CONFIG.teoria;
+  const [hovered, setHovered] = useState(false);
 
   return (
-    <div className="min-h-screen bg-[#0a0a1a] text-white">
-      <header className="border-b border-white/10 bg-black/30 backdrop-blur-md sticky top-0 z-40">
-        <div className="mx-auto max-w-6xl px-6 md:px-10 py-5 flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-extrabold">Episódios</h1>
-            <p className="text-xs text-zinc-400 mt-0.5">Explore a jornada da temporada</p>
-          </div>
-          <Link href="/home" className="text-sm text-zinc-400 hover:text-white transition">
-            Voltar
-          </Link>
-        </div>
-      </header>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      whileHover={{ scale: 1.05, y: -5 }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      className="relative flex-shrink-0 cursor-pointer group"
+      style={{ width: 200 }}
+    >
+      <Link href={`/player?episode=${encodeURIComponent(episode.id)}`}>
+        <div
+          className="relative rounded-md overflow-hidden"
+          style={{
+            background: '#1A1A1A',
+            aspectRatio: '16/9',
+            boxShadow: hovered ? '0 8px 32px rgba(0,0,0,0.6)' : '0 2px 8px rgba(0,0,0,0.3)',
+          }}
+        >
+          <img
+            src={getEpisodeThumb(episode.agentId)}
+            alt={episode.title}
+            className="h-full w-full object-cover"
+            loading="lazy"
+            onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/images/placeholder.svg'; }}
+          />
+          <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.6), transparent)' }} />
 
-      <main className="mx-auto max-w-6xl px-6 md:px-10 py-8">
-        <div className="relative w-full max-w-sm mb-8">
-          <button
-            type="button"
-            onClick={() => setIsSeasonMenuOpen((open) => !open)}
-            className="w-full flex items-center justify-between rounded-xl border border-white/15 bg-white/[0.03] px-4 py-3 text-left hover:bg-white/[0.06] transition"
-          >
-            <span className="font-semibold">
-              Temporada {String(selectedSeason?.number ?? 1).padStart(2, '0')} - {selectedSeason?.title ?? 'Sem título'}
-            </span>
-            <ChevronDown className={`h-4 w-4 text-zinc-400 transition ${isSeasonMenuOpen ? 'rotate-180' : ''}`} />
-          </button>
-
-          {isSeasonMenuOpen && (
-            <ul className="absolute z-20 mt-2 w-full overflow-hidden rounded-xl border border-white/15 bg-[#101024] shadow-2xl">
-              {seasons.map((season) => {
-                const locked = isSeasonLocked(season);
-                const selected = season.id === selectedSeason?.id;
-
-                return (
-                  <li key={season.id}>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (!locked) {
-                          setSelectedSeasonId(season.id);
-                          setIsSeasonMenuOpen(false);
-                        }
-                      }}
-                      className={`w-full flex items-center justify-between px-4 py-3 text-sm transition ${
-                        locked
-                          ? 'text-zinc-500 cursor-not-allowed bg-white/[0.01]'
-                          : 'text-zinc-200 hover:bg-white/[0.07]'
-                      }`}
-                    >
-                      <span>
-                        Temporada {String(season.number).padStart(2, '0')} - {season.title}
-                      </span>
-                      <span className="flex items-center gap-2">
-                        {locked ? <Lock className="h-4 w-4" /> : null}
-                        {selected ? <Check className="h-4 w-4 text-sky-300" /> : null}
-                      </span>
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
-          )}
-        </div>
-
-        <section className="border-t border-white/10">
-          {episodes.map((ep: Episode) => {
-            const locked = ep.status !== 'disponivel';
-            const href = `/player?episode=${encodeURIComponent(ep.id)}`;
-
-            return (
-              <Link
-                key={ep.id}
-                href={locked ? '#' : href}
-                onClick={(event) => {
-                  if (locked) event.preventDefault();
-                }}
-                className="group grid grid-cols-[40px_160px_1fr] items-center gap-4 border-b border-white/10 py-4 hover:bg-white/[0.04] transition px-2"
+          <AnimatePresence>
+            {hovered && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="absolute inset-0 flex items-center justify-center"
+                style={{ background: 'rgba(0,0,0,0.5)' }}
               >
-                <div className="text-zinc-400 text-lg font-semibold text-center">
-                  {String(ep.number).padStart(2, '0')}
+                <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ background: config.color }}>
+                  <Play size={20} fill="#fff" color="#fff" />
                 </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
 
-                <div className="relative h-[90px] w-[160px] overflow-hidden rounded-md bg-zinc-900">
-                  <img
-                    src={getEpisodeThumb(ep.agentId)}
-                    alt={ep.title}
-                    className={`h-full w-full object-cover ${locked ? 'brightness-50' : ''}`}
-                    loading="lazy"
-                    onError={(e) => {
-                      (e.currentTarget as HTMLImageElement).src = '/images/agentes/nexus.png';
-                    }}
-                  />
-                  {locked ? (
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/40">
-                      <Lock className="h-5 w-5 text-zinc-200" />
-                    </div>
-                  ) : null}
-                </div>
+        <div className="mt-2 px-1">
+          <div className="flex items-center gap-2 text-xs text-gray-400 mb-1">
+            <span style={{ color: config.color }}>{config.label}</span>
+            <span>•</span>
+            <span>{episode.durationMinutes} min</span>
+          </div>
+          <h4 className="text-sm font-medium text-white leading-tight">{episode.title}</h4>
+        </div>
+      </Link>
+    </motion.div>
+  );
+}
 
-                <div className="min-w-0">
-                  <div className="flex items-center justify-between gap-4">
-                    <h2 className="text-base md:text-lg font-semibold truncate">{ep.title}</h2>
-                    <span className={`shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-bold ${TYPE_STYLE[ep.type] ?? TYPE_STYLE.teoria}`}>
-                      {TYPE_LABEL[ep.type] ?? ep.type.toUpperCase()}
-                    </span>
-                  </div>
+function SeasonRow({ season }: { season: Season }) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [showArrows, setShowArrows] = useState(false);
 
-                  <p className="mt-1 text-sm text-zinc-400 truncate">{ep.description}</p>
+  const scroll = (dir: number) => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollBy({ left: dir * 400, behavior: 'smooth' });
+    }
+  };
 
-                  <div className="mt-2 text-xs text-zinc-500 text-right">
-                    {ep.durationMinutes} min • {ep.xpReward} XP
-                  </div>
-                </div>
-              </Link>
-            );
-          })}
-        </section>
-      </main>
+  if (!season.episodes?.length) return null;
+
+  return (
+    <div
+      className="mb-10"
+      onMouseEnter={() => setShowArrows(true)}
+      onMouseLeave={() => setShowArrows(false)}
+    >
+      <div className="flex items-center gap-4 mb-4 px-4">
+        <h2 className="text-xl font-bold text-white">
+          Temporada {String(season.number).padStart(2, '0')} — {season.title}
+        </h2>
+        {season.synopsis && (
+          <span className="text-sm text-gray-500 hidden md:inline">{season.synopsis}</span>
+        )}
+      </div>
+
+      <div className="relative">
+        {showArrows && (
+          <>
+            <button
+              onClick={() => scroll(-1)}
+              className="absolute left-2 top-0 bottom-0 w-10 flex items-center justify-center z-10 bg-black/50 hover:bg-black/80 rounded-r-lg transition"
+            >
+              <ChevronLeft size={24} color="#fff" />
+            </button>
+            <button
+              onClick={() => scroll(1)}
+              className="absolute right-2 top-0 bottom-0 w-10 flex items-center justify-center z-10 bg-black/50 hover:bg-black/80 rounded-l-lg transition"
+            >
+              <ChevronRight size={24} color="#fff" />
+            </button>
+          </>
+        )}
+
+        <div
+          ref={scrollRef}
+          className="flex gap-3 overflow-x-auto px-4 pb-4"
+          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+        >
+          {season.episodes.filter(ep => ep.status === 'disponivel').map((ep) => (
+            <EpisodeCard key={ep.id} episode={ep} />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function HeroBanner() {
+  const [watchMap, setWatchMap] = useState<Record<string, { completed: boolean }>>({});
+
+  useEffect(() => {
+    setWatchMap(getWatchMap());
+  }, []);
+
+  const nextEpisode = useMemo(() => {
+    for (const phase of CATALOG) {
+      for (const season of phase.seasons || []) {
+        for (const ep of season.episodes || []) {
+          if (ep.status !== 'disponivel') continue;
+          const progress = watchMap[ep.id];
+          if (!progress?.completed) return ep;
+        }
+      }
+    }
+    return null;
+  }, [watchMap]);
+
+  if (!nextEpisode) return null;
+
+  const config = TYPE_CONFIG[nextEpisode.type] || TYPE_CONFIG.teoria;
+
+  return (
+    <div className="relative h-[75vh] min-h-[400px] max-h-[600px] mb-8 overflow-hidden">
+      <div className="absolute inset-0">
+        <img
+          src={getEpisodeThumb(nextEpisode.agentId)}
+          alt=""
+          className="h-full w-full object-cover"
+          onError={(e) => {
+            (e.currentTarget as HTMLImageElement).style.display = 'none';
+          }}
+        />
+      </div>
+
+      <div
+        className="absolute inset-0"
+        style={{
+          background: `
+            linear-gradient(to right, #0a0a1a 0%, #0a0a1a40 50%, transparent 100%),
+            linear-gradient(to top, #0a0a1a 0%, transparent 50%),
+            linear-gradient(to bottom, #0a0a1a 80%, transparent 100%)
+          `,
+        }}
+      />
+
+      <div className="absolute inset-0 flex items-center px-8 md:px-16">
+        <div className="relative z-10 max-w-xl">
+          <div className="flex items-center gap-3 mb-3">
+            <span className="text-sm font-semibold text-gray-400 tracking-wider">PRÓXIMO EPISÓDIO</span>
+            <span className="text-xs px-2 py-0.5 rounded font-medium" style={{ background: config.color, color: '#000' }}>
+              {config.label}
+            </span>
+          </div>
+
+          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 leading-tight">
+            {nextEpisode.title}
+          </h1>
+
+          <p className="text-gray-300 mb-6 line-clamp-2 text-sm md:text-base">
+            {nextEpisode.description}
+          </p>
+
+          <div className="flex items-center gap-4">
+            <Link
+              href={`/player?episode=${encodeURIComponent(nextEpisode.id)}`}
+              className="flex items-center gap-2 px-8 py-3 rounded font-bold text-sm transition hover:scale-105"
+              style={{ background: config.color, color: '#000' }}
+            >
+              <Play size={20} fill="#000" />
+              Assistir
+            </Link>
+
+            <Link
+              href={`/player?episode=${encodeURIComponent(nextEpisode.id)}`}
+              className="flex items-center gap-2 px-6 py-3 rounded font-medium text-sm bg-white/10 hover:bg-white/20 transition text-white"
+            >
+              <Info size={18} />
+              Mais info
+            </Link>
+          </div>
+
+          <div className="flex items-center gap-4 mt-6 text-xs text-gray-400">
+            <span className="flex items-center gap-1"><Clock size={14} /> {nextEpisode.durationMinutes} min</span>
+            <span className="flex items-center gap-1"><Zap size={14} /> {nextEpisode.xpReward} XP</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function AulasPage() {
+  const [selectedPhase, setSelectedPhase] = useState(1);
+
+  const phases = useMemo(() => CATALOG.filter((p) => p.seasons?.length > 0), []);
+
+  const activePhase = phases.find((p) => p.id === selectedPhase) ?? phases[0];
+  const seasons = activePhase?.seasons ?? [];
+
+  return (
+    <div className="min-h-screen" style={{ background: '#0a0a1a', fontFamily: 'system-ui, sans-serif' }}>
+      <nav
+        className="fixed top-0 left-0 right-0 z-50 px-6 py-4"
+        style={{ background: 'linear-gradient(to bottom, #0a0a1a, transparent)' }}
+      >
+        <div className="flex items-center gap-8" style={{ pointerEvents: 'auto' }}>
+          <Link href="/" className="text-2xl font-bold">
+            <span className="text-white">MENTE</span><span className="text-red-500">.AI</span>
+          </Link>
+          <div className="hidden md:flex items-center gap-6 text-sm">
+            <Link href="/" className="text-gray-400 hover:text-white transition">Início</Link>
+            <Link href="/aulas" className="text-white font-semibold">Séries</Link>
+            <Link href="/agentes" className="text-gray-400 hover:text-white transition">Agentes</Link>
+            <Link href="/explorar" className="text-gray-400 hover:text-white transition">Explorar</Link>
+          </div>
+        </div>
+      </nav>
+
+      <HeroBanner />
+
+      <div className="px-4 md:px-8 pb-16">
+        <div className="flex gap-2 mb-8 overflow-x-auto pb-2 px-4">
+          {phases.map((phase) => (
+            <button
+              key={phase.id}
+              onClick={() => setSelectedPhase(phase.id)}
+              className="px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition"
+              style={{
+                background: selectedPhase === phase.id ? '#fff' : 'rgba(255,255,255,0.1)',
+                color: selectedPhase === phase.id ? '#000' : 'rgba(255,255,255,0.7)',
+              }}
+            >
+              {phase.name}
+            </button>
+          ))}
+        </div>
+
+        <div className="mt-8">
+          {seasons.map((season) => (
+            <SeasonRow key={season.id} season={season} />
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

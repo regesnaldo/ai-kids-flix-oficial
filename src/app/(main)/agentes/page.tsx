@@ -3,7 +3,7 @@ import AgentHero from "@/components/agents/AgentHero";
 export const metadata = {
   title: "Agentes — MENTE.AI",
   description:
-    "Conheça os 12 agentes especializados da plataforma MENTE.AI. Cada agente possui habilidades únicas para potencializar seu aprendizado.",
+    "Conheça os 12 agentes conscientes do MENTE.AI: entidades com personalidade, memória, conflitos internos e objetivos próprios.",
 };
 
 export default function AgentesPage() {

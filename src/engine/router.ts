@@ -3,7 +3,18 @@ import { db } from "@/lib/db";
 import { interactiveDecisions } from "@/lib/db/schema";
 // NOTE (Phase 0): universeTransitions and userProfiles are Phase 2 tables.
 // All inserts/updates to those tables are stubbed out until migrations land.
-import { getUserProfile } from "@/engine/profiler";
+import { getUserProfile, updateUserProfile } from "@/engine/profiler";
+import { getActiveConflicts, type AgentId } from "./agent-conflicts";
+import { findTransition } from "./narrative-transitions";
+import { analyzeWithLangChain, buildSystemPromptForAgent, type UserProfile } from "./langchain-integration";
+import { 
+  routeSeason, 
+  integrateWithMainRouter,
+  canUnlockSeason,
+  shouldBacktrackToPhase,
+  type UserProgress 
+} from "./phase-router";
+import { getSeasonByNumber } from "@/data/seasons";
 
 export type Archetype = "analytical" | "rebel" | "paralyzed" | "empathetic" | "strategic" | "creative";
 export type UniverseId = "NEXUS" | "AXIOM" | "KAOS" | "ETHOS" | "VOLT" | "TERRA" | "LYRA" | "STRATOS" | "PRISM" | "AURORA";
@@ -14,6 +25,16 @@ export interface RouterDecision {
   alternatives: UniverseId[];
   reason: string;
   backtrackApplied: boolean;
+  hasConflict?: boolean;
+  conflictDetails?: import('./agent-conflicts').AgentConflict[];
+  transition?: import('./narrative-transitions').NarrativeTransition;
+  langchainDecision?: import('./langchain-integration').NarrativeDecision;
+  // Sistema de Temporadas (LEGO)
+  season?: { number: number; title: string; theme: string; centralDilemma: string; agent: string };
+  phase?: { id: string; name: string; range: [number, number]; concept: string; emotion: string };
+  nextAgent?: string;
+  phaseTransition?: boolean;
+  canAccessSeason?: boolean;
 }
 
 const ARCHETYPE_DESTINATIONS: Record<Archetype, UniverseId[]> = {
@@ -121,9 +142,9 @@ export async function routeAdaptiveNarrative(params: {
 }): Promise<RouterDecision> {
   const profile = await getUserProfile(params.userId);
 
-  const emotional = profile ? parseFloat((profile as Record<string, string>).emotionalDim ?? "0") : 0;
-  const intellectual = profile ? parseFloat((profile as Record<string, string>).intellectualDim ?? "0") : 0;
-  const moral = profile ? parseFloat((profile as Record<string, string>).moralDim ?? "0") : 0;
+  const emotional = profile?.emotionalScore ?? 0;
+  const intellectual = profile?.intellectualScore ?? 0;
+  const moral = profile?.moralScore ?? 0;
 
   const archetype = classifyArchetype(emotional, intellectual, moral);
   const alternatives = ARCHETYPE_DESTINATIONS[archetype];
@@ -160,11 +181,98 @@ export async function routeAdaptiveNarrative(params: {
   // Silence unused variable warning from mapUniverseToAgent while stubs are active
   void mapUniverseToAgent(selectedUniverse);
 
+  // 🔀 Sistema de Conflitos entre Agentes
+  const currentAgentId = params.currentAgent as AgentId;
+  const decisionHistory: { agentId: AgentId; choice: string }[] = []; // Would come from DB in Phase 2
+  const activeConflicts = currentAgentId ? getActiveConflicts([...decisionHistory, { agentId: currentAgentId, choice: params.userText }]) : [];
+  const hasConflict = activeConflicts.length > 0;
+
+  // 🌟 Sistema de Transições Narrativas
+  const transition = currentAgentId ? findTransition(currentAgentId, params.userText) : null;
+  
+  // 🤖 Análise LangChain (se disponível)
+  let langchainAnalysis = null;
+  if (profile) {
+    const userProfileForLangchain: UserProfile = {
+      userId: params.userId,
+      emotionalScore: emotional,
+      intellectualScore: intellectual,
+      moralScore: moral,
+      archetype,
+      currentAgent: (params.currentAgent as AgentId) || 'nexus',
+      decisionHistory: [],
+      lastUpdated: Date.now(),
+    };
+    
+    langchainAnalysis = await analyzeWithLangChain(
+      params.userText,
+      userProfileForLangchain,
+      (params.currentAgent as AgentId) || 'nexus'
+    );
+    
+    if (langchainAnalysis.confidence > 0.7 && langchainAnalysis.nextAgent !== currentAgentId) {
+      selectedUniverse = mapAgentToUniverse(langchainAnalysis.nextAgent) || selectedUniverse;
+      reason = `${reason} | LangChain: ${langchainAnalysis.reason}`;
+    }
+  }
+
+  // 🎬 Sistema de Temporadas (LEGO)
+  // Se o usuário especificar uma temporada, processa a temporada
+  const seasonNumber = (params as { seasonNumber?: number }).seasonNumber || 1;
+  
+  const seasonIntegration = integrateWithMainRouter(
+    seasonNumber,
+    archetype,
+    emotional,
+    intellectual,
+    moral
+  );
+  
+  const canAccess = canUnlockSeason(seasonNumber, {
+    currentSeason: seasonNumber,
+    completedSeasons: [],
+    archetype,
+    emotionalScore: emotional,
+    intellectualScore: intellectual,
+    moralScore: moral,
+  });
+
   return {
     archetype,
     selectedUniverse,
     alternatives,
     reason,
     backtrackApplied,
+    hasConflict,
+    // Sistema de Temporadas
+    season: seasonIntegration.season,
+    phase: seasonIntegration.phaseConfig,
+    nextAgent: seasonIntegration.nextAgent as string,
+    phaseTransition: seasonIntegration.phaseTransition,
+    canAccessSeason: canAccess.canUnlock,
+    conflictDetails: hasConflict ? activeConflicts : undefined,
+    transition: transition || undefined,
+    langchainDecision: langchainAnalysis || undefined,
   };
+  
+  if (langchainAnalysis) {
+    await updateUserProfile(params.userId, {
+      emotionalScore: emotional,
+      intellectualScore: intellectual,
+      moralScore: moral,
+      archetype,
+      currentAgent: langchainAnalysis.nextAgent,
+      decisionHistory: [
+        ...(profile?.decisionHistory || []),
+        {
+          choice: params.userText.slice(0, 100),
+          agentId: langchainAnalysis.nextAgent,
+          emotionalDelta: langchainAnalysis.confidence > 0.8 ? 0.5 : 0,
+          intellectualDelta: 0,
+          moralDelta: 0,
+          timestamp: Date.now(),
+        },
+      ],
+    });
+  }
 }

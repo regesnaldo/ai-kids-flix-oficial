@@ -16,7 +16,7 @@ const FALLBACK_AGENT: Agent = {
   name: 'ETHOS',
   role: 'Especialista em Ética & Valores',
   color: '#E50914',
-  description: 'Desenvolvendo caráter e valores através da educação',
+  description: 'Uma consciência moral atravessada por memória, conflito e presença',
   tag: 'ÉTICA',
 };
 

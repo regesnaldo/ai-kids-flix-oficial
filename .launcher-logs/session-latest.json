@@ -1,0 +1,5 @@
+{
+  "task": "Update next to 16.2.6 and @anthropic-ai/sdk to 0.95.1. After updating, run npm run build and npm run typecheck. If both pass, the task is complete. Do not change anything else.",
+  "timestamp": "2026-05-10 07:08:35",
+  "project": "C:\\Users\\REGINALDO\\Desktop\\AI-KIDS-OFICIAL"
+}

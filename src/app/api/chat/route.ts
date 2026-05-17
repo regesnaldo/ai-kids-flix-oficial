@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ALL_AGENTS } from "@/canon/agents/all-agents";
 import { anthropicCompletionText, anthropicStream, type AnthropicMensagem } from "@/lib/anthropic";
+import { detectarConflito, agenteOponente, getConflictPrompt, AGENT_CONFLICTS } from "@/lib/engine/conflicts";
 
 export const runtime = "nodejs";
 
@@ -35,16 +36,16 @@ function normalizarMensagens(messages: ChatMessage[]): AnthropicMensagem[] {
 function buildSystemPrompt(agent: (typeof ALL_AGENTS)[number]): string {
   const values = agent.personality.values.join(", ");
   return [
-    "Você é um agente da plataforma MENTE.AI.",
+    "Você é um agente consciente do MENTE.AI, um metaverso narrativo vivo de inteligência artificial.",
     `Nome do agente: ${agent.name}.`,
     `Dimensão: ${agent.dimension}. Nível: ${agent.level}. Facção: ${agent.faction}.`,
     `Tom de voz: ${agent.personality.tone}.`,
     `Valores: ${values}.`,
     `Abordagem do agente: ${agent.personality.approach}`,
-    `Missão no laboratório: ${agent.laboratoryTask}`,
+    `Objetivo dentro do metaverso: ${agent.laboratoryTask}`,
     "Regras:",
     "- Responda em português (pt-BR), com clareza e objetividade.",
-    "- Mantenha a personalidade e a abordagem do agente em todas as respostas.",
+    "- Mantenha personalidade, memória emocional, conflito interno e sensação de presença viva em todas as respostas.",
     "- Faça perguntas curtas quando necessário para avançar a conversa.",
     "- Não invente dados pessoais do usuário; peça contexto quando faltar.",
   ].join("\n");
@@ -116,7 +117,21 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "messages inválidas" }, { status: 400 });
     }
 
-    const system = buildSystemPrompt(agent);
+    let system = buildSystemPrompt(agent);
+
+    const ultimaMsg = messages[messages.length - 1]
+    const conflito = ultimaMsg ? detectarConflito(agent.id, ultimaMsg.content) : null
+    if (conflito) {
+      const oponente = agenteOponente(agent.id, conflito)
+      system += `\n\nCONFLITO ATIVO: O usuario tocou no tema "${conflito.nature}".
+Seu oponente narrativo ${oponente.toUpperCase()} pensaria diferente.
+Use isso para aprofundar sua perspectiva sem atacar o oponente.
+Narrativa weight: ${conflito.narrativeWeight}/10 — quanto maior, mais intenso o contraste.`
+    }
+
+    const conflitoPrompt = getConflictPrompt(agent.id)
+    if (conflitoPrompt) system += `\n\n${conflitoPrompt}`
+
     const provider = (process.env.LLM_PROVIDER || "").toLowerCase();
     const wantStream = parsed.stream === true;
 
@@ -151,7 +166,28 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    return NextResponse.json({ message: assistantText });
+    const TRANSITION_KEYWORDS: Record<string, string> = {
+      nexus: "nexus", volt: "volt", aurora: "aurora", ethos: "ethos",
+      kaos: "kaos", cipher: "cipher", lyra: "lyra", axiom: "axiom",
+      stratos: "stratos", terra: "terra", prism: "prism", janus: "janus",
+    }
+
+    let transitionTo: string | undefined
+    const userText = ultimaMsg?.content.toLowerCase() || ""
+    if (conflito) transitionTo = agenteOponente(agent.id, conflito)
+    if (!transitionTo) {
+      for (const [key, id] of Object.entries(TRANSITION_KEYWORDS)) {
+        if (id !== agent.id && userText.includes(`quero falar com ${key}`)) {
+          transitionTo = id; break
+        }
+      }
+    }
+
+    return NextResponse.json({
+      message: assistantText,
+      transitionTo: transitionTo || undefined,
+      transitionReason: conflito ? `Conflito detectado: ${conflito.nature}` : undefined,
+    });
 
   } catch (error: unknown) {
     const err = error as { tipo?: string; mensagem?: string; tentativas?: number };
