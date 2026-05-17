@@ -139,9 +139,9 @@ export default function UniversoPage() {
             >
               {!planet.unlocked && <span className="lockIcon">🔒</span>}
             </div>
-            <span className="planetLabel">{planet.name}</span>
+            <span className="planetLabel" style={planet.unlocked ? { color: planet.color, opacity: 0.9 } : undefined}>{planet.name}</span>
             {hoveredPlanet === planet.id && planet.unlocked && (
-              <div className="planetTooltip">ENTRAR NO MUNDO DE {planet.name}</div>
+              <div className="planetTooltip" style={{ borderColor: planet.color }}>ENTRAR NO MUNDO DE {planet.name}</div>
             )}
           </div>
         ))}
