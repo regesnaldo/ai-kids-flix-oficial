@@ -59,7 +59,13 @@ function AgentCard({ agent }: { agent: typeof agentsShowcase[0] }) {
       onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}
       className="flex-shrink-0 cursor-pointer" style={{ width: 180 }}>
       <Link href={`/agentes/${agent.id}`}>
-        <div className="relative rounded-md overflow-hidden" style={{ background: "#1A1A1A", aspectRatio: "2/3", boxShadow: hovered ? `0 8px 32px ${agent.categoryColor}44` : "0 2px 8px rgba(0,0,0,0.3)" }}>
+        <div className="relative rounded-md overflow-hidden" style={{
+          background: "#1A1A1A",
+          aspectRatio: "2/3",
+          boxShadow: hovered ? "0 0 20px rgba(0,245,255,0.4)" : "0 2px 8px rgba(0,0,0,0.3)",
+          border: hovered ? "1px solid rgba(0,245,255,0.6)" : "1px solid rgba(0,245,255,0.2)",
+          transition: "all 300ms ease",
+        }}>
           <img src={getAgentImage(agent.id)} alt={agent.name} className="h-full w-full object-cover" loading="lazy"
             onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/images/placeholder.svg"; }} />
           <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.8), transparent)" }} />
@@ -116,7 +122,23 @@ export default function HomePage() {
   const hasProgress = completedCount > 0;
 
   return (
-    <div className="min-h-screen" style={{ background: "#0a0a1a" }}>
+    <div className="min-h-screen homeContainer" style={{ background: "#0a0a1a" }}>
+      <style jsx>{`
+        .homeContainer::before {
+          content: '';
+          position: fixed;
+          inset: 0;
+          z-index: 0;
+          pointer-events: none;
+          background: repeating-linear-gradient(
+            0deg,
+            rgba(0,245,255,0.03) 0px,
+            rgba(0,245,255,0.03) 2px,
+            transparent 2px,
+            transparent 4px
+          );
+        }
+      `}</style>
       <nav className="fixed top-0 left-0 right-0 z-50 px-6 py-4" style={{ background: "linear-gradient(to bottom, #0a0a1a, transparent)" }}>
         <div className="flex items-center justify-between w-full" style={{ pointerEvents: "auto" }}>
           <div className="flex items-center gap-8">
@@ -128,12 +150,32 @@ export default function HomePage() {
               <Link href="/explorar" className="text-gray-400 hover:text-white transition">Explorar</Link>
             </div>
           </div>
-          {hasProgress && <div className="flex items-center gap-4 text-sm text-gray-400">
-            <span className="flex items-center gap-1"><Zap size={14} className="text-yellow-400" /> {totalXp} XP</span>
-            <span className="flex items-center gap-1"><Star size={14} className="text-purple-400" /> {profile.archetype || "Explorador"}</span>
-          </div>}
+          <div className="flex items-center gap-6">
+            <div className="hidden sm:flex items-center gap-2" style={{ color: '#00f5ff', opacity: 0.7, fontSize: '10px', fontFamily: 'monospace' }}>
+              <span style={{
+                display: 'inline-block',
+                width: '6px',
+                height: '6px',
+                borderRadius: '50%',
+                background: '#4ade80',
+                animation: 'pulse 2s ease-in-out infinite',
+                boxShadow: '0 0 6px rgba(74, 222, 128, 0.6)',
+              }} />
+              METAVERSE ONLINE
+            </div>
+            {hasProgress && <div className="flex items-center gap-4 text-sm text-gray-400">
+              <span className="flex items-center gap-1"><Zap size={14} className="text-yellow-400" /> {totalXp} XP</span>
+              <span className="flex items-center gap-1"><Star size={14} className="text-purple-400" /> {profile.archetype || "Explorador"}</span>
+            </div>}
+          </div>
         </div>
       </nav>
+      <style jsx global>{`
+        @keyframes pulse {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.4; transform: scale(0.7); }
+        }
+      `}</style>
 
       <NexusEntry />
 

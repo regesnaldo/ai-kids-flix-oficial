@@ -160,13 +160,27 @@ export default function NexusEntry() {
     }
     setEntering(true);
     setPortalPhase('zoom');
-    setTimeout(() => {
-      setPortalPhase('blackout');
-      playPortalSound();
-    }, 800);
-    setTimeout(() => {
-      router.push('/lab');
-    }, 1200);
+
+    const el = portalRef.current;
+    if (!el) return;
+
+    const fallback = setTimeout(() => router.push('/lab'), 1400);
+    let navigated = false;
+
+    const onEnd = (e: TransitionEvent) => {
+      if (navigated) return;
+      if (e.propertyName === 'transform') {
+        setPortalPhase('blackout');
+        playPortalSound();
+      }
+      if ((e.propertyName === 'background-color' || e.propertyName === 'background') && !navigated) {
+        navigated = true;
+        clearTimeout(fallback);
+        router.push('/lab');
+      }
+    };
+
+    el.addEventListener('transitionend', onEnd);
   }, [router, playPortalSound]);
 
   useEffect(() => {
