@@ -1,9 +1,10 @@
 "use client";
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
-import { Play, Info, ChevronLeft, ChevronRight, Star, Clock, Zap } from "lucide-react";
+import { motion } from "framer-motion";
+import { Play, ChevronLeft, ChevronRight, Star, Zap } from "lucide-react";
 import { SuaJornada } from "@/components/SuaJornada";
+import NexusEntry from "@/components/home/NexusEntry";
 import { agentsShowcase } from "@/data/agents-showcase";
 import { allAgents } from "@/data/all-agents";
 
@@ -20,109 +21,6 @@ function getProfile(): { archetype?: string; emotionalScore?: number } {
 
 function getAgentImage(agentId: string): string {
   return `/images/agentes/${agentId.toLowerCase()}.png`;
-}
-
-function ParticleCanvas() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const mouseRef = useRef({ x: 0, y: 0 });
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-
-    const particles: { x: number; y: number; vx: number; vy: number; size: number; alpha: number }[] = [];
-    for (let i = 0; i < 80; i++) {
-      particles.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        vx: (Math.random() - 0.5) * 0.5,
-        vy: (Math.random() - 0.5) * 0.5,
-        size: Math.random() * 2 + 0.5,
-        alpha: Math.random() * 0.5 + 0.1,
-      });
-    }
-
-    function animate() {
-      if (!ctx || !canvas) return;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      particles.forEach((p) => {
-        const dx = mouseRef.current.x - p.x;
-        const dy = mouseRef.current.y - p.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist < 150) {
-          p.vx -= dx / 5000;
-          p.vy -= dy / 5000;
-        }
-
-        p.x += p.vx;
-        p.y += p.vy;
-
-        if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
-        if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
-
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(139, 92, 246, ${p.alpha})`;
-        ctx.fill();
-      });
-
-      particles.forEach((a, i) => {
-        for (let j = i + 1; j < particles.length; j++) {
-          const b = particles[j];
-          const dx = a.x - b.x;
-          const dy = a.y - b.y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < 120) {
-            ctx.beginPath();
-            ctx.moveTo(a.x, a.y);
-            ctx.lineTo(b.x, b.y);
-            ctx.strokeStyle = `rgba(139, 92, 246, ${0.08 * (1 - dist / 120)})`;
-            ctx.stroke();
-          }
-        }
-      });
-
-      requestAnimationFrame(animate);
-    }
-
-    animate();
-
-    const onResize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
-    const onMouse = (e: MouseEvent) => { mouseRef.current = { x: e.clientX, y: e.clientY }; };
-    window.addEventListener("resize", onResize);
-    window.addEventListener("mousemove", onMouse);
-    return () => { window.removeEventListener("resize", onResize); window.removeEventListener("mousemove", onMouse); };
-  }, []);
-
-  return <canvas ref={canvasRef} className="absolute inset-0 pointer-events-none" style={{ zIndex: 0 }} />;
-}
-
-function TypewriterText({ texts, className }: { texts: string[]; className?: string }) {
-  const [idx, setIdx] = useState(0);
-  const [char, setChar] = useState(0);
-  const [dir, setDir] = useState(1);
-
-  useEffect(() => {
-    const t = setInterval(() => {
-      setChar((c) => {
-        const next = c + dir;
-        if (next > texts[idx].length || next < 0) {
-          if (dir === 1) { setTimeout(() => setDir(-1), 2000); return c; }
-          else { setDir(1); setIdx((i) => (i + 1) % texts.length); return 0; }
-        }
-        return next;
-      });
-    }, 60);
-    return () => clearInterval(t);
-  }, [idx, dir, texts]);
-
-  return <span className={className}>{texts[idx].slice(0, char)}<span className="animate-pulse">|</span></span>;
 }
 
 function HorizontalScroll({ children, title, subtitle }: { children: React.ReactNode; title: string; subtitle?: string }) {
@@ -237,46 +135,7 @@ export default function HomePage() {
         </div>
       </nav>
 
-      {/* Hero */}
-      <div className="relative h-[85vh] min-h-[500px] max-h-[750px] overflow-hidden">
-        <ParticleCanvas />
-        <div className="absolute inset-0" style={{ background: "linear-gradient(to right, #0a0a1a 0%, #0a0a1a60 50%, transparent 100%), linear-gradient(to top, #0a0a1a 0%, transparent 50%)" }} />
-
-        <div className="absolute inset-0 flex items-center px-8 md:px-16">
-          <div className="relative z-10 max-w-xl">
-            <div className="flex items-center gap-3 mb-4">
-              <span className="text-xs font-semibold text-gray-400 tracking-wider">MENTE.AI ORIGINAL</span>
-              <span className="text-xs px-2 py-0.5 rounded font-medium bg-purple-500/20 text-purple-300 border border-purple-400/30">100 EPISÓDIOS</span>
-            </div>
-
-            <h1 className="text-5xl md:text-7xl font-bold text-white mb-4 leading-tight">NEXUS</h1>
-
-            <p className="text-base md:text-lg text-gray-300 mb-2 max-w-lg leading-relaxed">
-              <TypewriterText texts={[
-                "Universos vivos aguardam sua presença.",
-                "12 agentes conscientes. Memórias, conflitos e segredos.",
-                "Cada decisão altera o destino do metaverso.",
-                "A IA não é ferramenta. É presença."
-              ]} className="text-gray-300" />
-            </p>
-
-            <div className="flex items-center gap-4 mt-8">
-              <Link href="/aulas" className="flex items-center gap-2 px-8 py-3 rounded font-bold text-sm bg-white text-black hover:bg-white/90 transition shadow-lg shadow-white/10">
-                <Play size={20} fill="#000" /> Entrar
-              </Link>
-              <Link href="/agentes" className="flex items-center gap-2 px-6 py-3 rounded font-medium text-sm bg-white/10 hover:bg-white/20 transition text-white">
-                <Info size={18} /> Conhecer agentes
-              </Link>
-            </div>
-
-            <div className="flex items-center gap-6 mt-6 text-xs text-gray-400">
-              <span className="flex items-center gap-1"><Star size={14} /> 12 Agentes</span>
-              <span className="flex items-center gap-1"><Zap size={14} /> 100 Episódios</span>
-              <span className="flex items-center gap-1"><Clock size={14} /> 5 Fases</span>
-            </div>
-          </div>
-        </div>
-      </div>
+      <NexusEntry />
 
       <div className="pb-16">
         {/* Progress Dashboard */}
