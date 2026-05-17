@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Volume2, VolumeX } from "lucide-react";
 import { useAmbientAudio } from "@/hooks/useAmbientAudio";
@@ -17,7 +17,6 @@ type Particle = {
 
 const PARTICLE_COUNT = 150;
 const CONNECTION_DISTANCE = 120;
-const NEXUS_ROUTE = "/universo/nexus";
 
 function randomVelocity() {
   return (Math.random() - 0.5) * 0.6;
@@ -133,6 +132,42 @@ export default function NexusEntry() {
   const { play, pause, isPlaying } = useAmbientAudio();
   const cyanSpotlightRef = useRef<HTMLDivElement>(null);
   const purpleSpotlightRef = useRef<HTMLDivElement>(null);
+  const portalRef = useRef<HTMLDivElement>(null);
+  const [entering, setEntering] = useState(false);
+  const [portalPhase, setPortalPhase] = useState<'idle' | 'zoom' | 'blackout'>('idle');
+
+  const playPortalSound = useCallback(() => {
+    try {
+      const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = 80;
+      gain.gain.value = 0.3;
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+      osc.stop(ctx.currentTime + 0.4);
+    } catch { /* audio not available */ }
+  }, []);
+
+  const handleEnter = useCallback(() => {
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReduced) {
+      router.push('/lab');
+      return;
+    }
+    setEntering(true);
+    setPortalPhase('zoom');
+    setTimeout(() => {
+      setPortalPhase('blackout');
+      playPortalSound();
+    }, 800);
+    setTimeout(() => {
+      router.push('/lab');
+    }, 1200);
+  }, [router, playPortalSound]);
 
   useEffect(() => {
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -178,7 +213,8 @@ export default function NexusEntry() {
   };
 
   return (
-    <section className="nexusEntry" aria-label="Entrada cinematográfica do universo NEXUS">
+    <>
+    <section className={`nexusEntry${entering ? ' portalActive' : ''}`} aria-label="Entrada cinematográfica do universo NEXUS">
       <NexusCanvas />
       <div className="nexusFog" />
       <div ref={cyanSpotlightRef} className="spotlight spotlightCyan" />
@@ -195,8 +231,8 @@ export default function NexusEntry() {
 
       <div className="nexusCopy">
         <p>Bem-vindo à mente que aprende.</p>
-        <button type="button" onClick={() => router.push(NEXUS_ROUTE)}>
-          Entrar no universo
+        <button type="button" onClick={handleEnter} disabled={entering}>
+          {entering ? 'Abrindo portal...' : 'Entrar no universo'}
         </button>
       </div>
 
@@ -222,12 +258,52 @@ export default function NexusEntry() {
           margin-left: calc(50% - 50vw);
         }
 
+        .nexusEntry.portalActive {
+          pointer-events: none;
+        }
+
+        .nexusEntry.portalActive .nexusCanvas {
+          opacity: 0;
+          transition: opacity 800ms ease;
+        }
+
+        .nexusEntry.portalActive .nexusFog,
+        .nexusEntry.portalActive .spotlight,
+        .nexusEntry.portalActive .nexusPresence,
+        .nexusEntry.portalActive .nexusCopy {
+          opacity: 0;
+          transition: opacity 400ms ease;
+        }
+
+        .portalOverlay {
+          position: fixed;
+          inset: 0;
+          z-index: 99999;
+          pointer-events: none;
+          transform: scale(0);
+          border-radius: 50%;
+          will-change: transform, background;
+        }
+
+        .portalOverlay.zoom {
+          transform: scale(50);
+          transition: transform 800ms cubic-bezier(0.16,1,0.3,1);
+          background: #00f5ff;
+        }
+
+        .portalOverlay.blackout {
+          transform: scale(50);
+          background: #000000;
+          transition: background 400ms ease;
+        }
+
         .nexusCanvas {
           position: absolute;
           inset: 0;
           z-index: 1;
           opacity: 0;
           animation: particlesAwaken 3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+          transition: opacity 800ms ease;
         }
 
         .nexusFog {
@@ -511,8 +587,18 @@ export default function NexusEntry() {
           .nexusCopy button {
             transform: none;
           }
+
+          .portalOverlay {
+            display: none;
+          }
         }
       `}</style>
     </section>
+      <div
+        ref={portalRef}
+        className={`portalOverlay${portalPhase === 'zoom' ? ' zoom' : ''}${portalPhase === 'blackout' ? ' blackout' : ''}`}
+        aria-hidden="true"
+      />
+    </>
   );
 }
