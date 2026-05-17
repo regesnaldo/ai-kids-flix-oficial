@@ -104,7 +104,7 @@ export default function LabPage() {
     <main style={{ width: '100vw', height: '100vh', position: 'relative', background: '#000000', overflow: 'hidden' }}>
       <ArrivalFlash />
 
-      <Canvas style={{ width: '100%', height: '100%', display: 'block' }}>
+      <Canvas gl={{ antialias: true }} style={{ width: '100%', height: '100%', display: 'block' }}>
         <WorldScene />
         <OrbitControls enableZoom={false} enablePan={false} enableRotate={false} />
       </Canvas>
