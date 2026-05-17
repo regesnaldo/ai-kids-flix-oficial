@@ -11,16 +11,24 @@ async function getUserId(request: NextRequest): Promise<number | null> {
 }
 
 export async function POST(request: NextRequest) {
-  const userId = await getUserId(request);
-  if (!userId) return NextResponse.json({ error: "Não autorizado." }, { status: 401 });
+  try {
+    const userId = await getUserId(request);
+    if (!userId) return NextResponse.json({ error: "Não autorizado." }, { status: 401 });
 
-  const { reason } = await request.json();
-  if (!reason || !(reason in XP_REWARDS)) {
-    return NextResponse.json({ error: "Reason inválido." }, { status: 400 });
+    const { reason } = await request.json();
+    if (!reason || !(reason in XP_REWARDS)) {
+      return NextResponse.json({ error: "Reason inválido." }, { status: 400 });
+    }
+
+    const xpAdded = XP_REWARDS[reason as keyof typeof XP_REWARDS];
+    await addXp(userId, xpAdded, reason);
+
+    return NextResponse.json({ success: true, xpAdded });
+  } catch (error) {
+    console.error('[XP] error:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
   }
-
-  const xpAdded = XP_REWARDS[reason as keyof typeof XP_REWARDS];
-  await addXp(userId, xpAdded, reason);
-
-  return NextResponse.json({ success: true, xpAdded });
 }

@@ -14,30 +14,46 @@ async function getUserId(request: NextRequest): Promise<number | null> {
 }
 
 export async function GET(request: NextRequest) {
-  const userId = await getUserId(request);
-  if (!userId) return NextResponse.json({ error: "Não autorizado." }, { status: 401 });
+  try {
+    const userId = await getUserId(request);
+    if (!userId) return NextResponse.json({ error: "Não autorizado." }, { status: 401 });
 
-  const agentId = request.nextUrl.searchParams.get("agentId");
-  if (!agentId) return NextResponse.json({ error: "agentId obrigatório." }, { status: 400 });
+    const agentId = request.nextUrl.searchParams.get("agentId");
+    if (!agentId) return NextResponse.json({ error: "agentId obrigatório." }, { status: 400 });
 
-  const notes = await db.select().from(agentNotes)
-    .where(and(eq(agentNotes.userId, userId), eq(agentNotes.agentId, agentId)))
-    .orderBy(agentNotes.createdAt);
+    const notes = await db.select().from(agentNotes)
+      .where(and(eq(agentNotes.userId, userId), eq(agentNotes.agentId, agentId)))
+      .orderBy(agentNotes.createdAt);
 
-  return NextResponse.json({ notes });
+    return NextResponse.json({ notes });
+  } catch (error) {
+    console.error('[NOTES] error:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
 }
 
 export async function POST(request: NextRequest) {
-  const userId = await getUserId(request);
-  if (!userId) return NextResponse.json({ error: "Não autorizado." }, { status: 401 });
+  try {
+    const userId = await getUserId(request);
+    if (!userId) return NextResponse.json({ error: "Não autorizado." }, { status: 401 });
 
-  const { agentId, content } = await request.json();
-  if (!agentId || !content?.trim()) return NextResponse.json({ error: "agentId e content obrigatórios." }, { status: 400 });
-  if (content.length > 2000) return NextResponse.json({ error: "Nota muito longa. Máximo 2000 caracteres." }, { status: 400 });
+    const { agentId, content } = await request.json();
+    if (!agentId || !content?.trim()) return NextResponse.json({ error: "agentId e content obrigatórios." }, { status: 400 });
+    if (content.length > 2000) return NextResponse.json({ error: "Nota muito longa. Máximo 2000 caracteres." }, { status: 400 });
 
-  const id = randomUUID();
-  await db.insert(agentNotes).values({ id, userId, agentId, content: content.trim() });
+    const id = randomUUID();
+    await db.insert(agentNotes).values({ id, userId, agentId, content: content.trim() });
 
-  const note = await db.select().from(agentNotes).where(eq(agentNotes.id, id)).limit(1);
-  return NextResponse.json({ note: note[0] }, { status: 201 });
+    const note = await db.select().from(agentNotes).where(eq(agentNotes.id, id)).limit(1);
+    return NextResponse.json({ note: note[0] }, { status: 201 });
+  } catch (error) {
+    console.error('[NOTES] error:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
 }

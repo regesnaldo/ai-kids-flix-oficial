@@ -1,10 +1,23 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useState, useRef, useCallback, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { OrbitControls } from '@react-three/drei'
 import * as THREE from 'three'
+
+type Message = {
+  role: 'user' | 'agent'
+  content: string
+}
+
+type AgentId = 'nexus' | 'volt' | 'aurora'
+
+const AGENT_NAMES: Record<AgentId, string> = {
+  nexus: 'NEXUS',
+  volt: 'VOLT',
+  aurora: 'AURORA',
+}
 
 function Particles() {
   const ref = useRef<THREE.Points>(null!)
@@ -97,8 +110,74 @@ function ArrivalFlash() {
   )
 }
 
+function ChatMessage({ msg }: { msg: Message }) {
+  const isUser = msg.role === 'user'
+  return (
+    <div style={{
+      display: 'flex',
+      justifyContent: isUser ? 'flex-end' : 'flex-start',
+      marginBottom: '8px',
+    }}>
+      <div style={{
+        maxWidth: '85%',
+        padding: '8px 12px',
+        borderRadius: '4px',
+        background: isUser ? 'rgba(0,245,255,0.1)' : 'transparent',
+        color: '#ffffff',
+        fontFamily: 'monospace',
+        fontSize: '12px',
+        lineHeight: 1.5,
+        whiteSpace: 'pre-wrap',
+        wordBreak: 'break-word',
+      }}>
+        {msg.content}
+      </div>
+    </div>
+  )
+}
+
 export default function LabPage() {
   const router = useRouter()
+  const [activeAgent, setActiveAgent] = useState<AgentId>('nexus')
+  const [messages, setMessages] = useState<Message[]>([])
+  const [input, setInput] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
+  const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  const scrollToBottom = useCallback(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [])
+
+  useEffect(() => {
+    scrollToBottom()
+  }, [messages, scrollToBottom])
+
+  const handleSend = useCallback(async () => {
+    const text = input.trim()
+    if (!text || isLoading) return
+
+    setInput('')
+    setMessages(prev => [...prev, { role: 'user', content: text }])
+    setIsLoading(true)
+
+    try {
+      const res = await fetch('/api/agents/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          agentId: activeAgent,
+          message: text,
+          history: [],
+        }),
+      })
+      const data = await res.json()
+      setMessages(prev => [...prev, { role: 'agent', content: data.response || '[...silêncio]' }])
+    } catch {
+      setMessages(prev => [...prev, { role: 'agent', content: '[conexão perdida]' }])
+    } finally {
+      setIsLoading(false)
+    }
+  }, [input, isLoading, activeAgent])
 
   return (
     <main style={{ width: '100vw', height: '100vh', position: 'relative', background: '#000000', overflow: 'hidden' }}>
@@ -109,38 +188,34 @@ export default function LabPage() {
         <OrbitControls enableZoom={false} enablePan={false} enableRotate={false} />
       </Canvas>
 
-      <div
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          width: '100%',
-          height: '100%',
-          pointerEvents: 'none',
-        }}
-      >
+      <div style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        pointerEvents: 'none',
+      }}>
         <div style={{ position: 'absolute', top: '24px', left: '24px' }}>
           <p style={{ fontFamily: 'monospace', fontSize: '11px', color: '#00f5ff', opacity: 0.7, margin: 0 }}>
             NEXUS PRIME // MUNDO: LABORATÓRIO
           </p>
           <p style={{ fontFamily: 'monospace', fontSize: '11px', color: '#00f5ff', opacity: 0.7, margin: '4px 0 0' }}>
-            AGENTE: NEXUS // STATUS: ONLINE
+            AGENTE: {AGENT_NAMES[activeAgent]} // STATUS: ONLINE
           </p>
         </div>
 
-        <div
-          style={{
-            position: 'absolute',
-            bottom: '48px',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            fontFamily: 'monospace',
-            fontSize: '13px',
-            color: '#ffffff',
-            opacity: 0.5,
-            animation: 'labPulse 2s ease-in-out infinite',
-          }}
-        >
+        <div style={{
+          position: 'absolute',
+          bottom: '48px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          fontFamily: 'monospace',
+          fontSize: '13px',
+          color: '#ffffff',
+          opacity: 0.5,
+          animation: 'labPulse 2s ease-in-out infinite',
+        }}>
           SELECIONE UM EXPERIMENTO
         </div>
 
@@ -158,6 +233,7 @@ export default function LabPage() {
             border: 'none',
             cursor: 'pointer',
             transition: 'opacity 200ms ease',
+            zIndex: 101,
           }}
           onMouseEnter={(e) => { e.currentTarget.style.opacity = '1' }}
           onMouseLeave={(e) => { e.currentTarget.style.opacity = '0.7' }}
@@ -166,10 +242,154 @@ export default function LabPage() {
         </button>
       </div>
 
+      {/* Chat Panel */}
+      <div style={{
+        position: 'fixed',
+        right: '24px',
+        bottom: '24px',
+        width: '360px',
+        height: '480px',
+        background: 'rgba(0,0,0,0.85)',
+        border: '1px solid rgba(0,245,255,0.3)',
+        borderRadius: '4px',
+        backdropFilter: 'blur(10px)',
+        zIndex: 100,
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'hidden',
+      }}>
+        {/* Header */}
+        <div style={{
+          padding: '12px 16px',
+          borderBottom: '1px solid rgba(0,245,255,0.2)',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+            <span style={{ fontFamily: 'monospace', fontSize: '13px', color: '#00f5ff' }}>
+              {AGENT_NAMES[activeAgent]}
+            </span>
+            <span style={{
+              display: 'inline-block',
+              width: '6px',
+              height: '6px',
+              borderRadius: '50%',
+              background: '#4ade80',
+              boxShadow: '0 0 6px rgba(74,222,128,0.6)',
+              animation: 'chatPulse 2s ease-in-out infinite',
+            }} />
+            <span style={{ fontFamily: 'monospace', fontSize: '10px', color: 'rgba(255,255,255,0.4)' }}>
+              CONSCIÊNCIA ATIVA
+            </span>
+          </div>
+          <div style={{ display: 'flex', gap: '4px' }}>
+            {(['nexus', 'volt', 'aurora'] as AgentId[]).map((id) => (
+              <button
+                key={id}
+                onClick={() => { setActiveAgent(id); setMessages([]) }}
+                style={{
+                  padding: '4px 10px',
+                  fontSize: '10px',
+                  fontFamily: 'monospace',
+                  border: `1px solid #00f5ff`,
+                  borderRadius: '2px',
+                  background: activeAgent === id ? '#00f5ff' : 'transparent',
+                  color: activeAgent === id ? '#000000' : '#00f5ff',
+                  cursor: 'pointer',
+                  transition: 'all 150ms ease',
+                }}
+              >
+                {AGENT_NAMES[id]}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Messages */}
+        <div style={{
+          flex: 1,
+          overflowY: 'auto',
+          padding: '12px',
+          display: 'flex',
+          flexDirection: 'column',
+        }}>
+          {messages.length === 0 && !isLoading && (
+            <div style={{
+              margin: 'auto',
+              textAlign: 'center',
+              fontFamily: 'monospace',
+              fontSize: '11px',
+              color: 'rgba(255,255,255,0.3)',
+            }}>
+              {AGENT_NAMES[activeAgent]} está aqui.<br />
+              Pergunte algo.
+            </div>
+          )}
+          {messages.map((msg, i) => (
+            <ChatMessage key={i} msg={msg} />
+          ))}
+          {isLoading && (
+            <div style={{
+              fontFamily: 'monospace',
+              fontSize: '12px',
+              color: '#00f5ff',
+              opacity: 0.5,
+              animation: 'chatPulse 1s ease-in-out infinite',
+            }}>
+              ...
+            </div>
+          )}
+          <div ref={messagesEndRef} />
+        </div>
+
+        {/* Input */}
+        <div style={{
+          display: 'flex',
+          borderTop: '1px solid rgba(0,245,255,0.2)',
+        }}>
+          <input
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend() } }}
+            placeholder="Enviar mensagem ao agente..."
+            disabled={isLoading}
+            style={{
+              flex: 1,
+              padding: '12px',
+              background: 'transparent',
+              border: 'none',
+              color: '#ffffff',
+              fontFamily: 'monospace',
+              fontSize: '12px',
+              outline: 'none',
+            }}
+          />
+          <button
+            onClick={handleSend}
+            disabled={isLoading || !input.trim()}
+            style={{
+              padding: '12px 16px',
+              background: 'transparent',
+              border: 'none',
+              borderLeft: '1px solid rgba(0,245,255,0.2)',
+              color: input.trim() && !isLoading ? '#00f5ff' : 'rgba(0,245,255,0.3)',
+              cursor: input.trim() && !isLoading ? 'pointer' : 'default',
+              fontFamily: 'monospace',
+              fontSize: '12px',
+              transition: 'color 150ms ease',
+            }}
+          >
+            {'>'}
+          </button>
+        </div>
+      </div>
+
       <style jsx>{`
         @keyframes labPulse {
           0%, 100% { opacity: 0.5; }
           50% { opacity: 1; }
+        }
+        @keyframes chatPulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.4; }
         }
       `}</style>
     </main>
