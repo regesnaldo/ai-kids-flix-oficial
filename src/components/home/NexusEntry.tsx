@@ -34,8 +34,15 @@ function createParticle(width: number, height: number): Particle {
   };
 }
 
-function NexusCanvas() {
+export default function NexusEntry() {
+  const router = useRouter();
+  const { play, pause, isPlaying } = useAmbientAudio();
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const cyanSpotlightRef = useRef<HTMLDivElement>(null);
+  const purpleSpotlightRef = useRef<HTMLDivElement>(null);
+  const portalRef = useRef<HTMLDivElement>(null);
+  const [entering, setEntering] = useState(false);
+  const [portalPhase, setPortalPhase] = useState<'idle' | 'zoom' | 'blackout'>('idle');
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -44,8 +51,6 @@ function NexusCanvas() {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    const surface = canvas;
-    const context = ctx;
     const particles: Particle[] = [];
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     let animationFrame = 0;
@@ -55,11 +60,11 @@ function NexusCanvas() {
       const width = window.innerWidth;
       const height = window.innerHeight;
 
-      surface.width = width * pixelRatio;
-      surface.height = height * pixelRatio;
-      surface.style.width = `${width}px`;
-      surface.style.height = `${height}px`;
-      context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+      canvas.width = width * pixelRatio;
+      canvas.height = height * pixelRatio;
+      canvas.style.width = `${width}px`;
+      canvas.style.height = `${height}px`;
+      ctx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
 
       particles.length = 0;
       for (let i = 0; i < PARTICLE_COUNT; i++) {
@@ -71,7 +76,7 @@ function NexusCanvas() {
       const width = window.innerWidth;
       const height = window.innerHeight;
 
-      context.clearRect(0, 0, width, height);
+      ctx.clearRect(0, 0, width, height);
 
       for (const particle of particles) {
         if (!prefersReducedMotion) {
@@ -82,10 +87,10 @@ function NexusCanvas() {
         if (particle.x < 0 || particle.x > width) particle.vx *= -1;
         if (particle.y < 0 || particle.y > height) particle.vy *= -1;
 
-        context.beginPath();
-        context.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
-        context.fillStyle = `rgba(${particle.color}, ${particle.alpha})`;
-        context.fill();
+        ctx.beginPath();
+        ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(${particle.color}, ${particle.alpha})`;
+        ctx.fill();
       }
 
       for (let i = 0; i < particles.length; i++) {
@@ -98,12 +103,12 @@ function NexusCanvas() {
 
           if (distance < CONNECTION_DISTANCE) {
             const opacity = 0.22 * (1 - distance / CONNECTION_DISTANCE);
-            context.beginPath();
-            context.moveTo(a.x, a.y);
-            context.lineTo(b.x, b.y);
-            context.strokeStyle = `rgba(0,245,255, ${opacity})`;
-            context.lineWidth = 1;
-            context.stroke();
+            ctx.beginPath();
+            ctx.moveTo(a.x, a.y);
+            ctx.lineTo(b.x, b.y);
+            ctx.strokeStyle = `rgba(0,245,255, ${opacity})`;
+            ctx.lineWidth = 1;
+            ctx.stroke();
           }
         }
       }
@@ -123,18 +128,6 @@ function NexusCanvas() {
       window.removeEventListener("resize", resize);
     };
   }, []);
-
-  return <canvas ref={canvasRef} className="nexusCanvas" aria-hidden="true" />;
-}
-
-export default function NexusEntry() {
-  const router = useRouter();
-  const { play, pause, isPlaying } = useAmbientAudio();
-  const cyanSpotlightRef = useRef<HTMLDivElement>(null);
-  const purpleSpotlightRef = useRef<HTMLDivElement>(null);
-  const portalRef = useRef<HTMLDivElement>(null);
-  const [entering, setEntering] = useState(false);
-  const [portalPhase, setPortalPhase] = useState<'idle' | 'zoom' | 'blackout'>('idle');
 
   const spawnParticles = useCallback(() => {
     try {
@@ -207,7 +200,10 @@ export default function NexusEntry() {
     spawnParticles();
 
     const el = portalRef.current;
-    if (!el) return;
+    if (!el) {
+      const fallback = setTimeout(() => router.push('/lab'), 800);
+      return () => clearTimeout(fallback);
+    }
 
     const fallback = setTimeout(() => router.push('/lab'), 1400);
     let navigated = false;
@@ -218,7 +214,7 @@ export default function NexusEntry() {
         setPortalPhase('blackout');
         playPortalSound();
       }
-      if ((e.propertyName === 'background-color' || e.propertyName === 'background') && !navigated) {
+      if (e.propertyName === 'background-color' && !navigated) {
         navigated = true;
         clearTimeout(fallback);
         router.push('/lab');
@@ -272,9 +268,8 @@ export default function NexusEntry() {
   };
 
   return (
-    <>
     <section className={`nexusEntry${entering ? ' portalActive' : ''}`} aria-label="Entrada cinematográfica do universo NEXUS">
-      <NexusCanvas />
+      <canvas ref={canvasRef} className="nexusCanvas" aria-hidden="true" />
       <div className="nexusFog" />
       <div ref={cyanSpotlightRef} className="spotlight spotlightCyan" />
       <div ref={purpleSpotlightRef} className="spotlight spotlightPurple" />
@@ -305,6 +300,23 @@ export default function NexusEntry() {
         {isPlaying ? <Volume2 size={18} /> : <VolumeX size={18} />}
       </button>
 
+      {entering && (
+        <div className="portalText">
+          <p className="portalTextTitle">
+            NEXUS PRIME // TELETRANSPORTE INICIADO
+          </p>
+          <p className="portalTextSub">
+            SINCRONIZANDO MUNDO DO AGENTE...
+          </p>
+        </div>
+      )}
+
+      <div
+        ref={portalRef}
+        className={`portalOverlay${portalPhase === 'zoom' ? ' zoom' : ''}${portalPhase === 'blackout' ? ' blackout' : ''}`}
+        aria-hidden="true"
+      />
+
       <style jsx>{`
         .nexusEntry {
           position: relative;
@@ -313,7 +325,6 @@ export default function NexusEntry() {
           overflow: hidden;
           background: #000000;
           color: #e8e8ff;
-          isolation: isolate;
           margin-left: calc(50% - 50vw);
         }
 
@@ -335,7 +346,30 @@ export default function NexusEntry() {
         }
 
         .portalText {
+          position: fixed;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          z-index: 99999;
+          text-align: center;
+          pointer-events: none;
           animation: portalTextIn 200ms ease forwards, portalTextOut 300ms ease 1000ms forwards;
+        }
+
+        .portalTextTitle {
+          font-family: monospace;
+          font-size: 11px;
+          color: #00f5ff;
+          opacity: 0.7;
+          margin: 0 0 8px;
+        }
+
+        .portalTextSub {
+          font-family: monospace;
+          font-size: 9px;
+          color: #ffffff;
+          opacity: 0.4;
+          margin: 0;
         }
 
         @keyframes portalTextIn {
@@ -666,31 +700,5 @@ export default function NexusEntry() {
         }
       `}</style>
     </section>
-
-      {entering && (
-        <div className="portalText" style={{
-          position: 'fixed',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          zIndex: 99999,
-          textAlign: 'center',
-          pointerEvents: 'none',
-        }}>
-          <p style={{ fontFamily: 'monospace', fontSize: '11px', color: '#00f5ff', opacity: 0.7, margin: '0 0 8px' }}>
-            NEXUS PRIME // TELETRANSPORTE INICIADO
-          </p>
-          <p style={{ fontFamily: 'monospace', fontSize: '9px', color: '#ffffff', opacity: 0.4, margin: 0 }}>
-            SINCRONIZANDO MUNDO DO AGENTE...
-          </p>
-        </div>
-      )}
-
-      <div
-        ref={portalRef}
-        className={`portalOverlay${portalPhase === 'zoom' ? ' zoom' : ''}${portalPhase === 'blackout' ? ' blackout' : ''}`}
-        aria-hidden="true"
-      />
-    </>
   );
 }

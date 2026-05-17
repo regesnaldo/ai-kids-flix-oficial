@@ -8,8 +8,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Text is required' }, { status: 400 });
     }
     
+    const defaultVoiceId = process.env.NEXT_PUBLIC_ELEVENLABS_VOICE_ID_DEFAULT || 'pNInz6obpgDQGcFmaJgB';
     const response = await fetch(
-      `https://api.elevenlabs.io/v1/text-to-speech/${voice_id || 'pNInz6obpgDQGcFmaJgB'}`,
+      `https://api.elevenlabs.io/v1/text-to-speech/${voice_id || defaultVoiceId}`,
       {
         method: 'POST',
         headers: {
@@ -18,7 +19,7 @@ export async function POST(request: NextRequest) {
         },
         body: JSON.stringify({
           text,
-          model_id: model_id || 'eleven_monolingual_v1',
+          model_id: model_id || 'eleven_multilingual_v2',
           voice_settings: {
             stability: 0.75,
             similarity_boost: 0.75,

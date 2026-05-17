@@ -15,19 +15,35 @@ async function getUserId(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
-  const userId = await getUserId(request);
-  if (!userId) return NextResponse.json({ error: "Nao autorizado" }, { status: 401 });
-  const userProfiles = await db.select().from(profiles).where(eq(profiles.userId, userId));
-  return NextResponse.json(userProfiles);
+  try {
+    const userId = await getUserId(request);
+    if (!userId) return NextResponse.json({ error: "Nao autorizado" }, { status: 401 });
+    const userProfiles = await db.select().from(profiles).where(eq(profiles.userId, userId));
+    return NextResponse.json(userProfiles);
+  } catch (error) {
+    console.error('[PROFILES] error:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
 }
 
 export async function POST(request: NextRequest) {
-  const userId = await getUserId(request);
-  if (!userId) return NextResponse.json({ error: "Nao autorizado" }, { status: 401 });
-  const { name, ageGroup, isKids, avatar } = await request.json();
-  if (!name) return NextResponse.json({ error: "Nome obrigatorio" }, { status: 400 });
-  const existing = await db.select().from(profiles).where(eq(profiles.userId, userId));
-  if (existing.length >= 5) return NextResponse.json({ error: "Maximo de 5 perfis" }, { status: 400 });
-  const result = await db.insert(profiles).values({ userId, name, ageGroup: ageGroup || "adults-18", isKids: isKids || false, avatar: avatar || "blue" });
-  return NextResponse.json({ success: true, id: result[0].insertId });
+  try {
+    const userId = await getUserId(request);
+    if (!userId) return NextResponse.json({ error: "Nao autorizado" }, { status: 401 });
+    const { name, ageGroup, isKids, avatar } = await request.json();
+    if (!name) return NextResponse.json({ error: "Nome obrigatorio" }, { status: 400 });
+    const existing = await db.select().from(profiles).where(eq(profiles.userId, userId));
+    if (existing.length >= 5) return NextResponse.json({ error: "Maximo de 5 perfis" }, { status: 400 });
+    const result = await db.insert(profiles).values({ userId, name, ageGroup: ageGroup || "adults-18", isKids: isKids || false, avatar: avatar || "blue" });
+    return NextResponse.json({ success: true, id: result[0].insertId });
+  } catch (error) {
+    console.error('[PROFILES] error:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
 }

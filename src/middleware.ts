@@ -5,6 +5,7 @@ const protectedRoutes = [
   "/home",
   "/dashboard",
   "/aulas",
+  "/lab",
   "/perfil",
   "/conta",
   "/agentes",
@@ -45,7 +46,7 @@ function clearAuthCookie(response: NextResponse) {
   }
 }
 
-export async function proxy(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   const isPublic = publicRoutes.some((r) => pathname === r || pathname.startsWith(r + "/"));
