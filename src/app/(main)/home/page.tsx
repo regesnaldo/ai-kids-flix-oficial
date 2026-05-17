@@ -8,6 +8,71 @@ import NexusEntry from "@/components/home/NexusEntry";
 import { agentsShowcase } from "@/data/agents-showcase";
 import { allAgents } from "@/data/all-agents";
 
+function HeroBanner() {
+  const [timestamp, setTimestamp] = useState('');
+
+  useEffect(() => {
+    const update = () => {
+      const now = new Date();
+      const pad = (n: number) => String(n).padStart(2, '0');
+      const y = now.getUTCFullYear();
+      const m = pad(now.getUTCMonth() + 1);
+      const d = pad(now.getUTCDate());
+      const h = pad(now.getUTCHours());
+      const min = pad(now.getUTCMinutes());
+      const s = pad(now.getUTCSeconds());
+      setTimestamp(`SYNC: ${y}.${m}.${d} // ${h}:${min}:${s} UTC`);
+    };
+    update();
+    const id = setInterval(update, 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  return (
+    <div style={{
+      width: '100%',
+      height: '200px',
+      background: 'linear-gradient(180deg, #000510 0%, #000000 100%)',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      position: 'relative',
+      zIndex: 1,
+    }}>
+      <p style={{
+        fontFamily: 'monospace',
+        fontSize: '11px',
+        color: '#00f5ff',
+        letterSpacing: '0.1em',
+        marginBottom: '0.75rem',
+        opacity: 0.6,
+      }}>
+        NEXUS PRIME // TORRE CENTRAL // SETOR ALPHA-7
+      </p>
+      <h1 style={{
+        fontSize: 'clamp(28px, 5vw, 48px)',
+        color: '#ffffff',
+        letterSpacing: '0.1em',
+        fontWeight: 900,
+        textAlign: 'center',
+        margin: 0,
+      }}>
+        BEM-VINDO AO NEXUS
+      </h1>
+      <p style={{
+        fontFamily: 'monospace',
+        fontSize: '12px',
+        color: '#00f5ff',
+        opacity: 0.5,
+        marginTop: '0.75rem',
+      }}>
+        {timestamp}
+      </p>
+    </div>
+  );
+}
+
 const WATCH_KEY = "mente_ai_watch_progress_v1";
 const PROFILE_KEY = "mente_ai_profile_v1";
 
@@ -33,10 +98,12 @@ function HorizontalScroll({ children, title, subtitle }: { children: React.React
 
   return (
     <div className="mb-10" onMouseEnter={() => setShowArrows(true)} onMouseLeave={() => setShowArrows(false)}>
+      {title && (
       <div className="flex items-center gap-4 mb-4 px-4 md:px-16">
         <h2 className="text-xl font-bold text-white">{title}</h2>
         {subtitle && <span className="text-sm text-gray-500 hidden md:inline">{subtitle}</span>}
       </div>
+      )}
       <div className="relative">
         {showArrows && (
           <>
@@ -130,13 +197,28 @@ export default function HomePage() {
           inset: 0;
           z-index: 0;
           pointer-events: none;
-          background: repeating-linear-gradient(
-            0deg,
-            rgba(0,245,255,0.03) 0px,
-            rgba(0,245,255,0.03) 2px,
-            transparent 2px,
-            transparent 4px
-          );
+          background:
+            repeating-linear-gradient(
+              0deg,
+              rgba(0,245,255,0.03) 0px,
+              rgba(0,245,255,0.03) 2px,
+              transparent 2px,
+              transparent 4px
+            ),
+            repeating-linear-gradient(
+              0deg,
+              transparent 0px,
+              transparent 59px,
+              rgba(0,245,255,0.03) 59px,
+              rgba(0,245,255,0.03) 60px
+            ),
+            repeating-linear-gradient(
+              90deg,
+              transparent 0px,
+              transparent 59px,
+              rgba(0,245,255,0.03) 59px,
+              rgba(0,245,255,0.03) 60px
+            );
         }
       `}</style>
       <nav className="fixed top-0 left-0 right-0 z-50 px-6 py-4" style={{ background: "linear-gradient(to bottom, #0a0a1a, transparent)" }}>
@@ -179,6 +261,8 @@ export default function HomePage() {
 
       <NexusEntry />
 
+      <HeroBanner />
+
       <div className="pb-16">
         {/* Progress Dashboard */}
         {hasProgress && (
@@ -192,12 +276,20 @@ export default function HomePage() {
         )}
 
         {/* Agent Council */}
-        <HorizontalScroll title="O Conselho de Mentores" subtitle="Os 12 arquétipos do MENTE.AI">
+        <div style={{ marginBottom: '0.5rem', padding: '0 4rem 0 4rem' }}>
+          <p style={{ fontFamily: 'monospace', fontSize: '11px', color: '#00f5ff', opacity: 0.6, margin: 0 }}>// PORTAIS DISPONÍVEIS</p>
+          <div style={{ height: '1px', background: 'rgba(0,245,255,0.2)', marginTop: '0.25rem' }} />
+        </div>
+        <HorizontalScroll title={''} subtitle={''}>
           {agentsShowcase.slice(0, 12).map((agent) => <AgentCard key={agent.id} agent={agent} />)}
         </HorizontalScroll>
 
         {/* Journey Pathways */}
-        <HorizontalScroll title="Jornadas de Aprendizado" subtitle="Caminhos para sua evolução">
+        <div style={{ marginBottom: '0.5rem', padding: '0 4rem 0 4rem' }}>
+          <p style={{ fontFamily: 'monospace', fontSize: '11px', color: '#00f5ff', opacity: 0.6, margin: 0 }}>// JORNADAS DE APRENDIZADO</p>
+          <div style={{ height: '1px', background: 'rgba(0,245,255,0.2)', marginTop: '0.25rem' }} />
+        </div>
+        <HorizontalScroll title={''} subtitle={''}>
           {journeys.map((j) => <JourneyCard key={j.id} j={j} />)}
         </HorizontalScroll>
 
