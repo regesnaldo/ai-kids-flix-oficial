@@ -1,6 +1,46 @@
 "use client";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Eye, EyeOff } from "lucide-react";
+
+function Stars() {
+  const stars = useMemo(() => {
+    return Array.from({ length: 80 }, (_, i) => ({
+      id: i,
+      left: `${Math.random() * 100}%`,
+      top: `${Math.random() * 100}%`,
+      size: Math.random() * 1.5 + 0.5,
+      duration: `${Math.random() * 3 + 2}s`,
+      delay: `${Math.random() * 3}s`,
+    }));
+  }, []);
+
+  return (
+    <div style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none', overflow: 'hidden' }}>
+      {stars.map((s) => (
+        <div
+          key={s.id}
+          style={{
+            position: 'absolute',
+            left: s.left,
+            top: s.top,
+            width: `${s.size}px`,
+            height: `${s.size}px`,
+            borderRadius: '50%',
+            background: '#ffffff',
+            opacity: 0.2,
+            animation: `starPulse ${s.duration} ease-in-out ${s.delay} infinite`,
+          }}
+        />
+      ))}
+      <style jsx>{`
+        @keyframes starPulse {
+          0%, 100% { opacity: 0.2; transform: scale(1); }
+          50% { opacity: 0.8; transform: scale(1.3); }
+        }
+      `}</style>
+    </div>
+  );
+}
 
 export default function Login() {
   const [tab, setTab] = useState("entrar");
@@ -30,66 +70,240 @@ export default function Login() {
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center p-8" style={{ background: "#0a0a1a" }}>
-      <div className="w-full max-w-[420px]">
-        <h1 className="text-center text-3xl font-black text-white mb-2">
-          MENTE<span className="text-red-500">.AI</span>
-        </h1>
-        <p className="text-center text-cyan-400 mb-8 text-sm">
-          Onde mentes sao formadas, nao formatadas...
+    <main style={{
+      minHeight: '100vh',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '2rem',
+      background: '#000000',
+      position: 'relative',
+    }}>
+      <Stars />
+
+      <div style={{
+        width: '100%',
+        maxWidth: '420px',
+        position: 'relative',
+        zIndex: 1,
+        animation: 'terminalAppear 800ms cubic-bezier(0.16,1,0.3,1) forwards',
+        transform: 'scale(0.8)',
+        opacity: 0,
+      }}>
+        <style jsx>{`
+          @keyframes terminalAppear {
+            to {
+              transform: scale(1);
+              opacity: 1;
+            }
+          }
+          @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+          }
+        `}</style>
+
+        <p style={{
+          textAlign: 'center',
+          fontFamily: 'monospace',
+          fontSize: '11px',
+          color: '#00f5ff',
+          opacity: 0.6,
+          letterSpacing: '0.1em',
+          marginBottom: '0.5rem',
+        }}>
+          NEXUS PRIME // CONSCIOUSNESS TERMINAL v2.1
         </p>
 
-        <div className="flex bg-white/5 rounded-lg p-1 mb-8">
-          {["entrar", "cadastrar"].map((t) => (
-            <button key={t} type="button" onClick={() => { setTab(t); setErro(""); setSucesso(""); }}
-              className={`flex-1 py-2.5 rounded-md border-none font-bold cursor-pointer transition text-sm ${
-                tab === t ? "bg-white text-[#0a0a1a]" : "bg-transparent text-white/50 hover:text-white/70"
-              }`}>
-              {t === "entrar" ? "Entrar" : "Cadastrar"}
-            </button>
-          ))}
-        </div>
+        <h1 style={{
+          textAlign: 'center',
+          fontSize: '20px',
+          fontWeight: 900,
+          color: '#ffffff',
+          letterSpacing: '0.15em',
+          marginBottom: '2rem',
+        }}>
+          MATERIALIZAR CONSCIÊNCIA
+        </h1>
 
-        <form onSubmit={handleSubmit} className="bg-white/[0.04] border border-white/10 rounded-2xl p-8">
+        <form onSubmit={handleSubmit} style={{
+          background: 'rgba(0,0,0,0.8)',
+          border: '1px solid rgba(0,245,255,0.3)',
+          borderRadius: '4px',
+          boxShadow: '0 0 40px rgba(0,245,255,0.1)',
+          padding: '2rem',
+        }}>
           {tab === "cadastrar" && (
-            <input className="w-full px-4 py-3 rounded-lg border border-white/15 bg-[#1a1a2e] text-white text-sm outline-none mb-4 box-border placeholder:text-white/30 autofill:shadow-[inset_0_0_0px_1000px_#1a1a2e] "
-              placeholder="Seu nome completo" value={nome} onChange={(e) => setNome(e.target.value)} autoComplete="name" />
+            <input style={{
+              width: '100%',
+              padding: '0.75rem 1rem',
+              marginBottom: '1rem',
+              borderRadius: '4px',
+              border: '1px solid rgba(0,245,255,0.2)',
+              background: 'rgba(0,245,255,0.05)',
+              color: '#ffffff',
+              fontSize: '14px',
+              fontFamily: 'monospace',
+              outline: 'none',
+              boxSizing: 'border-box',
+              transition: 'border-color 200ms ease, box-shadow 200ms ease',
+            } as React.CSSProperties}
+              placeholder="Nome de identidade"
+              value={nome}
+              onChange={(e) => setNome(e.target.value)}
+              autoComplete="name"
+              onFocus={(e) => { e.currentTarget.style.borderColor = '#00f5ff'; e.currentTarget.style.boxShadow = '0 0 8px rgba(0,245,255,0.3)'; }}
+              onBlur={(e) => { e.currentTarget.style.borderColor = 'rgba(0,245,255,0.2)'; e.currentTarget.style.boxShadow = 'none'; }}
+            />
           )}
-          <input className="w-full px-4 py-3 rounded-lg border border-white/15 bg-[#1a1a2e] text-white text-sm outline-none mb-4 box-border placeholder:text-white/30 autofill:shadow-[inset_0_0_0px_1000px_#1a1a2e]"
-            type="email" placeholder="Seu email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" />
-          
-          <div className="relative mb-4">
-            <input className="w-full px-4 py-3 rounded-lg border border-white/15 bg-[#1a1a2e] text-white text-sm outline-none pr-12 box-border placeholder:text-white/30 autofill:shadow-[inset_0_0_0px_1000px_#1a1a2e]"
-              placeholder="Sua senha" type={verSenha ? "text" : "password"} value={senha} onChange={(e) => setSenha(e.target.value)} autoComplete={tab === "entrar" ? "current-password" : "new-password"} />
+
+          <input style={{
+            width: '100%',
+            padding: '0.75rem 1rem',
+            marginBottom: '1rem',
+            borderRadius: '4px',
+            border: '1px solid rgba(0,245,255,0.2)',
+            background: 'rgba(0,245,255,0.05)',
+            color: '#ffffff',
+            fontSize: '14px',
+            fontFamily: 'monospace',
+            outline: 'none',
+            boxSizing: 'border-box',
+            transition: 'border-color 200ms ease, box-shadow 200ms ease',
+          } as React.CSSProperties}
+            type="email"
+            placeholder="Identificação de consciência (email)"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            autoComplete="email"
+            onFocus={(e) => { e.currentTarget.style.borderColor = '#00f5ff'; e.currentTarget.style.boxShadow = '0 0 8px rgba(0,245,255,0.3)'; }}
+            onBlur={(e) => { e.currentTarget.style.borderColor = 'rgba(0,245,255,0.2)'; e.currentTarget.style.boxShadow = 'none'; }}
+          />
+
+          <div style={{ position: 'relative', marginBottom: tab === "cadastrar" ? '1rem' : '0' }}>
+            <input style={{
+              width: '100%',
+              padding: '0.75rem 1rem',
+              paddingRight: '3rem',
+              borderRadius: '4px',
+              border: '1px solid rgba(0,245,255,0.2)',
+              background: 'rgba(0,245,255,0.05)',
+              color: '#ffffff',
+              fontSize: '14px',
+              fontFamily: 'monospace',
+              outline: 'none',
+              boxSizing: 'border-box',
+              transition: 'border-color 200ms ease, box-shadow 200ms ease',
+            } as React.CSSProperties}
+              placeholder="Chave de acesso (senha)"
+              type={verSenha ? "text" : "password"}
+              value={senha}
+              onChange={(e) => setSenha(e.target.value)}
+              autoComplete={tab === "entrar" ? "current-password" : "new-password"}
+              onFocus={(e) => { e.currentTarget.style.borderColor = '#00f5ff'; e.currentTarget.style.boxShadow = '0 0 8px rgba(0,245,255,0.3)'; }}
+              onBlur={(e) => { e.currentTarget.style.borderColor = 'rgba(0,245,255,0.2)'; e.currentTarget.style.boxShadow = 'none'; }}
+            />
             <button type="button" onClick={() => setVerSenha((v) => !v)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 bg-none border-none cursor-pointer text-white p-1 flex">
-              {verSenha ? <EyeOff size={20} /> : <Eye size={20} />}
+              style={{
+                position: 'absolute',
+                right: '12px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                color: 'rgba(255,255,255,0.5)',
+                padding: '4px',
+                display: 'flex',
+              }}>
+              {verSenha ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
           </div>
 
           {tab === "cadastrar" && (
-            <div className="relative mb-4">
-              <input className="w-full px-4 py-3 rounded-lg border border-white/15 bg-[#1a1a2e] text-white text-sm outline-none pr-12 box-border placeholder:text-white/30 autofill:shadow-[inset_0_0_0px_1000px_#1a1a2e]"
-                placeholder="Confirmar senha" type={verConfirmar ? "text" : "password"} value={confirmar} onChange={(e) => setConfirmar(e.target.value)} autoComplete="new-password" />
+            <div style={{ position: 'relative', marginBottom: '1rem' }}>
+              <input style={{
+                width: '100%',
+                padding: '0.75rem 1rem',
+                paddingRight: '3rem',
+                borderRadius: '4px',
+                border: '1px solid rgba(0,245,255,0.2)',
+                background: 'rgba(0,245,255,0.05)',
+                color: '#ffffff',
+                fontSize: '14px',
+                fontFamily: 'monospace',
+                outline: 'none',
+                boxSizing: 'border-box',
+                transition: 'border-color 200ms ease, box-shadow 200ms ease',
+              } as React.CSSProperties}
+                placeholder="Confirmar chave de acesso"
+                type={verConfirmar ? "text" : "password"}
+                value={confirmar}
+                onChange={(e) => setConfirmar(e.target.value)}
+                autoComplete="new-password"
+                onFocus={(e) => { e.currentTarget.style.borderColor = '#00f5ff'; e.currentTarget.style.boxShadow = '0 0 8px rgba(0,245,255,0.3)'; }}
+                onBlur={(e) => { e.currentTarget.style.borderColor = 'rgba(0,245,255,0.2)'; e.currentTarget.style.boxShadow = 'none'; }}
+              />
               <button type="button" onClick={() => setVerConfirmar((v) => !v)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 bg-none border-none cursor-pointer text-white p-1 flex">
-                {verConfirmar ? <EyeOff size={20} /> : <Eye size={20} />}
+                style={{
+                  position: 'absolute',
+                  right: '12px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  color: 'rgba(255,255,255,0.5)',
+                  padding: '4px',
+                  display: 'flex',
+                }}>
+                {verConfirmar ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </div>
           )}
 
-          {erro && <p className="text-red-500 text-sm mb-4 text-center">{erro}</p>}
-          {sucesso && <p className="text-emerald-400 text-sm mb-4 text-center">{sucesso}</p>}
+          {erro && <p style={{ color: '#ef4444', fontSize: '13px', marginBottom: '1rem', textAlign: 'center', fontFamily: 'monospace' }}>{erro}</p>}
+          {sucesso && <p style={{ color: '#4ade80', fontSize: '13px', marginBottom: '1rem', textAlign: 'center', fontFamily: 'monospace' }}>{sucesso}</p>}
 
           <button type="submit" disabled={loading}
-            className="w-full py-4 text-base font-bold rounded-lg border-none bg-red-600 text-white cursor-pointer disabled:opacity-70 hover:bg-red-700 transition">
-            {loading ? "Aguarde..." : tab === "entrar" ? "Entrar" : "Criar conta gratis"}
+            style={{
+              width: '100%',
+              padding: '0.75rem',
+              borderRadius: '4px',
+              border: '1px solid #00f5ff',
+              background: loading ? 'rgba(0,245,255,0.1)' : 'transparent',
+              color: '#00f5ff',
+              fontSize: '13px',
+              fontFamily: 'monospace',
+              fontWeight: 600,
+              letterSpacing: '0.12em',
+              cursor: loading ? 'wait' : 'pointer',
+              transition: 'all 200ms ease',
+              marginBottom: '0',
+            } as React.CSSProperties}
+            onMouseEnter={(e) => { if (!loading) { e.currentTarget.style.background = '#00f5ff'; e.currentTarget.style.color = '#000000'; } }}
+            onMouseLeave={(e) => { if (!loading) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#00f5ff'; } }}>
+            {loading ? (
+              <span>SINCRONIZANDO<span style={{ animation: 'blink 1s step-end infinite' }}>_</span></span>
+            ) : (
+              tab === "entrar" ? "INICIAR MATERIALIZAÇÃO" : "CRIAR IDENTIDADE"
+            )}
           </button>
 
           {tab === "entrar" && (
-            <p className="text-center text-white/40 text-sm mt-4">
-              <span className="cursor-pointer text-cyan-400 hover:text-cyan-300 transition" onClick={() => setTab("cadastrar")}>
-                Nao tem conta? Cadastre-se gratis
+            <p style={{ textAlign: 'center', marginTop: '1.5rem' }}>
+              <span onClick={() => { setTab("cadastrar"); setErro(""); setSucesso(""); }}
+                style={{
+                  color: 'rgba(0,245,255,0.5)',
+                  fontSize: '12px',
+                  fontFamily: 'monospace',
+                  cursor: 'pointer',
+                  transition: 'color 200ms ease',
+                } as React.CSSProperties}
+                onMouseEnter={(e) => { e.currentTarget.style.color = 'rgba(0,245,255,1)'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.color = 'rgba(0,245,255,0.5)'; }}>
+                Primeira vez no NEXUS? → CRIAR IDENTIDADE
               </span>
             </p>
           )}
