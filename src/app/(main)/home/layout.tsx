@@ -10,9 +10,11 @@ export default function HomeLayout({
         top: 0,
         left: 0,
         right: 0,
-        height: '70px',
+        height: '80px',
         zIndex: 99999,
-        background: '#0a0a1a',
+        background: '#000000',
+        backdropFilter: 'none',
+        opacity: 1,
       }} />
       <div style={{
         position: 'fixed',
