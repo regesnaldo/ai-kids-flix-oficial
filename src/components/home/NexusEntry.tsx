@@ -136,19 +136,63 @@ export default function NexusEntry() {
   const [entering, setEntering] = useState(false);
   const [portalPhase, setPortalPhase] = useState<'idle' | 'zoom' | 'blackout'>('idle');
 
+  const spawnParticles = useCallback(() => {
+    try {
+      const cx = window.innerWidth / 2;
+      const cy = window.innerHeight / 2;
+      for (let i = 0; i < 30; i++) {
+        const p = document.createElement('div');
+        const angle = (i / 30) * Math.PI * 2 + (Math.random() - 0.5) * 0.5;
+        const dist = 80 + Math.random() * 120;
+        p.style.cssText = `
+          position: fixed; left: ${cx}px; top: ${cy}px;
+          width: 4px; height: 4px; background: #00f5ff;
+          border-radius: 50%; pointer-events: none; z-index: 99999;
+          transition: all 400ms cubic-bezier(0.16,1,0.3,1);
+          transform: translate(-2px, -2px);
+        `;
+        document.body.appendChild(p);
+        requestAnimationFrame(() => {
+          p.style.left = `${cx + Math.cos(angle) * dist}px`;
+          p.style.top = `${cy + Math.sin(angle) * dist}px`;
+          p.style.opacity = '0';
+          p.style.transform = 'translate(-2px, -2px) scale(0)';
+        });
+        setTimeout(() => p.remove(), 500);
+      }
+    } catch { /* particles not available */ }
+  }, []);
+
   const playPortalSound = useCallback(() => {
     try {
       const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = 'sine';
-      osc.frequency.value = 80;
-      gain.gain.value = 0.3;
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.start();
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
-      osc.stop(ctx.currentTime + 0.4);
+      const now = ctx.currentTime;
+      const masterGain = ctx.createGain();
+      masterGain.gain.setValueAtTime(0, now);
+      masterGain.gain.linearRampToValueAtTime(0.3, now + 0.3);
+      masterGain.gain.setValueAtTime(0.3, now + 1.0);
+      masterGain.gain.linearRampToValueAtTime(0.001, now + 1.4);
+      masterGain.connect(ctx.destination);
+
+      const osc1 = ctx.createOscillator();
+      osc1.type = 'sine';
+      osc1.frequency.value = 80;
+      osc1.connect(masterGain);
+      osc1.start(now);
+      osc1.stop(now + 1.4);
+
+      const osc2 = ctx.createOscillator();
+      osc2.type = 'sine';
+      osc2.frequency.value = 160;
+      const gain2 = ctx.createGain();
+      gain2.gain.setValueAtTime(0, now);
+      gain2.gain.linearRampToValueAtTime(0.2, now + 0.4);
+      gain2.gain.setValueAtTime(0.2, now + 1.0);
+      gain2.gain.linearRampToValueAtTime(0.001, now + 1.4);
+      osc2.connect(gain2);
+      gain2.connect(masterGain);
+      osc2.start(now + 0.4);
+      osc2.stop(now + 1.4);
     } catch { /* audio not available */ }
   }, []);
 
@@ -160,6 +204,7 @@ export default function NexusEntry() {
     }
     setEntering(true);
     setPortalPhase('zoom');
+    spawnParticles();
 
     const el = portalRef.current;
     if (!el) return;
@@ -287,6 +332,19 @@ export default function NexusEntry() {
         .nexusEntry.portalActive .nexusCopy {
           opacity: 0;
           transition: opacity 400ms ease;
+        }
+
+        .portalText {
+          animation: portalTextIn 200ms ease forwards, portalTextOut 300ms ease 1000ms forwards;
+        }
+
+        @keyframes portalTextIn {
+          from { opacity: 0; transform: translate(-50%, -50%) translateY(10px); }
+          to { opacity: 1; transform: translate(-50%, -50%) translateY(0); }
+        }
+        @keyframes portalTextOut {
+          from { opacity: 1; }
+          to { opacity: 0; }
         }
 
         .portalOverlay {
@@ -602,12 +660,33 @@ export default function NexusEntry() {
             transform: none;
           }
 
-          .portalOverlay {
+          .portalOverlay,
+          .portalText {
             display: none;
           }
         }
       `}</style>
     </section>
+
+      {entering && (
+        <div className="portalText" style={{
+          position: 'fixed',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          zIndex: 99999,
+          textAlign: 'center',
+          pointerEvents: 'none',
+        }}>
+          <p style={{ fontFamily: 'monospace', fontSize: '11px', color: '#00f5ff', opacity: 0.7, margin: '0 0 8px' }}>
+            NEXUS PRIME // TELETRANSPORTE INICIADO
+          </p>
+          <p style={{ fontFamily: 'monospace', fontSize: '9px', color: '#ffffff', opacity: 0.4, margin: 0 }}>
+            SINCRONIZANDO MUNDO DO AGENTE...
+          </p>
+        </div>
+      )}
+
       <div
         ref={portalRef}
         className={`portalOverlay${portalPhase === 'zoom' ? ' zoom' : ''}${portalPhase === 'blackout' ? ' blackout' : ''}`}
