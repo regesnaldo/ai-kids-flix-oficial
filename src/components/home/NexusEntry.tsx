@@ -48,6 +48,7 @@ function NexusCanvas() {
     const surface = canvas;
     const context = ctx;
     const particles: Particle[] = [];
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     let animationFrame = 0;
 
     const resize = () => {
@@ -74,8 +75,10 @@ function NexusCanvas() {
       context.clearRect(0, 0, width, height);
 
       for (const particle of particles) {
-        particle.x += particle.vx;
-        particle.y += particle.vy;
+        if (!prefersReducedMotion) {
+          particle.x += particle.vx;
+          particle.y += particle.vy;
+        }
 
         if (particle.x < 0 || particle.x > width) particle.vx *= -1;
         if (particle.y < 0 || particle.y > height) particle.vy *= -1;
@@ -106,7 +109,9 @@ function NexusCanvas() {
         }
       }
 
-      animationFrame = requestAnimationFrame(draw);
+      if (!prefersReducedMotion) {
+        animationFrame = requestAnimationFrame(draw);
+      }
     };
 
     resize();
@@ -130,6 +135,9 @@ export default function NexusEntry() {
   const purpleSpotlightRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (prefersReducedMotion) return;
+
     let frameId = 0;
 
     const animateSpotlights = (time: number) => {
@@ -465,6 +473,43 @@ export default function NexusEntry() {
           .nexusCopy {
             width: calc(100vw - 48px);
             bottom: 10vh;
+          }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .nexusCanvas,
+          .nexusPresence,
+          .nexusOrb,
+          .nexusRing,
+          .nexusStatus,
+          .nexusCopy p,
+          .nexusCopy button {
+            animation: none;
+          }
+
+          .nexusCanvas,
+          .nexusPresence,
+          .nexusStatus,
+          .nexusCopy p,
+          .nexusCopy button {
+            opacity: 1;
+          }
+
+          .nexusPresence {
+            transform: translate(-50%, -50%) scale(1);
+          }
+
+          .spotlightCyan {
+            transform: translate(calc(50vw + 110px), calc(50vh - 150px));
+          }
+
+          .spotlightPurple {
+            transform: translate(calc(50vw - 520px), calc(50vh - 200px));
+          }
+
+          .nexusCopy p,
+          .nexusCopy button {
+            transform: none;
           }
         }
       `}</style>
