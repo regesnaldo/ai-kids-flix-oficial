@@ -501,26 +501,25 @@ export default function NexusEntry() {
         }
 
         .nexusCopy button {
-          min-width: 202px;
-          min-height: 44px;
-          border: 1px solid rgba(0, 245, 255, 0.3);
-          border-radius: 999px;
-          background: rgba(0, 245, 255, 0.05);
-          color: #e8e8ff;
+          padding: 12px 32px;
+          border: 1px solid #00f5ff;
+          border-radius: 2px;
+          background: transparent;
+          color: #00f5ff;
           font-size: 12px;
           font-weight: 500;
-          letter-spacing: 0.16em;
+          font-family: monospace;
+          letter-spacing: 0.15em;
           text-transform: uppercase;
           cursor: pointer;
           opacity: 0;
-          transition: background 220ms ease, border-color 220ms ease, transform 220ms ease;
+          transition: background 150ms ease, color 150ms ease;
           animation: buttonFade 1.2s ease 5.5s forwards;
         }
 
         .nexusCopy button:hover {
-          border-color: rgba(0, 245, 255, 0.7);
-          background: rgba(0, 245, 255, 0.12);
-          transform: translateY(-1px);
+          background: #00f5ff;
+          color: #000000;
         }
 
         .audioToggle {
