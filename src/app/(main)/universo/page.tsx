@@ -112,85 +112,41 @@ export default function UniversoPage() {
 
         {/* Orbiting planets */}
         {planets.filter(p => p.id !== 'nexus').map((planet) => {
-          const orbitDelay = -(planet.tiltOffset / 360) * planet.orbitSpeed;
+          const oDelay = -(planet.tiltOffset / 360) * planet.orbitSpeed
           return (
-            <div
-              key={planet.id}
-              className="orbitContainer"
-              style={{
-                width: `${planet.orbitRadius * 2}px`,
-                height: `${planet.orbitRadius * 2}px`,
-              }}
-            >
-              {/* Dashed orbital ring */}
-              <div
-                className="orbitRing"
-                style={{
-                  width: `${planet.orbitRadius * 2}px`,
-                  height: `${planet.orbitRadius * 2}px`,
-                }}
-              />
-
-              {/* Planet wrapper — rotates with orbit */}
-              <div
-                className="planetOrbit"
-                style={{
-                  animationDuration: `${planet.orbitSpeed}s`,
-                  animationDelay: `${orbitDelay}s`,
-                }}
-              >
-                {/* Planet itself — counter-rotates to stay upright */}
+            <div key={planet.id} className="orbitContainer" style={{ width: planet.orbitRadius * 2, height: planet.orbitRadius * 2 }}>
+              <div className="orbitRing" style={{ width: planet.orbitRadius * 2, height: planet.orbitRadius * 2 }} />
+              <div className="planetOrbit" style={{ animationDuration: planet.orbitSpeed + 's', animationDelay: oDelay + 's' }}>
                 <div
-                  className={`planetNode ${planet.unlocked ? 'unlocked' : 'locked'}`}
-                  style={{
-                    width: `${planet.size}px`,
-                    height: `${planet.size}px`,
-                    top: `-${planet.size / 2}px`,
-                  }}
+                  className={'planetNode ' + (planet.unlocked ? 'unlocked' : 'locked')}
+                  style={{ width: planet.size, height: planet.size, top: -(planet.size / 2) }}
                   onMouseEnter={() => setHoveredPlanet(planet.id)}
                   onMouseLeave={() => setHoveredPlanet(null)}
                   onClick={() => handlePlanetClick(planet)}
                   role={planet.unlocked ? 'button' : 'presentation'}
-                  aria-label={planet.unlocked ? `Entrar em ${planet.name}` : `${planet.name} bloqueado`}
+                  aria-label={planet.unlocked ? 'Entrar em ' + planet.name : planet.name + ' bloqueado'}
                 >
-                  {/* Planet sphere */}
-                  <div
-                    className="planetSphere"
-                    style={planet.unlocked ? {
-                      background: `radial-gradient(circle at 35% 35%, ${planet.lightColor}, ${planet.color}, #000)`,
-                      boxShadow: `0 0 16px ${planet.color}, 0 0 32px ${planet.color}50, 0 0 64px ${planet.color}20`,
-                      borderColor: planet.color,
-                    } : {
-                      background: 'radial-gradient(circle, #1a1a2e, #000)',
-                      borderColor: 'rgba(255,255,255,0.12)',
-                    }}
-                  >
-                    {!planet.unlocked && (
-                      <span className="lockIcon">🔒</span>
-                    )}
+                  <div className="planetSphere" style={planet.unlocked ? {
+                    background: 'radial-gradient(circle at 35% 35%, ' + planet.lightColor + ', ' + planet.color + ', #000)',
+                    boxShadow: '0 0 16px ' + planet.color + ', 0 0 32px ' + planet.color + '50, 0 0 64px ' + planet.color + '20',
+                    borderColor: planet.color,
+                  } : {
+                    background: 'radial-gradient(circle, #1a1a2e, #000)',
+                    borderColor: 'rgba(255,255,255,0.12)',
+                  }}>
+                    {!planet.unlocked && <span className="lockIcon">🔒</span>}
                   </div>
-
-                  {/* Label below planet */}
-                  <span
-                    className="planetLabel"
-                    style={planet.unlocked ? { color: planet.color } : undefined}
-                  >
-                    {planet.name}
-                  </span>
-
-                  {/* Tooltip */}
+                  <span className="planetLabel" style={planet.unlocked ? { color: planet.color } : undefined}>{planet.name}</span>
                   {hoveredPlanet === planet.id && (
                     <div className="planetTooltip" style={{ borderColor: planet.unlocked ? planet.color : '#666' }}>
-                      {planet.unlocked
-                        ? `ENTRAR NO MUNDO DE ${planet.name}`
-                        : 'Complete mais episódios para desbloquear'}
+                      {planet.unlocked ? 'ENTRAR NO MUNDO DE ' + planet.name : 'Complete mais episódios para desbloquear'}
                     </div>
                   )}
                 </div>
               </div>
             </div>
-          ))}
-      </div>
+          )
+        })}
 
       {/* Entry flash */}
       {flashActive && (
