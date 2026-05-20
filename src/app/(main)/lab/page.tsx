@@ -282,16 +282,31 @@ export default function LabPage() {
 
   const triggerExperiment = useCallback((prompt: string) => {
     setActiveAgent('nexus')
-    setInput(prompt)
-    // Auto-send after state settles
-    setTimeout(() => {
-      const el = document.querySelector<HTMLInputElement>('input[placeholder="Enviar mensagem ao agente..."]')
-      if (el) {
-        const nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value')?.set
-        nativeInputValueSetter?.call(el, prompt)
-        el.dispatchEvent(new Event('input', { bubbles: true }))
-      }
-    }, 0)
+    setMessages([])
+    setInput('')
+    // Simulate user sending the message
+    const userMsg: Message = { role: 'user', content: prompt }
+    setMessages([userMsg])
+    setIsLoading(true)
+    fetch('/api/agents/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ agentId: 'nexus', message: prompt, history: [] }),
+    })
+      .then(res => res.json())
+      .then(data => {
+        setMessages(prev => [...prev, {
+          role: 'agent',
+          content: data.response || '[...silêncio]',
+          type: data.type || undefined,
+          topic: data.topic || undefined,
+          frames: data.frames || undefined,
+        }])
+      })
+      .catch(() => {
+        setMessages(prev => [...prev, { role: 'agent', content: '[conexão perdida]' }])
+      })
+      .finally(() => setIsLoading(false))
   }, [])
 
   return (
@@ -394,7 +409,7 @@ export default function LabPage() {
         </div>
 
         <button
-          onClick={() => router.back()}
+          onClick={() => router.push('/universo/nexus')}
           style={{
             position: 'absolute',
             top: '24px',
