@@ -122,6 +122,44 @@ export function VisualStoryPlayer({ story, onClose, onReplay }: VisualStoryPlaye
   const [current, setCurrent] = useState(0)
   const [direction, setDirection] = useState(0)
   const [imageReady, setImageReady] = useState(false)
+  const [loadedImages, setLoadedImages] = useState<Set<number>>(new Set())
+  const [prefetchProgress, setPrefetchProgress] = useState(0)
+
+  // Pre-fetch all images on mount
+  useEffect(() => {
+    const controllers: AbortController[] = []
+    const loaded = new Set<number>()
+    setLoadedImages(new Set())
+    setPrefetchProgress(0)
+
+    const prefetchImage = (url: string, index: number): Promise<void> => {
+      return new Promise((resolve) => {
+        const controller = new AbortController()
+        controllers.push(controller)
+        const timer = setTimeout(() => { controller.abort(); resolve() }, 20000)
+
+        const img = new Image()
+        img.onload = () => {
+          clearTimeout(timer)
+          loaded.add(index)
+          setLoadedImages(new Set(loaded))
+          setPrefetchProgress(prev => prev + 1)
+          resolve()
+        }
+        img.onerror = () => {
+          clearTimeout(timer)
+          setPrefetchProgress(prev => prev + 1)
+          resolve()
+        }
+        img.src = url
+      })
+    }
+
+    Promise.all(story.scenes.map((s, i) => prefetchImage(s.imageUrl, i)))
+      .finally(() => setPrefetchProgress(story.scenes.length))
+
+    return () => controllers.forEach(c => c.abort())
+  }, [story])
 
   const scene = story.scenes[current]
   const isFirst = current === 0
@@ -203,11 +241,13 @@ export function VisualStoryPlayer({ story, onClose, onReplay }: VisualStoryPlaye
           <div className="h-1 bg-cyber-border rounded-full overflow-hidden">
             <div
               className="h-full bg-neon-cyan rounded-full transition-all duration-500"
-              style={{ width: `${((current + 1) / story.scenes.length) * 100}%` }}
+              style={{ width: `${((prefetchProgress) / story.scenes.length) * 100}%` }}
             />
           </div>
           <p className="text-center text-xs font-mono text-gray-500 mt-1">
-            Carregando cena {current + 1} de {story.scenes.length}...
+            {prefetchProgress < story.scenes.length
+              ? `Preparando cena ${prefetchProgress + 1} de ${story.scenes.length}...`
+              : `Cena ${current + 1} de ${story.scenes.length}`}
           </p>
         </div>
 

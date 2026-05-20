@@ -14,14 +14,8 @@ function HeroBanner() {
   useEffect(() => {
     const update = () => {
       const now = new Date();
-      const pad = (n: number) => String(n).padStart(2, '0');
-      const y = now.getUTCFullYear();
-      const m = pad(now.getUTCMonth() + 1);
-      const d = pad(now.getUTCDate());
-      const h = pad(now.getUTCHours());
-      const min = pad(now.getUTCMinutes());
-      const s = pad(now.getUTCSeconds());
-      setTimestamp(`SYNC: ${y}.${m}.${d} // ${h}:${min}:${s} UTC`);
+      const brt = now.toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })
+      setTimestamp(`SYNC: ${brt} BRT`);
     };
     update();
     const id = setInterval(update, 1000);
