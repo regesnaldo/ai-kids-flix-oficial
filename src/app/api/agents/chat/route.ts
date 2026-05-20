@@ -10,39 +10,72 @@ const AGENT_PROMPTS: Record<string, string> = {
 
 // ─── Visual Story Intent Detection ──────────────────────────────────────────
 
-const VISUAL_STORY_PATTERNS = [
-  // EN
+const VISUAL_STORY_TRIGGERS = [
+  // Explicit visual requests
   /\bshow\s+me\b/i,
   /\bvisualize\b/i,
-  /\btell\s+me\s+the\s+story\b.+\b(in\s+)?(frames|scenes?|images|illustrations?)\b/i,
-  /\bin\s+(frames|scenes?|quadros?|cenas?)\b/i,
-  // PT-BR
   /\bmostre[\s-]me\b/i,
-  /\bvisualize\b/i,
-  /\bconta\s+a\s+hist[oó]ria\s+de\b/i,
   /\bem\s+(quadros|cenas|frames)\b/i,
-  /\bcenas?\b/i,
+  /\bin\s+(frames|scenes?|quadros?|cenas?)\b/i,
+  /\bconta\s+a\s+hist[oó]ria\s+de\b/i,
+  /\btell\s+me\s+the\s+story\b.+\b(in\s+)?(frames|scenes?|images|illustrations?)\b/i,
+]
+
+const AI_CONCEPT_KEYWORDS = [
+  /\brede\s+neural\b/i, /\bmachine\s+learning\b/i, /\bdeep\s+learning\b/i,
+  /\balgoritmo\b/i, /\binteligência\s+artificial\b/i, /\btransformers?\b/i,
+  /\bprocessamento\s+de\s+linguagem\b/i, /\bnlp\b/i,
+  /\bvis[aã]o\s+computacional\b/i, /\baprendizado\s+(de|por)\s+m[aá]quina\b/i,
+  /\bgpt\b/i, /\bllm\b/i, /\bchatgpt\b/i, /\blangchain\b/i,
+  /\bembedding\b/i, /\btokeniza[cç][aã]o\b/i, /\bfine[\s-]?tuning\b/i,
+  /\bprompt\b/i, /\brag\b/i, /\battention\b/i,
+  /\bcomputa[cç][aã]o\s+qu[aâ]ntica\b/i,
+  /\bmodelo\s+de\s+linguagem\b/i, /\bgera[cç][aã]o\s+de\s+imagem\b/i,
+  /\bdiffusion\b/i, /\bstable\s+diffusion\b/i,
+  /\bneural\b/i, /\bneur[oô]nios?\b/i,
+]
+
+const QUESTION_PATTERNS = [
+  /\bo\s+que\s+[éé]\b/i,
+  /\bcomo\s+funciona\b/i,
+  /\bexplique\b/i,
+  /\bexplica\b/i,
+  /\bme\s+explica\b/i,
+  /\bwhat\s+is\b/i,
+  /\bhow\s+does\b/i,
+  /\bexplain\b/i,
+  /\bcomo\s+se\s+faz\b/i,
 ]
 
 function detectVisualStoryIntent(message: string): { detected: boolean; topic: string } {
   const clean = message.trim()
   
-  // Must match at least one keyword
-  const matched = VISUAL_STORY_PATTERNS.some(p => p.test(clean))
-  if (!matched) return { detected: false, topic: '' }
-
-  // Extract the topic: remove the trigger phrases
-  let topic = clean
-    .replace(/\b(show\s+me|visualize|tell\s+me\s+the\s+story|in\s+(frames|scenes?|images?|quadros?|cenas?)|mostre[\s-]me|conta\s+a\s+hist[oó]ria\s+de|em\s+(quadros|cenas|frames)|cenas?)\b/gi, '')
-    .replace(/\s{2,}/g, ' ')
-    .trim()
-
-  // If topic is too short after extraction, use the full message
-  if (topic.length < 10) {
-    topic = clean.replace(/\b(in\s+)?(\d+)\s*(frames|scenes?|cenas?|quadros?)\b/gi, '').trim()
+  // Check explicit visual triggers first
+  const explicitMatch = VISUAL_STORY_TRIGGERS.some(p => p.test(clean))
+  if (explicitMatch) {
+    let topic = clean
+      .replace(/\b(show\s+me|visualize|tell\s+me\s+the\s+story|in\s+(frames|scenes?|images?|quadros?|cenas?)|mostre[\s-]me|conta\s+a\s+hist[oó]ria\s+de|em\s+(quadros|cenas|frames)|cenas?)\b/gi, '')
+      .replace(/\s{2,}/g, ' ')
+      .trim()
+    if (topic.length < 10) {
+      topic = clean.replace(/\b(in\s+)?(\d+)\s*(frames|scenes?|cenas?|quadros?)\b/gi, '').trim()
+    }
+    return { detected: true, topic: topic || clean }
   }
 
-  return { detected: true, topic: topic || clean }
+  // Check AI concept questions
+  const hasConcept = AI_CONCEPT_KEYWORDS.some(p => p.test(clean))
+  const hasQuestion = QUESTION_PATTERNS.some(p => p.test(clean))
+  if (hasConcept && hasQuestion) {
+    return { detected: true, topic: clean }
+  }
+
+  // Check if message is just an AI concept name (e.g., "rede neural")
+  if (hasConcept && clean.length > 5 && clean.length < 80) {
+    return { detected: true, topic: `como funciona ${clean}` }
+  }
+
+  return { detected: false, topic: '' }
 }
 
 function extractFrameCount(message: string): number {

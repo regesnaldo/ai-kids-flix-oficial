@@ -59,10 +59,15 @@ function ImageWithFallback({ src, alt, onLoad }: { src: string; alt: string; onL
   const [errored, setErrored] = useState(false)
 
   return (
-    <div className="relative w-full aspect-video rounded-lg overflow-hidden bg-cyber-panel border border-cyber-border">
+    <div className="relative w-full rounded-lg overflow-hidden bg-cyber-panel border border-cyber-border" style={{ height: '400px' }}>
+      {/* Loading skeleton */}
       {!loaded && !errored && (
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="w-8 h-8 border-2 border-neon-cyan/30 border-t-neon-cyan rounded-full animate-spin" />
+        <div className="absolute inset-0 flex flex-col gap-3 p-4">
+          <div className="h-4 bg-cyber-border/50 rounded animate-pulse w-3/4" />
+          <div className="h-4 bg-cyber-border/50 rounded animate-pulse w-1/2" />
+          <div className="h-4 bg-cyber-border/50 rounded animate-pulse w-5/6" />
+          <div className="flex-1" />
+          <div className="h-32 bg-cyber-surface/50 rounded animate-pulse" />
         </div>
       )}
       {errored ? (
@@ -77,7 +82,8 @@ function ImageWithFallback({ src, alt, onLoad }: { src: string; alt: string; onL
           loading="lazy"
           onLoad={() => { setLoaded(true); onLoad?.() }}
           onError={() => setErrored(true)}
-          className={`w-full h-full object-cover transition-opacity duration-700 ${loaded ? 'opacity-100' : 'opacity-0'}`}
+          style={{ width: '100%', height: '400px', objectFit: 'cover' }}
+          className={`transition-opacity duration-700 ${loaded ? 'opacity-100' : 'opacity-0'}`}
         />
       )}
     </div>
@@ -115,6 +121,12 @@ export function VisualStoryPlayer({ story, onClose, onReplay }: VisualStoryPlaye
   const isLast = current === story.scenes.length - 1
   const moodColor = MOOD_COLORS[scene?.mood] || 'text-neon-cyan border-neon-cyan/50'
   const moodBg = MOOD_BG[scene?.mood] || 'from-cyan-950/60 to-transparent'
+
+  const handleReplay = useCallback(() => {
+    setCurrent(0)
+    setImageReady(false)
+    onReplay()
+  }, [onReplay])
 
   const goNext = useCallback(() => {
     if (isLast) return
@@ -159,7 +171,8 @@ export function VisualStoryPlayer({ story, onClose, onReplay }: VisualStoryPlaye
         initial={{ scale: 0.95, y: 20 }}
         animate={{ scale: 1, y: 0 }}
         transition={{ type: 'spring', duration: 0.5 }}
-        className="relative w-full max-w-3xl bg-gradient-to-b from-cyber-dark to-cyber-black border border-cyber-border rounded-modal overflow-hidden shadow-2xl"
+        className="relative bg-gradient-to-b from-cyber-dark to-cyber-black border border-cyber-border rounded-modal overflow-hidden shadow-2xl"
+        style={{ width: '65vw', maxWidth: '900px', maxHeight: '90vh' }}
       >
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-cyber-border bg-cyber-panel/50">
@@ -173,7 +186,7 @@ export function VisualStoryPlayer({ story, onClose, onReplay }: VisualStoryPlaye
           </div>
           <div className="flex gap-2">
             <button
-              onClick={onReplay}
+              onClick={handleReplay}
               className="p-2 rounded-lg hover:bg-cyber-surface transition-colors text-gray-400 hover:text-neon-cyan"
               title="Recomeçar"
             >
@@ -260,7 +273,7 @@ export function VisualStoryPlayer({ story, onClose, onReplay }: VisualStoryPlaye
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              onClick={onReplay}
+              onClick={handleReplay}
               className="flex items-center gap-2 px-6 py-2 rounded-lg bg-neon-cyan/20 border border-neon-cyan/40
                 text-neon-cyan font-mono text-sm transition-all hover:bg-neon-cyan/30 shadow-glow-cyan"
             >
