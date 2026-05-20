@@ -1,5 +1,3 @@
-"use server";
-
 export interface UserProfile {
   emotionalScore: number;
   intellectualScore: number;
