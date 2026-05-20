@@ -137,6 +137,48 @@ async function callOpenAI(args: { system: string; messages: AnthropicMensagem[] 
   }
 }
 
+// ─── Provedor Groq (OpenAI-compatible) ────────────────────────────────────────
+
+const GROQ_TIMEOUT_MS = 25_000;
+
+async function callGroq(args: { system: string; messages: AnthropicMensagem[] }): Promise<string> {
+  const apiKey = process.env.GROQ_API_KEY;
+  if (!apiKey) throw new Error("GROQ_API_KEY não configurada");
+
+  const model = process.env.GROQ_MODEL || "llama-3.3-70b-versatile";
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), GROQ_TIMEOUT_MS);
+
+  try {
+    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      signal: controller.signal,
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model,
+        temperature: 0.7,
+        messages: [{ role: "system", content: args.system }, ...args.messages],
+      }),
+    });
+
+    if (!response.ok) {
+      const details = await response.text();
+      throw new Error(`Groq HTTP ${response.status}: ${details}`);
+    }
+
+    const data = await response.json();
+    const content: string | undefined = data?.choices?.[0]?.message?.content;
+    if (!isNonEmptyString(content)) throw new Error("Resposta inválida do Groq");
+    return content;
+
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 // ─── Handler principal ────────────────────────────────────────────────────────
 
 export async function POST(request: NextRequest) {
@@ -364,6 +406,7 @@ Narrativa weight: ${conflito.narrativeWeight}/10 — quanto maior, mais intenso 
     // Streaming — respeita LLM_PROVIDER, verifica chave real (não placeholder)
     const hasRealAnthropicKey = process.env.ANTHROPIC_API_KEY && !process.env.ANTHROPIC_API_KEY.includes("...") && process.env.ANTHROPIC_API_KEY.length > 30;
     const hasRealOpenAIKey = process.env.OPENAI_API_KEY && !process.env.OPENAI_API_KEY.includes("...") && process.env.OPENAI_API_KEY.length > 30;
+    const hasRealGroqKey = process.env.GROQ_API_KEY && !process.env.GROQ_API_KEY.includes("...") && process.env.GROQ_API_KEY.length > 30;
 
     if (wantStream && provider === "anthropic" && hasRealAnthropicKey) {
       const stream = anthropicStream({ system, mensagens: messages });
@@ -411,6 +454,40 @@ Narrativa weight: ${conflito.narrativeWeight}/10 — quanto maior, mais intenso 
       });
     }
 
+    // Groq streaming: OpenAI-compatible API, mesmo padrão de ReadableStream
+    if (wantStream && provider === "groq" && hasRealGroqKey) {
+      const text = await callGroq({ system, messages });
+
+      // Pipeline de memória (fire-and-forget)
+      if (userId && text) {
+        const ultimoUsuario = messages[messages.length - 1]?.content || "";
+        storeConversationMemories({
+          userId,
+          agentId: agent.id,
+          userMessage: ultimoUsuario,
+          assistantMessage: text,
+        }).catch((memErr) => {
+          logger.warn("Falha ao armazenar memórias da conversa", {
+            agentId: agent.id,
+            error: String(memErr),
+          });
+        });
+      }
+
+      const stream = new ReadableStream({
+        start(controller) {
+          controller.enqueue(new TextEncoder().encode(text));
+          controller.close();
+        },
+      });
+      return new Response(stream, {
+        headers: {
+          "Content-Type": "text/plain; charset=utf-8",
+          "Cache-Control": "no-cache",
+        },
+      });
+    }
+
     // Non-streaming (original) — usa as mesmas guards de chave real
     let assistantText: string;
 
@@ -420,6 +497,9 @@ Narrativa weight: ${conflito.narrativeWeight}/10 — quanto maior, mais intenso 
     } else if (provider === "anthropic" && hasRealAnthropicKey) {
       assistantText = await anthropicCompletionText({ system, mensagens: messages });
 
+    } else if (provider === "groq" && hasRealGroqKey) {
+      assistantText = await callGroq({ system, messages });
+
     } else if (hasRealOpenAIKey) {
       assistantText = await callOpenAI({ system, messages });
 
@@ -428,7 +508,7 @@ Narrativa weight: ${conflito.narrativeWeight}/10 — quanto maior, mais intenso 
 
     } else {
       return NextResponse.json(
-        { error: "Nenhum provedor configurado. Defina ANTHROPIC_API_KEY ou OPENAI_API_KEY." },
+        { error: "Nenhum provedor configurado. Defina GROQ_API_KEY, OPENAI_API_KEY ou ANTHROPIC_API_KEY." },
         { status: 503 }
       );
     }
