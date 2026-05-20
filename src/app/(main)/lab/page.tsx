@@ -119,6 +119,18 @@ function ArrivalFlash() {
 function ChatMessage({ msg, onOpenVisualStory }: { msg: Message; onOpenVisualStory?: (topic: string, frames: number) => void }) {
   const isUser = msg.role === 'user'
   const isVisualStory = msg.type === 'visual_story'
+  const isAgent = msg.role === 'agent'
+
+  const handleTTS = () => {
+    if (typeof window === 'undefined' || !('speechSynthesis' in window)) return
+    window.speechSynthesis.cancel()
+    const utterance = new SpeechSynthesisUtterance(msg.content)
+    utterance.lang = 'pt-BR'
+    utterance.rate = 0.95
+    utterance.pitch = 1.1
+    window.speechSynthesis.speak(utterance)
+  }
+
   return (
     <div style={{
       display: 'flex',
@@ -138,6 +150,37 @@ function ChatMessage({ msg, onOpenVisualStory }: { msg: Message; onOpenVisualSto
         wordBreak: 'break-word',
       }}>
         {msg.content}
+        {isAgent && !isVisualStory && (
+          <button
+            onClick={handleTTS}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '4px',
+              marginTop: '8px',
+              padding: '4px 10px',
+              background: 'rgba(255,255,255,0.06)',
+              border: '1px solid rgba(255,255,255,0.1)',
+              borderRadius: '3px',
+              color: 'rgba(255,255,255,0.5)',
+              fontFamily: 'monospace',
+              fontSize: '11px',
+              cursor: 'pointer',
+              transition: 'all 150ms ease',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.color = '#00f5ff'
+              e.currentTarget.style.borderColor = 'rgba(0,245,255,0.4)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = 'rgba(255,255,255,0.5)'
+              e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'
+            }}
+            title="Ouvir mensagem"
+          >
+            🎧 Ouvir
+          </button>
+        )}
         {isVisualStory && msg.topic && (
           <button
             onClick={() => onOpenVisualStory?.(msg.topic!, msg.frames || 5)}
