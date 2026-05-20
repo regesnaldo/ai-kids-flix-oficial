@@ -47,7 +47,7 @@ interface UniverseState {
   addMessage: (message: UniverseMessage) => void
 }
 
-export const useUniverseStore = create<UniverseState>((set, get) => ({
+export const useUniverseStore = create<UniverseState>()((set: (partial: Partial<UniverseState> | ((state: UniverseState) => Partial<UniverseState>), replace?: boolean) => void) => ({
   introSeen: false,
   introStep: 'fade-in',
   dialogueState: 'awaiting',
@@ -66,21 +66,21 @@ export const useUniverseStore = create<UniverseState>((set, get) => ({
 
   markIntroSeen: () => set({ introSeen: true, introStep: 'done' }),
   
-  setIntroStep: (step) => set({ introStep: step }),
+  setIntroStep: (step: IntroStep) => set({ introStep: step }),
   
-  setDialogueState: (state) => set({ dialogueState: state }),
+  setDialogueState: (state: DialogueState) => set({ dialogueState: state }),
   
-  setSelectedOption: (option) => set({ selectedOption: option }),
+  setSelectedOption: (option: string | null) => set({ selectedOption: option }),
   
-  setIsSpeaking: (speaking) => set({ isSpeaking: speaking }),
+  setIsSpeaking: (speaking: boolean) => set({ isSpeaking: speaking }),
   
-  setAudioEnabled: (enabled) => set({ audioEnabled: enabled }),
+  setAudioEnabled: (enabled: boolean) => set({ audioEnabled: enabled }),
   
-  updateProfile: (update) => set((state) => ({
+  updateProfile: (update: Partial<UniverseProfile>) => set((state) => ({
     profile: { ...state.profile, ...update }
   })),
   
-  addMessage: (message) => set((state) => ({
+  addMessage: (message: UniverseMessage) => set((state) => ({
     messages: [...state.messages, message]
   })),
 }))
