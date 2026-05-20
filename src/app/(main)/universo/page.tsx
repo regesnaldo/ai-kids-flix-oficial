@@ -111,12 +111,10 @@ export default function UniversoPage() {
         </div>
 
         {/* Orbiting planets */}
-        {planets.filter(p => p.id !== 'nexus').map((planet) => {
-          const oDelay = -(planet.tiltOffset / 360) * planet.orbitSpeed
-          return (
+        {planets.filter(p => p.id !== 'nexus').map((planet) => (
             <div key={planet.id} className="orbitContainer" style={{ width: planet.orbitRadius * 2, height: planet.orbitRadius * 2 }}>
               <div className="orbitRing" style={{ width: planet.orbitRadius * 2, height: planet.orbitRadius * 2 }} />
-              <div className="planetOrbit" style={{ animationDuration: planet.orbitSpeed + 's', animationDelay: oDelay + 's' }}>
+              <div className="planetOrbit" style={{ animationDuration: planet.orbitSpeed + 's', animationDelay: (-(planet.tiltOffset / 360) * planet.orbitSpeed) + 's' }}>
                 <div
                   className={'planetNode ' + (planet.unlocked ? 'unlocked' : 'locked')}
                   style={{ width: planet.size, height: planet.size, top: -(planet.size / 2) }}
@@ -145,8 +143,7 @@ export default function UniversoPage() {
                 </div>
               </div>
             </div>
-          )
-        })}
+          ))}
 
       {/* Entry flash */}
       {flashActive && (
