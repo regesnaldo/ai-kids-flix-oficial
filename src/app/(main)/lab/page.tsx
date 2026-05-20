@@ -25,6 +25,13 @@ const AGENT_NAMES: Record<AgentId, string> = {
   aurora: 'AURORA',
 }
 
+const EXPERIMENTS = [
+  { id: 1, icon: '🧬', title: 'Evolução da IA', desc: 'Jornada visual pela história', prompt: 'mostre-me a evolução da inteligência artificial em 5 cenas' },
+  { id: 2, icon: '🧠', title: 'Rede Neural', desc: 'Como neurônios artificiais aprendem', prompt: 'explique como funciona uma rede neural em 5 cenas' },
+  { id: 3, icon: '⚖️', title: 'IA e Ética', desc: 'O que é certo e errado para uma IA?', prompt: 'existe ética na inteligência artificial? me faça pensar' },
+  { id: 4, icon: '🔮', title: 'Futuro da IA', desc: '5 previsões para os próximos anos', prompt: 'como será a inteligência artificial no futuro? me mostre em cenas' },
+]
+
 function Particles() {
   const ref = useRef<THREE.Points>(null!)
   const geometry = useRef<THREE.BufferGeometry | null>(null)
@@ -156,13 +163,13 @@ function ChatMessage({ msg, onOpenVisualStory }: { msg: Message; onOpenVisualSto
             style={{
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '4px',
+              gap: '5px',
               marginTop: '8px',
-              padding: '4px 10px',
-              background: 'rgba(255,255,255,0.06)',
-              border: '1px solid rgba(255,255,255,0.1)',
+              padding: '5px 12px',
+              background: 'rgba(0,245,255,0.08)',
+              border: '1px solid rgba(0,245,255,0.25)',
               borderRadius: '3px',
-              color: 'rgba(255,255,255,0.5)',
+              color: 'rgba(0,245,255,0.7)',
               fontFamily: 'monospace',
               fontSize: '11px',
               cursor: 'pointer',
@@ -170,11 +177,13 @@ function ChatMessage({ msg, onOpenVisualStory }: { msg: Message; onOpenVisualSto
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.color = '#00f5ff'
-              e.currentTarget.style.borderColor = 'rgba(0,245,255,0.4)'
+              e.currentTarget.style.background = 'rgba(0,245,255,0.2)'
+              e.currentTarget.style.borderColor = 'rgba(0,245,255,0.6)'
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.color = 'rgba(255,255,255,0.5)'
-              e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'
+              e.currentTarget.style.color = 'rgba(0,245,255,0.7)'
+              e.currentTarget.style.background = 'rgba(0,245,255,0.08)'
+              e.currentTarget.style.borderColor = 'rgba(0,245,255,0.25)'
             }}
             title="Ouvir mensagem"
           >
@@ -249,7 +258,7 @@ export default function LabPage() {
         body: JSON.stringify({
           agentId: activeAgent,
           message: text,
-          history: [],
+          history: messages.map(m => ({ role: m.role === 'user' ? 'user' as const : 'assistant' as const, content: m.content })),
         }),
       })
       const data = await res.json()
@@ -270,6 +279,20 @@ export default function LabPage() {
   const handleOpenVisualStory = useCallback((topic: string, frames: number) => {
     visualStory.requestStory(topic, frames)
   }, [visualStory])
+
+  const triggerExperiment = useCallback((prompt: string) => {
+    setActiveAgent('nexus')
+    setInput(prompt)
+    // Auto-send after state settles
+    setTimeout(() => {
+      const el = document.querySelector<HTMLInputElement>('input[placeholder="Enviar mensagem ao agente..."]')
+      if (el) {
+        const nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value')?.set
+        nativeInputValueSetter?.call(el, prompt)
+        el.dispatchEvent(new Event('input', { bubbles: true }))
+      }
+    }, 0)
+  }, [])
 
   return (
     <main style={{ width: '100vw', height: '100vh', position: 'relative', background: '#000000', overflow: 'hidden' }}>
@@ -319,6 +342,56 @@ export default function LabPage() {
         >
           SELECIONE UM EXPERIMENTO
         </button>
+
+        {/* Experiments grid */}
+        <div style={{
+          position: 'absolute',
+          bottom: '90px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          display: 'flex',
+          gap: '10px',
+          zIndex: 50,
+        }}>
+          {EXPERIMENTS.map((exp) => (
+            <button
+              key={exp.id}
+              onClick={() => triggerExperiment(exp.prompt)}
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '12px 16px',
+                background: 'rgba(0,245,255,0.06)',
+                border: '1px solid rgba(0,245,255,0.2)',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                transition: 'all 200ms ease',
+                width: '140px',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'rgba(0,245,255,0.15)'
+                e.currentTarget.style.borderColor = 'rgba(0,245,255,0.5)'
+                e.currentTarget.style.boxShadow = '0 0 16px rgba(0,245,255,0.2)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'rgba(0,245,255,0.06)'
+                e.currentTarget.style.borderColor = 'rgba(0,245,255,0.2)'
+                e.currentTarget.style.boxShadow = 'none'
+              }}
+              disabled={isLoading}
+            >
+              <span style={{ fontSize: '20px' }}>{exp.icon}</span>
+              <span style={{ fontFamily: 'monospace', fontSize: '10px', color: '#00f5ff', textAlign: 'center' }}>
+                {exp.title}
+              </span>
+              <span style={{ fontFamily: 'monospace', fontSize: '8px', color: 'rgba(255,255,255,0.4)', textAlign: 'center', lineHeight: 1.3 }}>
+                {exp.desc}
+              </span>
+            </button>
+          ))}
+        </div>
 
         <button
           onClick={() => router.back()}
