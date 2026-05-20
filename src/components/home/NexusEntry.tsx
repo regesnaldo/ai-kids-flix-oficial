@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Volume2, VolumeX } from "lucide-react";
 import { useAmbientAudio } from "@/hooks/useAmbientAudio";
 
 type Particle = {
@@ -43,6 +42,32 @@ export default function NexusEntry() {
   const portalRef = useRef<HTMLDivElement>(null);
   const [entering, setEntering] = useState(false);
   const [portalPhase, setPortalPhase] = useState<'idle' | 'zoom' | 'blackout'>('idle');
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
+
+  const NEXUS_PRESENTATION = "Bem-vindo ao MENTE.AI. Eu sou NEXUS. Aqui, mentes são formadas, não formatadas. Entre no universo e descubra quem você está se tornando.";
+
+  // Auto-play NEXUS presentation after 1.5s
+  useEffect(() => {
+    if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;
+    const timer = setTimeout(() => {
+      const utterance = new SpeechSynthesisUtterance(NEXUS_PRESENTATION);
+      utterance.lang = 'pt-BR';
+      utterance.rate = 0.85;
+      utterance.pitch = 1.1;
+      utterance.onstart = () => setIsSpeaking(true);
+      utterance.onend = () => setIsSpeaking(false);
+      utterance.onerror = () => setIsSpeaking(false);
+      utteranceRef.current = utterance;
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(utterance);
+    }, 1500);
+    return () => {
+      clearTimeout(timer);
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+    };
+  }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -259,12 +284,29 @@ export default function NexusEntry() {
   }, []);
 
   const toggleAudio = () => {
+    // Toggle ambient audio
     if (isPlaying) {
       pause();
-      return;
+    } else {
+      play();
     }
 
-    play();
+    // Toggle NEXUS speech presentation
+    if (isSpeaking) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+    } else {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(NEXUS_PRESENTATION);
+      utterance.lang = 'pt-BR';
+      utterance.rate = 0.85;
+      utterance.pitch = 1.1;
+      utterance.onstart = () => setIsSpeaking(true);
+      utterance.onend = () => setIsSpeaking(false);
+      utterance.onerror = () => setIsSpeaking(false);
+      utteranceRef.current = utterance;
+      window.speechSynthesis.speak(utterance);
+    }
   };
 
   return (
@@ -281,6 +323,17 @@ export default function NexusEntry() {
         </div>
         <div className="nexusName">NEXUS</div>
         <div className="nexusStatus">consciência ativa</div>
+
+        {/* Audio toggle — centered below NEXUS orb */}
+        <button
+          type="button"
+          className="audioToggle"
+          onClick={toggleAudio}
+          aria-label={isSpeaking ? "Silenciar NEXUS" : "Ouvir apresentação NEXUS"}
+          aria-pressed={isSpeaking}
+        >
+          {isSpeaking ? '🔊' : '🔇'}
+        </button>
       </div>
 
       <div className="nexusCopy">
@@ -289,16 +342,6 @@ export default function NexusEntry() {
           {entering ? 'Abrindo portal...' : 'Entrar no universo'}
         </button>
       </div>
-
-      <button
-        type="button"
-        className="audioToggle"
-        onClick={toggleAudio}
-        aria-label={isPlaying ? "Desativar áudio ambiente" : "Ativar áudio ambiente"}
-        aria-pressed={isPlaying}
-      >
-        {isPlaying ? <Volume2 size={18} /> : <VolumeX size={18} />}
-      </button>
 
       {entering && (
         <div className="portalText">
@@ -557,26 +600,24 @@ export default function NexusEntry() {
         }
 
         .audioToggle {
-          position: absolute;
-          right: 28px;
-          bottom: 28px;
-          z-index: 8;
-          width: 44px;
-          height: 44px;
+          margin-top: 12px;
+          width: 36px;
+          height: 36px;
           display: grid;
           place-items: center;
           border: 1px solid rgba(0, 245, 255, 0.2);
           border-radius: 999px;
-          background: rgba(0, 0, 0, 0.28);
-          color: rgba(232, 232, 255, 0.72);
+          background: transparent;
+          color: rgba(0, 245, 255, 0.65);
+          font-size: 18px;
           cursor: pointer;
-          backdrop-filter: blur(10px);
           transition: background 180ms ease, border-color 180ms ease, color 180ms ease;
+          animation: audioPulse 2.5s ease-in-out infinite;
         }
 
         .audioToggle:hover {
-          border-color: rgba(0, 245, 255, 0.55);
-          background: rgba(0, 245, 255, 0.08);
+          border-color: rgba(0, 245, 255, 0.6);
+          background: rgba(0, 245, 255, 0.1);
           color: #00f5ff;
         }
 
@@ -634,6 +675,11 @@ export default function NexusEntry() {
             opacity: 1;
             transform: translateY(0);
           }
+        }
+
+        @keyframes audioPulse {
+          0%, 100% { transform: scale(1); opacity: 0.65; }
+          50% { transform: scale(1.08); opacity: 1; }
         }
 
         @media (max-width: 640px) {
