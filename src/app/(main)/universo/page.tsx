@@ -108,7 +108,7 @@ export default function UniversoPage() {
         />
       ))}
 
-      <div className="headerLabel">NEXUS PRIME // SISTEMA SOLAR // 12 MUNDOS EM ÓRBITA</div>
+      <div className="headerLabel">NEXUS PRIME // MAPA GALÁCTICO // 12 MUNDOS DETECTADOS</div>
       <button className="backButton" type="button" onClick={() => router.push('/home')}>
         ← TORRE CENTRAL
       </button>
@@ -117,7 +117,7 @@ export default function UniversoPage() {
         {planets.map((planet) => (
           <div
             key={planet.id}
-            className={`planetWrapper ${planet.unlocked ? 'unlocked' : 'locked'}${planet.id === 'nexus' ? ' nexusSun' : ''}${planet.id === 'volt' ? ' volt-orbit' : ''}${planet.id === 'aurora' ? ' aurora-orbit' : ''}`}
+            className={`planetWrapper ${planet.unlocked ? 'unlocked' : 'locked'}`}
             style={{ top: planet.top, left: planet.left }}
             onMouseEnter={() => setHoveredPlanet(planet.id)}
             onMouseLeave={() => setHoveredPlanet(null)}
@@ -335,10 +335,6 @@ export default function UniversoPage() {
         @keyframes twinkleStar {
           from { opacity: 0.35; transform: scale(1); }
           to { opacity: 0.95; transform: scale(1.2); }
-        @keyframes sunPulse {
-          0%, 100% { transform: scale(1); }
-          50% { transform: scale(1.05); }
-        }
         }
 
         @keyframes dashMove {
