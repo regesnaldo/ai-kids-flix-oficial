@@ -416,3 +416,68 @@ export const userCombinations = mysqlTable(
 
 export type UserCombination    = typeof userCombinations.$inferSelect;
 export type NewUserCombination = typeof userCombinations.$inferInsert;
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// FASE 3 — Memória Persistente Multi-Agente
+// ═══════════════════════════════════════════════════════════════════════════════
+
+export const MEMORY_TYPES = [
+  "emotional",   // Memória emocional (ex: "usuário demonstrou empatia com TERRA")
+  "factual",     // Fato aprendido (ex: "usuário sabe o que é backpropagation")
+  "preference",  // Preferência do usuário (ex: "prefere explicações visuais")
+  "narrative",   // Evento narrativo (ex: "NEXUS revelou segredo sobre VOLT")
+] as const;
+
+export type MemoryType = (typeof MEMORY_TYPES)[number];
+
+// ─── agent_memories ───────────────────────────────────────────────────────────
+//
+// Memória persistente por agente. Cada agente pode armazenar até 200 memórias
+// por usuário. Memórias expiram após TTL (padrão 90 dias) e são podadas
+// automaticamente por um job de limpeza (cron futuro) ou na leitura.
+//
+// Relacionamento: users (1) → agent_memories (N) ← agentMetadata (1)
+
+export const agentMemories = mysqlTable(
+  "agent_memories",
+  {
+    id: varchar("id", { length: 36 }).primaryKey(),
+
+    userId:  int("user_id").notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    agentId: varchar("agent_id", { length: 100 }).notNull(),
+
+    memoryType: mysqlEnum("memory_type", MEMORY_TYPES).notNull().default("factual"),
+
+    content: text("content").notNull(),
+
+    // Peso emocional (-1.0 a 1.0): negativo = memória negativa, positivo = positiva
+    emotionalWeight: decimal("emotional_weight", { precision: 3, scale: 2 }).default("0.00"),
+
+    // Metadados para busca contextual
+    tags:     json("tags").$type<string[]>().default([]),
+    contexto: json("contexto").$type<Record<string, unknown>>().default({}),
+
+    // Controle de ciclo de vida
+    ttlDays:      int("ttl_days").notNull().default(90),
+    expiresAt:    timestamp("expires_at"),
+    accessCount:  int("access_count").notNull().default(0),
+    lastAccessAt: timestamp("last_access_at"),
+
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (t) => ({
+    // Queries frequentes: "memórias do usuário X com agente Y"
+    idxUserAgent:       index("idx_am_user_agent").on(t.userId, t.agentId),
+    // "Memórias emocionais do usuário X"
+    idxUserEmotional:   index("idx_am_user_emotional").on(t.userId, t.memoryType),
+    // "Memórias que expiram em breve" (para job de limpeza)
+    idxExpiresAt:       index("idx_am_expires").on(t.expiresAt),
+    // "Top memórias mais acessadas do usuário"
+    idxUserAccess:      index("idx_am_user_access").on(t.userId, t.accessCount),
+    // Limite de 200 memórias por par (usuário, agente) — via aplicação
+  }),
+);
+
+export type AgentMemory    = typeof agentMemories.$inferSelect;
+export type NewAgentMemory = typeof agentMemories.$inferInsert;

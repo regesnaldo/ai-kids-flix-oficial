@@ -97,7 +97,7 @@ function HorizontalScroll({ children, title, subtitle }: { children: React.React
   };
 
   return (
-    <div className="mb-10" onMouseEnter={() => setShowArrows(true)} onMouseLeave={() => setShowArrows(false)}>
+    <div className="mb-10 w-full" onMouseEnter={() => setShowArrows(true)} onMouseLeave={() => setShowArrows(false)}>
       {title && (
       <div className="flex items-center gap-4 mb-4 px-4 md:px-16">
         <h2 className="text-xl font-bold text-white">{title}</h2>
@@ -111,7 +111,8 @@ function HorizontalScroll({ children, title, subtitle }: { children: React.React
             <button onClick={() => scroll(1)} className="absolute right-2 top-0 bottom-0 w-10 flex items-center justify-center z-10 bg-black/50 hover:bg-black/80 rounded-l-lg transition"><ChevronRight size={24} color="#fff" /></button>
           </>
         )}
-        <div ref={scrollRef} className="flex gap-3 overflow-x-auto px-4 md:px-16 pb-4" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
+        <div ref={scrollRef} className="flex gap-3 overflow-x-auto px-4 md:px-16 pb-4 w-full"
+          style={{ scrollbarWidth: "none", msOverflowStyle: "none", flexWrap: "nowrap" }}>
           {children}
         </div>
       </div>

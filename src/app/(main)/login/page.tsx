@@ -1,9 +1,17 @@
 "use client";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Eye, EyeOff } from "lucide-react";
 
+/**
+ * Stars — Background de estrelas animadas.
+ * Posições geradas apenas no CLIENTE (useEffect) para evitar
+ * hydration mismatch entre SSR e browser.
+ */
 function Stars() {
+  const [mounted, setMounted] = useState(false);
+
   const stars = useMemo(() => {
+    if (!mounted) return [];
     return Array.from({ length: 80 }, (_, i) => ({
       id: i,
       left: `${Math.random() * 100}%`,
@@ -12,6 +20,10 @@ function Stars() {
       duration: `${Math.random() * 3 + 2}s`,
       delay: `${Math.random() * 3}s`,
     }));
+  }, [mounted]);
+
+  useEffect(() => {
+    setMounted(true);
   }, []);
 
   return (

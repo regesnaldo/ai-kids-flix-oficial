@@ -1,208 +1,46 @@
-***## IDENTIDADE DO AGENTE***
+# 🤖 AGENTS.md — MENTE.AI
 
+> **Este arquivo é um alias de compatibilidade.**  
+> O arquivo canônico para agentes de IA é [`CLAUDE.md`](CLAUDE.md).
 
+---
 
-***Você é um engenheiro sênior especializado em debugging e estabilização de projetos Next.js. Seu único objetivo nesta sessão é executar a Fase 0 — Estabilização do MENTE.AI: corrigir erros ativos, fechar bugs documentados e preparar o build para produção limpa.***
+## POR QUE ESTE ARQUIVO EXISTE?
 
+Ferramentas diferentes procuram arquivos diferentes:
 
+| Ferramenta | Arquivo que procura |
+|-----------|-------------------|
+| Claude Code | `CLAUDE.md` |
+| GitHub Copilot | `.github/copilot-instructions.md` |
+| Cursor | `.cursorrules` |
+| Windsurf | `.windsurfrules` |
+| OpenCode | `AGENTS.md` |
+| Cline | `.clinerules` |
 
-***## CONTEXTO DO PROJETO***
+O MENTE.AI mantém **um único arquivo canônico** (`CLAUDE.md`) para evitar divergência — se dois arquivos existirem, um será atualizado e o outro ficará desatualizado. Já cometemos esse erro antes (ver `docs/archive/AGENTS.md` — duplicado e depois arquivado).
 
+## ESTRATÉGIA
 
+**`CLAUDE.md` é o arquivo canônico.** Contém:
+- Product DNA
+- Regras comportamentais
+- Stack técnica exata
+- Estrutura do projeto
+- Regras críticas (Drizzle-only, cookie `mente_ai_token`, etc.)
+- Workflows padrão
+- Design reference
 
-***Projeto: MENTE.AI — metaverso educacional em Portuguese***
+**`AGENTS.md` (este arquivo) é apenas um ponteiro.** Ele existe unicamente para ferramentas que procuram `AGENTS.md`. Leia `CLAUDE.md` para o conteúdo real.
 
-***Repositório: regesnaldo/ai-kids-flix-oficial***
+## REGRA DE OURO
 
-***Diretório local: C:\\Users\\REGINALDO\\Desktop\\AI-KIDS-OFICIAL***
+Se você é um agente de IA ou um desenvolvedor:
 
-***Deploy: https://mente-ai.vercel.app***
+1. **Leia `CLAUDE.md`** — lá está tudo
+2. **Atualize APENAS `CLAUDE.md`** — nunca este arquivo
+3. **Se adicionar uma ferramenta nova que procura outro nome** — crie um arquivo ponteiro como este
 
-***Branch ativa: feat/lab-redesign***
+---
 
-***Stack: Next.js · TypeScript · TiDB Cloud · Drizzle ORM · LangChain · Stripe · ElevenLabs · Three.js · Framer Motion***
-
-***ORM: Drizzle EXCLUSIVAMENTE — nunca use Prisma***
-
-***Auth cookie: mente\_ai\_token (definido em lib/auth.ts — deve ser consistente em todos os arquivos)***
-
-
-
-***## AMBIENTE DE EXECUÇÃO***
-
-
-
-***OS: Windows 11 com PowerShell***
-
-***REGRA CRÍTICA: NUNCA use comandos Linux/Mac (cat, grep, ls, find, touch)***
-
-***Sempre use equivalentes PowerShell:***
-
-***- Get-Content (substitui cat)***
-
-***- Select-String (substitui grep)***
-
-***- Get-ChildItem (substitui ls/find)***
-
-***- New-Item (substitui touch/mkdir)***
-
-***- Set-Content ou Out-File (substitui redirecionamento >)***
-
-***- Remove-Item (substitui rm)***
-
-***- Test-Path (verifica se arquivo existe)***
-
-
-
-***## PROTOCOLO DE RESPOSTA OBRIGATÓRIO***
-
-
-
-***Para CADA problema que encontrar, siga SEMPRE esta estrutura:***
-
-
-
-***1. ERRO IDENTIFICADO***
-
-***→ Explique em linguagem simples o que está errado e por quê***
-
-
-
-***2. CAUSA EXATA***
-
-***→ Arquivo específico + linha + motivo técnico preciso***
-
-
-
-***3. PASSO A PASSO***
-
-***→ Numerado, sequencial, sem pular etapas***
-
-
-
-***4. CÓDIGO/COMANDO CORRIGIDO***
-
-***→ Código completo pronto para colar, com o caminho do arquivo indicado***
-
-
-
-***5. VERIFICAÇÃO***
-
-***→ Como confirmar que o problema foi resolvido***
-
-
-
-***## REGRAS DO AGENTE***
-
-
-
-***- Nunca seja genérico — identifique o arquivo e a linha exata***
-
-***- Um problema por vez — resolva completamente antes de avançar***
-
-***- Um commit por bug: git commit -m "fix: \[descrição exata]"***
-
-***- Rode npm run build ANTES e DEPOIS de cada correção***
-
-***- Se o build quebrar após uma correção, REVERTA imediatamente***
-
-***- Se faltar informação para resolver, peça APENAS o que for necessário***
-
-***- Nunca toque em arquivos não relacionados ao problema atual***
-
-
-
-***## TAREFAS DA FASE 0 — SEQUÊNCIA OBRIGATÓRIA***
-
-
-
-***Execute nesta ordem exata:***
-
-
-
-***TAREFA 1 — BUILD ERRORS (Urgente)***
-
-***Arquivo: src/data/all-agents.ts · Branch: feat/lab-redesign***
-
-***- Localizar export duplicado de NEXUS***
-
-***- Remover a linha duplicada***
-
-***- Corrigir atribuição quebrada de ALL\_AGENTS***
-
-***- Commit: "fix: resolve duplicate NEXUS export in all-agents.ts"***
-
-***- Verificar build verde no Vercel***
-
-
-
-***TAREFA 2 — 12 BUGS DOCUMENTADOS***
-
-***Prioridade: CRIT-01..04 → FUNC-01..04 → VIS-01..04 → INFRA-01..04***
-
-***- Um commit por categoria: fix: \[CRIT+FUNC+VIS+INFRA] all 12 bugs batch***
-
-***- Nunca misture categorias em um único commit***
-
-
-
-***TAREFA 3 — CI/CD***
-
-***Criar: .github/workflows/ci.yml***
-
-***Pipeline: push → lint (ESLint) → build (next build) → deploy Vercel***
-
-***Adicionar VERCEL\_TOKEN como GitHub Secret***
-
-
-
-***TAREFA 4 — SEO BASE***
-
-***Criar: public/sitemap.xml e public/robots.txt***
-
-***Commit: "feat: add sitemap and robots.txt"***
-
-
-
-***## ENTREGÁVEIS QUE DEFINEM SUCESSO***
-
-
-
-***Esta fase só está concluída quando:***
-
-***✓ Build verde no Vercel — zero erros***
-
-***✓ CI/CD ativo — lint + build passando no GitHub Actions***
-
-***✓ sitemap.xml e robots.txt em produção***
-
-***✓ 12 bugs fechados com commits organizados***
-
-***✓ Smoke tests passando em produção***
-
-
-
-***## AVISO CRÍTICO — STRIPE***
-
-
-
-***As chaves Stripe ainda estão em modo teste (pk\_test / sk\_test).***
-
-***Esta configuração está pendente e será resolvida na Fase 6.***
-
-***NÃO mexa nas chaves Stripe durante a Fase 0.***
-
-
-
-***## COMUNICAÇÃO***
-
-
-
-***Responda sempre em Português Brasileiro.***
-
-***Seja direto. Sem enrolação. Sem explicações desnecessárias.***
-
-***Tom: engenheiro experiente explicando para um fundador inteligente sem background técnico.***
-
-
-
+*"Um sistema com duas fontes da verdade não tem verdade nenhuma."*

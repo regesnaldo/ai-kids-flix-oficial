@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
 type StarData = {
@@ -63,8 +63,12 @@ export default function UniversoPage() {
   const [hoveredPlanet, setHoveredPlanet] = useState<string | null>(null);
   const [enteringId, setEnteringId] = useState<string | null>(null);
   const [flashActive, setFlashActive] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
-  const stars = useMemo(() => createStars(), []);
+  useEffect(() => { setMounted(true); }, []);
+
+  // Estrelas geradas apenas no cliente — evita hydration mismatch
+  const stars = useMemo(() => (mounted ? createStars() : []), [mounted]);
 
   const handlePlanetClick = (planet: PlanetData) => {
     if (!planet.unlocked) return;

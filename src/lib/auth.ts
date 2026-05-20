@@ -49,7 +49,7 @@ export async function verifyToken(token: string): Promise<MenteAiJwtPayload | nu
 export function setAuthCookie(response: NextResponse, token: string): NextResponse {
   response.cookies.set(COOKIE_NAME, token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: process.env.NODE_ENV === "production" || process.env.VERCEL_ENV === "production",
     sameSite: "lax",
     maxAge: COOKIE_MAX_AGE_SECONDS,
     path: "/",
@@ -70,7 +70,7 @@ export function clearAuthCookie(response: NextResponse): NextResponse {
   for (const cookieName of [COOKIE_NAME, LEGACY_COOKIE_NAME]) {
     response.cookies.set(cookieName, "", {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: process.env.NODE_ENV === "production" || process.env.VERCEL_ENV === "production",
       sameSite: "lax",
       maxAge: 0,
       path: "/",

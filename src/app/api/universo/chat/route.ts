@@ -67,10 +67,15 @@ export async function POST(request: NextRequest) {
     const provider = (process.env.LLM_PROVIDER || "").toLowerCase();
     let responseText: string;
 
-    if (provider === "anthropic" || process.env.ANTHROPIC_API_KEY) {
+    // Prioriza o provider configurado. Só usa Anthropic se for EXPLICITAMENTE o provider.
+    if (provider === "openai" && process.env.OPENAI_API_KEY) {
+      responseText = await callOpenAI(systemPrompt, messages);
+    } else if (provider === "anthropic" && process.env.ANTHROPIC_API_KEY) {
       responseText = await anthropicCompletionText({ system: systemPrompt, mensagens: messages });
     } else if (process.env.OPENAI_API_KEY) {
       responseText = await callOpenAI(systemPrompt, messages);
+    } else if (process.env.ANTHROPIC_API_KEY && !process.env.ANTHROPIC_API_KEY.includes("...")) {
+      responseText = await anthropicCompletionText({ system: systemPrompt, mensagens: messages });
     } else {
       return NextResponse.json({ error: "Nenhum provedor LLM configurado" }, { status: 503 });
     }
