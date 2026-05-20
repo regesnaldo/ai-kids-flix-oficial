@@ -86,7 +86,7 @@ export default function UniversoPage() {
       {stars.map((star, i) => (
         <span
           key={i}
-          className={'star' + (star.twinkle ? ' twinkle' : '')}
+          className="star"
           style={{
             left: star.left, top: star.top,
             width: star.size, height: star.size,
