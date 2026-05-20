@@ -47,7 +47,7 @@ interface UniverseState {
   addMessage: (message: UniverseMessage) => void
 }
 
-export const useUniverseStore = create<UniverseState>()((set: (partial: Partial<UniverseState> | ((state: UniverseState) => Partial<UniverseState>), replace?: boolean) => void) => ({
+export const useUniverseStore = create<UniverseState>()((set) => ({
   introSeen: false,
   introStep: 'fade-in',
   dialogueState: 'awaiting',
