@@ -5,10 +5,16 @@ import { useRouter } from 'next/navigation'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { OrbitControls } from '@react-three/drei'
 import * as THREE from 'three'
+import { VisualStoryPlayer, type VisualStory } from '@/components/visuals/VisualStoryPlayer'
+import { useVisualStory } from '@/hooks/useVisualStory'
 
 type Message = {
   role: 'user' | 'agent'
   content: string
+  /** When NEXUS detects visual story intent */
+  type?: 'visual_story'
+  topic?: string
+  frames?: number
 }
 
 type AgentId = 'nexus' | 'volt' | 'aurora'
@@ -110,8 +116,9 @@ function ArrivalFlash() {
   )
 }
 
-function ChatMessage({ msg }: { msg: Message }) {
+function ChatMessage({ msg, onOpenVisualStory }: { msg: Message; onOpenVisualStory?: (topic: string, frames: number) => void }) {
   const isUser = msg.role === 'user'
+  const isVisualStory = msg.type === 'visual_story'
   return (
     <div style={{
       display: 'flex',
@@ -131,6 +138,37 @@ function ChatMessage({ msg }: { msg: Message }) {
         wordBreak: 'break-word',
       }}>
         {msg.content}
+        {isVisualStory && msg.topic && (
+          <button
+            onClick={() => onOpenVisualStory?.(msg.topic!, msg.frames || 5)}
+            style={{
+              display: 'block',
+              marginTop: '10px',
+              padding: '10px 18px',
+              background: 'rgba(0,245,255,0.15)',
+              border: '1px solid rgba(0,245,255,0.5)',
+              borderRadius: '4px',
+              color: '#00f5ff',
+              fontFamily: 'monospace',
+              fontSize: '12px',
+              cursor: 'pointer',
+              width: '100%',
+              textAlign: 'center',
+              transition: 'all 200ms ease',
+              boxShadow: '0 0 12px rgba(0,245,255,0.2)',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'rgba(0,245,255,0.3)'
+              e.currentTarget.style.boxShadow = '0 0 20px rgba(0,245,255,0.4)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'rgba(0,245,255,0.15)'
+              e.currentTarget.style.boxShadow = '0 0 12px rgba(0,245,255,0.2)'
+            }}
+          >
+            🎬 Iniciar Visual Story
+          </button>
+        )}
       </div>
     </div>
   )
@@ -143,6 +181,7 @@ export default function LabPage() {
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const visualStory = useVisualStory()
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -171,13 +210,23 @@ export default function LabPage() {
         }),
       })
       const data = await res.json()
-      setMessages(prev => [...prev, { role: 'agent', content: data.response || '[...silêncio]' }])
+      setMessages(prev => [...prev, {
+        role: 'agent',
+        content: data.response || '[...silêncio]',
+        type: data.type || undefined,
+        topic: data.topic || undefined,
+        frames: data.frames || undefined,
+      }])
     } catch {
       setMessages(prev => [...prev, { role: 'agent', content: '[conexão perdida]' }])
     } finally {
       setIsLoading(false)
     }
   }, [input, isLoading, activeAgent])
+
+  const handleOpenVisualStory = useCallback((topic: string, frames: number) => {
+    visualStory.requestStory(topic, frames)
+  }, [visualStory])
 
   return (
     <main style={{ width: '100vw', height: '100vh', position: 'relative', background: '#000000', overflow: 'hidden' }}>
@@ -205,19 +254,28 @@ export default function LabPage() {
           </p>
         </div>
 
-        <div style={{
-          position: 'absolute',
-          bottom: '48px',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          fontFamily: 'monospace',
-          fontSize: '13px',
-          color: '#ffffff',
-          opacity: 0.5,
-          animation: 'labPulse 2s ease-in-out infinite',
-        }}>
+        <button
+          onClick={() => { setActiveAgent('nexus'); setMessages([]) }}
+          style={{
+            position: 'absolute',
+            bottom: '48px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            fontFamily: 'monospace',
+            fontSize: '13px',
+            color: '#ffffff',
+            opacity: 0.5,
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            animation: 'labPulse 2s ease-in-out infinite',
+            transition: 'opacity 200ms ease',
+          }}
+          onMouseEnter={(e) => { e.currentTarget.style.opacity = '1' }}
+          onMouseLeave={(e) => { e.currentTarget.style.opacity = '0.5' }}
+        >
           SELECIONE UM EXPERIMENTO
-        </div>
+        </button>
 
         <button
           onClick={() => router.back()}
@@ -324,7 +382,7 @@ export default function LabPage() {
             </div>
           )}
           {messages.map((msg, i) => (
-            <ChatMessage key={i} msg={msg} />
+            <ChatMessage key={i} msg={msg} onOpenVisualStory={handleOpenVisualStory} />
           ))}
           {isLoading && (
             <div style={{
@@ -381,6 +439,15 @@ export default function LabPage() {
           </button>
         </div>
       </div>
+
+      {/* Visual Story Player */}
+      {visualStory.isPlaying && visualStory.story && (
+        <VisualStoryPlayer
+          story={visualStory.story}
+          onClose={visualStory.closePlayer}
+          onReplay={visualStory.replay}
+        />
+      )}
 
       <style jsx>{`
         @keyframes labPulse {
