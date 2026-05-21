@@ -371,7 +371,8 @@ export default function LabPage() {
           {EXPERIMENTS.map((exp) => (
             <button
               key={exp.id}
-              onClick={() => triggerExperiment(exp.prompt)}
+              className="cursor-pointer"
+              onClick={() => { console.log('clicked', exp.id); triggerExperiment(exp.prompt); }}
               style={{
                 display: 'flex',
                 flexDirection: 'column',
@@ -381,7 +382,6 @@ export default function LabPage() {
                 background: 'rgba(0,245,255,0.06)',
                 border: '1px solid rgba(0,245,255,0.2)',
                 borderRadius: '4px',
-                cursor: 'pointer',
                 transition: 'all 200ms ease',
                 width: '140px',
               }}

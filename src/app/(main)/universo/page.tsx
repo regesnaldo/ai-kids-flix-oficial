@@ -12,36 +12,19 @@ type StarData = {
   twinkle: boolean;
 };
 
-type PlanetData = {
-  id: string;
-  name: string;
-  color: string;
-  lightColor: string;
-  top: string;
-  left: string;
-  unlocked: boolean;
-  delay: number;
-};
-
-const planets: PlanetData[] = [
-  { id: 'nexus', name: 'NEXUS', color: '#00f5ff', lightColor: '#6ee7ff', top: '45%', left: '48%', unlocked: true, delay: 0 },
-  { id: 'volt', name: 'VOLT', color: '#ffff00', lightColor: '#fff95c', top: '25%', left: '70%', unlocked: true, delay: 2 },
-  { id: 'aurora', name: 'AURORA', color: '#ff00ff', lightColor: '#ff8bff', top: '65%', left: '25%', unlocked: true, delay: 4 },
-  { id: 'ethos', name: 'ETHOS', color: '#888888', lightColor: '#aaaaaa', top: '20%', left: '30%', unlocked: false, delay: 0 },
-  { id: 'kaos', name: 'KAOS', color: '#888888', lightColor: '#aaaaaa', top: '75%', left: '65%', unlocked: false, delay: 0 },
-  { id: 'cipher', name: 'CIPHER', color: '#888888', lightColor: '#aaaaaa', top: '35%', left: '15%', unlocked: false, delay: 0 },
-  { id: 'lyra', name: 'LYRA', color: '#888888', lightColor: '#aaaaaa', top: '55%', left: '80%', unlocked: false, delay: 0 },
-  { id: 'axiom', name: 'AXIOM', color: '#888888', lightColor: '#aaaaaa', top: '15%', left: '55%', unlocked: false, delay: 0 },
-  { id: 'stratos', name: 'STRATOS', color: '#888888', lightColor: '#aaaaaa', top: '80%', left: '40%', unlocked: false, delay: 0 },
-  { id: 'terra', name: 'TERRA', color: '#888888', lightColor: '#aaaaaa', top: '30%', left: '85%', unlocked: false, delay: 0 },
-  { id: 'prism', name: 'PRISM', color: '#888888', lightColor: '#aaaaaa', top: '70%', left: '10%', unlocked: false, delay: 0 },
-  { id: 'janus', name: 'JANUS', color: '#888888', lightColor: '#aaaaaa', top: '88%', left: '75%', unlocked: false, delay: 0 },
-];
-
-const connections = [
-  ['nexus', 'volt'],
-  ['nexus', 'aurora'],
-  ['volt', 'aurora'],
+const planets = [
+  { id: 'nexus', name: 'NEXUS', color: '#00f5ff', lightColor: '#6ee7ff', unlocked: true, orbitRadius: 0, orbitSpeed: 0, size: 80, angle: 0 },
+  { id: 'volt', name: 'VOLT', color: '#ffff00', lightColor: '#fff95c', unlocked: true, orbitRadius: 180, orbitSpeed: 12, size: 56, angle: 60 },
+  { id: 'aurora', name: 'AURORA', color: '#ff00ff', lightColor: '#ff8bff', unlocked: true, orbitRadius: 260, orbitSpeed: 18, size: 52, angle: 210 },
+  { id: 'ethos', name: 'ETHOS', color: '#666666', lightColor: '#888888', unlocked: false, orbitRadius: 340, orbitSpeed: 0, size: 44, angle: 0 },
+  { id: 'kaos', name: 'KAOS', color: '#666666', lightColor: '#888888', unlocked: false, orbitRadius: 410, orbitSpeed: 0, size: 44, angle: 45 },
+  { id: 'cipher', name: 'CIPHER', color: '#666666', lightColor: '#888888', unlocked: false, orbitRadius: 480, orbitSpeed: 0, size: 44, angle: 90 },
+  { id: 'lyra', name: 'LYRA', color: '#666666', lightColor: '#888888', unlocked: false, orbitRadius: 550, orbitSpeed: 0, size: 44, angle: 135 },
+  { id: 'axiom', name: 'AXIOM', color: '#666666', lightColor: '#888888', unlocked: false, orbitRadius: 610, orbitSpeed: 0, size: 44, angle: 25 },
+  { id: 'stratos', name: 'STRATOS', color: '#666666', lightColor: '#888888', unlocked: false, orbitRadius: 670, orbitSpeed: 0, size: 42, angle: 72 },
+  { id: 'terra', name: 'TERRA', color: '#666666', lightColor: '#888888', unlocked: false, orbitRadius: 730, orbitSpeed: 0, size: 42, angle: 160 },
+  { id: 'prism', name: 'PRISM', color: '#666666', lightColor: '#888888', unlocked: false, orbitRadius: 790, orbitSpeed: 0, size: 42, angle: 200 },
+  { id: 'janus', name: 'JANUS', color: '#666666', lightColor: '#888888', unlocked: false, orbitRadius: 850, orbitSpeed: 0, size: 42, angle: 300 },
 ] as const;
 
 function createStars(): StarData[] {
@@ -67,32 +50,23 @@ export default function UniversoPage() {
 
   useEffect(() => { setMounted(true); }, []);
 
-  // Estrelas geradas apenas no cliente — evita hydration mismatch
   const stars = useMemo(() => (mounted ? createStars() : []), [mounted]);
 
-  const handlePlanetClick = (planet: PlanetData) => {
-    if (!planet.unlocked) return;
-    setEnteringId(planet.id);
+  const handlePlanetClick = (planetId: string, unlocked: boolean) => {
+    if (!unlocked) return;
+    setEnteringId(planetId);
     setFlashActive(true);
     window.setTimeout(() => {
-      router.push(`/lab?agent=${planet.id}`);
+      router.push(`/lab?agent=${planetId}`);
     }, 600);
     window.setTimeout(() => {
       setFlashActive(false);
     }, 620);
   };
 
-  const getPlanetCenter = (planetId: string) => {
-    const planet = planets.find((item) => item.id === planetId);
-    if (!planet) return { x: 0, y: 0 };
-    return {
-      x: Number(planet.left.replace('%', '')),
-      y: Number(planet.top.replace('%', '')),
-    };
-  };
-
   return (
     <div className="galacticMap">
+      {/* Stars background */}
       {stars.map((star, index) => (
         <span
           key={index}
@@ -108,71 +82,150 @@ export default function UniversoPage() {
         />
       ))}
 
-      <div className="headerLabel">NEXUS PRIME // MAPA GALÁCTICO // 12 MUNDOS DETECTADOS</div>
-      <button className="backButton" type="button" onClick={() => router.push('/home')}>
+      {/* Header */}
+      <div className="headerLabel">
+        NEXUS PRIME // MAPA GALÁCTICO // 12 MUNDOS DETECTADOS
+      </div>
+
+      {/* Back button */}
+      <button
+        className="backButton"
+        type="button"
+        onClick={() => router.push('/home')}
+      >
         ← TORRE CENTRAL
       </button>
 
-      <div className="planetCanvas">
-        {planets.map((planet) => (
+      {/* Solar System */}
+      <div className="solarSystem">
+        {/* NEXUS Sun */}
+        <div className="nexusContainer" onClick={() => handlePlanetClick('nexus', true)}>
+          <div className="sunCore" />
+          <div className="sunGlow" />
+          <span className="sunLabel">NEXUS</span>
+          {hoveredPlanet === 'nexus' && (
+            <div className="planetTooltip">ENTRAR NO NEXUS</div>
+          )}
+        </div>
+
+        {/* Orbiting Planets (unlocked) */}
+        {planets.filter(p => p.id !== 'nexus' && p.unlocked).map((planet) => (
           <div
             key={planet.id}
-            className={`planetWrapper ${planet.unlocked ? 'unlocked' : 'locked'}`}
-            style={{ top: planet.top, left: planet.left }}
-            onMouseEnter={() => setHoveredPlanet(planet.id)}
-            onMouseLeave={() => setHoveredPlanet(null)}
-            onClick={() => handlePlanetClick(planet)}
-            role={planet.unlocked ? 'button' : 'presentation'}
-            aria-label={planet.unlocked ? `Entrar no mundo de ${planet.name}` : `${planet.name} bloqueado`}
+            className="orbitContainer"
+            style={{ width: planet.orbitRadius * 2, height: planet.orbitRadius * 2 }}
           >
+            {/* Dashed orbit ring */}
+            <div className="orbitRing" />
+
+            {/* Spinning planet */}
             <div
-              className="planetBubble"
-              style={planet.unlocked ? {
-                background: `radial-gradient(circle at 35% 35%, ${planet.lightColor}, ${planet.color}, #000)`,
-                boxShadow: `0 0 20px ${planet.color}, 0 0 40px ${planet.color}40, 0 0 80px ${planet.color}20`,
-                borderColor: planet.color,
-                animationDelay: `${planet.delay}s`,
-                width: '80px',
-                height: '80px',
-              } : {
-                background: 'radial-gradient(circle, #1a1a2e, #000)',
-                borderColor: 'rgba(255,255,255,0.1)',
-                width: '60px',
-                height: '60px',
-              }}
+              className={planet.id === 'volt' ? 'planetSpinVolt' : 'planetSpinAurora'}
+              onMouseEnter={() => setHoveredPlanet(planet.id)}
+              onMouseLeave={() => setHoveredPlanet(null)}
+              onClick={() => handlePlanetClick(planet.id, true)}
+              role="button"
+              aria-label={`Entrar no mundo de ${planet.name}`}
             >
-              {!planet.unlocked && <span className="lockIcon">🔒</span>}
+              <div
+                className="planetNode"
+                style={{ width: planet.size, height: planet.size }}
+              >
+                <div
+                  className="planetSphere unlockedSphere"
+                  style={{
+                    background: `radial-gradient(circle at 35% 35%, ${planet.lightColor}, ${planet.color}, #000)`,
+                    boxShadow: `0 0 12px ${planet.color}, 0 0 24px ${planet.color}40, 0 0 48px ${planet.color}20`,
+                    borderColor: planet.color,
+                  }}
+                />
+                <span className="planetLabel" style={{ color: planet.color, opacity: 0.9 }}>{planet.name}</span>
+                {hoveredPlanet === planet.id && (
+                  <div className="planetTooltip">ENTRAR NO MUNDO DE {planet.name}</div>
+                )}
+              </div>
             </div>
-            <span className="planetLabel" style={planet.unlocked ? { color: planet.color, opacity: 0.9 } : undefined}>{planet.name}</span>
-            {hoveredPlanet === planet.id && planet.unlocked && (
-              <div className="planetTooltip" style={{ borderColor: planet.color }}>ENTRAR NO MUNDO DE {planet.name}</div>
-            )}
           </div>
         ))}
+
+        {/* Locked Planets — each hardcoded to avoid template literals */}
+
+        {/* ETHOS — orbit 680px */}
+        <div className="orbitContainer" style={{ width: 680, height: 680 }}>
+          <div className="orbitRing lockedOrbit" />
+          <div className="lockedNode" style={{ transform: "rotate(0deg)" }} onMouseEnter={() => setHoveredPlanet('ethos')} onMouseLeave={() => setHoveredPlanet(null)}>
+            <div className="planetNodeLockedInner"><div className="planetSphere lockedSphere" style={{ width: 44, height: 44 }}><span className="lockIcon">🔒</span></div><span className="planetLabel locked">ETHOS</span></div>
+          </div>
+        </div>
+
+        {/* KAOS — orbit 820px */}
+        <div className="orbitContainer" style={{ width: 820, height: 820 }}>
+          <div className="orbitRing lockedOrbit" />
+          <div className="lockedNode" style={{ transform: "rotate(45deg)" }} onMouseEnter={() => setHoveredPlanet('kaos')} onMouseLeave={() => setHoveredPlanet(null)}>
+            <div className="planetNodeLockedInner"><div className="planetSphere lockedSphere" style={{ width: 44, height: 44 }}><span className="lockIcon">🔒</span></div><span className="planetLabel locked">KAOS</span></div>
+          </div>
+        </div>
+
+        {/* CIPHER — orbit 960px */}
+        <div className="orbitContainer" style={{ width: 960, height: 960 }}>
+          <div className="orbitRing lockedOrbit" />
+          <div className="lockedNode" style={{ transform: "rotate(90deg)" }} onMouseEnter={() => setHoveredPlanet('cipher')} onMouseLeave={() => setHoveredPlanet(null)}>
+            <div className="planetNodeLockedInner"><div className="planetSphere lockedSphere" style={{ width: 44, height: 44 }}><span className="lockIcon">🔒</span></div><span className="planetLabel locked">CIPHER</span></div>
+          </div>
+        </div>
+
+        {/* LYRA — orbit 1100px */}
+        <div className="orbitContainer" style={{ width: 1100, height: 1100 }}>
+          <div className="orbitRing lockedOrbit" />
+          <div className="lockedNode" style={{ transform: "rotate(135deg)" }} onMouseEnter={() => setHoveredPlanet('lyra')} onMouseLeave={() => setHoveredPlanet(null)}>
+            <div className="planetNodeLockedInner"><div className="planetSphere lockedSphere" style={{ width: 44, height: 44 }}><span className="lockIcon">🔒</span></div><span className="planetLabel locked">LYRA</span></div>
+          </div>
+        </div>
+
+        {/* AXIOM — orbit 1220px */}
+        <div className="orbitContainer" style={{ width: 1220, height: 1220 }}>
+          <div className="orbitRing lockedOrbit" />
+          <div className="lockedNode" style={{ transform: "rotate(180deg)" }} onMouseEnter={() => setHoveredPlanet('axiom')} onMouseLeave={() => setHoveredPlanet(null)}>
+            <div className="planetNodeLockedInner"><div className="planetSphere lockedSphere" style={{ width: 44, height: 44 }}><span className="lockIcon">🔒</span></div><span className="planetLabel locked">AXIOM</span></div>
+          </div>
+        </div>
+
+        {/* STRATOS — orbit 1340px */}
+        <div className="orbitContainer" style={{ width: 1340, height: 1340 }}>
+          <div className="orbitRing lockedOrbit" />
+          <div className="lockedNode" style={{ transform: "rotate(225deg)" }} onMouseEnter={() => setHoveredPlanet('stratos')} onMouseLeave={() => setHoveredPlanet(null)}>
+            <div className="planetNodeLockedInner"><div className="planetSphere lockedSphere" style={{ width: 42, height: 42 }}><span className="lockIcon">🔒</span></div><span className="planetLabel locked">STRATOS</span></div>
+          </div>
+        </div>
+
+        {/* TERRA — orbit 1460px */}
+        <div className="orbitContainer" style={{ width: 1460, height: 1460 }}>
+          <div className="orbitRing lockedOrbit" />
+          <div className="lockedNode" style={{ transform: "rotate(270deg)" }} onMouseEnter={() => setHoveredPlanet('terra')} onMouseLeave={() => setHoveredPlanet(null)}>
+            <div className="planetNodeLockedInner"><div className="planetSphere lockedSphere" style={{ width: 42, height: 42 }}><span className="lockIcon">🔒</span></div><span className="planetLabel locked">TERRA</span></div>
+          </div>
+        </div>
+
+        {/* PRISM — orbit 1580px */}
+        <div className="orbitContainer" style={{ width: 1580, height: 1580 }}>
+          <div className="orbitRing lockedOrbit" />
+          <div className="lockedNode" style={{ transform: "rotate(315deg)" }} onMouseEnter={() => setHoveredPlanet('prism')} onMouseLeave={() => setHoveredPlanet(null)}>
+            <div className="planetNodeLockedInner"><div className="planetSphere lockedSphere" style={{ width: 42, height: 42 }}><span className="lockIcon">🔒</span></div><span className="planetLabel locked">PRISM</span></div>
+          </div>
+        </div>
+
+        {/* JANUS — orbit 1700px */}
+        <div className="orbitContainer" style={{ width: 1700, height: 1700 }}>
+          <div className="orbitRing lockedOrbit" />
+          <div className="lockedNode" style={{ transform: "rotate(40deg)" }} onMouseEnter={() => setHoveredPlanet('janus')} onMouseLeave={() => setHoveredPlanet(null)}>
+            <div className="planetNodeLockedInner"><div className="planetSphere lockedSphere" style={{ width: 42, height: 42 }}><span className="lockIcon">🔒</span></div><span className="planetLabel locked">JANUS</span></div>
+          </div>
+        </div>
       </div>
 
-      <svg className="connectionLines" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-        {connections.map(([from, to]) => {
-          const start = getPlanetCenter(from);
-          const end = getPlanetCenter(to);
-          return (
-            <line
-              key={`${from}-${to}`}
-              x1={start.x}
-              y1={start.y}
-              x2={end.x}
-              y2={end.y}
-              stroke="rgba(0,245,255,0.15)"
-              strokeWidth="1"
-              strokeDasharray="4 8"
-              className="pathLine"
-            />
-          );
-        })}
-      </svg>
-
+      {/* Flash overlay on enter */}
       {flashActive && (
-        <div className="flashOverlay" style={{ backgroundColor: enteringId ? planets.find((planet) => planet.id === enteringId)?.color ?? '#00f5ff' : '#00f5ff' }} />
+        <div className="flashOverlay" />
       )}
 
       <style jsx>{`
@@ -193,7 +246,7 @@ export default function UniversoPage() {
           font-size: 11px;
           color: #00f5ff;
           opacity: 0.6;
-          z-index: 2;
+          z-index: 10;
           white-space: nowrap;
         }
 
@@ -208,7 +261,7 @@ export default function UniversoPage() {
           background: transparent;
           border: none;
           cursor: pointer;
-          z-index: 2;
+          z-index: 10;
           transition: opacity 200ms ease;
         }
 
@@ -225,33 +278,146 @@ export default function UniversoPage() {
           animation: twinkleStar 3s ease-in-out infinite alternate;
         }
 
-        .planetCanvas {
+        /* Solar System Container */
+        .solarSystem {
           position: absolute;
-          inset: 0;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%) rotateX(15deg);
+          width: 0;
+          height: 0;
+        }
+
+        /* NEXUS Sun */
+        .nexusContainer {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%) rotateX(-15deg);
+          z-index: 5;
+          cursor: pointer;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+        }
+
+        .sunCore {
+          width: 80px;
+          height: 80px;
+          border-radius: 50%;
+          background: radial-gradient(circle at 40% 40%, #6ee7ff, #00f5ff, #0088cc);
+          box-shadow: 0 0 30px #00f5ff, 0 0 60px rgba(0,245,255,0.5), 0 0 100px rgba(0,245,255,0.2);
+          animation: sunPulse 3s ease-in-out infinite;
+        }
+
+        .sunGlow {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          width: 120px;
+          height: 120px;
+          border-radius: 50%;
+          background: radial-gradient(circle, rgba(0,245,255,0.2), transparent 70%);
+          animation: sunPulse 3s ease-in-out infinite;
           pointer-events: none;
         }
 
-        .planetWrapper {
+        .sunLabel {
+          font-family: monospace;
+          font-size: 12px;
+          color: #00f5ff;
+          margin-top: 8px;
+          opacity: 0.9;
+          white-space: nowrap;
+        }
+
+        /* Orbit Container */
+        .orbitContainer {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          border-radius: 50%;
+        }
+
+        /* Dashed orbit ring */
+        .orbitRing {
+          position: absolute;
+          inset: 0;
+          border-radius: 50%;
+          border: 1px dashed rgba(0, 245, 255, 0.15);
+          pointer-events: none;
+        }
+
+        .lockedOrbit {
+          border-color: rgba(255, 255, 255, 0.06);
+        }
+
+        /* Spinning planets (unlocked) */
+        .planetSpinVolt {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          width: 0;
+          height: 0;
+          animation: spin 12s linear infinite;
+          cursor: pointer;
+        }
+
+        .planetSpinAurora {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          width: 0;
+          height: 0;
+          animation: spin 18s linear infinite;
+          cursor: pointer;
+        }
+
+        /* Planet node for spinning planets */
+        .planetNode {
           position: absolute;
           transform: translate(-50%, -50%);
           display: flex;
           flex-direction: column;
           align-items: center;
-          gap: 8px;
+          gap: 6px;
+        }
+
+        .planetSpinVolt > .planetNode {
+          top: -90px;
+          left: 50%;
+        }
+
+        .planetSpinAurora > .planetNode {
+          top: -130px;
+          left: 50%;
+        }
+
+        /* Locked planet node */
+        .lockedNode {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          width: 0;
+          height: 0;
+        }
+
+        .lockedNode > .planetNodeLockedInner {
+          position: absolute;
+          top: -50%;
+          left: 50%;
+          transform: translate(-50%, 0);
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 4px;
+          opacity: 0.4;
           pointer-events: auto;
         }
 
-        .planetWrapper.unlocked {
-          cursor: pointer;
-        }
-
-        .planetWrapper.locked {
-          cursor: not-allowed;
-          opacity: 0.5;
-        }
-
-        .planetBubble {
-          position: relative;
+        .planetSphere {
           border-radius: 50%;
           border: 1px solid;
           display: grid;
@@ -259,87 +425,77 @@ export default function UniversoPage() {
           transition: transform 300ms ease, box-shadow 300ms ease;
         }
 
-        .planetWrapper.unlocked .planetBubble {
-          animation: float 6s ease-in-out infinite;
+        .unlockedSphere {
+          width: 56px;
+          height: 56px;
         }
 
-        .planetWrapper.unlocked:hover .planetBubble {
-          transform: scale(1.1);
-          box-shadow: 0 0 28px rgba(255,255,255,0.16), 0 0 60px rgba(0,245,255,0.18);
+        .lockedSphere {
+          background: radial-gradient(circle, #1a1a2e, #000);
+          border-color: rgba(255, 255, 255, 0.08);
+        }
+
+        .unlockedSphere:hover {
+          transform: scale(1.15);
         }
 
         .lockIcon {
-          font-size: 16px;
-          opacity: 0.4;
+          font-size: 13px;
+          opacity: 0.5;
         }
 
         .planetLabel {
           font-family: monospace;
-          font-size: 11px;
+          font-size: 10px;
           letter-spacing: 0.02em;
           color: #fff;
-          opacity: 0.9;
           white-space: nowrap;
         }
 
-        .planetWrapper.locked .planetLabel {
+        .planetLabel.locked {
           color: #444;
           opacity: 0.6;
         }
 
         .planetTooltip {
           position: absolute;
-          bottom: calc(100% + 10px);
+          top: -28px;
           left: 50%;
           transform: translateX(-50%);
           pointer-events: none;
-          background: rgba(0, 0, 0, 0.8);
+          background: rgba(0, 0, 0, 0.85);
           border: 1px solid #00f5ff;
-          padding: 4px 8px;
+          padding: 3px 8px;
           border-radius: 9999px;
           font-family: monospace;
-          font-size: 10px;
+          font-size: 9px;
           color: #ffffff;
           white-space: nowrap;
-          z-index: 3;
-          opacity: 0.95;
-        }
-
-        .connectionLines {
-          position: absolute;
-          inset: 0;
-          width: 100%;
-          height: 100%;
-          pointer-events: none;
-          z-index: 1;
-        }
-
-        .pathLine {
-          stroke-dashoffset: 0;
-          animation: dashMove 3s linear infinite;
+          z-index: 20;
         }
 
         .flashOverlay {
           position: absolute;
           inset: 0;
-          opacity: 0.2;
-          transition: opacity 600ms ease;
-          z-index: 4;
+          background: #00f5ff;
+          opacity: 0.15;
+          z-index: 100;
+          pointer-events: none;
         }
 
-        @keyframes float {
-          0%, 100% { transform: translate(-50%, -58%) translateY(-8px); }
-          50% { transform: translate(-50%, -42%) translateY(8px); }
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+
+        @keyframes sunPulse {
+          0%, 100% { transform: translate(-50%, -50%) scale(1); }
+          50% { transform: translate(-50%, -50%) scale(1.05); }
         }
 
         @keyframes twinkleStar {
           from { opacity: 0.35; transform: scale(1); }
           to { opacity: 0.95; transform: scale(1.2); }
-        }
-
-        @keyframes dashMove {
-          from { stroke-dashoffset: 0; }
-          to { stroke-dashoffset: -24; }
         }
       `}</style>
     </div>
