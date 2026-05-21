@@ -139,7 +139,7 @@ function AgentCard({ agent }: { agent: typeof agentsShowcase[0] }) {
             </motion.div>
           )}
           <div className="absolute bottom-0 left-0 right-0 p-3">
-            <h4 className="text-sm font-bold text-white">{agent.name}</h4>
+            <h4 className="text-sm font-semibold text-white" style={{ textShadow: "0 1px 4px rgba(0,0,0,0.7)" }}>{agent.name}</h4>
             <p className="text-xs text-gray-300">{agent.subtitle}</p>
           </div>
         </div>

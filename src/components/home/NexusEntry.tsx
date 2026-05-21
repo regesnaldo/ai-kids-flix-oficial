@@ -334,6 +334,9 @@ export default function NexusEntry() {
         >
           {isSpeaking ? '🔊' : '🔇'}
         </button>
+        <div className="audioHint">
+          {isSpeaking ? 'NEXUS está falando...' : 'Toque para ouvir NEXUS'}
+        </div>
       </div>
 
       <div className="nexusCopy">
@@ -619,6 +622,15 @@ export default function NexusEntry() {
           border-color: rgba(0, 245, 255, 0.6);
           background: rgba(0, 245, 255, 0.1);
           color: #00f5ff;
+        }
+
+        .audioHint {
+          margin-top: 6px;
+          font-family: monospace;
+          font-size: 10px;
+          color: rgba(232, 232, 255, 0.4);
+          opacity: 0;
+          animation: statusFade 1.2s ease 2s forwards;
         }
 
         @keyframes particlesAwaken {

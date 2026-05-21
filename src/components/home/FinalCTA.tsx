@@ -169,7 +169,7 @@ export default function FinalCTA() {
             Comece Grátis
           </Link>
           <Link
-            href="/aulas"
+            href="/series"
             className="inline-flex items-center gap-2 px-5 py-2 rounded-lg font-medium text-sm border border-cyan-400 text-cyan-400 hover:bg-cyan-400/10 transition-all duration-200"
           >
             <BookOpen size={14} />

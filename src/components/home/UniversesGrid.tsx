@@ -57,7 +57,7 @@ function UniverseCard({ agent }: { agent: HomeAgent }) {
         {/* Text content */}
         <div className="absolute bottom-0 left-0 right-0 p-3 z-10">
           <h3
-            className="text-sm font-bold text-white leading-tight"
+            className="text-sm font-semibold text-white leading-tight"
             style={{ textShadow: "0 2px 6px rgba(0,0,0,0.9)" }}
           >
             {agent.name}

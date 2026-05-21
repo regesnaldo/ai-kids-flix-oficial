@@ -2,6 +2,7 @@
 
 import { useState, useRef, useCallback, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { motion } from 'framer-motion'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { OrbitControls } from '@react-three/drei'
 import * as THREE from 'three'
@@ -369,9 +370,11 @@ export default function LabPage() {
           zIndex: 50,
         }}>
           {EXPERIMENTS.map((exp) => (
-            <button
+            <motion.button
               key={exp.id}
               className="cursor-pointer"
+              whileHover={{ scale: 1.05, y: -3 }}
+              whileTap={{ scale: 0.95 }}
               onClick={() => { console.log('clicked', exp.id); triggerExperiment(exp.prompt); }}
               style={{
                 display: 'flex',
@@ -398,13 +401,13 @@ export default function LabPage() {
               disabled={isLoading}
             >
               <span style={{ fontSize: '20px' }}>{exp.icon}</span>
-              <span style={{ fontFamily: 'monospace', fontSize: '10px', color: '#00f5ff', textAlign: 'center' }}>
+              <span style={{ fontFamily: 'monospace', fontSize: '14px', fontWeight: 600, color: '#fff', textAlign: 'center', textShadow: '0 1px 4px rgba(0,0,0,0.8)' }}>
                 {exp.title}
               </span>
-              <span style={{ fontFamily: 'monospace', fontSize: '8px', color: 'rgba(255,255,255,0.4)', textAlign: 'center', lineHeight: 1.3 }}>
+              <span style={{ fontFamily: 'monospace', fontSize: '10px', color: 'rgba(255,255,255,0.5)', textAlign: 'center', lineHeight: 1.3 }}>
                 {exp.desc}
               </span>
-            </button>
+            </motion.button>
           ))}
         </div>
 
