@@ -5,8 +5,10 @@ import { motion } from "framer-motion";
 import { Play, ChevronLeft, ChevronRight, Star, Zap } from "lucide-react";
 import { SuaJornada } from "@/components/SuaJornada";
 import NexusEntry from "@/components/home/NexusEntry";
+import JourneyCards from "@/components/home/JourneyCards";
+import UniversesGrid from "@/components/home/UniversesGrid";
+import FinalCTA from "@/components/home/FinalCTA";
 import { agentsShowcase } from "@/data/agents-showcase";
-import { allAgents } from "@/data/all-agents";
 
 function HeroBanner() {
   const [timestamp, setTimestamp] = useState('');
@@ -146,30 +148,6 @@ function AgentCard({ agent }: { agent: typeof agentsShowcase[0] }) {
   );
 }
 
-const journeys = [
-  { id: "fundamentos", title: "Fundamentos de IA", description: "Conceitos essenciais da IA moderna.", level: "Iniciante", color: "#8B5CF6", episodes: 20 },
-  { id: "criatividade", title: "Criatividade Radical", description: "Crie com agentes especializados.", level: "Intermediário", color: "#F59E0B", episodes: 20 },
-  { id: "etica", title: "IA Ética", description: "Desafios éticos da IA.", level: "Avançado", color: "#10B981", episodes: 20 },
-  { id: "estrategia", title: "Estratégia", description: "Pensamento estratégico com IA.", level: "Avançado", color: "#E50914", episodes: 20 },
-  { id: "futuro", title: "Futuro da IA", description: "AGI, singularidade e além.", level: "Expert", color: "#3B82F6", episodes: 20 },
-];
-
-function JourneyCard({ j }: { j: typeof journeys[0] }) {
-  return (
-    <Link href="/aulas">
-      <motion.div whileHover={{ scale: 1.03, y: -4 }} className="flex-shrink-0 rounded-md overflow-hidden cursor-pointer" style={{ width: 260, background: "#1A1A1A" }}>
-        <div className="h-20" style={{ background: `linear-gradient(135deg, ${j.color}30, #1A1A1A)` }} />
-        <div className="p-4">
-          <span className="text-xs font-medium px-2 py-0.5 rounded" style={{ background: j.color + "30", color: j.color }}>{j.level}</span>
-          <h3 className="text-white font-bold mt-2 text-sm">{j.title}</h3>
-          <p className="text-gray-400 text-xs mt-1">{j.description}</p>
-          <p className="text-gray-500 text-xs mt-2">{j.episodes} episódios</p>
-        </div>
-      </motion.div>
-    </Link>
-  );
-}
-
 export default function HomePage() {
   const [watchMap, setWatchMap] = useState<Record<string, { completed: boolean }>>({});
   const [profile, setProfile] = useState<{ archetype?: string; emotionalScore?: number }>({});
@@ -279,46 +257,14 @@ export default function HomePage() {
           {agentsShowcase.slice(0, 12).map((agent) => <AgentCard key={agent.id} agent={agent} />)}
         </HorizontalScroll>
 
-        {/* Journey Pathways */}
-        <div style={{ marginBottom: '0.5rem', padding: '0 4rem 0 4rem' }}>
-          <p style={{ fontFamily: 'monospace', fontSize: '11px', color: '#00f5ff', opacity: 0.6, margin: 0 }}>// JORNADAS DE APRENDIZADO</p>
-          <div style={{ height: '1px', background: 'rgba(0,245,255,0.2)', marginTop: '0.25rem' }} />
-        </div>
-        <HorizontalScroll title={''} subtitle={''}>
-          {journeys.map((j) => <JourneyCard key={j.id} j={j} />)}
-        </HorizontalScroll>
+        {/* Journey Cards — redesenhadas com imagens blur */}
+        <JourneyCards />
 
-        {/* Universe Grid 4x3 */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-          className="mx-4 md:mx-16 mb-10 p-8 rounded-xl"
-          style={{ background: "#0F0F1A" }}>
-          <h2 className="text-2xl md:text-3xl font-bold text-white text-center mb-2">12 Universos</h2>
-          <p className="text-gray-400 mb-8 max-w-md mx-auto text-sm text-center">Explore todos os universos 3D dos agentes canônicos.</p>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
-            {allAgents.map((a) => (
-              <Link key={a.id} href={`/universo/${a.id}`}
-                className="p-5 rounded-lg cursor-pointer transition-all duration-200 group"
-                style={{ background: "#1A1A2E", border: "1px solid rgba(255,255,255,0.08)" }}
-                onMouseEnter={(e) => { e.currentTarget.style.borderColor = a.color; e.currentTarget.style.transform = "scale(1.03)"; }}
-                onMouseLeave={(e) => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"; e.currentTarget.style.transform = "scale(1)"; }}>
-                <div className="text-white font-bold text-sm group-hover:brightness-110">{a.name}</div>
-                <div className="text-gray-500 text-xs mt-1">{a.role}</div>
-              </Link>
-            ))}
-          </div>
-        </motion.div>
+        {/* Universe Grid — 12 agentes com foto de fundo */}
+        <UniversesGrid />
 
-        {/* CTA */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-          className="mx-4 md:mx-16 mt-8 p-12 rounded-xl text-center"
-          style={{ background: "linear-gradient(135deg, rgba(139,92,246,0.15), rgba(59,130,246,0.1))", border: "1px solid rgba(139,92,246,0.3)" }}>
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Pronto para transformar sua mente?</h2>
-          <p className="text-gray-400 mb-8 max-w-md mx-auto">Conhecimento infinito de 12 agentes canônicos. 100 episódios disponíveis.</p>
-          <div className="flex gap-4 justify-center">
-            <Link href="/aulas" className="px-8 py-3 rounded font-bold text-sm bg-white text-black hover:bg-white/90 transition">Comece Grátis</Link>
-            <Link href="/planos" className="px-8 py-3 rounded font-medium text-sm border border-white/20 text-white hover:bg-white/10 transition">Ver Planos</Link>
-          </div>
-        </motion.div>
+        {/* Final CTA — cinemático com partículas */}
+        <FinalCTA />
       </div>
     </div>
   );
