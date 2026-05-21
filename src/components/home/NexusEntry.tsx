@@ -367,7 +367,8 @@ export default function NexusEntry() {
         .nexusEntry {
           position: relative;
           width: 100vw;
-          height: 100vh;
+          height: 70vh;
+          min-height: 500px;
           overflow: hidden;
           background: #000000;
           color: #e8e8ff;
@@ -561,7 +562,7 @@ export default function NexusEntry() {
         .nexusCopy {
           position: absolute;
           left: 50%;
-          bottom: 12vh;
+          bottom: 8vh;
           z-index: 6;
           display: flex;
           flex-direction: column;
