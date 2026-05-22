@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { Bell, ChevronDown, Menu, Search, X } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 type SessionUser = {
   id: number;
@@ -24,6 +24,9 @@ export default function Navigation() {
   const [temasOpen, setTemasOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mobileTemasOpen, setMobileTemasOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   const navItems = [
@@ -115,7 +118,43 @@ export default function Navigation() {
     setTemasOpen(false);
     setMobileOpen(false);
     setMobileTemasOpen(false);
+    setSearchOpen(false);
   }, [pathname]);
+
+  // Auto-focus search input when opened
+  useEffect(() => {
+    if (searchOpen && searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  }, [searchOpen]);
+
+  // Keyboard shortcut: Ctrl+K or / opens search
+  useEffect(() => {
+    function onKeyDown(e: KeyboardEvent) {
+      if ((e.key === 'k' && (e.metaKey || e.ctrlKey)) || (e.key === '/' && !isEditable(e.target))) {
+        e.preventDefault();
+        setSearchOpen(v => !v);
+      }
+    }
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, []);
+
+  function isEditable(el: EventTarget | null): boolean {
+    if (!el || !(el instanceof HTMLElement)) return false;
+    const tag = el.tagName.toLowerCase();
+    return tag === 'input' || tag === 'textarea' || tag === 'select' || el.isContentEditable;
+  }
+
+  const handleSearchSubmit = useCallback((e: React.FormEvent) => {
+    e.preventDefault();
+    const q = searchQuery.trim();
+    if (q.length > 0) {
+      setSearchOpen(false);
+      setSearchQuery('');
+      router.push(`/explorar?q=${encodeURIComponent(q)}`);
+    }
+  }, [searchQuery, router]);
 
   const emailInitial = (session.user?.email?.trim()?.[0] ?? '?').toUpperCase();
 
@@ -178,7 +217,12 @@ export default function Navigation() {
         </div>
 
         <div className="flex items-center gap-4">
-          <button type="button" className="hidden md:inline-flex text-zinc-300 hover:text-white transition" aria-label="Buscar">
+          <button
+            type="button"
+            onClick={() => setSearchOpen(true)}
+            className="hidden md:inline-flex text-zinc-300 hover:text-white transition"
+            aria-label="Buscar"
+          >
             <Search className="w-5 h-5" />
           </button>
           <button type="button" className="hidden md:inline-flex text-zinc-300 hover:text-white transition" aria-label="Notificações">
@@ -319,6 +363,40 @@ export default function Navigation() {
           </div>
         </div>
       ) : null}
+
+      {/* Search Overlay */}
+      {searchOpen && (
+        <div className="fixed inset-0 z-[60] flex items-start justify-center pt-[25vh]"
+          style={{ background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(8px)' }}
+          onClick={(e) => { if (e.target === e.currentTarget) setSearchOpen(false); }}
+        >
+          <div className="w-full max-w-xl px-4">
+            <form onSubmit={handleSearchSubmit} className="relative">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-500" />
+              <input
+                ref={searchInputRef}
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Escape') setSearchOpen(false); }}
+                placeholder="Buscar agentes, aulas, temas..."
+                className="w-full pl-12 pr-12 py-4 bg-zinc-900 border border-zinc-700 rounded-xl text-white text-lg placeholder:text-zinc-500 focus:outline-none focus:border-zinc-400 transition"
+              />
+              <button
+                type="button"
+                onClick={() => setSearchOpen(false)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-white transition"
+                aria-label="Fechar busca"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </form>
+            <p className="text-center text-zinc-600 text-xs mt-3">
+              Pressione <kbd className="px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-400 text-[10px]">Esc</kbd> para fechar
+            </p>
+          </div>
+        </div>
+      )}
     </header>
   );
 }

@@ -27,14 +27,32 @@ const themeMap: Record<string, string[]> = {
 function ExplorarContent() {
   const searchParams = useSearchParams();
   const temaSlug = searchParams.get('tema');
+  const searchQuery = searchParams.get('q')?.trim() ?? '';
   const [hoveredId, setHoveredId] = useState<string | null>(null);
 
   const filteredAgents = useMemo(() => {
-    if (!temaSlug) return allAgents;
-    const ids = themeMap[temaSlug] ?? [];
-    if (ids.length === 0) return allAgents;
-    return allAgents.filter((a) => ids.includes(a.id));
-  }, [temaSlug]);
+    let agents = allAgents;
+
+    // Filter by tema (category)
+    if (temaSlug) {
+      const ids = themeMap[temaSlug] ?? [];
+      if (ids.length > 0) agents = agents.filter((a) => ids.includes(a.id));
+    }
+
+    // Filter by search query
+    if (searchQuery.length > 0) {
+      const q = searchQuery.toLowerCase();
+      agents = agents.filter(
+        (a) =>
+          a.name.toLowerCase().includes(q) ||
+          a.role.toLowerCase().includes(q) ||
+          a.description.toLowerCase().includes(q) ||
+          a.id.toLowerCase().includes(q)
+      );
+    }
+
+    return agents;
+  }, [temaSlug, searchQuery]);
 
   const temaLabel = useMemo(() => {
     if (!temaSlug) return null;
@@ -87,11 +105,18 @@ function ExplorarContent() {
 
         <div className="mb-8">
           <h1 className="text-2xl md:text-3xl font-bold text-white flex items-center gap-3">
-            {temaSlug ? <>{themeIcons[temaSlug] ?? '📂'} {temaLabel}</> : <>🗂️ Explorar todos os agentes</>}
+            {searchQuery ? (
+              <>🔍 Resultados para "{searchQuery}"</>
+            ) : temaSlug ? (
+              <>{themeIcons[temaSlug] ?? '📂'} {temaLabel}</>
+            ) : (
+              <>🗂️ Explorar todos os agentes</>
+            )}
           </h1>
           <p className="mt-2 text-sm text-gray-400">
             {filteredAgents.length} agente{filteredAgents.length !== 1 ? 's' : ''} disponíve{filteredAgents.length === 1 ? 'l' : 'is'}
             {temaSlug ? ` em ${temaLabel}` : ''}
+            {searchQuery ? ` para "${searchQuery}"` : ''}
           </p>
         </div>
 
