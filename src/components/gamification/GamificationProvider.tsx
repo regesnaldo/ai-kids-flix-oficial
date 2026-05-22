@@ -4,7 +4,6 @@ import { createContext, useContext, useEffect, useState, useCallback } from "rea
 import { UserHud } from "./UserHud";
 import { ConquestNotification } from "./ConquestNotification";
 import { generateUsername } from "@/lib/username-generator";
-import { REWARD_LEVELS, type RewardLevel } from "@/lib/xp-engine";
 
 interface XpData {
   total: number;
@@ -12,6 +11,24 @@ interface XpData {
   streak: number;
   dailyCeiling: number;
 }
+
+interface RewardLevel {
+  level: number;
+  label: string;
+  xpRequired: number;
+  referralsRequired: number;
+  daysRequired: number;
+  reward: string;
+}
+
+/** Inline copy of xp-engine REWARD_LEVELS — avoids DB import in client component */
+const REWARD_LEVELS: RewardLevel[] = [
+  { level: 1, label: "Explorador Iniciante", xpRequired: 500, referralsRequired: 3, daysRequired: 7, reward: "10% de desconto" },
+  { level: 2, label: "Navegador Cósmico", xpRequired: 1500, referralsRequired: 7, daysRequired: 21, reward: "20% de desconto" },
+  { level: 3, label: "Arquiteto Neural", xpRequired: 3000, referralsRequired: 15, daysRequired: 45, reward: "1 mês ChatGPT grátis" },
+  { level: 4, label: "Mestre do Metaverso", xpRequired: 6000, referralsRequired: 25, daysRequired: 90, reward: "Distintivo + Acesso Antecipado" },
+  { level: 5, label: "Lenda Viva", xpRequired: 10000, referralsRequired: 40, daysRequired: 180, reward: "Hall da Fama + Surpresa" },
+];
 
 interface GamificationContextType {
   /** True when holographic panel is open */
@@ -95,7 +112,7 @@ export function GamificationProvider({ children, userId, email }: { children: Re
       <UserHud
         username={username}
         xpData={xpData}
-        levels={REWARD_LEVELS as RewardLevel[]}
+        levels={REWARD_LEVELS}
         episodeCount={episodeCount}
         validReferrals={validReferrals}
         referralLink={referralLink}

@@ -8,6 +8,7 @@ import { ArrowLeft, ChevronLeft, ChevronRight, Loader2, Play, Sparkles, Zap } fr
 import { allAgents } from "@/data/all-agents";
 import { useDeepSeek } from "@/hooks/useDeepSeek";
 import { queueConquest } from "@/components/gamification/ConquestNotification";
+import { useGamification } from "@/components/gamification/GamificationProvider";
 
 /* ─── Types ─────────────────────────────────────────────────────────── */
 
@@ -74,6 +75,7 @@ export default function ScreenplayPlayerPage() {
 
   const agent = allAgents.find((a) => a.id === agentId);
   const { generate, loading: genLoading } = useDeepSeek();
+  const { setPlaybackActive } = useGamification();
 
   const [screenplay, setScreenplay] = useState<Screenplay | null>(null);
   const [phase, setPhase] = useState<Phase>("loading");
@@ -82,6 +84,12 @@ export default function ScreenplayPlayerPage() {
   const [continuationText, setContinuationText] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [xpAwarded, setXpAwarded] = useState(0);
+
+  // Hide HUD during episode playback
+  useEffect(() => {
+    setPlaybackActive(true);
+    return () => setPlaybackActive(false);
+  }, [setPlaybackActive]);
 
   // Award XP when episode completes
   useEffect(() => {
