@@ -1,5 +1,5 @@
 "use client";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Play, ChevronLeft, ChevronRight, Star, Zap } from "lucide-react";
@@ -8,8 +8,13 @@ import NexusEntry from "@/components/home/NexusEntry";
 import JourneyCards from "@/components/home/JourneyCards";
 import UniversesGrid from "@/components/home/UniversesGrid";
 import FinalCTA from "@/components/home/FinalCTA";
-import CinematicParticles from "@/components/home/CinematicParticles";
+import dynamic from "next/dynamic";
 import { agentsShowcase } from "@/data/agents-showcase";
+
+const CinematicParticles = dynamic(
+  () => import("@/components/home/CinematicParticles"),
+  { ssr: false }
+);
 
 function HeroBanner() {
   const [timestamp, setTimestamp] = useState('');
@@ -279,7 +284,13 @@ export default function HomePage() {
       {/* HERO: NEXUS cinematic entry */}
       <div style={{ position: "relative" }}>
         <NexusEntry />
-        <CinematicParticles />
+        <Suspense fallback={
+          <div className="absolute inset-0 overflow-hidden pointer-events-none" style={{ zIndex: 0 }} aria-hidden="true">
+            <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 50% 50%, transparent 60%, rgba(0,0,0,0.15) 100%)" }} />
+          </div>
+        }>
+          <CinematicParticles />
+        </Suspense>
       </div>
 
       {/* Transition gradient */}

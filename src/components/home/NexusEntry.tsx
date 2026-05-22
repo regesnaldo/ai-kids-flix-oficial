@@ -14,8 +14,19 @@ type Particle = {
   color: string;
 };
 
-const PARTICLE_COUNT = 150;
+const PARTICLE_COUNT_DESKTOP = 120;
+const PARTICLE_COUNT_MOBILE = 50;
 const CONNECTION_DISTANCE = 120;
+
+function getParticleCount(): number {
+  if (typeof window === "undefined") return PARTICLE_COUNT_DESKTOP;
+  return window.innerWidth < 768 ? PARTICLE_COUNT_MOBILE : PARTICLE_COUNT_DESKTOP;
+}
+
+function isMobile(): boolean {
+  if (typeof window === "undefined") return false;
+  return window.innerWidth < 768;
+}
 
 function randomVelocity() {
   return (Math.random() - 0.5) * 0.6;
@@ -81,7 +92,7 @@ export default function NexusEntry() {
     let animationFrame = 0;
 
     const resize = () => {
-      const pixelRatio = window.devicePixelRatio || 1;
+      const pixelRatio = Math.min(window.devicePixelRatio || 1, 2); // cap at 2x for performance
       const width = window.innerWidth;
       const height = window.innerHeight;
 
@@ -92,10 +103,13 @@ export default function NexusEntry() {
       ctx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
 
       particles.length = 0;
-      for (let i = 0; i < PARTICLE_COUNT; i++) {
+      const count = getParticleCount();
+      for (let i = 0; i < count; i++) {
         particles.push(createParticle(width, height));
       }
     };
+
+    const mobile = isMobile();
 
     const draw = () => {
       const width = window.innerWidth;
@@ -118,22 +132,25 @@ export default function NexusEntry() {
         ctx.fill();
       }
 
-      for (let i = 0; i < particles.length; i++) {
-        for (let j = i + 1; j < particles.length; j++) {
-          const a = particles[i];
-          const b = particles[j];
-          const dx = a.x - b.x;
-          const dy = a.y - b.y;
-          const distance = Math.sqrt(dx * dx + dy * dy);
+      // Skip O(n^2) connection drawing on mobile
+      if (!mobile) {
+        for (let i = 0; i < particles.length; i++) {
+          for (let j = i + 1; j < particles.length; j++) {
+            const a = particles[i];
+            const b = particles[j];
+            const dx = a.x - b.x;
+            const dy = a.y - b.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
 
-          if (distance < CONNECTION_DISTANCE) {
-            const opacity = 0.22 * (1 - distance / CONNECTION_DISTANCE);
-            ctx.beginPath();
-            ctx.moveTo(a.x, a.y);
-            ctx.lineTo(b.x, b.y);
-            ctx.strokeStyle = `rgba(0,245,255, ${opacity})`;
-            ctx.lineWidth = 1;
-            ctx.stroke();
+            if (distance < CONNECTION_DISTANCE) {
+              const opacity = 0.22 * (1 - distance / CONNECTION_DISTANCE);
+              ctx.beginPath();
+              ctx.moveTo(a.x, a.y);
+              ctx.lineTo(b.x, b.y);
+              ctx.strokeStyle = `rgba(0,245,255, ${opacity})`;
+              ctx.lineWidth = 1;
+              ctx.stroke();
+            }
           }
         }
       }
