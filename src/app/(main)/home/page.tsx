@@ -3,7 +3,6 @@ import { useState, useRef, useEffect, useCallback, useMemo, memo, Suspense } fro
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Play, ChevronLeft, ChevronRight, Star, Zap } from "lucide-react";
-import { SuaJornada } from "@/components/SuaJornada";
 import NexusEntry from "@/components/home/NexusEntry";
 import JourneyCards from "@/components/home/JourneyCards";
 import UniversesGrid from "@/components/home/UniversesGrid";
@@ -324,22 +323,6 @@ export default function HomePage() {
       </div>
 
       <SectionDivider />
-
-      {/* ── PROGRESS ── */}
-      {hasProgress && (
-        <>
-          <div style={{ background: 'linear-gradient(180deg, #0a0a1a 0%, #0a0a14 100%)', paddingTop: '1rem', paddingBottom: '1rem' }}>
-            <SuaJornada
-              episodios={completedCount}
-              totalEpisodios={100}
-              xp={totalXp}
-              arquetipo={profile.archetype || "Explorador"}
-              progresso={completedCount}
-            />
-          </div>
-          <SectionDivider />
-        </>
-      )}
 
       {/* ── JOURNEYS ── */}
       <JourneyCards />
