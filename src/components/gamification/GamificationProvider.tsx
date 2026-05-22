@@ -1,9 +1,12 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState, useCallback } from "react";
+import { usePathname } from "next/navigation";
 import { UserHud } from "./UserHud";
 import { ConquestNotification } from "./ConquestNotification";
 import { generateUsername } from "@/lib/username-generator";
+
+const HIDE_HUD_ROUTES = ["/blog"];
 
 interface XpData {
   total: number;
@@ -54,6 +57,10 @@ export function GamificationProvider({ children, userId, email }: { children: Re
   const [xpData, setXpData] = useState<XpData | null>(null);
   const [episodeCount, setEpisodeCount] = useState(0);
   const [validReferrals, setValidReferrals] = useState(0);
+
+  // Hide HUD completely on blog pages
+  const pathname = usePathname();
+  const hideOnRoute = HIDE_HUD_ROUTES.some((route) => pathname.startsWith(route));
 
   // Sci-fi username
   const username = typeof window !== "undefined"
@@ -116,7 +123,7 @@ export function GamificationProvider({ children, userId, email }: { children: Re
         episodeCount={episodeCount}
         validReferrals={validReferrals}
         referralLink={referralLink}
-        hidden={playbackActive || !userId}
+        hidden={hideOnRoute || playbackActive || !userId}
         onClose={() => {}}
         onPanelOpenChange={setPanelOpen}
       />

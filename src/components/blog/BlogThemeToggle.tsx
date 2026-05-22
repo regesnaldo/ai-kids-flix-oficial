@@ -31,26 +31,20 @@ export function BlogThemeProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     localStorage.setItem('blog-theme', theme);
+
+    // Add data attribute to root so CSS can target [data-blog-theme="light"]
+    document.documentElement.setAttribute('data-blog-theme', theme);
+
     if (theme === 'light') {
-      document.documentElement.style.setProperty('--blog-bg', '#f8f9fa');
-      document.documentElement.style.setProperty('--blog-card', '#ffffff');
-      document.documentElement.style.setProperty('--blog-text', '#0e1420');
-      document.documentElement.style.setProperty('--blog-text-muted', '#64748b');
-      document.documentElement.style.setProperty('--blog-accent', '#0099cc');
-      document.documentElement.style.setProperty('--blog-border', '#e2e8f0');
-      document.documentElement.style.setProperty('--blog-border-subtle', 'rgba(0,0,0,0.06)');
-      document.documentElement.style.setProperty('--blog-shadow', '0 4px 20px rgba(0,0,0,0.04)');
-      document.documentElement.style.setProperty('--blog-shadow-hover', '0 4px 30px rgba(0,153,204,0.08)');
+      // Override the actual CSS variables that blog pages consume
+      document.documentElement.style.setProperty('--dark-bg', '#f8f9fa');
+      document.documentElement.style.setProperty('--dark-card', '#ffffff');
+      document.documentElement.style.setProperty('--accent-cyan', '#0099cc');
     } else {
-      document.documentElement.style.setProperty('--blog-bg', '#0e1420');
-      document.documentElement.style.setProperty('--blog-card', '#161d2e');
-      document.documentElement.style.setProperty('--blog-text', '#ffffff');
-      document.documentElement.style.setProperty('--blog-text-muted', '#8892a4');
-      document.documentElement.style.setProperty('--blog-accent', '#00f5ff');
-      document.documentElement.style.setProperty('--blog-border', 'rgba(255,255,255,0.1)');
-      document.documentElement.style.setProperty('--blog-border-subtle', 'rgba(255,255,255,0.05)');
-      document.documentElement.style.setProperty('--blog-shadow', '0 4px 20px rgba(0,245,255,0.02)');
-      document.documentElement.style.setProperty('--blog-shadow-hover', '0 4px 30px rgba(0,245,255,0.06)');
+      // Restore dark defaults
+      document.documentElement.style.setProperty('--dark-bg', '#0e1420');
+      document.documentElement.style.setProperty('--dark-card', '#161d2e');
+      document.documentElement.style.setProperty('--accent-cyan', '#00f5ff');
     }
   }, [theme]);
 
@@ -69,17 +63,23 @@ export function BlogThemeToggle() {
   return (
     <button
       onClick={toggle}
-      className="p-2 rounded-lg border transition-all duration-300 hover:scale-105 active:scale-95"
+      className="fixed top-20 right-4 z-30 p-2 rounded-full border transition-all duration-300 hover:scale-105 active:scale-95"
       style={{
-        background: theme === 'dark' ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.03)',
-        borderColor: theme === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)',
+        background: '#161d2e',
+        borderColor: 'rgba(255,255,255,0.1)',
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.borderColor = 'var(--accent-cyan)';
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
       }}
       aria-label={theme === 'dark' ? 'Ativar modo claro' : 'Ativar modo escuro'}
     >
       {theme === 'dark' ? (
-        <Sun size={16} className="text-white/50 hover:text-white transition-colors" />
+        <Sun size={16} className="text-white/60 hover:text-white transition-colors" />
       ) : (
-        <Moon size={16} className="text-gray-500 hover:text-gray-800 transition-colors" />
+        <Moon size={16} className="text-gray-700 hover:text-gray-900 transition-colors" />
       )}
     </button>
   );

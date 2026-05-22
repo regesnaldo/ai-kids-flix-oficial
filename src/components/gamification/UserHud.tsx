@@ -321,15 +321,14 @@ export function UserHud({
             exit={{ x: 320, opacity: 0 }}
             transition={{ type: "spring", stiffness: 300, damping: 32 }}
             onClick={(e) => e.stopPropagation()}
-            className="fixed right-0 top-0 bottom-0 z-50 w-[300px] p-4 overflow-y-auto"
+            className="fixed right-0 top-0 z-50 w-[300px] max-w-[300px] p-4 overflow-y-auto"
             style={{
               background: "rgba(14, 20, 32, 0.94)",
               backdropFilter: "blur(24px)",
               WebkitBackdropFilter: "blur(24px)",
               borderLeft: "1px solid rgba(0, 245, 255, 0.08)",
               boxShadow: "-8px 0 40px rgba(0, 0, 0, 0.6)",
-              maxHeight: "calc(100vh - 80px)",
-              top: "40px",
+              maxHeight: "calc(100vh - 100px)",
             }}
             onMouseEnter={() => {
               clearTimer();
@@ -344,7 +343,7 @@ export function UserHud({
             {/* ── Close button ─────────────────────────────────── */}
             <button
               onClick={handleClose}
-              className="absolute top-3 right-3 w-7 h-7 rounded-full flex items-center justify-center transition-colors duration-200"
+              className="absolute top-3 right-3 z-50 w-7 h-7 rounded-full flex items-center justify-center transition-colors duration-200"
               style={{
                 background: "rgba(255,255,255,0.1)",
               }}
@@ -366,6 +365,35 @@ export function UserHud({
             >
               JORNADA ATIVA
             </p>
+
+            {/* ── Instructions box ─────────────────────────────── */}
+            <div
+              className="mb-5 p-3 rounded-xl text-[10px] leading-relaxed"
+              style={{
+                background: "#0e1420",
+                border: "1px solid rgba(255,255,255,0.05)",
+              }}
+            >
+              <p
+                className="text-xs font-bold uppercase tracking-wider mb-2"
+                style={{ color: "var(--accent-cyan)" }}
+              >
+                // COMO FUNCIONA
+              </p>
+              <div className="space-y-1.5 text-white/60">
+                <p>🎬 Assista episódios → +10 XP</p>
+                <p>⚡ Faça todas as escolhas → +5 XP</p>
+                <p>🔗 Indique amigos → prêmios</p>
+              </div>
+              <Link
+                href="/blog/como-funciona-o-sistema-de-recompensas"
+                onClick={handleClose}
+                className="inline-block mt-2 text-[10px] font-bold transition-colors duration-200 hover:brightness-125"
+                style={{ color: "var(--accent-cyan)" }}
+              >
+                📖 Saiba mais no Blog →
+              </Link>
+            </div>
 
             {/* ── Username ─────────────────────────────────────── */}
             <div className="flex items-center gap-3 mb-6">
