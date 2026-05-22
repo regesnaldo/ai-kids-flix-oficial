@@ -31,8 +31,12 @@ export async function GET() {
     } catch { }
 
     let sitemapExists = false, robotsExists = false;
-    try { await fs.access(path.join(projectRoot, "public/sitemap.xml")); sitemapExists = true; } catch { }
-    try { await fs.access(path.join(projectRoot, "public/robots.txt")); robotsExists = true; } catch { }
+    try { await fs.access(path.join(projectRoot, "src/app/sitemap.ts")); sitemapExists = true; } catch {
+      try { await fs.access(path.join(projectRoot, "public/sitemap.xml")); sitemapExists = true; } catch { }
+    }
+    try { await fs.access(path.join(projectRoot, "src/app/robots.ts")); robotsExists = true; } catch {
+      try { await fs.access(path.join(projectRoot, "public/robots.txt")); robotsExists = true; } catch { }
+    }
 
     let apiCount = 0;
     const apiPath = path.join(projectRoot, "src/app/api");
