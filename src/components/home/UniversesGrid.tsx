@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { allAgents, type HomeAgent } from "@/data/all-agents";
@@ -19,7 +20,7 @@ const GLOW_COLORS: Record<string, string> = {
   ethos: "rgba(245,158,11,0.5)",
 };
 
-function UniverseCard({ agent }: { agent: HomeAgent }) {
+const UniverseCard = memo(function UniverseCard({ agent }: { agent: HomeAgent }) {
   const ringColor = GLOW_COLORS[agent.id] ?? "rgba(0,212,255,0.5)";
 
   return (
@@ -37,6 +38,8 @@ function UniverseCard({ agent }: { agent: HomeAgent }) {
             alt={agent.name}
             className="w-full h-full object-cover brightness-[0.55] group-hover:brightness-[0.8] transition-all duration-400"
             loading="lazy"
+            decoding="async"
+            onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/images/placeholder.svg"; }}
           />
         </div>
 
@@ -76,7 +79,7 @@ function UniverseCard({ agent }: { agent: HomeAgent }) {
       </motion.div>
     </Link>
   );
-}
+});
 
 export default function UniversesGrid() {
   return (

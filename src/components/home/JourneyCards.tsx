@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 
@@ -67,7 +68,7 @@ const journeys: Journey[] = [
   },
 ];
 
-function JourneyCard({ journey }: { journey: Journey }) {
+const JourneyCard = memo(function JourneyCard({ journey }: { journey: Journey }) {
   return (
     <Link href={journey.href}>
       <motion.div
@@ -83,6 +84,8 @@ function JourneyCard({ journey }: { journey: Journey }) {
             alt={journey.agent}
             className="w-full h-full object-cover brightness-[0.3] scale-110 group-hover:brightness-[0.45] transition-all duration-500"
             loading="lazy"
+            decoding="async"
+            onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/images/placeholder.svg"; }}
           />
         </div>
 
@@ -123,7 +126,7 @@ function JourneyCard({ journey }: { journey: Journey }) {
       </motion.div>
     </Link>
   );
-}
+});
 
 export default function JourneyCards() {
   return (

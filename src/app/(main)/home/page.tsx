@@ -1,5 +1,5 @@
 "use client";
-import { useState, useRef, useEffect, Suspense } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo, memo, Suspense } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Play, ChevronLeft, ChevronRight, Star, Zap } from "lucide-react";
@@ -16,7 +16,7 @@ const CinematicParticles = dynamic(
   { ssr: false }
 );
 
-function HeroBanner() {
+const HeroBanner = memo(function HeroBanner() {
   const [timestamp, setTimestamp] = useState('');
 
   useEffect(() => {
@@ -73,11 +73,11 @@ function HeroBanner() {
       </p>
     </div>
   );
-}
+});
 
 /* ─── Section Divider ────────────────────────────────────────────────── */
 
-function SectionDivider() {
+const SectionDivider = memo(function SectionDivider() {
   return (
     <div className="w-full px-4 md:px-16 py-6" aria-hidden="true">
       <div style={{
@@ -86,7 +86,7 @@ function SectionDivider() {
       }} />
     </div>
   );
-}
+});
 
 const WATCH_KEY = "mente_ai_watch_progress_v1";
 const PROFILE_KEY = "mente_ai_profile_v1";
@@ -105,16 +105,19 @@ function getAgentImage(agentId: string): string {
 
 /* ─── Horizontal Scroll ──────────────────────────────────────────────── */
 
-function HorizontalScroll({ children, title, subtitle }: { children: React.ReactNode; title: string; subtitle?: string }) {
+const HorizontalScroll = memo(function HorizontalScroll({ children, title, subtitle }: { children: React.ReactNode; title: string; subtitle?: string }) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [showArrows, setShowArrows] = useState(false);
 
-  const scroll = (dir: number) => {
+  const scroll = useCallback((dir: number) => {
     if (scrollRef.current) scrollRef.current.scrollBy({ left: dir * 440, behavior: "smooth" });
-  };
+  }, []);
+
+  const handleMouseEnter = useCallback(() => setShowArrows(true), []);
+  const handleMouseLeave = useCallback(() => setShowArrows(false), []);
 
   return (
-    <div className="w-full" onMouseEnter={() => setShowArrows(true)} onMouseLeave={() => setShowArrows(false)}>
+    <div className="w-full" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
       {title && (
       <div className="flex items-center gap-4 mb-4 px-4 md:px-16">
         <h2 className="text-xl font-bold text-white">{title}</h2>
@@ -135,17 +138,21 @@ function HorizontalScroll({ children, title, subtitle }: { children: React.React
       </div>
     </div>
   );
-}
+});
 
 /* ─── Agent Card (premium poster) ────────────────────────────────────── */
 
-function AgentCard({ agent }: { agent: typeof agentsShowcase[0] }) {
+const AgentCard = memo(function AgentCard({ agent }: { agent: typeof agentsShowcase[0] }) {
   const [hovered, setHovered] = useState(false);
+
+  const handleMouseEnter = useCallback(() => setHovered(true), []);
+  const handleMouseLeave = useCallback(() => setHovered(false), []);
+
   return (
     <motion.div
       whileHover={{ scale: 1.06, y: -4 }}
       transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
-      onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}
+      onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}
       className="flex-shrink-0 cursor-pointer" style={{ width: 200 }}>
       <Link href={`/agentes/${agent.id}`}>
         <div className="relative rounded-lg overflow-hidden" style={{
@@ -157,7 +164,7 @@ function AgentCard({ agent }: { agent: typeof agentsShowcase[0] }) {
           border: hovered ? "1px solid rgba(0,245,255,0.5)" : "1px solid rgba(255,255,255,0.08)",
           transition: "all 350ms cubic-bezier(0.4, 0, 0.2, 1)",
         }}>
-          <img src={getAgentImage(agent.id)} alt={agent.name} className="h-full w-full object-cover" loading="lazy"
+          <img src={getAgentImage(agent.id)} alt={agent.name} className="h-full w-full object-cover" loading="lazy" decoding="async"
             onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/images/placeholder.svg"; }} />
           <div className="absolute inset-0" style={{
             background: hovered
@@ -194,7 +201,7 @@ function AgentCard({ agent }: { agent: typeof agentsShowcase[0] }) {
       </Link>
     </motion.div>
   );
-}
+});
 
 /* ─── Page ───────────────────────────────────────────────────────────── */
 
@@ -207,9 +214,9 @@ export default function HomePage() {
     setProfile(getProfile());
   }, []);
 
-  const completedCount = Object.values(watchMap).filter((w) => w.completed).length;
-  const totalXp = completedCount * 55;
-  const hasProgress = completedCount > 0;
+  const completedCount = useMemo(() => Object.values(watchMap).filter((w) => w.completed).length, [watchMap]);
+  const totalXp = useMemo(() => completedCount * 55, [completedCount]);
+  const hasProgress = useMemo(() => completedCount > 0, [completedCount]);
 
   return (
     <div className="min-h-screen homeContainer" style={{ background: "#0a0a1a" }}>

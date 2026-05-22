@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Play, ChevronLeft, ChevronRight, Clock, X } from 'lucide-react';
@@ -135,6 +135,7 @@ function EpisodeCard({ episode }: { episode: Episode }) {
         <img src={getThumb(episode.agentId)} alt={episode.title}
           className="h-full w-full object-cover"
           loading="lazy"
+          decoding="async"
           onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/images/placeholder.svg'; }} />
         <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.6), transparent)' }} />
 
@@ -176,9 +177,9 @@ function SeasonRow({ season, onPlay }: { season: Season; onPlay: () => void }) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [showArrows, setShowArrows] = useState(false);
 
-  const scroll = (dir: number) => {
+  const scroll = useCallback((dir: number) => {
     scrollRef.current?.scrollBy({ left: dir * 400, behavior: 'smooth' });
-  };
+  }, []);
 
   return (
     <div className="mb-10" onMouseEnter={() => setShowArrows(true)} onMouseLeave={() => setShowArrows(false)}>
@@ -224,6 +225,8 @@ function HeroBanner({ onPlay }: { onPlay: () => void }) {
       <div className="absolute inset-0">
         <img src={getThumb(s.primaryAgentId)} alt=""
           className="h-full w-full object-cover"
+          loading="lazy"
+          decoding="async"
           onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }} />
       </div>
 
