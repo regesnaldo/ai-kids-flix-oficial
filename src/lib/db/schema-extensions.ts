@@ -186,3 +186,95 @@ export const userInteractions = mysqlTable(
 
 export type UserInteraction = typeof userInteractions.$inferSelect;
 export type NewUserInteraction = typeof userInteractions.$inferInsert;
+
+// ═══════════════════════════════════════════════════════
+// MENTE.AI — Gamification: XP, Referrals, Rewards, Fraud
+// ═══════════════════════════════════════════════════════
+
+export const xpEvents = mysqlTable(
+  "xp_events",
+  {
+    id: varchar("id", { length: 36 }).primaryKey(),
+    userId: int("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+    amount: int("amount").notNull(),
+    reason: varchar("reason", { length: 50 }).notNull(),
+    agentId: varchar("agent_id", { length: 50 }),
+    season: int("season"),
+    episode: int("episode"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (t) => ({
+    idxUser: index("idx_xpe_user").on(t.userId),
+    idxUserDate: index("idx_xpe_user_date").on(t.userId, t.createdAt),
+    idxReason: index("idx_xpe_reason").on(t.reason),
+  }),
+);
+
+export type XpEvent = typeof xpEvents.$inferSelect;
+export type NewXpEvent = typeof xpEvents.$inferInsert;
+
+export const referrals = mysqlTable(
+  "referrals",
+  {
+    id: varchar("id", { length: 36 }).primaryKey(),
+    referrerId: int("referrer_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+    invitedId: int("invited_id").references(() => users.id, { onDelete: "set null" }),
+    invitedEmail: varchar("invited_email", { length: 320 }),
+    ipAddress: varchar("ip_address", { length: 45 }),
+    fingerprint: varchar("fingerprint", { length: 255 }),
+    valid: boolean("valid").default(false),
+    validatedAt: timestamp("validated_at"),
+    validationReason: varchar("validation_reason", { length: 255 }),
+    linkCode: varchar("link_code", { length: 20 }).unique(),
+    expiresAt: timestamp("expires_at"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (t) => ({
+    idxReferrer: index("idx_ref_referrer").on(t.referrerId),
+    idxInvited: index("idx_ref_invited").on(t.invitedId),
+    idxLinkCode: index("idx_ref_link").on(t.linkCode),
+    idxValid: index("idx_ref_valid").on(t.valid),
+  }),
+);
+
+export type Referral = typeof referrals.$inferSelect;
+export type NewReferral = typeof referrals.$inferInsert;
+
+export const rewards = mysqlTable(
+  "rewards",
+  {
+    id: varchar("id", { length: 36 }).primaryKey(),
+    userId: int("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+    level: int("level").notNull(),
+    type: varchar("type", { length: 50 }).notNull(),
+    code: varchar("code", { length: 100 }),
+    claimedAt: timestamp("claimed_at"),
+    expiresAt: timestamp("expires_at"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (t) => ({
+    idxUser: index("idx_rwd_user").on(t.userId),
+    idxLevel: index("idx_rwd_level").on(t.level),
+  }),
+);
+
+export type Reward = typeof rewards.$inferSelect;
+export type NewReward = typeof rewards.$inferInsert;
+
+export const fraudLog = mysqlTable(
+  "fraud_log",
+  {
+    id: varchar("id", { length: 36 }).primaryKey(),
+    userId: int("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+    reason: varchar("reason", { length: 255 }).notNull(),
+    riskScore: int("risk_score").default(0),
+    flaggedAt: timestamp("flagged_at").defaultNow().notNull(),
+  },
+  (t) => ({
+    idxUser: index("idx_fl_user").on(t.userId),
+    idxScore: index("idx_fl_score").on(t.riskScore),
+  }),
+);
+
+export type FraudLogEntry = typeof fraudLog.$inferSelect;
+export type NewFraudLogEntry = typeof fraudLog.$inferInsert;

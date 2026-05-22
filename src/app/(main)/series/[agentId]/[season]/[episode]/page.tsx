@@ -4,17 +4,10 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  ArrowLeft,
-  ArrowRight,
-  ChevronLeft,
-  ChevronRight,
-  Loader2,
-  Play,
-  Sparkles,
-} from "lucide-react";
+import { ArrowLeft, ChevronLeft, ChevronRight, Loader2, Play, Sparkles, Zap } from "lucide-react";
 import { allAgents } from "@/data/all-agents";
 import { useDeepSeek } from "@/hooks/useDeepSeek";
+import { queueConquest } from "@/components/gamification/ConquestNotification";
 
 /* ─── Types ─────────────────────────────────────────────────────────── */
 
@@ -88,6 +81,40 @@ export default function ScreenplayPlayerPage() {
   const [selectedChoice, setSelectedChoice] = useState<number | null>(null);
   const [continuationText, setContinuationText] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [xpAwarded, setXpAwarded] = useState(0);
+
+  // Award XP when episode completes
+  useEffect(() => {
+    if (phase !== "fim" || xpAwarded > 0) return;
+    (async () => {
+      try {
+        const res = await fetch("/api/xp/award", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            reason: "episode_complete",
+            agentId,
+            season,
+            episode,
+            choicesMade: selectedChoice !== null,
+            firstOfDay: true,
+          }),
+        });
+        const data = await res.json();
+        if (data.success) {
+          setXpAwarded(data.awarded);
+          queueConquest({
+            id: `${agentId}_s${season}_e${episode}`,
+            xp: data.awarded,
+            message: "Episódio concluído!",
+            agent: agent?.name,
+            season,
+            episode,
+          });
+        }
+      } catch {}
+    })();
+  }, [phase, xpAwarded, agentId, season, episode, selectedChoice, agent]);
 
   // Typewriter for each phase
   const { displayed: displayedAbertura, done: aberturaDone } = useTypewriter(
@@ -550,6 +577,17 @@ Seja cinematográfico, imersivo, inspirador.`,
               <h2 className="text-white text-2xl font-bold mb-2">
                 Episódio {episode} Concluído
               </h2>
+              {xpAwarded > 0 && (
+                <motion.p
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: "spring", delay: 0.3 }}
+                  className="text-lg font-bold mb-4 flex items-center justify-center gap-2"
+                  style={{ color: "var(--neon-cyan)" }}
+                >
+                  <Zap size={20} /> +{xpAwarded} XP
+                </motion.p>
+              )}
               <p className="text-gray-400 text-sm mb-8 max-w-md mx-auto">
                 {screenplay?.encerramento?.slice(0, 120)}
               </p>
