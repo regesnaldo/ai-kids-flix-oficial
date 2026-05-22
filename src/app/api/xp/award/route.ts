@@ -18,6 +18,7 @@ export async function POST(request: NextRequest) {
       episode?: number;
       choicesMade?: boolean;
       firstOfDay?: boolean;
+      rollbackUsed?: boolean;
     };
 
     if (!body.reason) return NextResponse.json({ error: "reason é obrigatório" }, { status: 400 });
@@ -27,6 +28,10 @@ export async function POST(request: NextRequest) {
     if (body.reason === "episode_complete") amount += XP.EPISODE_COMPLETE;
     if (body.choicesMade) amount += XP.ALL_CHOICES_MADE;
     if (body.firstOfDay) amount += XP.FIRST_EPISODE_DAY;
+    if (body.reason === "lab_experiment_complete") {
+      amount += XP.LAB_EXPERIMENT;
+      if (body.rollbackUsed) amount += XP.LAB_ROLLBACK_BONUS;
+    }
 
     if (amount <= 0) return NextResponse.json({ error: "Nenhum XP a conceder" }, { status: 400 });
 
