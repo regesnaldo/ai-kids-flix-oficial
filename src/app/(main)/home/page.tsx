@@ -8,6 +8,7 @@ import NexusEntry from "@/components/home/NexusEntry";
 import JourneyCards from "@/components/home/JourneyCards";
 import UniversesGrid from "@/components/home/UniversesGrid";
 import FinalCTA from "@/components/home/FinalCTA";
+import CinematicParticles from "@/components/home/CinematicParticles";
 import { agentsShowcase } from "@/data/agents-showcase";
 
 function HeroBanner() {
@@ -276,7 +277,10 @@ export default function HomePage() {
       `}</style>
 
       {/* HERO: NEXUS cinematic entry */}
-      <NexusEntry />
+      <div style={{ position: "relative" }}>
+        <NexusEntry />
+        <CinematicParticles />
+      </div>
 
       {/* Transition gradient */}
       <div style={{
