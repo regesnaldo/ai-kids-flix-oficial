@@ -32,7 +32,7 @@ export default function Navigation() {
     { label: 'Séries', href: '/series' },
     { label: 'Blog', href: '/blog' },
     { label: 'Explorar', href: '/explorar' },
-    { label: 'Agentes', href: '/agentes' },
+    { label: 'Lab', href: '/lab' },
   ] as const;
 
   useEffect(() => {
@@ -230,11 +230,11 @@ export default function Navigation() {
             ))}
 
             <Link
-              href="/agentes"
+              href="/lab"
               className="block text-sm text-zinc-300 hover:text-white transition"
               onClick={() => setMobileOpen(false)}
             >
-              Agentes
+              Lab
             </Link>
 
             <div className="pt-2 border-t border-zinc-800" />
