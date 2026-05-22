@@ -1,6 +1,7 @@
 import "./globals.css";
 import type { Metadata, Viewport } from "next";
 import { Space_Grotesk } from "next/font/google";
+import GamificationWrapper from "@/components/gamification/GamificationWrapper";
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
@@ -91,7 +92,7 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" className={`${spaceGrotesk.variable} m-0`} style={{ backgroundColor: "var(--cyber-black)" }}>
       <body className="m-0 p-0 box-border" style={{ backgroundColor: "var(--cyber-black)", color: "white", fontFamily: "var(--font-display)" }}>
-        {children}
+        <GamificationWrapper>{children}</GamificationWrapper>
       </body>
     </html>
   );

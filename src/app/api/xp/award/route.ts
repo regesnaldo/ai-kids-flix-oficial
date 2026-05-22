@@ -60,7 +60,27 @@ export async function GET(request: NextRequest) {
     const userId = parseInt(payload.userId, 10);
     const data = await getUserXpData(userId);
 
-    return NextResponse.json({ ...data, dailyCeiling: XP.DAILY_CEILING });
+    // Count episodes watched (distinct episode+season from xp_events)
+    const { db } = await import("@/lib/db");
+    const { xpEvents } = await import("@/lib/db/schema-extensions");
+    const { eq, and, isNotNull, sql } = await import("drizzle-orm");
+    
+    const [epCount] = await db.select({ count: sql<number>`COUNT(DISTINCT CONCAT(COALESCE(season, ''), '-', COALESCE(episode, '')))` })
+      .from(xpEvents)
+      .where(and(eq(xpEvents.userId, userId), isNotNull(xpEvents.episode)));
+    
+    // Count valid referrals
+    const { referrals } = await import("@/lib/db/schema-extensions");
+    const [refCount] = await db.select({ count: sql<number>`COUNT(*)` })
+      .from(referrals)
+      .where(and(eq(referrals.referrerId, userId), eq(referrals.valid, true)));
+
+    return NextResponse.json({
+      ...data,
+      dailyCeiling: XP.DAILY_CEILING,
+      episodeCount: Number(epCount?.count ?? 0),
+      validReferrals: Number(refCount?.count ?? 0),
+    });
   } catch (err) {
     return NextResponse.json({ error: String(err) }, { status: 500 });
   }
