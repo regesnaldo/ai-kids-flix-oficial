@@ -38,7 +38,6 @@ const MANIFESTO = [
 const CHAR_SPEED = 35;
 
 function ManifestoContent() {
-  const [visibleLines, setVisibleLines] = useState(0);
   const [currentChar, setCurrentChar] = useState(0);
   const [done, setDone] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -71,17 +70,34 @@ function ManifestoContent() {
     : lastLine;
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-6" style={{ background: "#050510" }}>
-      <div className="max-w-[680px] w-full">
+    <div className="min-h-screen flex flex-col items-center justify-center px-6" style={{ background: "var(--dark-bg)" }}>
+      {/* Ambient glow */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full blur-[150px] opacity-[0.04]" style={{ background: "var(--accent-cyan)" }} />
+      </div>
+
+      <div className="relative max-w-[680px] w-full">
         {linesToShow.slice(0, -1).map((line, i) => (
-          <p key={i} className="text-white/90 text-lg md:text-2xl leading-relaxed mb-1" style={{ fontFamily: "var(--font-display)", fontWeight: line.startsWith("//") ? 700 : 400 }}>
-            {line || " "}
+          <p
+            key={i}
+            className="text-white/90 text-lg md:text-2xl leading-relaxed mb-1 tracking-tight"
+            style={{
+              fontFamily: "var(--font-display)",
+              fontWeight: line.startsWith("//") ? 700 : 400,
+            }}
+          >
+            {line || "\u00A0"}
           </p>
         ))}
         {!done && (
           <p className="text-white/90 text-lg md:text-2xl leading-relaxed mb-1" style={{ fontFamily: "var(--font-display)" }}>
             {displayLast}
-            <motion.span animate={{ opacity: [1, 0] }} transition={{ repeat: Infinity, duration: 0.8 }} className="inline-block" style={{ color: "var(--neon-cyan)" }}>
+            <motion.span
+              animate={{ opacity: [1, 0] }}
+              transition={{ repeat: Infinity, duration: 0.8 }}
+              className="inline-block"
+              style={{ color: "var(--accent-cyan)" }}
+            >
               ▌
             </motion.span>
           </p>
@@ -89,16 +105,31 @@ function ManifestoContent() {
 
         {/* CTA Button */}
         {done && (
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }} className="mt-12 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            className="mt-14 text-center"
+          >
             <Link
               href="/series"
-              className="inline-flex px-8 py-4 rounded-lg text-lg font-bold transition"
-              style={{ background: "var(--neon-cyan)", color: "#050510", boxShadow: "0 0 32px rgba(0,240,255,0.2)" }}
+              className="inline-flex px-8 py-4 rounded-xl text-lg font-bold transition-all duration-300 hover:scale-105"
+              style={{
+                background: "var(--accent-cyan)",
+                color: "var(--dark-bg)",
+                boxShadow: "0 0 40px rgba(0,245,255,0.15)",
+              }}
             >
               Começar Jornada
             </Link>
-            <p className="text-gray-600 text-sm mt-4">
-              <Link href="/blog" className="hover:text-gray-400 transition">← Voltar ao Blog</Link>
+            <p className="mt-6">
+              <Link
+                href="/blog"
+                className="text-sm transition-colors hover:opacity-80"
+                style={{ color: "var(--accent-cyan)" }}
+              >
+                ← Voltar ao Blog
+              </Link>
             </p>
           </motion.div>
         )}

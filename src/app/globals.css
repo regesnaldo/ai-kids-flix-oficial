@@ -25,6 +25,11 @@
   --color-match-mid: #f59e0b;
   --color-match-low: #ef4444;
 
+  /* Blog — Premium Dark Blue */
+  --color-dark-bg: #0e1420;
+  --color-dark-card: #161d2e;
+  --color-accent-cyan: #00f5ff;
+
   /* Typography */
   --font-display: "Space Grotesk", "Plus Jakarta Sans", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", monospace;
@@ -56,6 +61,11 @@
     --match-high: #10b981;
     --match-mid: #f59e0b;
     --match-low: #ef4444;
+
+    /* Blog — Premium Dark Blue */
+    --dark-bg: #0e1420;
+    --dark-card: #161d2e;
+    --accent-cyan: #00f5ff;
 
     /* Typography */
     --font-display: "Space Grotesk", "Plus Jakarta Sans", system-ui, sans-serif;

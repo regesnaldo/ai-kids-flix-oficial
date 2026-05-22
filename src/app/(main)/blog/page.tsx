@@ -19,7 +19,7 @@ interface Post {
   publishedAt: string;
 }
 
-const CATEGORIES = ["Tudo", "IA Geral", "Negócios", "Crianças", "Ética", "Futuro", "Ferramentas"];
+const CATEGORIES = ["Tudo", "IA Geral", "Negócios", "Crianças", "Ética", "Futuro", "Ferramentas"] as const;
 
 export default function BlogPage() {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -44,62 +44,87 @@ export default function BlogPage() {
   const gridPosts = filtered.slice(1);
 
   return (
-    <main className="min-h-screen" style={{ background: "var(--cyber-black)" }}>
+    <main className="min-h-screen" style={{ background: "var(--dark-bg)" }}>
+      {/* Background ambient */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute top-0 left-1/4 w-[600px] h-[600px] rounded-full blur-[120px] opacity-[0.04]" style={{ background: "var(--accent-cyan)" }} />
+        <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] rounded-full blur-[100px] opacity-[0.03]" style={{ background: "var(--accent-cyan)" }} />
+      </div>
+
       {/* Header */}
-      <header className="px-6 md:px-12 pt-24 pb-6 border-b border-white/5" style={{ background: 'linear-gradient(to bottom, rgba(0,240,255,0.03), transparent)' }}>
+      <header className="relative px-6 md:px-12 pt-28 pb-8 border-b border-white/[0.04]">
         <div className="max-w-6xl mx-auto">
-          <p className="text-[11px] font-mono uppercase tracking-[0.2em] mb-3" style={{ color: "var(--neon-cyan)" }}>
-            // MENTE.AI — INTELIGÊNCIA EM MOVIMENTO
+          <p className="text-[11px] font-mono uppercase tracking-[0.25em] mb-4" style={{ color: "var(--accent-cyan)" }}>
+            MENTE.AI — INTELIGÊNCIA EM MOVIMENTO
           </p>
-          <h1 className="text-4xl md:text-6xl font-black text-white tracking-tight" style={{ fontFamily: "var(--font-display)" }}>
+          <h1 className="text-5xl md:text-7xl font-black text-white tracking-tight" style={{ fontFamily: "var(--font-display)" }}>
             Blog
           </h1>
-          <p className="text-gray-400 mt-2 max-w-xl">
+          <p className="text-white/50 mt-3 max-w-xl text-base leading-relaxed">
             Curadoria diária de IA pelos agentes do MENTE.AI. Notícias, análises e reflexões geradas pela DeepSeek.
           </p>
         </div>
       </header>
 
-      <div className="max-w-6xl mx-auto px-6 md:px-12 py-8">
-        {/* Filters */}
-        <div className="flex flex-wrap gap-2 mb-8">
-          {CATEGORIES.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setActiveFilter(cat)}
-              className="px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors duration-200"
-              style={{
-                background: activeFilter === cat ? "var(--neon-cyan)18" : "rgba(255,255,255,0.04)",
-                color: activeFilter === cat ? "var(--neon-cyan)" : "rgba(255,255,255,0.6)",
-                border: activeFilter === cat ? "1px solid var(--neon-cyan)30" : "1px solid rgba(255,255,255,0.06)",
-              }}
-            >
-              {cat}
-            </button>
-          ))}
+      <div className="relative max-w-6xl mx-auto px-6 md:px-12 py-8">
+        {/* Filter pills */}
+        <div className="flex flex-wrap gap-2 mb-10">
+          {CATEGORIES.map((cat) => {
+            const isActive = activeFilter === cat;
+            return (
+              <button
+                key={cat}
+                onClick={() => setActiveFilter(cat)}
+                className={`px-4 py-2 rounded-full text-sm font-bold transition-all duration-300 ${
+                  isActive
+                    ? "border text-[var(--accent-cyan)]"
+                    : "border border-white/10 text-white/40 hover:border-white/25 hover:text-white/70"
+                }`}
+                style={isActive ? {
+                  background: "rgba(0,245,255,0.08)",
+                  borderColor: "var(--accent-cyan)",
+                } : {
+                  background: "rgba(255,255,255,0.02)",
+                }}
+              >
+                {cat}
+              </button>
+            );
+          })}
         </div>
 
-        {/* Loading */}
+        {/* Loading skeleton */}
         {loading && (
           <div className="space-y-4">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-32 rounded-xl shimmer" style={{ background: "#1a1a2e" }} />
+              <div key={i} className="h-36 rounded-xl shimmer" style={{ background: "var(--dark-card)" }} />
             ))}
           </div>
         )}
 
         {/* Hero post */}
         {!loading && heroPost && (
-          <div className="mb-8">
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-10"
+          >
             <PostCardHero {...heroPost} summary={heroPost.summary || ""} />
-          </div>
+          </motion.div>
         )}
 
         {/* Grid */}
         {!loading && gridPosts.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {gridPosts.map((post) => (
-              <PostCard key={post.id} {...post} summary={post.summary || ""} />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {gridPosts.map((post, i) => (
+              <motion.div
+                key={post.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.05 }}
+              >
+                <PostCard {...post} summary={post.summary || ""} />
+              </motion.div>
             ))}
           </div>
         )}
@@ -107,16 +132,23 @@ export default function BlogPage() {
         {/* Empty */}
         {!loading && filtered.length === 0 && (
           <div className="text-center py-20">
-            <BookOpen size={40} className="mx-auto mb-4 text-gray-600" />
-            <p className="text-gray-500">Nenhum post nesta categoria ainda.</p>
-            <p className="text-gray-600 text-sm mt-1">Volte amanhã — um novo post é gerado todo dia às 8h.</p>
+            <BookOpen size={40} className="mx-auto mb-4 opacity-30" style={{ color: "var(--accent-cyan)" }} />
+            <p className="text-white/30">Nenhum post nesta categoria ainda.</p>
+            <p className="text-white/15 text-sm mt-1">Volte amanhã — um novo post é gerado todo dia às 8h.</p>
           </div>
         )}
 
-        {/* Manifesto link footer */}
-        <div className="mt-16 pt-8 border-t border-white/5 text-center">
-          <Link href="/blog/manifesto" className="text-sm text-gray-500 hover:text-white transition underline underline-offset-4">
-            // O QUE ACREDITAMOS
+        {/* Manifesto link */}
+        <div className="mt-20 pt-8 border-t border-white/[0.04] text-center">
+          <span className="text-[10px] font-mono uppercase tracking-[0.3em] text-white/15 block mb-2">
+            O QUE ACREDITAMOS
+          </span>
+          <Link
+            href="/blog/manifesto"
+            className="text-sm tracking-wide transition-colors duration-300"
+            style={{ color: "var(--accent-cyan)" }}
+          >
+            Leia o manifesto →
           </Link>
         </div>
       </div>

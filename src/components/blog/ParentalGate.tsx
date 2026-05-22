@@ -28,7 +28,7 @@ export function ParentalGate({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(5,5,16,0.95)', backdropFilter: 'blur(8px)' }}>
       <div className="text-center max-w-sm px-8">
-        <Lock size={40} className="mx-auto mb-4" style={{ color: 'var(--neon-cyan)' }} />
+        <Lock size={40} className="mx-auto mb-4" style={{ color: 'var(--accent-cyan)' }} />
         <h2 className="text-white text-xl font-bold mb-2">Conteúdo +{ageRating === 'teen' ? '12' : '18'}</h2>
         <p className="text-gray-400 text-sm mb-6">
           Este conteúdo é para maiores de {ageRating === 'teen' ? '12' : '18'} anos.
@@ -47,7 +47,7 @@ export function ParentalGate({
           <button
             type="submit"
             className="w-full py-3 rounded-lg text-sm font-bold transition"
-            style={{ background: 'var(--neon-cyan)', color: '#050510' }}
+            style={{ background: 'var(--accent-cyan)', color: '#050510' }}
           >
             Liberar Conteúdo
           </button>
