@@ -278,3 +278,80 @@ export const fraudLog = mysqlTable(
 
 export type FraudLogEntry = typeof fraudLog.$inferSelect;
 export type NewFraudLogEntry = typeof fraudLog.$inferInsert;
+
+// ═══════════════════════════════════════════════════════
+// MENTE.AI — Blog: Posts, Reads, Parental Controls
+// ═══════════════════════════════════════════════════════
+
+export const blogPosts = mysqlTable(
+  "blog_posts",
+  {
+    id: varchar("id", { length: 36 }).primaryKey(),
+    slug: varchar("slug", { length: 255 }).unique().notNull(),
+    title: varchar("title", { length: 500 }).notNull(),
+    summary: varchar("summary", { length: 500 }),
+    content: text("content").notNull(),
+    openingScene: text("opening_scene"),
+    category: varchar("category", { length: 100 }).notNull(),
+    agentId: varchar("agent_id", { length: 50 }),
+    agentCommentary: text("agent_commentary"),
+    interactivePause: json("interactive_pause").$type<{
+      pergunta: string;
+      opcoes: [string, string, string];
+      continuacoes: [string, string, string];
+    }>(),
+    ageRating: varchar("age_rating", { length: 10 }).default("all"),
+    xpReward: int("xp_reward").default(5),
+    whatsappText: text("whatsapp_text"),
+    generatedBy: varchar("generated_by", { length: 50 }).default("deepseek"),
+    publishedAt: timestamp("published_at").defaultNow().notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (t) => ({
+    idxSlug: index("idx_bp_slug").on(t.slug),
+    idxCategory: index("idx_bp_cat").on(t.category),
+    idxPublished: index("idx_bp_pub").on(t.publishedAt),
+  }),
+);
+
+export type BlogPost = typeof blogPosts.$inferSelect;
+export type NewBlogPost = typeof blogPosts.$inferInsert;
+
+export const blogReads = mysqlTable(
+  "blog_reads",
+  {
+    id: varchar("id", { length: 36 }).primaryKey(),
+    userId: int("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+    postId: varchar("post_id", { length: 36 }).notNull(),
+    completed: boolean("completed").default(false),
+    choiceMade: varchar("choice_made", { length: 1 }),
+    xpAwarded: int("xp_awarded").default(0),
+    readAt: timestamp("read_at").defaultNow().notNull(),
+  },
+  (t) => ({
+    idxUserPost: uniqueIndex("idx_br_user_post").on(t.userId, t.postId),
+    idxUser: index("idx_br_user").on(t.userId),
+  }),
+);
+
+export type BlogRead = typeof blogReads.$inferSelect;
+
+export const parentControls = mysqlTable(
+  "parent_controls",
+  {
+    id: varchar("id", { length: 36 }).primaryKey(),
+    parentId: int("parent_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+    childId: int("child_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+    timeLimitMinutes: int("time_limit_minutes").default(60),
+    allowedCategories: json("allowed_categories").$type<string[]>().default([]),
+    pin: varchar("pin", { length: 6 }),
+    weeklyReport: boolean("weekly_report").default(true),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (t) => ({
+    uniqParentChild: uniqueIndex("idx_pc_pair").on(t.parentId, t.childId),
+  }),
+);
+
+export type ParentControl = typeof parentControls.$inferSelect;
+export type NewParentControl = typeof parentControls.$inferInsert;

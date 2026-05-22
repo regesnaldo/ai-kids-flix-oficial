@@ -23,8 +23,17 @@
     },
     "src/app/api/lab/transformer/route.ts": {
       "maxDuration": 30
+    },
+    "src/app/api/blog/generate/route.ts": {
+      "maxDuration": 60
     }
   },
+  "crons": [
+    {
+      "path": "/api/blog/generate",
+      "schedule": "0 8 * * *"
+    }
+  ],
   "headers": [
     {
       "source": "/(.*)",

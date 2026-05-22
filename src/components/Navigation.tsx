@@ -30,6 +30,7 @@ export default function Navigation() {
   const navItems = [
     { label: 'Início', href: '/home' },
     { label: 'Séries', href: '/series' },
+    { label: 'Blog', href: '/blog' },
     { label: 'Explorar', href: '/explorar' },
     { label: 'Agentes', href: '/agentes' },
   ] as const;
