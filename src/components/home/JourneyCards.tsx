@@ -3,6 +3,7 @@
 import { memo } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { getAgentImage, AGENT_IMAGE_FALLBACK } from "@/lib/getAgentImage";
 
 type Journey = {
   id: string;
@@ -80,12 +81,12 @@ const JourneyCard = memo(function JourneyCard({ journey }: { journey: Journey })
         {/* Agent background image */}
         <div className="absolute inset-0">
           <img
-            src={`/images/agentes/${journey.agentId}.png`}
+            src={getAgentImage(journey.agentId)}
             alt={journey.agent}
+            onError={(e) => { e.currentTarget.src = AGENT_IMAGE_FALLBACK; }}
             className="w-full h-full object-cover brightness-[0.3] scale-110 group-hover:brightness-[0.45] transition-all duration-500"
             loading="lazy"
             decoding="async"
-            onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/images/placeholder.svg"; }}
           />
         </div>
 

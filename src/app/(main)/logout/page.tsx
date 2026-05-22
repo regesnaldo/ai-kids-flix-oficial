@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
+import { getAgentImage } from '@/lib/getAgentImage';
 
 export default function LogoutPage() {
   const router = useRouter();
@@ -31,7 +32,7 @@ export default function LogoutPage() {
 
   return (
     <div className="min-h-screen bg-black relative overflow-hidden">
-      <Image src="/images/agentes/nexus.png" alt="MENTE.AI" fill priority className="object-cover opacity-30" />
+      <Image src={getAgentImage("nexus")} alt="MENTE.AI" fill priority className="object-cover opacity-30" />
       <div className="absolute inset-0 bg-black/55" />
 
       <header className="relative z-10 flex items-center justify-between px-6 md:px-12 py-6">

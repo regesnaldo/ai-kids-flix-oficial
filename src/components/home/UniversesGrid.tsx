@@ -4,6 +4,7 @@ import { memo } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { allAgents, type HomeAgent } from "@/data/all-agents";
+import { getAgentImage, AGENT_IMAGE_FALLBACK } from "@/lib/getAgentImage";
 
 const GLOW_COLORS: Record<string, string> = {
   nexus: "rgba(0,212,255,0.5)",
@@ -34,12 +35,12 @@ const UniverseCard = memo(function UniverseCard({ agent }: { agent: HomeAgent })
         {/* Agent image background */}
         <div className="absolute inset-0">
           <img
-            src={`/images/agentes/${agent.id}.png`}
+            src={getAgentImage(agent.id)}
             alt={agent.name}
+            onError={(e) => { e.currentTarget.src = AGENT_IMAGE_FALLBACK; }}
             className="w-full h-full object-cover brightness-[0.55] group-hover:brightness-[0.8] transition-all duration-400"
             loading="lazy"
             decoding="async"
-            onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/images/placeholder.svg"; }}
           />
         </div>
 

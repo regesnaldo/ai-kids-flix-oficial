@@ -2,6 +2,7 @@
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { t } from '@/lib/translations';
+import { getAgentImage, AGENT_IMAGE_FALLBACK } from '@/lib/getAgentImage';
 import type { AgentDefinition } from '@/canon/agents/all-agents';
 
 interface AgentCardProps {
@@ -34,11 +35,11 @@ export default function AgentCard({ agent }: AgentCardProps) {
     >
       <div className="relative bg-gray-950 rounded-xl overflow-hidden h-full aspect-[2/3]">
         <img
-          src={`/images/agentes/${agent.id}.png`}
+          src={getAgentImage(agent.id)}
           alt={agent.name}
           className="absolute inset-0 w-full h-full object-cover"
           onError={(e) => {
-            e.currentTarget.style.display = 'none';
+            e.currentTarget.src = AGENT_IMAGE_FALLBACK;
           }}
         />
 

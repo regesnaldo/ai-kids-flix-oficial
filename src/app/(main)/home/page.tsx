@@ -10,6 +10,7 @@ import UniversesGrid from "@/components/home/UniversesGrid";
 import FinalCTA from "@/components/home/FinalCTA";
 import dynamic from "next/dynamic";
 import { agentsShowcase } from "@/data/agents-showcase";
+import { getAgentImage, AGENT_IMAGE_FALLBACK } from "@/lib/getAgentImage";
 
 const CinematicParticles = dynamic(
   () => import("@/components/home/CinematicParticles"),
@@ -97,10 +98,6 @@ function getWatchMap(): Record<string, { watchedPct: number; completed: boolean 
 
 function getProfile(): { archetype?: string; emotionalScore?: number } {
   try { return JSON.parse(globalThis.localStorage?.getItem(PROFILE_KEY) || "{}"); } catch { return {}; }
-}
-
-function getAgentImage(agentId: string): string {
-  return `/images/agentes/${agentId.toLowerCase()}.png`;
 }
 
 /* ─── Horizontal Scroll ──────────────────────────────────────────────── */

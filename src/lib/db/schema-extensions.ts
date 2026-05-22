@@ -32,13 +32,13 @@ export const contentMetadata = mysqlTable(
     difficulty: int("difficulty").default(1),
 
     // Tags e gêneros para motor de recomendação
-    tags: json("tags").$type<string[]>().default([]),
-    genres: json("genres").$type<string[]>().default([]),
-    moods: json("moods").$type<string[]>().default([]),
+    tags: json("tags").$type<string[]>(),
+    genres: json("genres").$type<string[]>(),
+    moods: json("moods").$type<string[]>(),
 
     // Agentes principais envolvidos
-    primaryAgents: json("primary_agents").$type<string[]>().default([]),
-    secondaryAgents: json("secondary_agents").$type<string[]>().default([]),
+    primaryAgents: json("primary_agents").$type<string[]>(),
+    secondaryAgents: json("secondary_agents").$type<string[]>(),
 
     // Métricas de engajamento
     avgCompletionRate: decimal("avg_completion_rate", { precision: 5, scale: 2 }).default("0"),
@@ -51,7 +51,6 @@ export const contentMetadata = mysqlTable(
   },
   (t) => ({
     idxSeries: index("idx_cm_series").on(t.seriesId),
-    idxTags: index("idx_cm_tags").on(t.tags),
     idxMatch: index("idx_cm_match").on(t.matchBaseScore),
   }),
 );
@@ -343,7 +342,7 @@ export const parentControls = mysqlTable(
     parentId: int("parent_id").notNull().references(() => users.id, { onDelete: "cascade" }),
     childId: int("child_id").notNull().references(() => users.id, { onDelete: "cascade" }),
     timeLimitMinutes: int("time_limit_minutes").default(60),
-    allowedCategories: json("allowed_categories").$type<string[]>().default([]),
+    allowedCategories: json("allowed_categories").$type<string[]>(),
     pin: varchar("pin", { length: 6 }),
     weeklyReport: boolean("weekly_report").default(true),
     createdAt: timestamp("created_at").defaultNow().notNull(),

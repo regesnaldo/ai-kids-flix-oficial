@@ -7,6 +7,7 @@ import { motion, useScroll, useTransform } from 'framer-motion';
 import type { AgentDefinition } from '@/canon/agents/all-agents';
 import AgentChat from '@/components/AgentChat';
 import { t } from '@/lib/translations';
+import { getAgentImage } from '@/lib/getAgentImage';
 
 interface AgentDetailClientProps {
   agent: AgentDefinition;
@@ -20,14 +21,14 @@ export default function AgentDetailClient({ agent }: AgentDetailClientProps) {
 
   const visuals = useMemo(() => {
     const byId: Record<string, { avatar: string; color: string; title: string }> = {
-      nexus: { avatar: '/images/agentes/nexus.png', color: '#3B82F6', title: 'O Conector' },
-      volt: { avatar: '/images/agentes/volt.png', color: '#F59E0B', title: 'O Energético' },
-      aurora: { avatar: '/images/agentes/aurora.png', color: '#EC4899', title: 'A Criadora' },
-      ethos: { avatar: '/images/agentes/ethos.png', color: '#22C55E', title: 'O Filósofo' },
+      nexus: { avatar: getAgentImage('nexus'), color: '#3B82F6', title: 'O Conector' },
+      volt: { avatar: getAgentImage('volt'), color: '#F59E0B', title: 'O Energético' },
+      aurora: { avatar: getAgentImage('aurora'), color: '#EC4899', title: 'A Criadora' },
+      ethos: { avatar: getAgentImage('ethos'), color: '#22C55E', title: 'O Filósofo' },
     };
 
     return byId[agent.id] ?? {
-      avatar: `/images/agentes/${agent.id}.png`,
+      avatar: getAgentImage(agent.id),
       color: '#3B82F6',
       title: `${t(`dimensions.${agent.dimension}`)} ${t(`levels.${agent.level}`)}`,
     };
