@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Bell, ChevronDown, Menu, Search, X } from 'lucide-react';
+import { Bell, Menu, Search, X } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 type SessionUser = {
@@ -21,9 +21,7 @@ export default function Navigation() {
   const router = useRouter();
   const [session, setSession] = useState<SessionState>({ authenticated: false, user: null });
   const [accountOpen, setAccountOpen] = useState(false);
-  const [temasOpen, setTemasOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [mobileTemasOpen, setMobileTemasOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -33,37 +31,7 @@ export default function Navigation() {
     { label: 'Início', href: '/home' },
     { label: 'Séries', href: '/series' },
     { label: 'Explorar', href: '/explorar' },
-  ] as const;
-
-  const temasColumns = [
-    [
-      { label: 'Fundamentos de IA', slug: 'fundamentos' },
-      { label: 'Machine Learning', slug: 'machine-learning' },
-      { label: 'Redes Neurais', slug: 'redes-neurais' },
-      { label: 'Deep Learning', slug: 'deep-learning' },
-      { label: 'Computer Vision', slug: 'computer-vision' },
-      { label: 'Processamento de Linguagem', slug: 'nlp' },
-      { label: 'IA Generativa', slug: 'ia-generativa' },
-      { label: 'Ética em IA', slug: 'etica-ia' },
-    ],
-    [
-      { label: 'IA e Criatividade', slug: 'ia-criatividade' },
-      { label: 'Robótica e Automação', slug: 'robotica' },
-      { label: 'IA para Crianças', slug: 'ia-criancas' },
-      { label: 'IA nos Negócios', slug: 'ia-negocios' },
-      { label: 'Segurança e IA', slug: 'seguranca' },
-      { label: 'Futuro da IA', slug: 'futuro-ia' },
-      { label: 'Projetos Práticos', slug: 'projetos' },
-    ],
-    [
-      { label: 'Como me sinto hoje?', slug: 'emocional' },
-      { label: 'Para iniciantes', slug: 'iniciantes' },
-      { label: 'Para avançados', slug: 'avancados' },
-      { label: 'Para crianças', slug: 'criancas' },
-      { label: 'Missões especiais', slug: 'missoes' },
-      { label: 'Agentes em dupla', slug: 'duplas' },
-      { label: 'Desafios', slug: 'desafios' },
-    ],
+    { label: 'Agentes', href: '/agentes' },
   ] as const;
 
   useEffect(() => {
@@ -101,9 +69,7 @@ export default function Navigation() {
       if (!containerRef.current) return;
       if (!containerRef.current.contains(event.target as Node)) {
         setAccountOpen(false);
-        setTemasOpen(false);
         setMobileOpen(false);
-        setMobileTemasOpen(false);
       }
     }
 
@@ -115,9 +81,7 @@ export default function Navigation() {
 
   useEffect(() => {
     setAccountOpen(false);
-    setTemasOpen(false);
     setMobileOpen(false);
-    setMobileTemasOpen(false);
     setSearchOpen(false);
   }, [pathname]);
 
@@ -178,41 +142,6 @@ export default function Navigation() {
               </Link>
             ))}
 
-            <div className="relative">
-              <button
-                type="button"
-                onClick={() => setTemasOpen((v) => !v)}
-                className="text-sm text-zinc-300 hover:text-white transition inline-flex items-center gap-1"
-                aria-expanded={temasOpen}
-              >
-                Temas
-                <ChevronDown className={`w-4 h-4 transition-transform ${temasOpen ? 'rotate-180' : ''}`} />
-              </button>
-
-              {temasOpen ? (
-                <div className="absolute top-full left-0 mt-4 bg-zinc-950 border border-zinc-700 shadow-2xl rounded-lg z-50">
-                  <div className="grid grid-cols-3 gap-x-12 p-6 min-w-[780px]">
-                    {temasColumns.map((col, colIdx) => (
-                      <div key={colIdx} className="space-y-1">
-                        {col.map((t) => (
-                          <button
-                            key={t.slug}
-                            type="button"
-                            onClick={() => {
-                              router.push(`/explorar?tema=${encodeURIComponent(t.slug)}`);
-                              setTemasOpen(false);
-                            }}
-                            className="text-sm text-zinc-200 py-1.5 hover:underline cursor-pointer text-left w-full"
-                          >
-                            {t.label}
-                          </button>
-                        ))}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ) : null}
-            </div>
           </nav>
         </div>
 
@@ -299,33 +228,13 @@ export default function Navigation() {
               </Link>
             ))}
 
-            <button
-              type="button"
-              onClick={() => setMobileTemasOpen((v) => !v)}
-              className="w-full flex items-center justify-between text-sm text-zinc-300 hover:text-white transition"
+            <Link
+              href="/agentes"
+              className="block text-sm text-zinc-300 hover:text-white transition"
+              onClick={() => setMobileOpen(false)}
             >
-              <span>Temas</span>
-              <ChevronDown className={`w-4 h-4 transition-transform ${mobileTemasOpen ? 'rotate-180' : ''}`} />
-            </button>
-
-            {mobileTemasOpen ? (
-              <div className="pt-2 grid grid-cols-1 gap-2">
-                {temasColumns.flat().map((t) => (
-                  <button
-                    key={t.slug}
-                    type="button"
-                    onClick={() => {
-                      router.push(`/explorar?tema=${encodeURIComponent(t.slug)}`);
-                      setMobileOpen(false);
-                      setMobileTemasOpen(false);
-                    }}
-                    className="text-left text-sm text-zinc-200 py-1.5 hover:underline"
-                  >
-                    {t.label}
-                  </button>
-                ))}
-              </div>
-            ) : null}
+              Agentes
+            </Link>
 
             <div className="pt-2 border-t border-zinc-800" />
 
