@@ -32,7 +32,7 @@ from typing import Dict, List, Optional, Tuple
 DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY", "***")
 PROJECT_PATH = os.getenv("HERMES_PROJECT_PATH", r"C:\Users\REGINALDO\Desktop\AI-KIDS-OFICIAL")
 MODEL = "deepseek-v4-pro"
-MAX_TOKENS = 8000
+MAX_TOKENS = 1500
 TEMPERATURE = 0.2
 ALLOW_CRITICAL_CHANGES = os.getenv("ALLOW_CRITICAL_CHANGES", "").lower() == "true"
 
@@ -343,7 +343,7 @@ def call_deepseek(system_prompt: str, user_prompt: str) -> Optional[str]:
         method="POST",
     )
     try:
-        with urllib.request.urlopen(req, timeout=120) as resp:
+        with urllib.request.urlopen(req, timeout=60) as resp:
             result = json.loads(resp.read().decode("utf-8"))
             return result["choices"][0]["message"]["content"]
     except urllib.error.HTTPError as e:
@@ -445,7 +445,7 @@ def main() -> None:
 
     # Scan project
     log("Escaneando arquivos do projeto...", "INFO")
-    context = scan_project(PROJECT_PATH)
+    context = scan_project(PROJECT_PATH, max_files=10)
     log(f"{len(context)} arquivos carregados para contexto.", "OK")
 
     # Get mission
