@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useRef, useEffect } from "react";
+import { findInLocalCache, saveToLocalCache, logUnansweredQuestion } from "@/lib/client-cache";
 
 // ── Types ────────────────────────────────────────────────────────────
 export interface AgentResult {
@@ -28,6 +29,13 @@ export type ExperimentPhase = "idle" | "running" | "paused" | "complete";
 // ── Agent order ───────────────────────────────────────────────────────
 const AGENT_ORDER = ["nexus", "cipher", "kaos", "aurora"];
 
+const AGENTS: Record<string, { name: string; role: string; color: string }> = {
+  nexus: { name: "NEXUS", role: "O Conector", color: "#00f5ff" },
+  cipher: { name: "CIPHER", role: "O Criptógrafo", color: "#00ff88" },
+  kaos: { name: "KAOS", role: "O Caos Criativo", color: "#ff6b35" },
+  aurora: { name: "AURORA", role: "A Sintetizadora", color: "#a78bfa" },
+};
+
 // ── Hook ──────────────────────────────────────────────────────────────
 export function useExperimentEngine(experimentId: string | null) {
   const [phase, setPhase] = useState<ExperimentPhase>("idle");
@@ -41,6 +49,12 @@ export function useExperimentEngine(experimentId: string | null) {
 
   const pausedRef = useRef(false);
   const runningRef = useRef(false);
+  const modeRef = useRef<"fast" | "full">("full");
+
+  // ── Set mode ──────────────────────────────────────────────────────
+  const setMode = useCallback((m: "fast" | "full") => {
+    modeRef.current = m;
+  }, []);
 
   // ── Add event ──────────────────────────────────────────────────────
   const addEvent = useCallback((type: LabEvent["type"], message: string, agent?: string) => {
@@ -79,7 +93,7 @@ export function useExperimentEngine(experimentId: string | null) {
       const res = await fetch("/api/lab/agent", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ experimentId, agent, injectIdea }),
+        body: JSON.stringify({ experimentId, agent, injectIdea, mode: modeRef.current }),
       });
 
       if (!res.ok) {
@@ -206,6 +220,33 @@ export function useExperimentEngine(experimentId: string | null) {
     pausedRef.current = false;
   }, []);
 
+  // ── Load from cached result (zero API calls) ─────────────────────
+  const loadCachedResult = useCallback((cached: any) => {
+    const { nexus, cipher, kaos, aurora, board: facts } = cached;
+    const outputs: Record<string, AgentResult> = {};
+
+    for (const [agent, narrative] of Object.entries({ nexus, cipher, kaos, aurora })) {
+      if (narrative) {
+        outputs[agent] = {
+          agent,
+          agentName: AGENTS[agent]?.name || agent.toUpperCase(),
+          agentRole: AGENTS[agent]?.role || "",
+          agentColor: AGENTS[agent]?.color || "#888",
+          narrative: narrative as string,
+          facts: [],
+          nextAgent: "",
+          isComplete: agent === "aurora",
+          boardFacts: facts || [],
+        };
+      }
+    }
+
+    setAgentOutputs(outputs);
+    if (facts) setBoardFacts(facts);
+    setPhase("complete");
+    addEvent("experiment_complete", "📦 Resultado carregado do cache (zero API calls)");
+  }, [addEvent]);
+
   // ── Cleanup ────────────────────────────────────────────────────────
   useEffect(() => {
     return () => {
@@ -230,5 +271,7 @@ export function useExperimentEngine(experimentId: string | null) {
     injectIdea,
     rollback,
     stop,
+    loadCachedResult,
+    setMode,
   };
 }

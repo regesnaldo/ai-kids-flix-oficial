@@ -2,9 +2,10 @@
 
 import { useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { LabPromptInput } from "@/components/lab/LabPromptInput";
-import { FlaskConical, Clock, ArrowRight } from "lucide-react";
+import { FlaskConical, Clock, ArrowRight, Wifi, WifiOff, Zap, FlaskRound } from "lucide-react";
+import { findInLocalCache, saveToLocalCache, getLocalQuestions, normalizeQuestion } from "@/lib/client-cache";
 
 interface PastExperiment {
   id: string;
@@ -13,33 +14,84 @@ interface PastExperiment {
   createdAt: number;
 }
 
+const EXAMPLE_CHIPS = [
+  "Como a IA aprende?",
+  "O que é deep learning?",
+  "Ética na IA",
+  "Futuro da IA",
+  "O que são LLMs?",
+  "IA é criativa?",
+];
+
 export default function LabPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [pastExperiments, setPastExperiments] = useState<PastExperiment[]>([]);
+  const [isOnline, setIsOnline] = useState(typeof navigator !== "undefined" ? navigator.onLine : true);
+  const [labMode, setLabMode] = useState<"fast" | "full">("full");
+  const [localQuestions, setLocalQuestions] = useState<string[]>([]);
 
-  // Load past experiments from localStorage
+  // ── Online/offline detection ──────────────────────────────────────
   useEffect(() => {
+    const goOnline = () => setIsOnline(true);
+    const goOffline = () => setIsOnline(false);
+    window.addEventListener("online", goOnline);
+    window.addEventListener("offline", goOffline);
+    return () => {
+      window.removeEventListener("online", goOnline);
+      window.removeEventListener("offline", goOffline);
+    };
+  }, []);
+
+  // ── Load cached questions + mode + past experiments ─────────────
+  useEffect(() => {
+    setLocalQuestions(getLocalQuestions());
     try {
       const stored = localStorage.getItem("lab_experiments");
       if (stored) setPastExperiments(JSON.parse(stored));
+      const mode = localStorage.getItem("mente_ai_lab_mode") as "fast" | "full" | null;
+      if (mode) setLabMode(mode);
     } catch {}
   }, []);
 
+  // ── Save mode ─────────────────────────────────────────────────────
+  useEffect(() => {
+    localStorage.setItem("mente_ai_lab_mode", labMode);
+  }, [labMode]);
+
+  // ── Handle start ──────────────────────────────────────────────────
   const handleStart = useCallback(async (topic: string) => {
     setIsLoading(true);
     try {
+      // STEP 1: Check localStorage cache FIRST
+      const localCached = findInLocalCache(topic);
+      if (localCached) {
+        // Encode in URL and redirect
+        const encoded = encodeURIComponent(JSON.stringify(localCached));
+        router.push(`/lab/experiment/cached?data=${encoded}&mode=${labMode}`);
+        return;
+      }
+
+      // STEP 2: Call API (server checks prebuilt → KV → new)
       const res = await fetch("/api/lab/start", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ topic }),
+        body: JSON.stringify({ topic, mode: labMode }),
       });
 
       if (!res.ok) throw new Error("Falha ao criar experimento");
 
       const data = await res.json();
 
-      // Save to localStorage
+      // STEP 3: If cache hit on server, display directly
+      if (data.source === "cache" && data.instant) {
+        saveToLocalCache(topic, data);
+        const encoded = encodeURIComponent(JSON.stringify(data));
+        router.push(`/lab/experiment/cached?data=${encoded}&mode=${labMode}`);
+        return;
+      }
+
+      // STEP 4: Cache miss → go to experiment page
       const entry: PastExperiment = {
         id: data.experimentId,
         topic,
@@ -50,11 +102,11 @@ export default function LabPage() {
       setPastExperiments(updated);
       localStorage.setItem("lab_experiments", JSON.stringify(updated));
 
-      router.push(`/lab/experiment/${data.experimentId}`);
+      router.push(`/lab/experiment/${data.experimentId}?mode=${labMode}`);
     } catch {
       setIsLoading(false);
     }
-  }, [pastExperiments, router]);
+  }, [pastExperiments, router, labMode]);
 
   return (
     <main
@@ -101,6 +153,75 @@ export default function LabPage() {
           </p>
         </motion.div>
 
+        {/* ── Offline banner ──────────────────────────────────────── */}
+        <AnimatePresence>
+          {!isOnline && (
+            <motion.div
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              className="w-full max-w-2xl p-4 rounded-xl flex items-start gap-3"
+              style={{
+                background: "rgba(255,107,53,0.06)",
+                border: "1px solid rgba(255,107,53,0.15)",
+              }}
+            >
+              <WifiOff size={18} className="text-[#ff6b35] flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="text-sm font-bold text-[#ff6b35]">📡 Modo Offline</p>
+                <p className="text-xs text-white/35 mt-0.5 leading-relaxed">
+                  Sem conexão. Perguntas conhecidas funcionam normalmente.
+                  Novas perguntas precisam de internet.
+                </p>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* ── Economy mode toggle ─────────────────────────────────── */}
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="flex gap-2"
+        >
+          <button
+            onClick={() => setLabMode("fast")}
+            className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold transition-all duration-200 ${
+              labMode === "fast" ? "brightness-110" : "opacity-50 hover:opacity-75"
+            }`}
+            style={{
+              background: labMode === "fast" ? "rgba(0,245,255,0.08)" : "rgba(255,255,255,0.02)",
+              border: `1px solid ${labMode === "fast" ? "rgba(0,245,255,0.2)" : "rgba(255,255,255,0.05)"}`,
+              color: labMode === "fast" ? "var(--accent-cyan)" : "rgba(255,255,255,0.3)",
+            }}
+          >
+            <Zap size={12} />
+            Modo Rápido
+          </button>
+          <button
+            onClick={() => setLabMode("full")}
+            className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold transition-all duration-200 ${
+              labMode === "full" ? "brightness-110" : "opacity-50 hover:opacity-75"
+            }`}
+            style={{
+              background: labMode === "full" ? "rgba(167,139,250,0.08)" : "rgba(255,255,255,0.02)",
+              border: `1px solid ${labMode === "full" ? "rgba(167,139,250,0.2)" : "rgba(255,255,255,0.05)"}`,
+              color: labMode === "full" ? "#a78bfa" : "rgba(255,255,255,0.3)",
+            }}
+          >
+            <FlaskRound size={12} />
+            Modo Completo
+          </button>
+        </motion.div>
+
+        {/* Mode description */}
+        <p className="text-white/15 text-[10px] -mt-5 text-center max-w-md">
+          {labMode === "fast"
+            ? "⚡ NEXUS + AURORA · Resposta em segundos · 50% mais econômico"
+            : "🔬 4 agentes · Experiência total · Análise profunda"}
+        </p>
+
         {/* Prompt input */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
@@ -126,7 +247,7 @@ export default function LabPage() {
               <FlaskConical size={18} />
             </motion.div>
             <span className="font-mono text-xs tracking-wider">
-              Instanciando laboratório...
+              {!isOnline ? "Verificando cache offline..." : "Instanciando laboratório..."}
             </span>
           </motion.div>
         )}
@@ -183,7 +304,7 @@ export default function LabPage() {
 
         {/* Footer label */}
         <p className="text-white/10 text-[9px] font-mono uppercase tracking-[0.2em] mt-4">
-          NEXUS · CIPHER · KAOS · AURORA
+          {localQuestions.length > 0 ? `${localQuestions.length} offline · ` : ""}NEXUS · CIPHER · KAOS · AURORA
         </p>
       </div>
     </main>

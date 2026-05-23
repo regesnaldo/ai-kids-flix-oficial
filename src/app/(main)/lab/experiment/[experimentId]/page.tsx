@@ -1,7 +1,7 @@
 "use client";
 
-import { use, useEffect, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { use, useEffect, useCallback, useMemo } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { ArrowLeft, Trophy } from "lucide-react";
 import { AgentPipeline } from "@/components/lab/AgentPipeline";
@@ -11,6 +11,7 @@ import { HumanIntervention } from "@/components/lab/HumanIntervention";
 import { ExperimentResult } from "@/components/lab/ExperimentResult";
 import { useExperimentEngine } from "@/hooks/useExperimentEngine";
 import type { AgentNodeStatus } from "@/components/lab/AgentNode";
+import { saveToLocalCache } from "@/lib/client-cache";
 
 const AGENT_ORDER = ["nexus", "cipher", "kaos", "aurora"];
 
@@ -32,6 +33,7 @@ export default function ExperimentPage({
 }) {
   const { experimentId } = use(params);
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const {
     phase,
@@ -49,14 +51,38 @@ export default function ExperimentPage({
     injectIdea,
     rollback,
     stop,
-  } = useExperimentEngine(experimentId);
+    loadCachedResult,
+    setMode,
+  } = useExperimentEngine(experimentId === "cached" ? null : experimentId);
 
-  // Auto-start the experiment pipeline
+  // ── Handle cached mode ─────────────────────────────────────────────
+  const cacheData = useMemo(() => {
+    if (experimentId !== "cached") return null;
+    try {
+      const raw = searchParams.get("data");
+      return raw ? JSON.parse(decodeURIComponent(raw)) : null;
+    } catch {
+      return null;
+    }
+  }, [experimentId, searchParams]);
+
+  // ── Read mode from URL ─────────────────────────────────────────────
+  const modeParam = searchParams.get("mode") as "fast" | "full" | null;
+
+  // AUTO-START: cached → load instantly; normal → run pipeline
   useEffect(() => {
-    if (experimentId && phase === "idle") {
+    if (cacheData) {
+      // Load cached result (zero API calls)
+      loadCachedResult(cacheData);
+      if (modeParam) setMode(modeParam);
+      return;
+    }
+
+    if (experimentId && experimentId !== "cached" && phase === "idle") {
+      if (modeParam) setMode(modeParam);
       runAll();
     }
-  }, [experimentId, phase, runAll]);
+  }, [experimentId, phase, runAll, cacheData, loadCachedResult, modeParam, setMode]);
 
   // Award XP on completion
   const awardXp = useCallback(async () => {
@@ -84,6 +110,17 @@ export default function ExperimentPage({
   useEffect(() => {
     if (phase === "complete") {
       awardXp();
+      // Save to localStorage for offline use
+      if (experimentId !== "cached") {
+        const topic = boardFacts[0] || "experimento";
+        saveToLocalCache(topic, {
+          nexus: agentOutputs["nexus"]?.narrative,
+          cipher: agentOutputs["cipher"]?.narrative,
+          kaos: agentOutputs["kaos"]?.narrative,
+          aurora: agentOutputs["aurora"]?.narrative,
+          board: boardFacts,
+        });
+      }
       // Update past experiments in localStorage
       try {
         const stored = localStorage.getItem("lab_experiments");

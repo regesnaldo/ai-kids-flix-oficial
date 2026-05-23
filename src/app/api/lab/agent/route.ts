@@ -1,14 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getBoard, saveBoard, type AgentStep } from "../board-store";
-import { anthropicCompletionText } from "@/lib/anthropic";
+import { getBoard, saveBoard, kvSet, type AgentStep } from "../board-store";
 
 // ── Agent definitions ──────────────────────────────────────────────────
-const AGENTS: Record<string, {
-  name: string;
-  role: string;
-  color: string;
-  catchphrase: string;
-}> = {
+const AGENTS: Record<string, { name: string; role: string; color: string; catchphrase: string }> = {
   nexus: { name: "NEXUS", role: "O Conector", color: "#00f5ff", catchphrase: "Vamos conectar os pontos!" },
   cipher: { name: "CIPHER", role: "O Criptógrafo", color: "#00ff88", catchphrase: "Os padrões estão por toda parte..." },
   kaos: { name: "KAOS", role: "O Caos Criativo", color: "#ff6b35", catchphrase: "E se tudo estiver errado?!" },
@@ -17,79 +11,113 @@ const AGENTS: Record<string, {
 
 const AGENT_ORDER = ["nexus", "cipher", "kaos", "aurora"];
 
+// ── DeepSeek API call ──────────────────────────────────────────────────
+const DEEPSEEK_BASE = "https://api.deepseek.com/v1";
+const DEEPSEEK_TIMEOUT = 45_000;
+
+async function callDeepSeek(systemPrompt: string, maxTokens = 1500): Promise<string> {
+  const apiKey = process.env.DEEPSEEK_API_KEY;
+  if (!apiKey) {
+    throw new Error("DEEPSEEK_API_KEY não configurada no ambiente. Configure em .env.local");
+  }
+
+  console.log("[lab/agent] Chamando DeepSeek...", { model: "deepseek-chat", maxTokens });
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), DEEPSEEK_TIMEOUT);
+
+  try {
+    const response = await fetch(`${DEEPSEEK_BASE}/chat/completions`, {
+      method: "POST",
+      signal: controller.signal,
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "deepseek-chat",
+        temperature: 0.85,
+        max_tokens: maxTokens,
+        messages: [
+          { role: "user", content: systemPrompt },
+        ],
+      }),
+    });
+
+    if (!response.ok) {
+      const errText = await response.text().catch(() => "sem corpo");
+      console.error("[lab/agent] DeepSeek HTTP error", { status: response.status, body: errText.slice(0, 300) });
+      throw new Error(`DeepSeek retornou HTTP ${response.status}: ${errText.slice(0, 200)}`);
+    }
+
+    const data = await response.json();
+    const content: string | undefined = data?.choices?.[0]?.message?.content;
+
+    if (typeof content !== "string" || !content.trim()) {
+      console.error("[lab/agent] DeepSeek resposta vazia", { data: JSON.stringify(data).slice(0, 300) });
+      throw new Error("DeepSeek retornou resposta vazia");
+    }
+
+    console.log("[lab/agent] DeepSeek OK", { length: content.length });
+    return content;
+  } catch (err) {
+    if (err instanceof Error && err.name === "AbortError") {
+      throw new Error("DeepSeek timeout — a API demorou mais de 45 segundos para responder");
+    }
+    throw err;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 // ── Prompt builders ────────────────────────────────────────────────────
-function buildNexusPrompt(topic: string, board: string): string {
-  return `Você é NEXUS, o Conector do Laboratório MENTE.AI.
+function buildFullPrompt(agent: string, topic: string, board: string): string {
+  switch (agent) {
+    case "nexus":
+      return `Você é NEXUS, o Conector do Laboratório MENTE.AI.
 Tom: explicativo, paciente, acessível. Sempre em português brasileiro.
 Bordão: "Vamos conectar os pontos!"
-
-Tema do experimento: ${topic}
-Conhecimento atual no quadro: ${board || "(vazio)"}
-
-Explique os fundamentos do tema de forma cinematográfica e acessível.
-Use analogias do cotidiano — tecnologia, natureza, jogos, escola.
-NÃO use jargão acadêmico.
-
-Ao final, liste EXATAMENTE 3 fatos no formato:
-[BOARD: fato1, fato2, fato3]`;
+Tema: ${topic} | Conhecimento atual: ${board || "(vazio)"}
+Explique os fundamentos de forma cinematográfica e acessível. Use analogias.
+Ao final, liste 3 fatos: [BOARD: fato1, fato2, fato3]`;
+    case "cipher":
+      return `Você é CIPHER, o Criptógrafo do Laboratório MENTE.AI.
+Tom: analítico, misterioso. PT-BR. Bordão: "Os padrões estão por toda parte..."
+Tema: ${topic} | Descobertas do NEXUS: ${board}
+Revele padrões ocultos e conexões não óbvias.
+Ao final, liste 3 padrões: [BOARD: padrao1, padrao2, padrao3]`;
+    case "kaos":
+      return `Você é KAOS, o Caos Criativo do Laboratório MENTE.AI.
+Tom: provocativo, enérgico. PT-BR. Bordão: "E se tudo estiver errado?!"
+Tema: ${topic} | Descobertas até agora: ${board}
+Questione TUDO. Apresente perspectivas caóticas e casos extremos.
+Ao final, liste 3 desafios: [BOARD: desafio1, desafio2, desafio3]`;
+    case "aurora":
+      return `Você é AURORA, a Sintetizadora do Laboratório MENTE.AI.
+Tom: poético, inspirador. PT-BR. Bordão: "Toda descoberta é uma forma de poesia."
+Tema: ${topic} | Quadro completo: ${board}
+Sintetize TODAS as descobertas em uma narrativa final poética.
+Termine com uma pergunta reflexiva. NÃO use [BOARD:].`;
+    default:
+      return "";
+  }
 }
 
-function buildCipherPrompt(topic: string, board: string): string {
-  return `Você é CIPHER, o Criptógrafo do Laboratório MENTE.AI.
-Tom: analítico, misterioso, revelador. Sempre em português brasileiro.
-Bordão: "Os padrões estão por toda parte..."
-
-Tema do experimento: ${topic}
-Descobertas do NEXUS: ${board}
-
-Com base no que o NEXUS revelou, descubra padrões ocultos e conexões não óbvias.
-Mostre o que ninguém viu ainda. Seja enigmático mas claro.
-
-Ao final, liste EXATAMENTE 3 padrões no formato:
-[BOARD: padrao1, padrao2, padrao3]`;
-}
-
-function buildKaosPrompt(topic: string, board: string): string {
-  return `Você é KAOS, o Caos Criativo do Laboratório MENTE.AI.
-Tom: provocativo, enérgico, questionador. Sempre em português brasileiro.
-Bordão: "E se tudo estiver errado?!"
-
-Tema do experimento: ${topic}
-Descobertas até agora: ${board}
-
-Questione TUDO que NEXUS e CIPHER disseram.
-Apresente perspectivas caóticas, casos extremos, o que pode dar errado.
-Seja o advogado do diabo — mas com estilo e inteligência.
-
-Ao final, liste EXATAMENTE 3 desafios no formato:
-[BOARD: desafio1, desafio2, desafio3]`;
-}
-
-function buildAuroraPrompt(topic: string, board: string): string {
-  return `Você é AURORA, a Sintetizadora do Laboratório MENTE.AI.
-Tom: poético, inspirador, sábio. Sempre em português brasileiro.
-Bordão: "Toda descoberta é uma forma de poesia."
-
-Tema do experimento: ${topic}
-Quadro completo de conhecimento: ${board}
-
-Sintetize TODAS as descobertas de NEXUS, CIPHER e KAOS em uma narrativa final.
-Seja poética e inspiradora. Esta é a conclusão do experimento.
-Termine com uma pergunta reflexiva para o usuário.
-
-NÃO use o formato [BOARD:] — esta é a síntese final.`;
+function buildEconomyPrompt(agent: string, topic: string, board: string): string {
+  if (agent === "nexus") {
+    return `Você é NEXUS. Explique "${topic}" em PT-BR em 3 parágrafos didáticos. Board: ${board}. Adicione [LOUSA: tag1, tag2, tag3]`;
+  }
+  if (agent === "aurora") {
+    return `Você é AURORA. Sintetize poeticamente "${topic}" em PT-BR em 2 parágrafos. Board: ${board}`;
+  }
+  return buildFullPrompt(agent, topic, board);
 }
 
 // ── Helpers ────────────────────────────────────────────────────────────
 function parseBoardTags(content: string): { narrative: string; facts: string[] } {
-  const boardMatch = content.match(/\[BOARD:\s*([^\]]+)\]/i);
+  const boardMatch = content.match(/\[BOARD:\s*([^\]]+)\]/i) || content.match(/\[LOUSA:\s*([^\]]+)\]/i);
   if (!boardMatch) return { narrative: content, facts: [] };
-
-  const facts = boardMatch[1]
-    .split(/[,;]\s*/)
-    .map((f) => f.trim())
-    .filter((f) => f.length > 0);
-
+  const facts = boardMatch[1].split(/[,;]\s*/).map((f) => f.trim()).filter((f) => f.length > 0);
   const narrative = content.replace(boardMatch[0], "").trim();
   return { narrative, facts };
 }
@@ -100,109 +128,173 @@ function getBoardFacts(board: { facts: string[] }): string {
 
 // ── POST /api/lab/agent ──────────────────────────────────────────────
 export async function POST(request: NextRequest) {
+  const startTime = Date.now();
+
   try {
-    const { experimentId, agent, injectIdea } = (await request.json()) as {
+    const body = (await request.json()) as {
       experimentId: string;
       agent: string;
       injectIdea?: string;
+      mode?: "fast" | "full";
     };
 
-    if (!experimentId || !agent) {
+    console.log("[lab/agent] Requisição recebida", {
+      agent: body.agent,
+      experimentId: body.experimentId?.slice(0, 8),
+      mode: body.mode || "full",
+    });
+
+    // ── Validation ─────────────────────────────────────────────────
+    if (!body.experimentId || !body.agent) {
+      console.warn("[lab/agent] Parâmetros ausentes");
       return NextResponse.json({ error: "experimentId e agent são obrigatórios" }, { status: 400 });
     }
 
-    const board = getBoard(experimentId);
+    const board = getBoard(body.experimentId);
     if (!board) {
-      return NextResponse.json({ error: "Experimento não encontrado" }, { status: 404 });
+      console.warn("[lab/agent] Experimento não encontrado", { id: body.experimentId.slice(0, 8) });
+      return NextResponse.json({ error: "Experimento não encontrado. Pode ter expirado (TTL 24h)." }, { status: 404 });
     }
 
-    const agentDef = AGENTS[agent];
+    const agentDef = AGENTS[body.agent];
     if (!agentDef) {
-      return NextResponse.json({ error: `Agente desconhecido: ${agent}` }, { status: 400 });
+      console.warn("[lab/agent] Agente desconhecido", { agent: body.agent });
+      return NextResponse.json({ error: `Agente desconhecido: ${body.agent}. Use: nexus, cipher, kaos ou aurora.` }, { status: 400 });
     }
 
-    // Verificar ordem
-    const agentIndex = AGENT_ORDER.indexOf(agent);
+    const agentIndex = AGENT_ORDER.indexOf(body.agent);
     if (agentIndex === -1) {
       return NextResponse.json({ error: "Agente fora da ordem do pipeline" }, { status: 400 });
     }
 
-    // Se houver ideia injetada, adicionar ao quadro
-    if (injectIdea) {
-      board.facts.push(`💡 IDEIA INJETADA: ${injectIdea}`);
-      const step: AgentStep = {
+    // ── Inject idea ────────────────────────────────────────────────
+    if (body.injectIdea) {
+      console.log("[lab/agent] Ideia injetada", { idea: body.injectIdea.slice(0, 50) });
+      board.facts.push(`💡 IDEIA INJETADA: ${body.injectIdea}`);
+      board.history.push({
         agent: "human",
-        output: `Ideia injetada: ${injectIdea}`,
-        facts: [`💡 ${injectIdea}`],
+        output: `Ideia injetada: ${body.injectIdea}`,
+        facts: [`💡 ${body.injectIdea}`],
         timestamp: Date.now(),
-      };
-      board.history.push(step);
+      });
     }
 
-    // Atualizar agente atual
-    board.currentAgent = agent;
+    board.currentAgent = body.agent;
     saveBoard(board);
 
-    // Construir prompt
+    // ── Build prompt ───────────────────────────────────────────────
     const boardFacts = getBoardFacts(board);
-    let systemPrompt = "";
+    const isEconomy = body.mode === "fast";
+    const systemPrompt = isEconomy
+      ? buildEconomyPrompt(body.agent, board.topic, boardFacts)
+      : buildFullPrompt(body.agent, board.topic, boardFacts);
 
-    switch (agent) {
-      case "nexus": systemPrompt = buildNexusPrompt(board.topic, boardFacts); break;
-      case "cipher": systemPrompt = buildCipherPrompt(board.topic, boardFacts); break;
-      case "kaos": systemPrompt = buildKaosPrompt(board.topic, boardFacts); break;
-      case "aurora": systemPrompt = buildAuroraPrompt(board.topic, boardFacts); break;
-    }
-
-    // Chamar LLM
-    const response = await anthropicCompletionText({
-      mensagens: [{ role: "user", content: systemPrompt }],
-      maxTokens: 1500,
+    console.log("[lab/agent] Prompt construído", {
+      agent: body.agent,
+      economy: isEconomy,
+      promptLength: systemPrompt.length,
     });
 
-    if (!response) {
-      return NextResponse.json({ error: "LLM não retornou resposta" }, { status: 502 });
+    // ── Call LLM ───────────────────────────────────────────────────
+    const maxTokens = isEconomy ? 800 : 1500;
+    let response: string;
+
+    try {
+      response = await callDeepSeek(systemPrompt, maxTokens);
+    } catch (err: any) {
+      console.error("[lab/agent] Falha na chamada LLM", {
+        agent: body.agent,
+        error: err?.message,
+        stack: err?.stack?.slice(0, 300),
+      });
+
+      // Fallback: responder com erro amigável em PT-BR
+      const errorMsg = err?.message?.includes("API_KEY")
+        ? "Chave da API DeepSeek não configurada. Configure DEEPSEEK_API_KEY no .env.local."
+        : err?.message?.includes("timeout")
+        ? "A API DeepSeek demorou muito para responder. Tente novamente."
+        : `Erro ao chamar DeepSeek: ${err?.message || "Erro desconhecido"}. Verifique os logs do servidor.`;
+
+      return NextResponse.json({ error: errorMsg }, { status: 502 });
     }
 
-    // Parsear [BOARD:] tags
+    if (!response) {
+      console.error("[lab/agent] LLM retornou vazio");
+      return NextResponse.json({ error: "O modelo de IA retornou uma resposta vazia. Tente novamente." }, { status: 502 });
+    }
+
+    // ── Parse tags ─────────────────────────────────────────────────
     const { narrative, facts } = parseBoardTags(response);
 
-    // Se não é aurora, adicionar facts ao board
-    if (agent !== "aurora" && facts.length > 0) {
+    if (facts.length === 0 && body.agent !== "aurora") {
+      console.warn("[lab/agent] Nenhuma tag [BOARD:] encontrada na resposta", {
+        agent: body.agent,
+        responsePreview: response.slice(0, 100),
+      });
+    }
+
+    // ── Update board ───────────────────────────────────────────────
+    if (body.agent !== "aurora" && facts.length > 0) {
       board.facts.push(...facts);
     }
 
-    // Salvar output do agente
-    board.agentOutputs[agent] = narrative;
-    board.completedAgents.push(agent);
-
-    // Salvar no histórico
-    const step: AgentStep = {
-      agent,
+    board.agentOutputs[body.agent] = narrative;
+    board.completedAgents.push(body.agent);
+    board.history.push({
+      agent: body.agent,
       output: narrative,
       facts: [...facts],
       timestamp: Date.now(),
-    };
-    board.history.push(step);
+    });
 
-    // Próximo agente
+    // ── Next agent ─────────────────────────────────────────────────
     const nextIndex = agentIndex + 1;
     board.currentAgent = nextIndex < AGENT_ORDER.length ? AGENT_ORDER[nextIndex] : "";
+
+    // ── Save to KV (learned cache) when experiment completes ──────
+    if (body.agent === "aurora") {
+      const { normalizeQuestion } = await import("@/lib/smart-cache");
+      const normalized = normalizeQuestion(board.topic);
+      kvSet(`lab_${normalized}`, {
+        nexus: board.agentOutputs["nexus"] || "",
+        cipher: board.agentOutputs["cipher"] || "",
+        kaos: board.agentOutputs["kaos"] || "",
+        aurora: narrative,
+        board: board.facts,
+        source: "learned",
+      });
+      console.log("[lab/agent] Salvo no KV", { key: `lab_${normalized}` });
+    }
+
     saveBoard(board);
 
+    const elapsed = Date.now() - startTime;
+    console.log("[lab/agent] Concluído", {
+      agent: body.agent,
+      elapsed: `${elapsed}ms`,
+      facts: facts.length,
+      narrativeLength: narrative.length,
+    });
+
     return NextResponse.json({
-      agent,
+      agent: body.agent,
       agentName: agentDef.name,
       agentRole: agentDef.role,
       agentColor: agentDef.color,
       narrative,
       facts,
       nextAgent: board.currentAgent,
-      isComplete: agent === "aurora",
+      isComplete: body.agent === "aurora",
       boardFacts: board.facts,
     });
-  } catch (err) {
-    console.error("[lab/agent]", err);
-    return NextResponse.json({ error: "Falha ao executar agente" }, { status: 500 });
+  } catch (err: any) {
+    console.error("[lab/agent] Erro não tratado", {
+      error: err?.message,
+      stack: err?.stack?.slice(0, 500),
+    });
+    return NextResponse.json(
+      { error: `Falha interna ao executar agente: ${err?.message || "Erro desconhecido"}. Verifique os logs do servidor.` },
+      { status: 500 }
+    );
   }
 }
