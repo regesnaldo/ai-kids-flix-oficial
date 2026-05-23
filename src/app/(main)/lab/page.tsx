@@ -2,11 +2,30 @@
 
 import { useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { Inter, JetBrains_Mono, Orbitron } from "next/font/google";
 import { motion, AnimatePresence } from "framer-motion";
 import { LabPromptInput } from "@/components/lab/LabPromptInput";
 import { RateLimitScreen } from "@/components/lab/RateLimitScreen";
 import { FlaskConical, Clock, ArrowRight, Wifi, WifiOff, Zap, FlaskRound, Dot } from "lucide-react";
 import { findInLocalCache, saveToLocalCache, getLocalQuestions, normalizeQuestion } from "@/lib/client-cache";
+
+const orbitron = Orbitron({
+  subsets: ["latin"],
+  variable: "--font-orbitron",
+  display: "swap",
+});
+
+const jetBrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-jetbrains-mono",
+  display: "swap",
+});
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+});
 
 const EXAMPLE_CHIPS = [
   "Como a IA aprende?",
@@ -167,7 +186,7 @@ export default function LabPage() {
 
   return (
     <main
-      className="min-h-screen flex flex-col items-center justify-center px-6 py-20"
+      className={`${orbitron.variable} ${jetBrainsMono.variable} ${inter.variable} min-h-screen flex flex-col items-center justify-center text-center px-6 py-12 md:py-16 [font-family:var(--font-inter)]`}
       style={{ background: "#0e1420" }}
     >
       {/* Background ambient */}
@@ -182,7 +201,7 @@ export default function LabPage() {
         />
       </div>
 
-      <div className="relative z-10 flex flex-col items-center gap-8 w-full max-w-3xl">
+      <div className="relative z-10 flex flex-col items-center gap-10 w-full max-w-4xl">
         {/* Title */}
         <motion.div
           initial={{ opacity: 0, y: -16 }}
@@ -194,18 +213,18 @@ export default function LabPage() {
             <motion.span
               animate={{ rotate: [0, 10, -10, 0] }}
               transition={{ duration: 3, repeat: Infinity }}
-              className="text-4xl"
+              className="text-4xl md:text-5xl text-cyan-300 mr-3 drop-shadow-[0_0_10px_rgba(34,211,238,0.5)]"
             >
               🧪
             </motion.span>
             <h1
-              className="text-4xl md:text-5xl font-black tracking-tight"
+              className="text-5xl font-bold tracking-wider !text-cyan-400 drop-shadow-[0_0_10px_rgba(34,211,238,0.5)] ![font-family:var(--font-orbitron)]"
               style={{ fontFamily: "var(--font-display)", color: "var(--accent-cyan)" }}
             >
               MENTE.AI LAB
             </h1>
           </div>
-          <p className="text-white/35 text-base md:text-lg max-w-lg mx-auto leading-relaxed">
+          <p className="text-lg opacity-80 tracking-wide max-w-2xl mx-auto leading-relaxed text-slate-300">
             Um prompt. Quatro agentes. Infinitas descobertas.
           </p>
 
@@ -214,7 +233,7 @@ export default function LabPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2 }}
-            className="flex items-center justify-center gap-1.5 mt-2"
+            className="flex items-center justify-center gap-1.5 mt-3"
           >
             <Dot
               size={18}
@@ -226,7 +245,7 @@ export default function LabPage() {
                   : "text-red-400 animate-pulse"
               }
             />
-            <span className="text-[10px] font-mono text-white/20 tracking-wider">
+            <span className="text-sm md:text-base opacity-70 text-slate-400 tracking-wider [font-family:var(--font-jetbrains-mono)]">
               {labStatus.message}
             </span>
           </motion.div>
@@ -254,7 +273,7 @@ export default function LabPage() {
               initial={{ opacity: 0, y: -8 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
-              className="w-full max-w-2xl p-4 rounded-xl flex items-start gap-3"
+              className="w-full max-w-2xl p-5 rounded-xl flex items-start gap-3 text-left"
               style={{
                 background: "rgba(255,107,53,0.06)",
                 border: "1px solid rgba(255,107,53,0.15)",
@@ -262,8 +281,8 @@ export default function LabPage() {
             >
               <WifiOff size={18} className="text-[#ff6b35] flex-shrink-0 mt-0.5" />
               <div>
-                <p className="text-sm font-bold text-[#ff6b35]">📡 Modo Offline</p>
-                <p className="text-xs text-white/35 mt-0.5 leading-relaxed">
+                <p className="text-base font-bold text-[#ff6b35]">📡 Modo Offline</p>
+                <p className="text-sm text-white/50 mt-0.5 leading-relaxed">
                   Sem conexão. Perguntas conhecidas funcionam normalmente.
                   Novas perguntas precisam de internet.
                 </p>
@@ -277,12 +296,12 @@ export default function LabPage() {
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="flex gap-2"
+          className="flex flex-wrap justify-center gap-3"
         >
           <button
             onClick={() => setLabMode("fast")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold transition-all duration-200 ${
-              labMode === "fast" ? "brightness-110" : "opacity-50 hover:opacity-75"
+            className={`flex items-center gap-2 text-base px-5 py-3 min-h-[44px] rounded-full border transition-all duration-300 ${
+              labMode === "fast" ? "!bg-cyan-500 !text-slate-900 font-bold shadow-[0_0_15px_rgba(34,211,238,0.4)] !border-transparent" : "!bg-slate-800 !text-slate-400 !border-slate-700 hover:!text-slate-200 hover:!border-slate-600"
             }`}
             style={{
               background: labMode === "fast" ? "rgba(0,245,255,0.08)" : "rgba(255,255,255,0.02)",
@@ -295,8 +314,8 @@ export default function LabPage() {
           </button>
           <button
             onClick={() => setLabMode("full")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold transition-all duration-200 ${
-              labMode === "full" ? "brightness-110" : "opacity-50 hover:opacity-75"
+            className={`flex items-center gap-2 text-base px-5 py-3 min-h-[44px] rounded-full border transition-all duration-300 ${
+              labMode === "full" ? "!bg-cyan-500 !text-slate-900 font-bold shadow-[0_0_15px_rgba(34,211,238,0.4)] !border-transparent" : "!bg-slate-800 !text-slate-400 !border-slate-700 hover:!text-slate-200 hover:!border-slate-600"
             }`}
             style={{
               background: labMode === "full" ? "rgba(167,139,250,0.08)" : "rgba(255,255,255,0.02)",
@@ -310,7 +329,7 @@ export default function LabPage() {
         </motion.div>
 
         {/* Mode description */}
-        <p className="text-white/15 text-[10px] -mt-5 text-center max-w-md">
+        <p className="text-sm md:text-base opacity-70 text-slate-400 -mt-6 text-center max-w-2xl">
           {labMode === "fast"
             ? "⚡ NEXUS + AURORA · Resposta em segundos · 50% mais econômico"
             : "🔬 4 agentes · Experiência total · Análise profunda"}
@@ -331,7 +350,7 @@ export default function LabPage() {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="flex items-center gap-3 text-sm"
+            className="flex items-center gap-3 text-sm md:text-base"
             style={{ color: "var(--accent-cyan)" }}
           >
             <motion.div
@@ -340,7 +359,7 @@ export default function LabPage() {
             >
               <FlaskConical size={18} />
             </motion.div>
-            <span className="font-mono text-xs tracking-wider">
+            <span className="text-sm md:text-base tracking-wider text-cyan-300 [font-family:var(--font-jetbrains-mono)]">
               {!isOnline ? "Verificando cache offline..." : "Instanciando laboratório..."}
             </span>
           </motion.div>
@@ -355,41 +374,41 @@ export default function LabPage() {
             className="w-full mt-8"
           >
             <p
-              className="text-[9px] font-mono uppercase tracking-[0.3em] mb-4 text-center"
+              className="text-xs uppercase tracking-[0.2em] mb-5 text-center !text-slate-500 [font-family:var(--font-jetbrains-mono)]"
               style={{ color: "var(--accent-cyan)" }}
             >
               EXPERIMENTOS ANTERIORES
             </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {pastExperiments.map((exp) => (
                 <motion.button
                   key={exp.id}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => router.push(`/lab/experiment/${exp.id}`)}
-                  className="flex items-center justify-between p-4 rounded-xl text-left transition-all duration-200 hover:brightness-110"
+                  className="group flex items-center justify-between p-5 rounded-xl text-left !bg-gradient-to-br !from-slate-800/80 !to-slate-900/80 backdrop-blur border !border-white/10 hover:!border-cyan-500/30 hover:shadow-[0_0_20px_rgba(34,211,238,0.15)] hover:-translate-y-1 transition-all duration-300"
                   style={{
                     background: "rgba(22, 29, 46, 0.6)",
                     border: "1px solid rgba(255,255,255,0.03)",
                   }}
                 >
                   <div className="flex items-center gap-3">
-                    <span className="text-lg">🧪</span>
+                    <span className="text-2xl text-cyan-400">🧪</span>
                     <div>
-                      <p className="text-white/70 text-xs font-bold">{exp.topic}</p>
+                      <p className="text-lg font-semibold text-cyan-50">{exp.topic}</p>
                       <div className="flex items-center gap-2 mt-1">
-                        <Clock size={10} className="text-white/15" />
-                        <span className="text-[9px] text-white/20">
+                        <Clock size={10} className="text-cyan-400" />
+                        <span className="text-sm opacity-70 text-slate-400">
                           {new Date(exp.createdAt).toLocaleDateString("pt-BR")}
                         </span>
-                        <span className="text-[9px] text-white/10">·</span>
-                        <span className="text-[9px] text-white/20">
+                        <span className="text-sm opacity-70 text-slate-500">·</span>
+                        <span className="text-sm opacity-70 text-slate-400">
                           {exp.completedAgents}/4 agentes
                         </span>
                       </div>
                     </div>
                   </div>
-                  <ArrowRight size={14} className="text-white/10 flex-shrink-0" />
+                  <ArrowRight size={14} className="text-slate-500 group-hover:text-cyan-400 transition-colors flex-shrink-0" />
                 </motion.button>
               ))}
             </div>
@@ -397,7 +416,7 @@ export default function LabPage() {
         )}
 
         {/* Footer label */}
-        <p className="text-white/10 text-[9px] font-mono uppercase tracking-[0.2em] mt-4">
+        <p className="text-xs uppercase tracking-[0.2em] mt-4 text-slate-500 [font-family:var(--font-jetbrains-mono)]">
           {localQuestions.length > 0 ? `${localQuestions.length} offline · ` : ""}NEXUS · CIPHER · KAOS · AURORA
         </p>
       </div>
