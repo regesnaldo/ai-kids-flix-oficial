@@ -24,6 +24,12 @@
     "src/app/api/lab/transformer/route.ts": {
       "maxDuration": 30
     },
+    "src/app/api/lab/agent/route.ts": {
+      "maxDuration": 60
+    },
+    "src/app/api/lab/start/route.ts": {
+      "maxDuration": 15
+    },
     "src/app/api/blog/generate/route.ts": {
       "maxDuration": 60
     }
