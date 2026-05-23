@@ -79,9 +79,10 @@ function makeEpisode(seasonNumber: number, ep: number, partial: Omit<Episode, "i
   return { id: `S${sid}E${eid}`, number: ep, ...partial };
 }
 
-function agentCover(agent: string) {
-  return `/images/agentes/${agent}.png`;
-}
+import { getAgentImage } from '@/lib/getAgentImage';
+
+// Local alias for backward compatibility within this file
+const agentCover = getAgentImage;
 
 // ─────────────────────────────────────────────────────────────
 // FASE 1 — "Despertar" (Temporadas 1–10)

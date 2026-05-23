@@ -11,6 +11,10 @@ interface AgentChatProps {
   agentApproach: string;
   accentColor?: string;
   immersive?: boolean;
+  /** Display mode: full=complete UI, compact=minimal chat box, lab=embedded */
+  mode?: 'full' | 'compact' | 'lab';
+  /** Max height for chat messages container */
+  maxHeight?: string;
   heroInput?: string;
   onHeroInputChange?: (value: string) => void;
   heroSendSignal?: number;
@@ -22,6 +26,8 @@ export default function AgentChat({
   agentApproach,
   accentColor = '#3B82F6',
   immersive = false,
+  mode = 'full',
+  maxHeight,
   heroInput,
   onHeroInputChange,
   heroSendSignal,
@@ -220,7 +226,9 @@ export default function AgentChat({
   }
 
   return (
-    <section className={immersive ? 'w-full py-8 md:py-12' : 'mt-10 rounded-3xl border border-white/10 bg-white/5 backdrop-blur-lg overflow-hidden'}>
+    <section className={immersive || mode !== 'full' ? 'w-full' : 'mt-10 rounded-3xl border border-white/10 bg-white/5 backdrop-blur-lg overflow-hidden'}>
+      {/* Header — hidden in compact/lab mode */}
+      {mode === 'full' && (
       <div className={`flex items-center justify-between px-6 py-4 ${immersive ? '' : 'border-b border-white/10'}`}>
         <div className="min-w-0">
           <h2 className="text-2xl font-bold text-white truncate">Chat com {agentName}</h2>
@@ -246,9 +254,11 @@ export default function AgentChat({
           </button>
         </div>
       </div>
+      )}
 
       <div
-        className="h-[380px] sm:h-[440px] overflow-y-auto px-4 sm:px-6 py-5 space-y-4"
+        className="overflow-y-auto px-4 sm:px-6 py-5 space-y-4"
+        style={maxHeight ? { height: maxHeight } : { height: mode === 'compact' || mode === 'lab' ? '300px' : '380px' }}
         role="log"
         aria-live="polite"
         aria-label="Mensagens do chat"

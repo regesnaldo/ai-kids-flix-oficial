@@ -1,6 +1,7 @@
 "use client"
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
+import { getAgentImage } from "@/lib/getAgentImage"
 
 interface UniverseTransitionProps {
   fromAgent: string
@@ -9,25 +10,29 @@ interface UniverseTransitionProps {
   onComplete: () => void
 }
 
-const AGENT_INFO: Record<string, { name: string; color: string; avatar: string }> = {
-  nexus: { name: "NEXUS", color: "#00D9FF", avatar: "/images/agentes/nexus.png" },
-  volt: { name: "VOLT", color: "#FFD700", avatar: "/images/agentes/volt.png" },
-  aurora: { name: "AURORA", color: "#FF6B9D", avatar: "/images/agentes/aurora.png" },
-  ethos: { name: "ETHOS", color: "#9B59B6", avatar: "/images/agentes/ethos.png" },
-  kaos: { name: "KAOS", color: "#E74C3C", avatar: "/images/agentes/kaos.png" },
-  cipher: { name: "CIPHER", color: "#2ECC71", avatar: "/images/agentes/cipher.png" },
-  lyra: { name: "LYRA", color: "#F39C12", avatar: "/images/agentes/lyra.png" },
-  axiom: { name: "AXIOM", color: "#3498DB", avatar: "/images/agentes/axiom.png" },
-  stratos: { name: "STRATOS", color: "#1ABC9C", avatar: "/images/agentes/stratos.png" },
-  terra: { name: "TERRA", color: "#27AE60", avatar: "/images/agentes/terra.png" },
-  prism: { name: "PRISM", color: "#E91E63", avatar: "/images/agentes/prism.png" },
-  janus: { name: "JANUS", color: "#FF9800", avatar: "/images/agentes/janus.png" },
+const AGENT_INFO: Record<string, { name: string; color: string }> = {
+  nexus: { name: "NEXUS", color: "#00D9FF" },
+  volt: { name: "VOLT", color: "#FFD700" },
+  aurora: { name: "AURORA", color: "#FF6B9D" },
+  ethos: { name: "ETHOS", color: "#9B59B6" },
+  kaos: { name: "KAOS", color: "#E74C3C" },
+  cipher: { name: "CIPHER", color: "#2ECC71" },
+  lyra: { name: "LYRA", color: "#F39C12" },
+  axiom: { name: "AXIOM", color: "#3498DB" },
+  stratos: { name: "STRATOS", color: "#1ABC9C" },
+  terra: { name: "TERRA", color: "#27AE60" },
+  prism: { name: "PRISM", color: "#E91E63" },
+  janus: { name: "JANUS", color: "#FF9800" },
 }
+
+const FALLBACK = getAgentImage('nexus')
 
 export function UniverseTransition({ fromAgent, toAgent, reason, onComplete }: UniverseTransitionProps) {
   const router = useRouter()
   const from = AGENT_INFO[fromAgent] || AGENT_INFO.nexus
   const to = AGENT_INFO[toAgent] || AGENT_INFO.nexus
+  const fromAvatar = getAgentImage(fromAgent) || FALLBACK
+  const toAvatar = getAgentImage(toAgent) || FALLBACK
   const [step, setStep] = useState(0)
   const [fadeOut, setFadeOut] = useState(false)
 
@@ -70,9 +75,9 @@ export function UniverseTransition({ fromAgent, toAgent, reason, onComplete }: U
       <div className="relative z-10 text-center px-8 max-w-lg">
         {step === 0 && (
           <div style={{ animation: 'pulse-glow 1.5s ease-in-out infinite' }}>
-            <img src={from.avatar} alt={from.name} className="w-24 h-24 rounded-full mx-auto mb-4 opacity-60"
+            <img src={fromAvatar} alt={from.name} className="w-24 h-24 rounded-full mx-auto mb-4 opacity-60"
               style={{ boxShadow: `0 0 40px ${from.color}44` }}
-              onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }} />
+              onError={(e) => { e.currentTarget.src = FALLBACK }} />
             <p className="text-white/40 text-sm font-mono tracking-widest">{from.name}</p>
           </div>
         )}
@@ -81,13 +86,13 @@ export function UniverseTransition({ fromAgent, toAgent, reason, onComplete }: U
           <div style={{ animation: 'slide-up 0.6s ease-out' }}>
             <div className="text-white/30 text-xs font-mono tracking-widest mb-4">TRANSIÇÃO</div>
             <div className="flex items-center justify-center gap-6 mb-4">
-              <img src={from.avatar} alt={from.name} className="w-16 h-16 rounded-full opacity-60"
+              <img src={fromAvatar} alt={from.name} className="w-16 h-16 rounded-full opacity-60"
                 style={{ boxShadow: `0 0 30px ${from.color}33` }}
-                onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }} />
+                onError={(e) => { e.currentTarget.src = FALLBACK }} />
               <div className="text-white/20 text-2xl">→</div>
-              <img src={to.avatar} alt={to.name} className="w-16 h-16 rounded-full"
+              <img src={toAvatar} alt={to.name} className="w-16 h-16 rounded-full"
                 style={{ boxShadow: `0 0 30px ${to.color}`, animation: 'pulse-glow 2s ease-in-out infinite' }}
-                onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }} />
+                onError={(e) => { e.currentTarget.src = FALLBACK }} />
             </div>
             <div className="h-px mx-auto mb-4" style={{ background: `linear-gradient(90deg, transparent, ${to.color}, transparent)`, animation: 'expand-line 1.2s ease-out' }} />
             <p className="text-white/50 text-xs font-mono italic max-w-xs mx-auto">{reason}</p>

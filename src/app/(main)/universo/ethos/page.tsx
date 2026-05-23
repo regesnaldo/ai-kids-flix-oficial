@@ -1,12 +1,14 @@
 'use client'
 
 import Link from 'next/link'
-import { Canvas } from '@react-three/fiber'
 import dynamic from 'next/dynamic'
 
-const EthosScene = dynamic(
-  () => import('@/components/scenes/EthosScene').then((m) => m.EthosScene),
-  { ssr: false, loading: () => <div className="w-full h-full bg-black" /> }
+// Entire 3D canvas + scene is lazy-loaded with ssr:false.
+// This prevents the loading <div> from being injected inside <Canvas>,
+// which would cause R3F's "Div is not part of the THREE namespace" error.
+const EthosCanvas = dynamic(
+  () => import('./EthosCanvas'),
+  { ssr: false, loading: () => <div className="absolute inset-0 z-0 bg-black" /> }
 )
 
 const AGENT = {
@@ -21,7 +23,7 @@ const AGENT = {
 export default function EthosUniversePage() {
   return (
     <main className="relative w-full h-screen overflow-hidden" style={{ background: '#0a0a1a' }}>
-      <div className="absolute inset-0 z-0"><Canvas><EthosScene /></Canvas></div>
+      <EthosCanvas />
       <div className="absolute inset-0 z-5 pointer-events-none"
         style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.75) 0%, transparent 50%, rgba(0,0,0,0.3) 100%)' }}
       />

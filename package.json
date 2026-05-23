@@ -37,7 +37,7 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.95.1",
-    "@esbuild/linux-x64": "^0.28.0",
+    "@fingerprintjs/fingerprintjs": "^5.2.0",
     "@langchain/core": "^1.1.46",
     "@langchain/openai": "^1.4.5",
     "@react-three/drei": "^10.7.7",

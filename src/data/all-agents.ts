@@ -19,6 +19,16 @@ export interface HomeAgent {
   category: string;
   level: string;
   features: string[];
+  /** Raw personality data for AI prompt generation */
+  personality: {
+    tone: string;
+    values: string[];
+    approach: string;
+  };
+  /** The agent's laboratory task — used as narrative goal in series */
+  laboratoryTask: string;
+  /** Agent dimension for filtering */
+  dimension: string;
 }
 
 const COLOR_BY_ID: Record<string, string> = {
@@ -70,6 +80,13 @@ function toHomeAgent(agent: AgentDefinition): HomeAgent {
     category: CATEGORY_BY_DIMENSION[agent.dimension],
     level: LEVEL_BY_CANONICAL[agent.level],
     features: agent.personality.values,
+    personality: {
+      tone: agent.personality.tone,
+      values: agent.personality.values,
+      approach: agent.personality.approach,
+    },
+    laboratoryTask: agent.laboratoryTask,
+    dimension: agent.dimension,
   };
 }
 

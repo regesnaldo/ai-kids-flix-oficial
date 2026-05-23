@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { ALL_AGENTS } from "@/canon/agents/all-agents";
+import { getAgentImage, AGENT_IMAGE_FALLBACK } from "@/lib/getAgentImage";
 
 type AgentSelectorProps = {
   onSelect: (agentId: string) => void;
@@ -59,8 +60,9 @@ export default function AgentSelector({ onSelect, onSkip }: AgentSelectorProps) 
               >
                 <div className="relative h-52 bg-[#0f0f1a]">
                   <img
-                    src={`/images/agentes/${agent.id}.png`}
+                    src={getAgentImage(agent.id)}
                     alt={agent.name}
+                    onError={(e) => { e.currentTarget.src = AGENT_IMAGE_FALLBACK }}
                     className="w-full h-full object-cover object-top opacity-90 group-hover:opacity-100 transition-opacity duration-300"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#07070f] via-[#07070f]/20 to-transparent" />

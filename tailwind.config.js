@@ -24,6 +24,9 @@ module.exports = {
           mid: "#f59e0b",
           low: "#ef4444",
         },
+        darkBg: "#0e1420",
+        darkCard: "#161d2e",
+        accentCyan: "#00f5ff",
       },
       fontFamily: {
         display: ["var(--font-display)", "system-ui", "sans-serif"],

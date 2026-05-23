@@ -280,7 +280,7 @@ export const agentMetadata = mysqlTable(
     ordemNaTemporada: int("ordem_na_temporada").notNull().default(0),
     fase:            int("fase").notNull().default(1),              // 1=MVP, 2=Beta, 3=Early, 4=Full
     categoria:       mysqlEnum("categoria", CATEGORIAS_AGENTE).notNull().default("fundamentos"),
-    tags:            json("tags").$type<string[]>().default([]),
+    tags:            json("tags").$type<string[]>().$defaultFn(() => []),
 
     // Gamificação
     dificuldade:         int("dificuldade").notNull().default(1),   // 1-5
@@ -289,7 +289,7 @@ export const agentMetadata = mysqlTable(
     bloqueadoPorPadrao:  boolean("bloqueado_por_padrao").notNull().default(false),
     requisitosDesbloqueio: json("requisitos_desbloqueio")
       .$type<RequisitosDesbloqueio>()
-      .default({}),
+      .$defaultFn(() => ({})),
 
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow().onUpdateNow(),
@@ -370,7 +370,7 @@ export const agentCombinations = mysqlTable(
     // Requisitos para descobrir esta combinação
     requisitosDesbloqueio: json("requisitos_desbloqueio")
       .$type<RequisitosDesbloqueio>()
-      .default({}),
+      .$defaultFn(() => ({})),
 
     ativa:     boolean("ativa").notNull().default(true),
     createdAt: timestamp("created_at").notNull().defaultNow(),
@@ -455,8 +455,8 @@ export const agentMemories = mysqlTable(
     emotionalWeight: decimal("emotional_weight", { precision: 3, scale: 2 }).default("0.00"),
 
     // Metadados para busca contextual
-    tags:     json("tags").$type<string[]>().default([]),
-    contexto: json("contexto").$type<Record<string, unknown>>().default({}),
+    tags:     json("tags").$type<string[]>().$defaultFn(() => []),
+    contexto: json("contexto").$type<Record<string, unknown>>().$defaultFn(() => ({})),
 
     // Controle de ciclo de vida
     ttlDays:      int("ttl_days").notNull().default(90),

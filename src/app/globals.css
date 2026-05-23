@@ -4,6 +4,42 @@
    MENTE.AI — Cyberpunk Design Tokens
    ═══════════════════════════════════════════════════════ */
 
+@theme {
+  /* Core palette */
+  --color-cyber-black: #0a0a1a;
+  --color-cyber-dark: #0f0f2d;
+  --color-cyber-panel: #141432;
+  --color-cyber-surface: #1a1a3e;
+  --color-cyber-border: #2a2a5a;
+
+  /* Neon accents */
+  --color-neon-cyan: #00f0ff;
+  --color-neon-purple: #a855f7;
+  --color-neon-pink: #ec4899;
+  --color-neon-blue: #3b82f6;
+  --color-neon-orange: #f97316;
+  --color-neon-green: #10b981;
+
+  /* Match scores */
+  --color-match-high: #10b981;
+  --color-match-mid: #f59e0b;
+  --color-match-low: #ef4444;
+
+  /* Blog — Premium Dark Blue */
+  --color-dark-bg: #0e1420;
+  --color-dark-card: #161d2e;
+  --color-accent-cyan: #00f5ff;
+
+  /* Typography */
+  --font-display: "Space Grotesk", "Plus Jakarta Sans", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+
+  /* Border radius */
+  --radius-card: 10px;
+  --radius-card-hover: 14px;
+  --radius-modal: 16px;
+}
+
 @layer base {
   :root {
     /* Core palette */
@@ -26,8 +62,13 @@
     --match-mid: #f59e0b;
     --match-low: #ef4444;
 
+    /* Blog — Premium Dark Blue */
+    --dark-bg: #0e1420;
+    --dark-card: #161d2e;
+    --accent-cyan: #00f5ff;
+
     /* Typography */
-    --font-display: "Plus Jakarta Sans", system-ui, sans-serif;
+    --font-display: "Space Grotesk", "Plus Jakarta Sans", system-ui, sans-serif;
     --font-mono: "JetBrains Mono", monospace;
 
     /* Spacing & sizing */

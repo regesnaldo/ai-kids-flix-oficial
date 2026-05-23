@@ -32,13 +32,13 @@ export const contentMetadata = mysqlTable(
     difficulty: int("difficulty").default(1),
 
     // Tags e gêneros para motor de recomendação
-    tags: json("tags").$type<string[]>().default([]),
-    genres: json("genres").$type<string[]>().default([]),
-    moods: json("moods").$type<string[]>().default([]),
+    tags: json("tags").$type<string[]>(),
+    genres: json("genres").$type<string[]>(),
+    moods: json("moods").$type<string[]>(),
 
     // Agentes principais envolvidos
-    primaryAgents: json("primary_agents").$type<string[]>().default([]),
-    secondaryAgents: json("secondary_agents").$type<string[]>().default([]),
+    primaryAgents: json("primary_agents").$type<string[]>(),
+    secondaryAgents: json("secondary_agents").$type<string[]>(),
 
     // Métricas de engajamento
     avgCompletionRate: decimal("avg_completion_rate", { precision: 5, scale: 2 }).default("0"),
@@ -51,7 +51,6 @@ export const contentMetadata = mysqlTable(
   },
   (t) => ({
     idxSeries: index("idx_cm_series").on(t.seriesId),
-    idxTags: index("idx_cm_tags").on(t.tags),
     idxMatch: index("idx_cm_match").on(t.matchBaseScore),
   }),
 );
@@ -186,3 +185,172 @@ export const userInteractions = mysqlTable(
 
 export type UserInteraction = typeof userInteractions.$inferSelect;
 export type NewUserInteraction = typeof userInteractions.$inferInsert;
+
+// ═══════════════════════════════════════════════════════
+// MENTE.AI — Gamification: XP, Referrals, Rewards, Fraud
+// ═══════════════════════════════════════════════════════
+
+export const xpEvents = mysqlTable(
+  "xp_events",
+  {
+    id: varchar("id", { length: 36 }).primaryKey(),
+    userId: int("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+    amount: int("amount").notNull(),
+    reason: varchar("reason", { length: 50 }).notNull(),
+    agentId: varchar("agent_id", { length: 50 }),
+    season: int("season"),
+    episode: int("episode"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (t) => ({
+    idxUser: index("idx_xpe_user").on(t.userId),
+    idxUserDate: index("idx_xpe_user_date").on(t.userId, t.createdAt),
+    idxReason: index("idx_xpe_reason").on(t.reason),
+  }),
+);
+
+export type XpEvent = typeof xpEvents.$inferSelect;
+export type NewXpEvent = typeof xpEvents.$inferInsert;
+
+export const referrals = mysqlTable(
+  "referrals",
+  {
+    id: varchar("id", { length: 36 }).primaryKey(),
+    referrerId: int("referrer_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+    invitedId: int("invited_id").references(() => users.id, { onDelete: "set null" }),
+    invitedEmail: varchar("invited_email", { length: 320 }),
+    ipAddress: varchar("ip_address", { length: 45 }),
+    fingerprint: varchar("fingerprint", { length: 255 }),
+    valid: boolean("valid").default(false),
+    validatedAt: timestamp("validated_at"),
+    validationReason: varchar("validation_reason", { length: 255 }),
+    linkCode: varchar("link_code", { length: 20 }).unique(),
+    expiresAt: timestamp("expires_at"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (t) => ({
+    idxReferrer: index("idx_ref_referrer").on(t.referrerId),
+    idxInvited: index("idx_ref_invited").on(t.invitedId),
+    idxLinkCode: index("idx_ref_link").on(t.linkCode),
+    idxValid: index("idx_ref_valid").on(t.valid),
+  }),
+);
+
+export type Referral = typeof referrals.$inferSelect;
+export type NewReferral = typeof referrals.$inferInsert;
+
+export const rewards = mysqlTable(
+  "rewards",
+  {
+    id: varchar("id", { length: 36 }).primaryKey(),
+    userId: int("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+    level: int("level").notNull(),
+    type: varchar("type", { length: 50 }).notNull(),
+    code: varchar("code", { length: 100 }),
+    claimedAt: timestamp("claimed_at"),
+    expiresAt: timestamp("expires_at"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (t) => ({
+    idxUser: index("idx_rwd_user").on(t.userId),
+    idxLevel: index("idx_rwd_level").on(t.level),
+  }),
+);
+
+export type Reward = typeof rewards.$inferSelect;
+export type NewReward = typeof rewards.$inferInsert;
+
+export const fraudLog = mysqlTable(
+  "fraud_log",
+  {
+    id: varchar("id", { length: 36 }).primaryKey(),
+    userId: int("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+    reason: varchar("reason", { length: 255 }).notNull(),
+    riskScore: int("risk_score").default(0),
+    flaggedAt: timestamp("flagged_at").defaultNow().notNull(),
+  },
+  (t) => ({
+    idxUser: index("idx_fl_user").on(t.userId),
+    idxScore: index("idx_fl_score").on(t.riskScore),
+  }),
+);
+
+export type FraudLogEntry = typeof fraudLog.$inferSelect;
+export type NewFraudLogEntry = typeof fraudLog.$inferInsert;
+
+// ═══════════════════════════════════════════════════════
+// MENTE.AI — Blog: Posts, Reads, Parental Controls
+// ═══════════════════════════════════════════════════════
+
+export const blogPosts = mysqlTable(
+  "blog_posts",
+  {
+    id: varchar("id", { length: 36 }).primaryKey(),
+    slug: varchar("slug", { length: 255 }).unique().notNull(),
+    title: varchar("title", { length: 500 }).notNull(),
+    summary: varchar("summary", { length: 500 }),
+    content: text("content").notNull(),
+    openingScene: text("opening_scene"),
+    category: varchar("category", { length: 100 }).notNull(),
+    agentId: varchar("agent_id", { length: 50 }),
+    agentCommentary: text("agent_commentary"),
+    interactivePause: json("interactive_pause").$type<{
+      pergunta: string;
+      opcoes: [string, string, string];
+      continuacoes: [string, string, string];
+    }>(),
+    ageRating: varchar("age_rating", { length: 10 }).default("all"),
+    xpReward: int("xp_reward").default(5),
+    whatsappText: text("whatsapp_text"),
+    generatedBy: varchar("generated_by", { length: 50 }).default("deepseek"),
+    publishedAt: timestamp("published_at").defaultNow().notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (t) => ({
+    idxSlug: index("idx_bp_slug").on(t.slug),
+    idxCategory: index("idx_bp_cat").on(t.category),
+    idxPublished: index("idx_bp_pub").on(t.publishedAt),
+  }),
+);
+
+export type BlogPost = typeof blogPosts.$inferSelect;
+export type NewBlogPost = typeof blogPosts.$inferInsert;
+
+export const blogReads = mysqlTable(
+  "blog_reads",
+  {
+    id: varchar("id", { length: 36 }).primaryKey(),
+    userId: int("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+    postId: varchar("post_id", { length: 36 }).notNull(),
+    completed: boolean("completed").default(false),
+    choiceMade: varchar("choice_made", { length: 1 }),
+    xpAwarded: int("xp_awarded").default(0),
+    readAt: timestamp("read_at").defaultNow().notNull(),
+  },
+  (t) => ({
+    idxUserPost: uniqueIndex("idx_br_user_post").on(t.userId, t.postId),
+    idxUser: index("idx_br_user").on(t.userId),
+  }),
+);
+
+export type BlogRead = typeof blogReads.$inferSelect;
+
+export const parentControls = mysqlTable(
+  "parent_controls",
+  {
+    id: varchar("id", { length: 36 }).primaryKey(),
+    parentId: int("parent_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+    childId: int("child_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+    timeLimitMinutes: int("time_limit_minutes").default(60),
+    allowedCategories: json("allowed_categories").$type<string[]>(),
+    pin: varchar("pin", { length: 6 }),
+    weeklyReport: boolean("weekly_report").default(true),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (t) => ({
+    uniqParentChild: uniqueIndex("idx_pc_pair").on(t.parentId, t.childId),
+  }),
+);
+
+export type ParentControl = typeof parentControls.$inferSelect;
+export type NewParentControl = typeof parentControls.$inferInsert;
