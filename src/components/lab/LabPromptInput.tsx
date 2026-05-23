@@ -16,9 +16,10 @@ const EXAMPLE_CHIPS = [
 interface LabPromptInputProps {
   onSubmit: (topic: string) => void;
   isLoading: boolean;
+  isCached?: (question: string) => boolean;
 }
 
-export function LabPromptInput({ onSubmit, isLoading }: LabPromptInputProps) {
+export function LabPromptInput({ onSubmit, isLoading, isCached }: LabPromptInputProps) {
   const [input, setInput] = useState("");
 
   const handleSubmit = () => {
@@ -77,24 +78,27 @@ export function LabPromptInput({ onSubmit, isLoading }: LabPromptInputProps) {
 
       {/* Example chips */}
       <div className="flex flex-wrap gap-2 justify-center">
-        {EXAMPLE_CHIPS.map((chip) => (
+        {EXAMPLE_CHIPS.map((chip) => {
+          const cached = isCached?.(chip.label);
+          return (
           <motion.button
             key={chip.label}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => setInput(chip.label)}
             disabled={isLoading}
+            title={cached ? "Resposta instantânea — disponível offline, sem espera, sempre gratuita" : "Requer conexão com IA"}
             className="flex items-center gap-1.5 px-3.5 py-2 rounded-full text-[11px] transition-all duration-200 hover:brightness-125 disabled:opacity-50"
             style={{
-              background: "rgba(255,255,255,0.03)",
-              border: "1px solid rgba(255,255,255,0.05)",
-              color: "rgba(255,255,255,0.45)",
+              background: cached ? "rgba(0,245,255,0.04)" : "rgba(255,255,255,0.03)",
+              border: cached ? "1px solid rgba(0,245,255,0.12)" : "1px solid rgba(255,255,255,0.05)",
+              color: cached ? "rgba(255,255,255,0.6)" : "rgba(255,255,255,0.45)",
             }}
           >
-            <span>{chip.icon}</span>
+            <span>{cached ? "⚡" : chip.icon}</span>
             {chip.label}
           </motion.button>
-        ))}
+        )})}
       </div>
     </div>
   );

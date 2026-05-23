@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getBoard, saveBoard, kvSet, type AgentStep } from "../board-store";
+import { getBoard, saveBoard, kvSet, kvGetCounter, kvIncr, kvDecr, type AgentStep } from "../board-store";
 
 // ── Agent definitions ──────────────────────────────────────────────────
 const AGENTS: Record<string, { name: string; role: string; color: string; catchphrase: string }> = {
@@ -199,9 +199,13 @@ export async function POST(request: NextRequest) {
     const maxTokens = isEconomy ? 800 : 1500;
     let response: string;
 
+    // Increment global counter for LLM usage
+    kvIncr("global_active", 60);
+
     try {
       response = await callDeepSeek(systemPrompt, maxTokens);
     } catch (err: any) {
+      kvDecr("global_active"); // decrement on error
       console.error("[lab/agent] Falha na chamada LLM", {
         agent: body.agent,
         error: err?.message,
@@ -267,6 +271,9 @@ export async function POST(request: NextRequest) {
     }
 
     saveBoard(board);
+
+    // Decrement global counter after LLM work
+    kvDecr("global_active");
 
     const elapsed = Date.now() - startTime;
     console.log("[lab/agent] Concluído", {
