@@ -481,3 +481,47 @@ export const agentMemories = mysqlTable(
 
 export type AgentMemory    = typeof agentMemories.$inferSelect;
 export type NewAgentMemory = typeof agentMemories.$inferInsert;
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// FOUNDATION FREEZE — Universe Progression
+// ═══════════════════════════════════════════════════════════════════════════════
+
+export const universeProgression = mysqlTable(
+  "universe_progression",
+  {
+    id: varchar("id", { length: 36 }).primaryKey(),
+
+    userId: int("user_id").notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+
+    // Planetas completados: ["nexus", "kaos", ...]
+    completed: json("completed").$type<string[]>().$defaultFn(() => []),
+
+    // Planeta ativo atual (null = nenhum)
+    activePlanet: varchar("active_planet", { length: 50 }),
+
+    // Planetas disponíveis para ativação: ["lyra", ...]
+    available: json("available").$type<string[]>().$defaultFn(() => ["nexus"]),
+
+    // Dicas ativas (max 2): [{ id, planetId, text, createdAt }]
+    activeHints: json("active_hints").$defaultFn(() => []),
+
+    // Timestamp da última mudança de progressão (cooldown)
+    lastProgressionAt: timestamp("last_progression_at").defaultNow(),
+
+    // Total completado (derivado, cache para queries rápidas)
+    totalCompleted: int("total_completed").notNull().default(0),
+
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow().onUpdateNow(),
+  },
+  (t) => ({
+    // Um registro por usuário
+    uniqUser:  uniqueIndex("uq_up_user").on(t.userId),
+    // "Quantos usuários estão ativos no planeta X"
+    idxActive: index("idx_up_active_planet").on(t.activePlanet),
+  }),
+);
+
+export type UniverseProgression    = typeof universeProgression.$inferSelect;
+export type NewUniverseProgression = typeof universeProgression.$inferInsert;

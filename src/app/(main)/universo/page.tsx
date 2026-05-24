@@ -1,264 +1,659 @@
-'use client';
+"use client";
 
-import { useMemo, useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+/**
+ * Universo — Mapa Galactico com Planetas Dinamicos
+ *
+ * Cada planeta le do planet-registry (dados) e progression-engine (estado).
+ * Click ativa o planeta e dispara a assinatura de audio.
+ * NEXUS centrado. Orbitas concentricas. 12 circulos perfeitos.
+ */
+
+import { useMemo, useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
+import {
+  planetRegistry,
+  ALL_PLANET_IDS,
+  type PlanetId,
+  type PlanetState,
+} from "@/lib/universe/planet-registry";
+import {
+  getOrCreateProgression,
+  calculatePlanetState,
+  activatePlanet,
+  type PlayerProgression,
+} from "@/lib/universe/progression-engine";
+import { audioManager } from "@/lib/universe/audio-manager";
+import { MissionOrbit } from "@/components/universe/MissionOrbit";
+import { UniverseHUD } from "@/components/universe/UniverseHUD";
+import { tokens } from "@/design-system/tokens";
+import { typography, toStyle } from "@/design-system/typography";
+
+// ─── ORBITAL LAYOUT ───────────────────────────────────────────────────────────
+
+/** Orbital positions: radius in px + rotation angle in degrees */
+const ORBIT_CONFIG: Record<PlanetId, { radius: number; angle: number }> = {
+  nexus:   { radius: 0,    angle: 0 },
+  volt:    { radius: 360,  angle: 0 },
+  aurora:  { radius: 520,  angle: 0 },
+  ethos:   { radius: 680,  angle: 15 },
+  kaos:    { radius: 820,  angle: 45 },
+  cipher:  { radius: 960,  angle: 90 },
+  lyra:    { radius: 1100, angle: 135 },
+  axiom:   { radius: 1220, angle: 180 },
+  stratos: { radius: 1340, angle: 225 },
+  terra:   { radius: 1460, angle: 270 },
+  prism:   { radius: 1580, angle: 315 },
+  janus:   { radius: 1700, angle: 30 },
+};
+
+// ─── STARFIELD ────────────────────────────────────────────────────────────────
 
 type StarData = {
-  left: string;
-  top: string;
-  size: string;
-  color: string;
-  opacity: number;
-  twinkle: boolean;
+  left: string; top: string; size: string;
+  color: string; opacity: number; twinkle: boolean;
 };
 
 function createStars(): StarData[] {
-  return Array.from({ length: 120 }, () => {
-    const size = Math.random() > 0.7 ? 3 : Math.random() > 0.5 ? 2 : 1;
-    return {
-      left: `${Math.random() * 100}%`,
-      top: `${Math.random() * 100}%`,
-      size: `${size}px`,
-      color: Math.random() > 0.5 ? '#ffffff' : '#00f5ff',
-      opacity: Number((Math.random() * 0.6 + 0.3).toFixed(2)),
-      twinkle: Math.random() < 0.3,
-    };
-  });
+  return Array.from({ length: 120 }, () => ({
+    left: `${Math.random() * 100}%`,
+    top: `${Math.random() * 100}%`,
+    size: `${Math.random() > 0.7 ? 3 : Math.random() > 0.5 ? 2 : 1}px`,
+    color: Math.random() > 0.5 ? "#ffffff" : "#00f5ff",
+    opacity: Number((Math.random() * 0.6 + 0.3).toFixed(2)),
+    twinkle: Math.random() < 0.3,
+  }));
 }
+
+// ─── STATE LABELS ─────────────────────────────────────────────────────────────
+
+const STATE_LABEL: Record<PlanetState, string> = {
+  undiscovered: "",
+  available: "SINAL DETECTADO",
+  active: "MISSÃO EM ANDAMENTO",
+  completed: "DOMINADO",
+};
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// PAGE
+// ═══════════════════════════════════════════════════════════════════════════════
 
 export default function UniversoPage() {
   const router = useRouter();
-  const [hoveredPlanet, setHoveredPlanet] = useState<string | null>(null);
-  const [enteringId, setEnteringId] = useState<string | null>(null);
+  const [progression, setProgression] = useState<PlayerProgression | null>(null);
+  const [hoveredPlanet, setHoveredPlanet] = useState<PlanetId | null>(null);
+  const [enteringId, setEnteringId] = useState<PlanetId | null>(null);
   const [flashActive, setFlashActive] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [viewport, setViewport] = useState({ w: 1920, h: 1080 });
 
-  useEffect(() => { setMounted(true); }, []);
+  // Track viewport for SVG coordinate calculations
+  useEffect(() => {
+    const update = () => setViewport({ w: window.innerWidth, h: window.innerHeight });
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
+
+  // Load progression from DB
+  useEffect(() => {
+    setMounted(true);
+    getOrCreateProgression(1).then(setProgression).catch(() => {
+      // Fallback: estado inicial para primeiro acesso
+      setProgression({
+        id: "",
+        completed: [],
+        activePlanet: null,
+        available: ["nexus"],
+        activeHints: [],
+        lastProgressionAt: 0,
+        totalCompleted: 0,
+      });
+    });
+  }, []);
 
   const stars = useMemo(() => (mounted ? createStars() : []), [mounted]);
 
-  const handlePlanetClick = (planetId: string, unlocked: boolean) => {
-    if (!unlocked) return;
-    setEnteringId(planetId);
-    setFlashActive(true);
-    window.setTimeout(() => { router.push(`/lab?agent=${planetId}`); }, 600);
-    window.setTimeout(() => { setFlashActive(false); }, 620);
-  };
+  // Planet state calculator (pure, derived from progression)
+  const getState = useCallback(
+    (id: PlanetId): PlanetState => {
+      if (!progression) return "undiscovered";
+      return calculatePlanetState(id, progression);
+    },
+    [progression]
+  );
+
+  // ── SVG positions (viewport-relative, mathematically calculated) ──
+  const orbitPositions = useMemo(() => {
+    const cx = viewport.w / 2;
+    const cy = viewport.h / 2;
+    const pos: Record<PlanetId, { x: number; y: number }> = {} as any;
+
+    for (const id of ALL_PLANET_IDS) {
+      const cfg = ORBIT_CONFIG[id];
+      const rad = (cfg.angle * Math.PI) / 180;
+      pos[id] = {
+        x: cx + Math.cos(rad) * cfg.radius,
+        y: cy + Math.sin(rad) * cfg.radius,
+      };
+    }
+    return pos;
+  }, [viewport]);
+
+  // ── SVG connections (NEXUS → available/active, completed → unlocked) ──
+  const orbitConnections = useMemo(() => {
+    if (!progression) return [];
+    const conns: { from: PlanetId; to: PlanetId }[] = [];
+    const added = new Set<string>();
+
+    const add = (a: PlanetId, b: PlanetId) => {
+      const key = [a, b].sort().join("|");
+      if (!added.has(key)) {
+        added.add(key);
+        conns.push({ from: a, to: b });
+      }
+    };
+
+    for (const id of ALL_PLANET_IDS) {
+      const state = calculatePlanetState(id, progression);
+      // NEXUS connects to available/active/completed planets
+      if (state === "available" || state === "active" || state === "completed") {
+        add("nexus", id);
+      }
+      // Completed planet connects to its unlocked children
+      if (state === "completed") {
+        for (const child of planetRegistry[id].unlocks) {
+          add(id, child);
+        }
+      }
+    }
+
+    return conns;
+  }, [progression]);
+
+  // Handle planet click
+  const handlePlanetClick = useCallback(
+    async (planetId: PlanetId) => {
+      const state = getState(planetId);
+      if (state === "undiscovered") return;
+
+      // Init audio on first interaction
+      if (!audioManager.isAvailable()) {
+        await audioManager.init();
+      }
+
+      // Activate planet (writes to DB + emits events)
+      if (state === "available") {
+        const result = await activatePlanet(planetId, 1);
+        if (result.success) {
+          setProgression(result.progression);
+          audioManager.playSignature(planetId);
+        }
+      } else if (state === "active") {
+        audioManager.playSignature(planetId);
+      }
+
+      // Navigate to lab
+      setEnteringId(planetId);
+      setFlashActive(true);
+      window.setTimeout(() => {
+        router.push(`/universo/${planetId}/lab`);
+      }, 600);
+      window.setTimeout(() => setFlashActive(false), 620);
+    },
+    [getState]
+  );
 
   return (
-    <div className="galacticMap">
+    <div style={styles.galacticMap}>
       {/* Stars */}
-      {stars.map((star, index) => (
-        <span key={index} className={`star ${star.twinkle ? 'twinkle' : ''}`}
-          style={{ left: star.left, top: star.top, width: star.size, height: star.size, backgroundColor: star.color, opacity: star.opacity }} />
+      {stars.map((star, i) => (
+        <span
+          key={i}
+          className={star.twinkle ? "star-twinkle" : ""}
+          style={{
+            position: "absolute",
+            left: star.left,
+            top: star.top,
+            width: star.size,
+            height: star.size,
+            backgroundColor: star.color,
+            opacity: star.opacity,
+            borderRadius: "50%",
+          }}
+        />
       ))}
 
-      <div className="headerLabel">NEXUS PRIME // MAPA GALÁCTICO // 12 MUNDOS DETECTADOS</div>
-      <button className="backButton" type="button" onClick={() => router.push('/home')}>← TORRE CENTRAL</button>
+      {/* Header */}
+      <div style={styles.headerLabel}>
+        NEXUS PRIME // MAPA GALACTICO // {progression?.totalCompleted ?? 0}/12 MUNDOS ATIVOS
+      </div>
+      <button
+        style={styles.backButton}
+        type="button"
+        onClick={() => router.push("/home")}
+      >
+        ← TORRE CENTRAL
+      </button>
 
-      {/* === SOLAR SYSTEM — flat, no tilt === */}
-      <div className="solarSystem">
+      {/* ── Solar System ── */}
+      <div style={styles.solarSystem}>
 
-        {/* ── NEXUS Sun ── */}
-        <div className="nexusSun" onClick={() => handlePlanetClick('nexus', true)}
-          onMouseEnter={() => setHoveredPlanet('nexus')} onMouseLeave={() => setHoveredPlanet(null)}>
-          <div className="sunCore" />
-          <div className="sunGlow" />
-          <span className="sunLabel">NEXUS</span>
-          {hoveredPlanet === 'nexus' && <div className="planetTooltip">ENTRAR NO NEXUS</div>}
-        </div>
+        {/* ── MissionOrbit: SVG connection lines ── */}
+        {progression && (
+          <MissionOrbit
+            connections={orbitConnections}
+            progression={progression}
+            positions={orbitPositions}
+            width={viewport.w}
+            height={viewport.h}
+          />
+        )}
 
-        {/* ── VOLT orbit (360px) ── */}
-        <div className="orbitContainer" style={{ width: 360, height: 360 }}>
-          <div className="orbitRing" />
-          <div className="planetSpin" style={{ animationDuration: '12s' }}
-            onMouseEnter={() => setHoveredPlanet('volt')} onMouseLeave={() => setHoveredPlanet(null)}
-            onClick={() => handlePlanetClick('volt', true)}>
-            <div className="planetAnchor" style={{ marginTop: -180 }}>
-              <div className="planetCircle" style={{ background: 'radial-gradient(circle at 35% 35%, #fff95c, #ffff00, #000)', boxShadow: '0 0 12px #ffff00, 0 0 24px #ffff0040', borderColor: '#ffff00' }} />
-              <span className="planetName" style={{ color: '#ffff00' }}>VOLT</span>
-              {hoveredPlanet === 'volt' && <div className="planetTooltip">ENTRAR NO MUNDO DE VOLT</div>}
-            </div>
-          </div>
-        </div>
+        {/* ── Orbital rings ── */}
+        {ALL_PLANET_IDS.filter((id) => id !== "nexus").map((id) => {
+          const config = ORBIT_CONFIG[id];
+          const state = getState(id);
+          const isDiscovered = state !== "undiscovered";
+          return (
+            <div
+              key={`orbit-${id}`}
+              style={{
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+                width: config.radius * 2,
+                height: config.radius * 2,
+                borderRadius: "50%",
+                border: "1px dashed",
+                borderColor: isDiscovered
+                  ? "rgba(0, 245, 255, 0.12)"
+                  : "rgba(255, 255, 255, 0.04)",
+                pointerEvents: "none",
+              }}
+            />
+          );
+        })}
 
-        {/* ── AURORA orbit (520px) ── */}
-        <div className="orbitContainer" style={{ width: 520, height: 520 }}>
-          <div className="orbitRing" />
-          <div className="planetSpin" style={{ animationDuration: '18s' }}
-            onMouseEnter={() => setHoveredPlanet('aurora')} onMouseLeave={() => setHoveredPlanet(null)}
-            onClick={() => handlePlanetClick('aurora', true)}>
-            <div className="planetAnchor" style={{ marginTop: -260 }}>
-              <div className="planetCircle" style={{ background: 'radial-gradient(circle at 35% 35%, #ff8bff, #ff00ff, #000)', boxShadow: '0 0 12px #ff00ff, 0 0 24px #ff00ff40', borderColor: '#ff00ff' }} />
-              <span className="planetName" style={{ color: '#ff00ff' }}>AURORA</span>
-              {hoveredPlanet === 'aurora' && <div className="planetTooltip">ENTRAR NO MUNDO DE AURORA</div>}
-            </div>
-          </div>
-        </div>
+        {/* ── NEXUS (center) ── */}
+        <PlanetOrb
+          planetId="nexus"
+          state={getState("nexus")}
+          isHovered={hoveredPlanet === "nexus"}
+          onHover={setHoveredPlanet}
+          onClick={handlePlanetClick}
+          isCenter
+        />
 
-        {/* ── ETHOS (locked) — 680px ── */}
-        <div className="orbitContainer" style={{ width: 680, height: 680 }}>
-          <div className="orbitRing lockedRing" />
-          <div className="lockedNode" style={{ transform: 'rotate(0deg)' }}
-            onMouseEnter={() => setHoveredPlanet('ethos')} onMouseLeave={() => setHoveredPlanet(null)}>
-            <div className="lockedInner">
-              <div className="planetCircle lockedCircle"><span className="lockIcon">🔒</span></div>
-              <span className="planetName lockedName">ETHOS</span>
-            </div>
-          </div>
-        </div>
-
-        {/* ── KAOS (locked) — 820px ── */}
-        <div className="orbitContainer" style={{ width: 820, height: 820 }}>
-          <div className="orbitRing lockedRing" />
-          <div className="lockedNode" style={{ transform: 'rotate(45deg)' }}
-            onMouseEnter={() => setHoveredPlanet('kaos')} onMouseLeave={() => setHoveredPlanet(null)}>
-            <div className="lockedInner">
-              <div className="planetCircle lockedCircle"><span className="lockIcon">🔒</span></div>
-              <span className="planetName lockedName">KAOS</span>
-            </div>
-          </div>
-        </div>
-
-        {/* ── CIPHER (locked) — 960px ── */}
-        <div className="orbitContainer" style={{ width: 960, height: 960 }}>
-          <div className="orbitRing lockedRing" />
-          <div className="lockedNode" style={{ transform: 'rotate(90deg)' }}
-            onMouseEnter={() => setHoveredPlanet('cipher')} onMouseLeave={() => setHoveredPlanet(null)}>
-            <div className="lockedInner">
-              <div className="planetCircle lockedCircle"><span className="lockIcon">🔒</span></div>
-              <span className="planetName lockedName">CIPHER</span>
-            </div>
-          </div>
-        </div>
-
-        {/* ── LYRA (locked) — 1100px ── */}
-        <div className="orbitContainer" style={{ width: 1100, height: 1100 }}>
-          <div className="orbitRing lockedRing" />
-          <div className="lockedNode" style={{ transform: 'rotate(135deg)' }}
-            onMouseEnter={() => setHoveredPlanet('lyra')} onMouseLeave={() => setHoveredPlanet(null)}>
-            <div className="lockedInner">
-              <div className="planetCircle lockedCircle"><span className="lockIcon">🔒</span></div>
-              <span className="planetName lockedName">LYRA</span>
-            </div>
-          </div>
-        </div>
-
-        {/* ── AXIOM (locked) — 1220px ── */}
-        <div className="orbitContainer" style={{ width: 1220, height: 1220 }}>
-          <div className="orbitRing lockedRing" />
-          <div className="lockedNode" style={{ transform: 'rotate(180deg)' }}
-            onMouseEnter={() => setHoveredPlanet('axiom')} onMouseLeave={() => setHoveredPlanet(null)}>
-            <div className="lockedInner">
-              <div className="planetCircle lockedCircle"><span className="lockIcon">🔒</span></div>
-              <span className="planetName lockedName">AXIOM</span>
-            </div>
-          </div>
-        </div>
-
-        {/* ── STRATOS (locked) — 1340px ── */}
-        <div className="orbitContainer" style={{ width: 1340, height: 1340 }}>
-          <div className="orbitRing lockedRing" />
-          <div className="lockedNode" style={{ transform: 'rotate(225deg)' }}
-            onMouseEnter={() => setHoveredPlanet('stratos')} onMouseLeave={() => setHoveredPlanet(null)}>
-            <div className="lockedInner">
-              <div className="planetCircle lockedCircle"><span className="lockIcon">🔒</span></div>
-              <span className="planetName lockedName">STRATOS</span>
-            </div>
-          </div>
-        </div>
-
-        {/* ── TERRA (locked) — 1460px ── */}
-        <div className="orbitContainer" style={{ width: 1460, height: 1460 }}>
-          <div className="orbitRing lockedRing" />
-          <div className="lockedNode" style={{ transform: 'rotate(270deg)' }}
-            onMouseEnter={() => setHoveredPlanet('terra')} onMouseLeave={() => setHoveredPlanet(null)}>
-            <div className="lockedInner">
-              <div className="planetCircle lockedCircle"><span className="lockIcon">🔒</span></div>
-              <span className="planetName lockedName">TERRA</span>
-            </div>
-          </div>
-        </div>
-
-        {/* ── PRISM (locked) — 1580px ── */}
-        <div className="orbitContainer" style={{ width: 1580, height: 1580 }}>
-          <div className="orbitRing lockedRing" />
-          <div className="lockedNode" style={{ transform: 'rotate(315deg)' }}
-            onMouseEnter={() => setHoveredPlanet('prism')} onMouseLeave={() => setHoveredPlanet(null)}>
-            <div className="lockedInner">
-              <div className="planetCircle lockedCircle"><span className="lockIcon">🔒</span></div>
-              <span className="planetName lockedName">PRISM</span>
-            </div>
-          </div>
-        </div>
-
-        {/* ── JANUS (locked) — 1700px ── */}
-        <div className="orbitContainer" style={{ width: 1700, height: 1700 }}>
-          <div className="orbitRing lockedRing" />
-          <div className="lockedNode" style={{ transform: 'rotate(40deg)' }}
-            onMouseEnter={() => setHoveredPlanet('janus')} onMouseLeave={() => setHoveredPlanet(null)}>
-            <div className="lockedInner">
-              <div className="planetCircle lockedCircle"><span className="lockIcon">🔒</span></div>
-              <span className="planetName lockedName">JANUS</span>
-            </div>
-          </div>
-        </div>
+        {/* ── Orbiting planets ── */}
+        {ALL_PLANET_IDS.filter((id) => id !== "nexus").map((id) => {
+          const config = ORBIT_CONFIG[id];
+          const state = getState(id);
+          return (
+            <PlanetOrb
+              key={id}
+              planetId={id}
+              state={state}
+              radius={config.radius}
+              angle={config.angle}
+              isHovered={hoveredPlanet === id}
+              onHover={setHoveredPlanet}
+              onClick={handlePlanetClick}
+            />
+          );
+        })}
 
       </div>
 
-      {flashActive && <div className="flashOverlay" />}
+      {/* Flash overlay on planet entry */}
+      {flashActive && <div style={styles.flashOverlay} />}
 
-      <style jsx>{`
-        .galacticMap {
-          width: 100vw; height: 100vh; position: relative; overflow: hidden;
-          background: radial-gradient(ellipse at center, #000510 0%, #000000 70%);
+      {/* ── UniverseHUD: sistema operacional overlay ── */}
+      {progression && <UniverseHUD progression={progression} />}
+
+      {/* Keyframes */}
+      <style>{`
+        @keyframes twinkleStar {
+          from { opacity: 0.35; transform: scale(1); }
+          to { opacity: 0.95; transform: scale(1.2); }
         }
-        .headerLabel { position: absolute; top: 22px; left: 50%; transform: translateX(-50%); font-family: monospace; font-size: 11px; color: #00f5ff; opacity: 0.6; z-index: 10; white-space: nowrap; }
-        .backButton { position: absolute; top: 22px; left: 24px; font-family: monospace; font-size: 11px; color: #00f5ff; opacity: 0.6; background: transparent; border: none; cursor: pointer; z-index: 10; }
-        .backButton:hover { opacity: 1; }
-        .star { position: absolute; border-radius: 9999px; }
-        .twinkle { animation: twinkleStar 3s ease-in-out infinite alternate; }
-        .flashOverlay { position: absolute; inset: 0; background: #00f5ff; opacity: 0.15; z-index: 100; pointer-events: none; }
-
-        /* === Solar System === */
-        .solarSystem { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 0; height: 0; }
-
-        /* NEXUS Sun — centered, no tilt */
-        .nexusSun { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 5; cursor: pointer; display: flex; flex-direction: column; align-items: center; }
-        .sunCore { width: 80px; height: 80px; border-radius: 50%; background: radial-gradient(circle at 40% 40%, #6ee7ff, #00f5ff, #0088cc); box-shadow: 0 0 30px #00f5ff, 0 0 60px rgba(0,245,255,0.5), 0 0 100px rgba(0,245,255,0.2); animation: sunPulse 3s ease-in-out infinite; }
-        .sunGlow { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 120px; height: 120px; border-radius: 50%; background: radial-gradient(circle, rgba(0,245,255,0.2), transparent 70%); animation: sunPulse 3s ease-in-out infinite; pointer-events: none; }
-        .sunLabel { font-family: monospace; font-size: 14px; font-weight: 700; color: #fff; margin-top: 8px; text-shadow: 0 0 8px rgba(0,245,255,0.6); }
-
-        /* Orbit */
-        .orbitContainer { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); border-radius: 50%; }
-        .orbitRing { position: absolute; inset: 0; border-radius: 50%; border: 1px dashed rgba(0,245,255,0.15); pointer-events: none; }
-        .lockedRing { border-color: rgba(255,255,255,0.06); }
-
-        /* Spinning planet */
-        .planetSpin { position: absolute; inset: 0; border-radius: 50%; animation: spin linear infinite; cursor: pointer; }
-        .planetAnchor { position: absolute; top: 50%; left: 50%; transform: translate(-50%, 0); display: flex; flex-direction: column; align-items: center; gap: 4px; }
-
-        /* Planet circle */
-        .planetCircle { width: 52px; height: 52px; border-radius: 50%; border: 1px solid; display: grid; place-items: center; transition: transform 300ms ease; }
-        .planetCircle:hover { transform: scale(1.15); }
-        .lockedCircle { width: 44px; height: 44px; background: radial-gradient(circle, #1a1a2e, #000); border-color: rgba(255,255,255,0.08); }
-        .lockIcon { font-size: 14px; opacity: 0.5; }
-
-        /* Planet name */
-        .planetName { font-family: monospace; font-size: 14px; font-weight: 600; color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,0.8); white-space: nowrap; letter-spacing: 0.04em; }
-        .lockedName { color: #666; text-shadow: none; }
-
-        /* Locked planet node */
-        .lockedNode { position: absolute; top: 50%; left: 50%; width: 0; height: 0; }
-        .lockedInner { position: absolute; top: -50%; left: 50%; transform: translate(-50%, 0); display: flex; flex-direction: column; align-items: center; gap: 3px; opacity: 0.4; pointer-events: auto; }
-
-        /* Tooltip */
-        .planetTooltip { position: absolute; top: -32px; left: 50%; transform: translateX(-50%); pointer-events: none; background: rgba(0,0,0,0.85); border: 1px solid #00f5ff; padding: 3px 8px; border-radius: 9999px; font-family: monospace; font-size: 10px; color: #fff; white-space: nowrap; z-index: 20; }
-
-        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        @keyframes sunPulse { 0%, 100% { transform: translate(-50%, -50%) scale(1); } 50% { transform: translate(-50%, -50%) scale(1.05); } }
-        @keyframes twinkleStar { from { opacity: 0.35; transform: scale(1); } to { opacity: 0.95; transform: scale(1.2); } }
+        .star-twinkle { animation: twinkleStar 3s ease-in-out infinite alternate; }
+        @keyframes sunPulse {
+          0%, 100% { transform: translate(-50%, -50%) scale(1); }
+          50% { transform: translate(-50%, -50%) scale(1.05); }
+        }
+        @keyframes orbitSpin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        @keyframes planetPulse {
+          0%, 100% { box-shadow: var(--glow-color); }
+          50% { box-shadow: var(--glow-color-strong); }
+        }
       `}</style>
     </div>
   );
 }
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// PLANET ORB — Sub-componente
+// ═══════════════════════════════════════════════════════════════════════════════
+
+function PlanetOrb({
+  planetId,
+  state,
+  radius = 0,
+  angle = 0,
+  isHovered,
+  onHover,
+  onClick,
+  isCenter = false,
+}: {
+  planetId: PlanetId;
+  state: PlanetState;
+  radius?: number;
+  angle?: number;
+  isHovered: boolean;
+  onHover: (id: PlanetId | null) => void;
+  onClick: (id: PlanetId) => void;
+  isCenter?: boolean;
+}) {
+  const planet = planetRegistry[planetId];
+  const isInteractive = state !== "undiscovered";
+
+  // ── Visual properties ──────────────────────────────────────────────
+
+  const orbSize = isCenter ? 80 : state === "undiscovered" ? 40 : 52;
+
+  const orbBackground = isCenter
+    ? "radial-gradient(circle at 40% 40%, #6ee7ff, #00f5ff, #0088cc)"
+    : state === "undiscovered"
+      ? "radial-gradient(circle, #1a1a2e, #000)"
+      : `radial-gradient(circle at 35% 35%, ${planet.color}88, ${planet.color}, #000)`;
+
+  const orbBorderColor = isCenter
+    ? "#00f5ff"
+    : state === "undiscovered"
+      ? "rgba(255,255,255,0.08)"
+      : planet.color;
+
+  const glowIntensity: Record<PlanetState, string> = {
+    undiscovered: "none",
+    available: `0 0 8px ${planet.color}40`,
+    active: `0 0 20px ${planet.color}, 0 0 40px ${planet.color}60`,
+    completed: "0 0 14px rgba(245, 158, 11, 0.60)",
+  };
+
+  const glowStrong: Record<PlanetState, string> = {
+    undiscovered: "none",
+    available: `0 0 14px ${planet.color}60`,
+    active: `0 0 30px ${planet.color}, 0 0 60px ${planet.color}80`,
+    completed: "0 0 22px rgba(245, 158, 11, 0.85)",
+  };
+
+  const opacity = state === "undiscovered" ? 0.35 : 1;
+
+  const nameColor = isCenter
+    ? "#ffffff"
+    : state === "undiscovered"
+      ? "#555"
+      : planet.color;
+
+  // ── Positioning ────────────────────────────────────────────────────
+
+  // Center
+  if (isCenter) {
+    return (
+      <div
+        style={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          zIndex: 5,
+          cursor: isInteractive ? "pointer" : "default",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: 6,
+          opacity,
+          transition: "opacity 500ms",
+        }}
+        onClick={() => isInteractive && onClick(planetId)}
+        onMouseEnter={() => onHover(planetId)}
+        onMouseLeave={() => onHover(null)}
+        data-planet={planetId}
+        data-state={state}
+      >
+        {/* Sun core */}
+        <div
+          style={{
+            width: orbSize,
+            height: orbSize,
+            borderRadius: "50%",
+            background: orbBackground,
+            boxShadow: `0 0 30px #00f5ff, 0 0 60px rgba(0,245,255,0.5), 0 0 100px rgba(0,245,255,0.2)`,
+            animation: "sunPulse 3s ease-in-out infinite",
+            transition: "transform 300ms ease",
+            transform: isHovered ? "scale(1.1)" : "scale(1)",
+          }}
+        />
+        {/* Glow ring */}
+        <div
+          style={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: 120,
+            height: 120,
+            borderRadius: "50%",
+            background: "radial-gradient(circle, rgba(0,245,255,0.15), transparent 70%)",
+            animation: "sunPulse 3s ease-in-out infinite",
+            pointerEvents: "none",
+          }}
+        />
+        <span style={{ ...nameStyle, color: nameColor, fontSize: 14 }}>
+          {planet.name}
+        </span>
+
+        {isHovered && (
+          <div style={tooltipStyle}>ENTRAR NO NUCLEO</div>
+        )}
+        {state === "active" && (
+          <span style={stateTagStyle}>
+            {STATE_LABEL[state]}
+          </span>
+        )}
+      </div>
+    );
+  }
+
+  // ── Orbiting planet ────────────────────────────────────────────────
+
+  // Calculate position on the orbit
+  const angleRad = (angle * Math.PI) / 180;
+  const x = Math.cos(angleRad) * radius;
+  const y = Math.sin(angleRad) * radius;
+
+  return (
+    <div
+      style={{
+        position: "absolute",
+        top: `calc(50% + ${y}px)`,
+        left: `calc(50% + ${x}px)`,
+        transform: "translate(-50%, -50%)",
+        cursor: isInteractive ? "pointer" : "default",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        gap: 4,
+        opacity,
+        transition: "opacity 500ms, filter 500ms",
+        filter: isHovered && isInteractive ? "brightness(1.2)" : "none",
+        zIndex: isHovered ? 10 : 2,
+      }}
+      onClick={() => isInteractive && onClick(planetId)}
+      onMouseEnter={() => onHover(planetId)}
+      onMouseLeave={() => onHover(null)}
+      data-planet={planetId}
+      data-state={state}
+    >
+      {/* Planet circle */}
+      <div
+        style={{
+          width: orbSize,
+          height: orbSize,
+          borderRadius: "50%",
+          background: orbBackground,
+          border: `1px solid ${orbBorderColor}`,
+          boxShadow: glowIntensity[state],
+          transition: "transform 300ms ease, box-shadow 500ms",
+          transform: isHovered ? "scale(1.15)" : "scale(1)",
+          display: "grid",
+          placeItems: "center",
+        }}
+      >
+        {/* Locked: show muted indicator */}
+        {state === "undiscovered" && (
+          <span style={{ fontSize: 10, color: "#444", fontFamily: "monospace" }}>
+            ◆
+          </span>
+        )}
+        {/* Available: pulse animation */}
+        {state === "available" && (
+          <div
+            style={{
+              width: orbSize + 12,
+              height: orbSize + 12,
+              borderRadius: "50%",
+              border: `1px solid ${planet.color}44`,
+              position: "absolute",
+              animation: "planetPulse 3s ease-in-out infinite",
+              // @ts-expect-error CSS custom properties
+              "--glow-color": glowIntensity.available,
+              "--glow-color-strong": glowStrong.available,
+            } as React.CSSProperties}
+          />
+        )}
+      </div>
+
+      {/* Planet name */}
+      <span style={{ ...nameStyle, color: nameColor, fontSize: 14 }}>
+        {planet.name}
+      </span>
+
+      {/* State label */}
+      {state !== "undiscovered" && state !== "completed" && !isCenter && (
+        <span style={{
+          ...stateTagStyle,
+          color: planet.color,
+        }}>
+          {STATE_LABEL[state]}
+        </span>
+      )}
+      {state === "completed" && (
+        <span style={{ ...stateTagStyle, color: "rgba(245, 158, 11, 0.85)" }}>
+          DOMINADO
+        </span>
+      )}
+
+      {/* Tooltip */}
+      {isHovered && isInteractive && (
+        <div style={tooltipStyle}>
+          {state === "available" ? "SINAL DETECTADO — ATIVAR MISSÃO" :
+           state === "active" ? "MISSÃO EM ANDAMENTO — ENTRAR" :
+           state === "completed" ? "TERRITÓRIO DOMINADO" :
+           "ENTRAR NO MUNDO"}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── SHARED STYLES ────────────────────────────────────────────────────────────
+
+const nameStyle: React.CSSProperties = {
+  fontFamily: typography.fontFamily.mono,
+  fontWeight: 700,
+  letterSpacing: "0.06em",
+  textShadow: "0 1px 4px rgba(0,0,0,0.8)",
+  whiteSpace: "nowrap",
+};
+
+const tooltipStyle: React.CSSProperties = {
+  position: "absolute",
+  top: -28,
+  left: "50%",
+  transform: "translateX(-50%)",
+  pointerEvents: "none",
+  background: "rgba(0,0,0,0.85)",
+  border: "1px solid #00f5ff",
+  padding: "3px 8px",
+  borderRadius: 4,
+  fontFamily: typography.fontFamily.mono,
+  fontSize: 10,
+  color: "#fff",
+  whiteSpace: "nowrap",
+  zIndex: 20,
+};
+
+const stateTagStyle: React.CSSProperties = {
+  fontFamily: typography.fontFamily.mono,
+  fontSize: 9,
+  fontWeight: 600,
+  letterSpacing: "0.08em",
+  textTransform: "uppercase",
+  whiteSpace: "nowrap",
+};
+
+const styles: Record<string, React.CSSProperties> = {
+  galacticMap: {
+    width: "100vw",
+    height: "100vh",
+    position: "relative",
+    overflow: "hidden",
+    background: "radial-gradient(ellipse at center, #000510 0%, #000000 70%)",
+    cursor: "default",
+  },
+  headerLabel: {
+    position: "absolute",
+    top: 22,
+    left: "50%",
+    transform: "translateX(-50%)",
+    fontFamily: typography.fontFamily.mono,
+    fontSize: 11,
+    color: "#00f5ff",
+    opacity: 0.6,
+    zIndex: 10,
+    whiteSpace: "nowrap",
+  },
+  backButton: {
+    position: "absolute",
+    top: 22,
+    left: 24,
+    fontFamily: typography.fontFamily.mono,
+    fontSize: 11,
+    color: "#00f5ff",
+    opacity: 0.6,
+    background: "transparent",
+    border: "none",
+    cursor: "pointer",
+    zIndex: 10,
+  },
+  solarSystem: {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    width: 0,
+    height: 0,
+  },
+  flashOverlay: {
+    position: "absolute",
+    inset: 0,
+    background: "#00f5ff",
+    opacity: 0.12,
+    zIndex: 100,
+    pointerEvents: "none",
+  },
+};
