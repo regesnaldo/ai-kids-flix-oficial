@@ -75,7 +75,11 @@ class AudioManager {
   /** Suspend audio (save resources). */
   async suspend(): Promise<void> {
     if (this.state === "active") {
-      await Tone.getContext().suspend();
+      // Access underlying AudioContext directly — Tone.BaseContext may not expose suspend
+      const ctx = (Tone.getContext() as any).rawContext?.context ?? Tone.getContext();
+      if (typeof (ctx as any).suspend === "function") {
+        await (ctx as any).suspend();
+      }
       this.state = "suspended";
     }
   }
