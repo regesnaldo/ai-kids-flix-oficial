@@ -31,9 +31,11 @@ export {
 // ─── Progression (client-safe — pure functions + types) ───────────────────────
 export {
   createInitialProgression,
+  normalizeProgression,
   calculatePlanetState,
   getUniverseSnapshot,
   countByState,
+  SCHEMA_VERSION,
   PROGRESSION_COOLDOWN_MS,
   MAX_ACTIVE_HINTS,
   type PlayerProgression,

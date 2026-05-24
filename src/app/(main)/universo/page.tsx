@@ -19,6 +19,7 @@ import {
 import {
   calculatePlanetState,
   createInitialProgression,
+  normalizeProgression,
   type PlayerProgression,
 } from "@/lib/universe/progression-engine";
 import { audioManager } from "@/lib/universe/audio-manager";
@@ -98,7 +99,7 @@ export default function UniversoPage() {
     setMounted(true);
     fetch("/api/universe/progression")
       .then((r) => r.json())
-      .then(setProgression)
+      .then((data) => setProgression(normalizeProgression(data)))
       .catch(() => setProgression(createInitialProgression()));
   }, []);
 
@@ -181,7 +182,7 @@ export default function UniversoPage() {
         });
         const result = await res.json();
         if (result.success) {
-          setProgression(result.progression);
+          setProgression(normalizeProgression(result.progression));
           audioManager.playSignature(planetId);
         }
       } else if (state === "active") {

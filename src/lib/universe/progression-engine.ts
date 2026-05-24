@@ -14,6 +14,8 @@ import { planetRegistry, type PlanetId, type PlanetState } from "./planet-regist
 export interface PlayerProgression {
   /** DB row ID */
   id: string;
+  /** Schema version for evolution safety */
+  _schemaVersion?: number;
   /** Planets the player has completed */
   completed: PlanetId[];
   /** Currently active planet (if any) */
@@ -45,6 +47,9 @@ export type HintResult =
 
 // ─── CONSTANTS ────────────────────────────────────────────────────────────────
 
+/** Schema version — bump when PlayerProgression shape changes */
+export const SCHEMA_VERSION = 1;
+
 /** Minimum milliseconds between progression changes */
 export const PROGRESSION_COOLDOWN_MS = 2000;
 
@@ -53,19 +58,88 @@ export const MAX_ACTIVE_HINTS = 2;
 
 // ─── INITIAL STATE ────────────────────────────────────────────────────────────
 
+/** The canonical empty progression. ALL initialization MUST use this. */
+const EMPTY_PROGRESSION: PlayerProgression = {
+  id: "",
+  completed: [],
+  activePlanet: null,
+  available: ["nexus"],
+  activeHints: [],
+  lastProgressionAt: 0,
+  totalCompleted: 0,
+  _schemaVersion: SCHEMA_VERSION,
+};
+
 /**
  * Pure factory — default progression for a new user.
  * Does NOT touch the DB.
  */
 export function createInitialProgression(): PlayerProgression {
+  return { ...EMPTY_PROGRESSION };
+}
+
+// ─── RUNTIME NORMALIZATION ────────────────────────────────────────────────────
+
+/**
+ * Normalize potentially corrupted or partial progression data.
+ *
+ * Handles:
+ *   - undefined/missing arrays → []
+ *   - null activePlanet preserved
+ *   - missing numeric fields → 0
+ *   - schema version validation
+ *   - invalid PlanetIds filtered from arrays
+ *
+ * This is the SINGLE normalization boundary. Every entry point
+ * (API response, localStorage, mock data) MUST pass through here.
+ */
+export function normalizeProgression(
+  raw: Partial<PlayerProgression> | null | undefined
+): PlayerProgression {
+  const defaults = EMPTY_PROGRESSION;
+
+  if (!raw || typeof raw !== "object") {
+    return { ...defaults };
+  }
+
+  // Defensive: every array field gets normalized
+  const completed = Array.isArray(raw.completed)
+    ? raw.completed.filter((id): id is PlanetId => typeof id === "string" && id in planetRegistry)
+    : [...defaults.completed];
+
+  const available = Array.isArray(raw.available)
+    ? raw.available.filter((id): id is PlanetId => typeof id === "string" && id in planetRegistry)
+    : [...defaults.available];
+
+  const activeHints = Array.isArray(raw.activeHints)
+    ? raw.activeHints.filter(
+        (h): h is Hint =>
+          typeof h === "object" &&
+          h !== null &&
+          typeof h.id === "string" &&
+          typeof h.planetId === "string" &&
+          typeof h.text === "string" &&
+          typeof h.createdAt === "number"
+      )
+    : [];
+
+  // Schema version: migrate if needed (future-proof)
+  const version = typeof raw._schemaVersion === "number" ? raw._schemaVersion : 0;
+
   return {
-    id: "",
-    completed: [],
-    activePlanet: null,
-    available: ["nexus"],
-    activeHints: [],
-    lastProgressionAt: 0,
-    totalCompleted: 0,
+    id: typeof raw.id === "string" ? raw.id : defaults.id,
+    _schemaVersion: SCHEMA_VERSION,
+    completed,
+    activePlanet:
+      typeof raw.activePlanet === "string" && raw.activePlanet in planetRegistry
+        ? (raw.activePlanet as PlanetId)
+        : null,
+    available,
+    activeHints,
+    lastProgressionAt:
+      typeof raw.lastProgressionAt === "number" ? raw.lastProgressionAt : 0,
+    totalCompleted:
+      typeof raw.totalCompleted === "number" ? raw.totalCompleted : completed.length,
   };
 }
 
