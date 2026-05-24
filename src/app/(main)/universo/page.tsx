@@ -17,9 +17,8 @@ import {
   type PlanetState,
 } from "@/lib/universe/planet-registry";
 import {
-  getOrCreateProgression,
   calculatePlanetState,
-  activatePlanet,
+  createInitialProgression,
   type PlayerProgression,
 } from "@/lib/universe/progression-engine";
 import { audioManager } from "@/lib/universe/audio-manager";
@@ -94,21 +93,13 @@ export default function UniversoPage() {
     return () => window.removeEventListener("resize", update);
   }, []);
 
-  // Load progression from DB
+  // Load progression from API (server-side DB call)
   useEffect(() => {
     setMounted(true);
-    getOrCreateProgression(1).then(setProgression).catch(() => {
-      // Fallback: estado inicial para primeiro acesso
-      setProgression({
-        id: "",
-        completed: [],
-        activePlanet: null,
-        available: ["nexus"],
-        activeHints: [],
-        lastProgressionAt: 0,
-        totalCompleted: 0,
-      });
-    });
+    fetch("/api/universe/progression")
+      .then((r) => r.json())
+      .then(setProgression)
+      .catch(() => setProgression(createInitialProgression()));
   }, []);
 
   const stars = useMemo(() => (mounted ? createStars() : []), [mounted]);
@@ -181,9 +172,14 @@ export default function UniversoPage() {
         await audioManager.init();
       }
 
-      // Activate planet (writes to DB + emits events)
+      // Activate planet via API (server-side DB call)
       if (state === "available") {
-        const result = await activatePlanet(planetId, 1);
+        const res = await fetch("/api/universe/progression", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "activate", planetId }),
+        });
+        const result = await res.json();
         if (result.success) {
           setProgression(result.progression);
           audioManager.playSignature(planetId);

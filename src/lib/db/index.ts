@@ -2,6 +2,8 @@ import { drizzle } from "drizzle-orm/mysql2";
 import mysql from "mysql2/promise";
 import * as schema from "./schema";
 
+import "server-only";
+
 /**
  * db/index.ts — Conexão TiDB Cloud via Drizzle ORM.
  *

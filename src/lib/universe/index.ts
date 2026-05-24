@@ -1,12 +1,8 @@
 /**
  * ─── UNIVERSE RUNTIME — Barrel Export ─────────────────────────────────────────
  *
- * Single import point for all universe runtime modules.
- *
- * Usage:
- *   import { planetRegistry, calculatePlanetState, universeBus,
- *            compressMemory, loadPlanetPrompt, audioManager }
- *     from "@/lib/universe";
+ * Client-safe imports come from progression-engine.ts (pure functions only).
+ * Server-only DB functions come from progression-engine.server.ts.
  */
 
 // ─── Configuration ────────────────────────────────────────────────────────────
@@ -32,18 +28,18 @@ export {
   type UniverseSubscriber,
 } from "./event-bus";
 
-// ─── Progression ──────────────────────────────────────────────────────────────
+// ─── Progression (client-safe — pure functions + types) ───────────────────────
 export {
   createInitialProgression,
   calculatePlanetState,
-  activatePlanet,
-  completePlanet,
-  generateHint,
-  clearHint,
   getUniverseSnapshot,
   countByState,
+  PROGRESSION_COOLDOWN_MS,
+  MAX_ACTIVE_HINTS,
   type PlayerProgression,
   type Hint,
+  type ActionResult,
+  type HintResult,
 } from "./progression-engine";
 
 // ─── Context Compression ──────────────────────────────────────────────────────
