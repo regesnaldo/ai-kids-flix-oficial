@@ -28,6 +28,10 @@ import {
 } from "@/lib/context-classifier";
 import { getAuthCookieFromRequest, verifyToken } from "@/lib/auth";
 import { logger } from "@/lib/logger";
+import {
+  extractNavigationHints,
+  NAV_SYSTEM_PROMPT_INJECTION,
+} from "@/lib/navigation-hints";
 
 export const runtime = "nodejs";
 
@@ -66,6 +70,22 @@ function normalizarMensagens(messages: ChatMessage[]): AnthropicMensagem[] {
     .map((m) => ({ role: m.role, content: m.content.trim().slice(0, 4_000) }));
 }
 
+/**
+ * Extrai navigation hints de uma resposta e codifica como header HTTP.
+ * Usado nos caminhos de streaming onde o corpo é text/plain puro.
+ * O frontend lê o header X-Navigation-Hints e processa os beacons.
+ */
+function encodeNavigationHintsHeader(text: string, agentId: string): string {
+  try {
+    const { bundle } = extractNavigationHints(text, { sourceAgentId: agentId });
+    // Base64-encode o JSON para caber em header HTTP com segurança
+    const json = JSON.stringify(bundle);
+    return Buffer.from(json).toString("base64");
+  } catch {
+    return "";
+  }
+}
+
 function buildSystemPrompt(
   agent: (typeof ALL_AGENTS)[number],
   memoryContext?: string,
@@ -91,6 +111,9 @@ function buildSystemPrompt(
     const trimmed = memoryContext.trim().slice(0, MAX_MEMORY_CONTEXT_CHARS);
     prompt += `\n\n${trimmed}`;
   }
+
+  // Injeta diretivas de navegação cognitiva (Phase 1 — navigationHints engine)
+  prompt += `\n\n${NAV_SYSTEM_PROMPT_INJECTION}`;
 
   return prompt;
 }
@@ -450,6 +473,7 @@ Narrativa weight: ${conflito.narrativeWeight}/10 — quanto maior, mais intenso 
         headers: {
           "Content-Type": "text/plain; charset=utf-8",
           "Cache-Control": "no-cache",
+          "X-Navigation-Hints": encodeNavigationHintsHeader(text, agent.id),
         },
       });
     }
@@ -484,6 +508,7 @@ Narrativa weight: ${conflito.narrativeWeight}/10 — quanto maior, mais intenso 
         headers: {
           "Content-Type": "text/plain; charset=utf-8",
           "Cache-Control": "no-cache",
+          "X-Navigation-Hints": encodeNavigationHintsHeader(text, agent.id),
         },
       });
     }
@@ -547,10 +572,17 @@ Narrativa weight: ${conflito.narrativeWeight}/10 — quanto maior, mais intenso 
       });
     }
 
+    // ─── Extração de Navigation Hints ────────────────────────────────────
+    const { cleanedText, bundle } = extractNavigationHints(assistantText, {
+      sourceAgentId: agent.id,
+      discoveryTag: ultimaMsg?.content?.slice(0, 60),
+    });
+
     return NextResponse.json({
-      message: assistantText,
+      message: cleanedText,
       transitionTo: transitionTo || undefined,
       transitionReason: conflito ? `Conflito detectado: ${conflito.nature}` : undefined,
+      navigationHints: bundle,
     });
 
   } catch (error: unknown) {
@@ -573,9 +605,32 @@ Narrativa weight: ${conflito.narrativeWeight}/10 — quanto maior, mais intenso 
       );
     }
 
-    console.error("[chat] Erro inesperado:", error);
+    // ─── Error detail exposure ─────────────────────────────────────────────
+    // Expose the real error so frontend can display diagnostic info.
+    // Production: log completo no servidor; cliente recebe mensagem legível.
+    const errorMessage =
+      error instanceof Error
+        ? error.message
+        : typeof error === "string"
+          ? error
+          : JSON.stringify(error, null, 2);
+
+    // Also capture stack for server-side debugging
+    const errorStack =
+      error instanceof Error ? error.stack : undefined;
+
+    console.error("[chat] Erro inesperado:", {
+      message: errorMessage,
+      stack: errorStack,
+      raw: error,
+    });
+
     return NextResponse.json(
-      { error: "Falha ao processar chat", details: String(error) },
+      {
+        error: "Falha ao processar chat",
+        details: errorMessage.slice(0, 500), // trimmed for safety
+        code: error instanceof Error ? error.name : "UnknownError",
+      },
       { status: 500 }
     );
   }
