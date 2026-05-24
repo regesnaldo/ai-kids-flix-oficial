@@ -26,7 +26,7 @@ export type ScannerRingState = z.infer<typeof ScannerRingState>;
 
 export const ScannerRingProps = z.object({
   state: ScannerRingState,
-  size: z.number().min(32).max(256).default(64),
+  size: z.number().min(16).max(256).default(64),
   label: z.string().optional(),
   className: z.string().optional(),
 });

@@ -119,7 +119,7 @@ export function UniverseHUD({ progression, className = "" }: UniverseHUDProps) {
       >
         <ScannerRing
           state={isScanning ? "scanning" : "idle"}
-          size={28}
+          size={32}
         />
         <span
           style={{

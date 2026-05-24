@@ -313,7 +313,7 @@ function PlanetLab({
 
         {loading && (
           <div style={{ alignSelf: "flex-start", padding: tokens.spacing.sm }}>
-            <ScannerRing state="scanning" size={20} />
+            <ScannerRing state="scanning" size={32} />
           </div>
         )}
 
