@@ -3,11 +3,30 @@
 import { useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Inter, JetBrains_Mono, Orbitron } from "next/font/google";
-import { motion, AnimatePresence } from "framer-motion";
 import { LabPromptInput } from "@/components/lab/LabPromptInput";
 import { RateLimitScreen } from "@/components/lab/RateLimitScreen";
-import { FlaskConical, Clock, ArrowRight, Wifi, WifiOff, Zap, FlaskRound, Dot } from "lucide-react";
+import { WifiOff } from "lucide-react";
 import { findInLocalCache, saveToLocalCache, getLocalQuestions, normalizeQuestion } from "@/lib/client-cache";
+
+// ─── Design System ────────────────────────────────────────────────────────────
+import { tokens } from "@/design-system/tokens";
+import { typography, toStyle } from "@/design-system/typography";
+
+// ─── Phase 3 — HUD Layer ─────────────────────────────────────────────────────
+import { useLabInterface } from "@/components/lab/useLabInterface";
+// ─── Phase 4 — Motion System ──────────────────────────────────────────────────
+import { LabMotionController } from "@/components/motion";
+import {
+  ScannerRing,
+  SignalBars,
+  GridOverlay,
+  PulseBeacon,
+  ActionNode,
+  ClassificationTag,
+  priorityToPulseBeaconState,
+} from "@/components/hud";
+import { SECTION_DISPLAY_NAMES, getActiveBeacons } from "@/lib/navigation-hints";
+import { useNavigationStore } from "@/store/useNavigationStore";
 
 const orbitron = Orbitron({
   subsets: ["latin"],
@@ -29,14 +48,24 @@ const inter = Inter({
 
 const EXAMPLE_CHIPS = [
   "Como a IA aprende?",
-  "O que é deep learning?",
-  "Ética na IA",
+  "O que e deep learning?",
+  "Etica na IA",
   "Futuro da IA",
-  "O que são LLMs?",
-  "IA é criativa?",
+  "O que sao LLMs?",
+  "IA e criativa?",
 ];
 
-// Cached questions that are in prebuilt cache (for ⚡ indicator)
+// Clearance tags for topic suggestions
+const CHIP_CLEARANCE: Record<string, "surface" | "deep" | "core" | "restricted"> = {
+  "Como a IA aprende?": "surface",
+  "O que e deep learning?": "deep",
+  "Etica na IA": "core",
+  "Futuro da IA": "restricted",
+  "O que sao LLMs?": "deep",
+  "IA e criativa?": "surface",
+};
+
+// Cached questions that are in prebuilt cache
 const PREBUILT_CHIPS = [
   "como a ia aprende",
   "o que e deep learning",
@@ -65,15 +94,45 @@ interface PastExperiment {
   createdAt: number;
 }
 
+// ─── Mode description text ────────────────────────────────────────────────────
+
+const MODE_DESCRIPTIONS: Record<"fast" | "full", string> = {
+  fast: "NEXUS + AURORA · Resposta em segundos · 50% mais economico",
+  full: "4 agentes · NEXUS + CIPHER + KAOS + AURORA · Analise profunda",
+};
+
 export default function LabPage() {
   const router = useRouter();
+  const [mounted, setMounted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [pastExperiments, setPastExperiments] = useState<PastExperiment[]>([]);
-  const [isOnline, setIsOnline] = useState(typeof navigator !== "undefined" ? navigator.onLine : true);
-  const [labMode, setLabMode] = useState<"fast" | "full">("full");
+  const [isOnline, setIsOnline] = useState(true);
+  const [labMode, setLabMode] = useState<"fast" | "full">("fast");
   const [localQuestions, setLocalQuestions] = useState<string[]>([]);
 
-  // ── Rate limit state ──────────────────────────────────────────────
+  // ─── Hydration safety ───────────────────────────────────────────────────────
+  useEffect(() => {
+    setMounted(true);
+    setIsOnline(navigator.onLine);
+    try {
+      const saved = localStorage.getItem("mente_ai_lab_mode") as "fast" | "full" | null;
+      if (saved === "fast" || saved === "full") {
+        setLabMode(saved);
+      }
+    } catch {}
+  }, []);
+
+  // ─── Phase 3 — HUD Interface ────────────────────────────────────────────────
+  const {
+    currentState,
+    statusText,
+    hudConfig,
+    beacons,
+    mission,
+  } = useLabInterface();
+  const activeBeacons = getActiveBeacons(beacons);
+
+  // ── Rate limit state ────────────────────────────────────────────────────────
   const [rateLimit, setRateLimit] = useState<{
     window: string;
     resetIn: number;
@@ -81,21 +140,20 @@ export default function LabPage() {
     cachedQuestions: string[];
   } | null>(null);
 
-  // ── Lab status (loaded once on mount, no polling) ──────────────────
+  // ── Lab status ──────────────────────────────────────────────────────────────
   const [labStatus, setLabStatus] = useState<{ status: string; message: string }>({
     status: "green",
-    message: "Laboratório operando em plena capacidade",
+    message: "Laboratorio operando em plena capacidade",
   });
 
-  // Load status ONCE on mount
   useEffect(() => {
     fetch("/api/lab/status")
       .then((r) => r.json())
       .then((data) => setLabStatus({ status: data.status, message: data.message }))
       .catch(() => {});
-  }, []); // empty deps = only on mount
+  }, []);
 
-  // ── Online/offline detection ──────────────────────────────────────
+  // ── Online/offline detection ────────────────────────────────────────────────
   useEffect(() => {
     const goOnline = () => setIsOnline(true);
     const goOffline = () => setIsOnline(false);
@@ -107,36 +165,31 @@ export default function LabPage() {
     };
   }, []);
 
-  // ── Load cached questions + mode + past experiments ─────────────
+  // ── Load cached questions + past experiments ────────────────────────────────
   useEffect(() => {
     setLocalQuestions(getLocalQuestions());
     try {
       const stored = localStorage.getItem("lab_experiments");
       if (stored) setPastExperiments(JSON.parse(stored));
-      const mode = localStorage.getItem("mente_ai_lab_mode") as "fast" | "full" | null;
-      if (mode) setLabMode(mode);
     } catch {}
   }, []);
 
-  // ── Save mode ─────────────────────────────────────────────────────
+  // ── Save mode ───────────────────────────────────────────────────────────────
   useEffect(() => {
     localStorage.setItem("mente_ai_lab_mode", labMode);
   }, [labMode]);
 
-  // ── Handle start ──────────────────────────────────────────────────
+  // ── Handle start ────────────────────────────────────────────────────────────
   const handleStart = useCallback(async (topic: string) => {
     setIsLoading(true);
     try {
-      // STEP 1: Check localStorage cache FIRST
       const localCached = findInLocalCache(topic);
       if (localCached) {
-        // Encode in URL and redirect
         const encoded = encodeURIComponent(JSON.stringify(localCached));
         router.push(`/lab/experiment/cached?data=${encoded}&mode=${labMode}`);
         return;
       }
 
-      // STEP 2: Call API (server checks prebuilt → KV → new)
       const res = await fetch("/api/lab/start", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -159,7 +212,6 @@ export default function LabPage() {
 
       const data = await res.json();
 
-      // STEP 3: If cache hit on server, display directly
       if (data.source === "cache" && data.instant) {
         saveToLocalCache(topic, data);
         const encoded = encodeURIComponent(JSON.stringify(data));
@@ -167,7 +219,6 @@ export default function LabPage() {
         return;
       }
 
-      // STEP 4: Cache miss → go to experiment page
       const entry: PastExperiment = {
         id: data.experimentId,
         topic,
@@ -186,72 +237,236 @@ export default function LabPage() {
 
   return (
     <main
-      className={`${orbitron.variable} ${jetBrainsMono.variable} ${inter.variable} min-h-screen flex flex-col items-center justify-center text-center px-6 py-12 md:py-16 [font-family:var(--font-inter)]`}
-      style={{ background: "#0e1420" }}
+      className={`${orbitron.variable} ${jetBrainsMono.variable} ${inter.variable} min-h-screen`}
+      style={{
+        background: tokens.color.system.idle,
+        ...toStyle(typography.operational),
+      }}
     >
-      {/* Background ambient */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-        <div
-          className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[800px] h-[800px] rounded-full blur-[150px] opacity-[0.03]"
-          style={{ background: "var(--accent-cyan)" }}
-        />
-        <div
-          className="absolute bottom-0 left-1/4 w-[500px] h-[500px] rounded-full blur-[100px] opacity-[0.02]"
-          style={{ background: "#a78bfa" }}
-        />
-      </div>
+      {/* ═══════════════════════════════════════════════════════════════════════
+          PHASE 3 + 4 — OVERLAY LAYER (HUD + Motion)
+          ═══════════════════════════════════════════════════════════════════ */}
+      {mounted && (
+        <>
+          {/* GridOverlay: scanner grid background */}
+          <GridOverlay
+            state={
+              currentState === "scanning" || currentState === "processing"
+                ? "scanning"
+                : "idle"
+            }
+          />
 
-      <div className="relative z-10 flex flex-col items-center gap-10 w-full max-w-4xl">
-        {/* Title */}
-        <motion.div
-          initial={{ opacity: 0, y: -16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="text-center"
-        >
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <motion.span
-              animate={{ rotate: [0, 10, -10, 0] }}
-              transition={{ duration: 3, repeat: Infinity }}
-              className="text-4xl md:text-5xl text-cyan-300 mr-3 drop-shadow-[0_0_10px_rgba(34,211,238,0.5)]"
-            >
-              🧪
-            </motion.span>
-            <h1
-              className="text-5xl font-bold tracking-wider !text-cyan-400 drop-shadow-[0_0_10px_rgba(34,211,238,0.5)] ![font-family:var(--font-orbitron)]"
-              style={{ fontFamily: "var(--font-display)", color: "var(--accent-cyan)" }}
-            >
-              MENTE.AI LAB
-            </h1>
-          </div>
-          <p className="text-lg opacity-80 tracking-wide max-w-2xl mx-auto leading-relaxed text-slate-300">
-            Um prompt. Quatro agentes. Infinitas descobertas.
-          </p>
-
-          {/* ── Status indicator ────────────────────────────────── */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.2 }}
-            className="flex items-center justify-center gap-1.5 mt-3"
+          {/* TOP BAR — fixed, full width */}
+          <div
+            style={{
+              position: "fixed",
+              top: 0,
+              left: 0,
+              right: 0,
+              zIndex: tokens.zIndex.hud,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              padding: `${tokens.spacing.sm} ${tokens.spacing.md}`,
+              background: tokens.color.surface.panel,
+              borderBottom: tokens.border.subtle,
+              backdropFilter: "blur(12px)",
+            }}
           >
-            <Dot
-              size={18}
-              className={
-                labStatus.status === "green"
-                  ? "text-green-400"
-                  : labStatus.status === "yellow"
-                  ? "text-yellow-400"
-                  : "text-red-400 animate-pulse"
-              }
-            />
-            <span className="text-sm md:text-base opacity-70 text-slate-400 tracking-wider [font-family:var(--font-jetbrains-mono)]">
-              {labStatus.message}
-            </span>
-          </motion.div>
-        </motion.div>
+            {/* Left: ScannerRing */}
+            <div style={{ display: "flex", alignItems: "center", gap: tokens.spacing.sm }}>
+              <ScannerRing
+                state={hudConfig.scannerRing ?? "idle"}
+                size={36}
+              />
+              <span
+                style={{
+                  ...toStyle(typography.signal),
+                  color: tokens.color.access.deep,
+                }}
+              >
+                {statusText}
+              </span>
+            </div>
 
-        {/* ── Rate limit screen ──────────────────────────────────── */}
+            {/* Right: SignalBars */}
+            <div style={{ display: "flex", alignItems: "center", gap: tokens.spacing.sm }}>
+              {hudConfig.signalBars ? (
+                <SignalBars state={hudConfig.signalBars} />
+              ) : (
+                <SignalBars state="weak" />
+              )}
+            </div>
+          </div>
+
+          {/* PulseBeacon: active discovery beacons */}
+          {activeBeacons.length > 0 && (
+            <div
+              style={{
+                position: "fixed",
+                top: "60px",
+                right: tokens.spacing.md,
+                zIndex: tokens.zIndex.beacon,
+                display: "flex",
+                flexDirection: "column",
+                gap: tokens.spacing.xs,
+                maxWidth: "280px",
+              }}
+            >
+              {activeBeacons.slice(0, 3).map((beacon) => (
+                <PulseBeacon
+                  key={beacon.id}
+                  state={priorityToPulseBeaconState(beacon.priority)}
+                  label={SECTION_DISPLAY_NAMES[beacon.section]}
+                  subtitle={beacon.subtitle}
+                  onNavigate={() => {
+                    useNavigationStore.getState().pushHandoff(beacon.section);
+                    router.push(beacon.route);
+                  }}
+                />
+              ))}
+            </div>
+          )}
+
+          {/* BOTTOM PANEL — mission continuity */}
+          {mission && (
+            <div
+              style={{
+                position: "fixed",
+                bottom: 0,
+                left: 0,
+                right: 0,
+                zIndex: tokens.zIndex.hud,
+                padding: `${tokens.spacing.xs} ${tokens.spacing.md}`,
+                background: tokens.color.surface.panel,
+                borderTop: tokens.border.subtle,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                ...toStyle(typography.restricted),
+                color: tokens.color.text.tertiary,
+              }}
+            >
+              <span>
+                CAMADA ATUAL: {mission.currentLayer}
+                {" · "}
+                NOS DESBLOQUEADOS: {mission.unlockedNodes.length}
+                {" · "}
+                SINAIS ATIVOS: {activeBeacons.length}
+              </span>
+              <span style={{ color: tokens.color.access.deep }}>
+                {statusText}
+              </span>
+            </div>
+          )}
+
+          {/* PHASE 4 — Motion Overlay (topmost layer) */}
+          <LabMotionController />
+        </>
+      )}
+
+      {/* ═══════════════════════════════════════════════════════════════════════
+          CONTENT AREA
+          ═══════════════════════════════════════════════════════════════════ */}
+      <div
+        style={{
+          position: "relative",
+          zIndex: tokens.zIndex.content,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: tokens.spacing.xl,
+          padding: `${tokens.spacing.xxxl} ${tokens.spacing.md} ${tokens.spacing.xxxl}`,
+          paddingTop: "80px", // clear top bar
+          maxWidth: "720px",
+          margin: "0 auto",
+          minHeight: "100vh",
+        }}
+      >
+        {/* ── TITLE ─────────────────────────────────────────────────────── */}
+        <div style={{ textAlign: "center" }}>
+          <h1
+            style={{
+              ...toStyle(typography.broadcast),
+              color: tokens.color.access.deep,
+              textShadow: tokens.shadow.glowCyan,
+              margin: 0,
+            }}
+          >
+            MENTE.AI LAB
+          </h1>
+          <p
+            style={{
+              ...toStyle(typography.operationalMono),
+              color: tokens.color.text.secondary,
+              marginTop: tokens.spacing.sm,
+            }}
+          >
+            Interface de experimentacao cognitiva
+          </p>
+        </div>
+
+        {/* ── LAB STATUS ────────────────────────────────────────────────── */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: tokens.spacing.sm,
+            ...toStyle(typography.micro),
+            color: tokens.color.text.tertiary,
+          }}
+        >
+          <span
+            style={{
+              display: "inline-block",
+              width: "6px",
+              height: "6px",
+              backgroundColor:
+                labStatus.status === "green"
+                  ? tokens.color.text.success
+                  : labStatus.status === "yellow"
+                    ? tokens.color.text.warning
+                    : tokens.color.text.danger,
+              clipPath: "polygon(50% 0, 100% 50%, 50% 100%, 0 50%)",
+            }}
+          />
+          <span>{labStatus.message}</span>
+        </div>
+
+        {/* ── MODE SELECTOR ─────────────────────────────────────────────── */}
+        <div
+          style={{
+            display: "flex",
+            gap: tokens.spacing.md,
+            justifyContent: "center",
+          }}
+        >
+          <ActionNode
+            state={labMode === "fast" ? "active" : "unlocked"}
+            label="MODO RAPIDO"
+            onClick={() => setLabMode("fast")}
+          />
+          <ActionNode
+            state={labMode === "full" ? "active" : "unlocked"}
+            label="MODO COMPLETO"
+            onClick={() => setLabMode("full")}
+          />
+        </div>
+
+        {/* Mode description */}
+        <p
+          style={{
+            ...toStyle(typography.micro),
+            color: tokens.color.text.tertiary,
+            textAlign: "center",
+            marginTop: `-${tokens.spacing.lg}`,
+          }}
+        >
+          {MODE_DESCRIPTIONS[labMode]}
+        </p>
+
+        {/* ── RATE LIMIT SCREEN ─────────────────────────────────────────── */}
         {rateLimit && (
           <RateLimitScreen
             window={rateLimit.window as any}
@@ -266,160 +481,187 @@ export default function LabPage() {
           />
         )}
 
-        {/* ── Offline banner ──────────────────────────────────────── */}
-        <AnimatePresence>
-          {!isOnline && (
-            <motion.div
-              initial={{ opacity: 0, y: -8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              className="w-full max-w-2xl p-5 rounded-xl flex items-start gap-3 text-left"
-              style={{
-                background: "rgba(255,107,53,0.06)",
-                border: "1px solid rgba(255,107,53,0.15)",
-              }}
-            >
-              <WifiOff size={18} className="text-[#ff6b35] flex-shrink-0 mt-0.5" />
-              <div>
-                <p className="text-base font-bold text-[#ff6b35]">📡 Modo Offline</p>
-                <p className="text-sm text-white/50 mt-0.5 leading-relaxed">
-                  Sem conexão. Perguntas conhecidas funcionam normalmente.
-                  Novas perguntas precisam de internet.
-                </p>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* ── Economy mode toggle ─────────────────────────────────── */}
-        <motion.div
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="flex flex-wrap justify-center gap-3"
-        >
-          <button
-            onClick={() => setLabMode("fast")}
-            className={`flex items-center gap-2 text-base px-5 py-3 min-h-[44px] rounded-full border transition-all duration-300 ${
-              labMode === "fast" ? "!bg-cyan-500 !text-slate-900 font-bold shadow-[0_0_15px_rgba(34,211,238,0.4)] !border-transparent" : "!bg-slate-800 !text-slate-400 !border-slate-700 hover:!text-slate-200 hover:!border-slate-600"
-            }`}
+        {/* ── OFFLINE BANNER ────────────────────────────────────────────── */}
+        {!isOnline && (
+          <div
             style={{
-              background: labMode === "fast" ? "rgba(0,245,255,0.08)" : "rgba(255,255,255,0.02)",
-              border: `1px solid ${labMode === "fast" ? "rgba(0,245,255,0.2)" : "rgba(255,255,255,0.05)"}`,
-              color: labMode === "fast" ? "var(--accent-cyan)" : "rgba(255,255,255,0.3)",
+              width: "100%",
+              maxWidth: "640px",
+              padding: tokens.spacing.md,
+              display: "flex",
+              alignItems: "flex-start",
+              gap: tokens.spacing.sm,
+              border: tokens.border.danger,
+              background: tokens.color.system.error,
+              clipPath: "polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 0 100%)",
             }}
           >
-            <Zap size={12} />
-            Modo Rápido
-          </button>
-          <button
-            onClick={() => setLabMode("full")}
-            className={`flex items-center gap-2 text-base px-5 py-3 min-h-[44px] rounded-full border transition-all duration-300 ${
-              labMode === "full" ? "!bg-cyan-500 !text-slate-900 font-bold shadow-[0_0_15px_rgba(34,211,238,0.4)] !border-transparent" : "!bg-slate-800 !text-slate-400 !border-slate-700 hover:!text-slate-200 hover:!border-slate-600"
-            }`}
-            style={{
-              background: labMode === "full" ? "rgba(167,139,250,0.08)" : "rgba(255,255,255,0.02)",
-              border: `1px solid ${labMode === "full" ? "rgba(167,139,250,0.2)" : "rgba(255,255,255,0.05)"}`,
-              color: labMode === "full" ? "#a78bfa" : "rgba(255,255,255,0.3)",
-            }}
-          >
-            <FlaskRound size={12} />
-            Modo Completo
-          </button>
-        </motion.div>
-
-        {/* Mode description */}
-        <p className="text-sm md:text-base opacity-70 text-slate-400 -mt-6 text-center max-w-2xl">
-          {labMode === "fast"
-            ? "⚡ NEXUS + AURORA · Resposta em segundos · 50% mais econômico"
-            : "🔬 4 agentes · Experiência total · Análise profunda"}
-        </p>
-
-        {/* Prompt input */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.15 }}
-          className="w-full"
-        >
-          <LabPromptInput onSubmit={handleStart} isLoading={isLoading} isCached={isPrebuilt} />
-        </motion.div>
-
-        {/* Loading indicator */}
-        {isLoading && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="flex items-center gap-3 text-sm md:text-base"
-            style={{ color: "var(--accent-cyan)" }}
-          >
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ repeat: Infinity, duration: 1.5, ease: "linear" }}
-            >
-              <FlaskConical size={18} />
-            </motion.div>
-            <span className="text-sm md:text-base tracking-wider text-cyan-300 [font-family:var(--font-jetbrains-mono)]">
-              {!isOnline ? "Verificando cache offline..." : "Instanciando laboratório..."}
-            </span>
-          </motion.div>
+            <WifiOff size={16} style={{ color: tokens.color.danger.critical, flexShrink: 0, marginTop: "2px" }} />
+            <div>
+              <p
+                style={{
+                  ...toStyle(typography.classifiedLabel),
+                  color: tokens.color.text.danger,
+                  margin: 0,
+                }}
+              >
+                MODO OFFLINE
+              </p>
+              <p
+                style={{
+                  ...toStyle(typography.micro),
+                  color: tokens.color.text.tertiary,
+                  margin: 0,
+                  marginTop: "2px",
+                  lineHeight: "1.4",
+                }}
+              >
+                Sem conexao. Perguntas conhecidas funcionam normalmente.
+                Novas perguntas precisam de internet.
+              </p>
+            </div>
+          </div>
         )}
 
-        {/* Past experiments */}
-        {pastExperiments.length > 0 && !isLoading && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-            className="w-full mt-8"
+        {/* ── TOPIC SUGGESTIONS ─────────────────────────────────────────── */}
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            gap: tokens.spacing.sm,
+            justifyContent: "center",
+            maxWidth: "560px",
+          }}
+        >
+          {EXAMPLE_CHIPS.map((chip) => {
+            const clearance = CHIP_CLEARANCE[chip] ?? "surface";
+            return (
+              <button
+                key={chip}
+                onClick={() => handleStart(chip)}
+                disabled={isLoading}
+                style={{
+                  all: "unset",
+                  display: "inline-flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  gap: "4px",
+                  cursor: isLoading ? "not-allowed" : "pointer",
+                  opacity: isLoading ? 0.5 : 1,
+                }}
+              >
+                <ClassificationTag
+                  state="default"
+                  clearance={clearance}
+                  label={chip}
+                />
+                <span
+                  style={{
+                    ...toStyle(typography.micro),
+                    color: tokens.color.access.surface,
+                    textTransform: "uppercase",
+                  }}
+                >
+                  INICIAR
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* ── CHAT INPUT ────────────────────────────────────────────────── */}
+        <div
+          style={{
+            width: "100%",
+            maxWidth: "560px",
+            padding: tokens.spacing.md,
+            border: tokens.border.subtle,
+            borderLeft: `3px solid ${tokens.color.access.deep}`,
+            background: tokens.color.surface.panel,
+            clipPath: "polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 0 100%)",
+          }}
+        >
+          <LabPromptInput onSubmit={handleStart} isLoading={isLoading} isCached={isPrebuilt} />
+        </div>
+
+        {/* ── LOADING INDICATOR ─────────────────────────────────────────── */}
+        {isLoading && (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: tokens.spacing.sm,
+              ...toStyle(typography.signal),
+              color: tokens.color.access.deep,
+            }}
           >
+            <span
+              style={{
+                display: "inline-block",
+                width: "10px",
+                height: "10px",
+                border: `1px solid ${tokens.color.access.deep}`,
+                borderTopColor: "transparent",
+                animation: "lab-spin 1s linear infinite",
+              }}
+            />
+            {!isOnline ? "Verificando cache offline..." : "Instanciando laboratorio..."}
+          </div>
+        )}
+
+        {/* ── PAST EXPERIMENTS ──────────────────────────────────────────── */}
+        {pastExperiments.length > 0 && !isLoading && (
+          <div style={{ width: "100%", maxWidth: "560px" }}>
             <p
-              className="text-xs uppercase tracking-[0.2em] mb-5 text-center !text-slate-500 [font-family:var(--font-jetbrains-mono)]"
-              style={{ color: "var(--accent-cyan)" }}
+              style={{
+                ...toStyle(typography.classifiedLabel),
+                color: tokens.color.text.tertiary,
+                marginBottom: tokens.spacing.md,
+                textAlign: "center",
+              }}
             >
               EXPERIMENTOS ANTERIORES
             </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: tokens.spacing.sm,
+              }}
+            >
               {pastExperiments.map((exp) => (
-                <motion.button
+                <ActionNode
                   key={exp.id}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
+                  state="unlocked"
+                  label={exp.topic}
                   onClick={() => router.push(`/lab/experiment/${exp.id}`)}
-                  className="group flex items-center justify-between p-5 rounded-xl text-left !bg-gradient-to-br !from-slate-800/80 !to-slate-900/80 backdrop-blur border !border-white/10 hover:!border-cyan-500/30 hover:shadow-[0_0_20px_rgba(34,211,238,0.15)] hover:-translate-y-1 transition-all duration-300"
-                  style={{
-                    background: "rgba(22, 29, 46, 0.6)",
-                    border: "1px solid rgba(255,255,255,0.03)",
-                  }}
-                >
-                  <div className="flex items-center gap-3">
-                    <span className="text-2xl text-cyan-400">🧪</span>
-                    <div>
-                      <p className="text-lg font-semibold text-cyan-50">{exp.topic}</p>
-                      <div className="flex items-center gap-2 mt-1">
-                        <Clock size={10} className="text-cyan-400" />
-                        <span className="text-sm opacity-70 text-slate-400">
-                          {new Date(exp.createdAt).toLocaleDateString("pt-BR")}
-                        </span>
-                        <span className="text-sm opacity-70 text-slate-500">·</span>
-                        <span className="text-sm opacity-70 text-slate-400">
-                          {exp.completedAgents}/4 agentes
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                  <ArrowRight size={14} className="text-slate-500 group-hover:text-cyan-400 transition-colors flex-shrink-0" />
-                </motion.button>
+                />
               ))}
             </div>
-          </motion.div>
+          </div>
         )}
 
-        {/* Footer label */}
-        <p className="text-xs uppercase tracking-[0.2em] mt-4 text-slate-500 [font-family:var(--font-jetbrains-mono)]">
-          {localQuestions.length > 0 ? `${localQuestions.length} offline · ` : ""}NEXUS · CIPHER · KAOS · AURORA
+        {/* ── AGENT ROSTER FOOTER ───────────────────────────────────────── */}
+        <p
+          style={{
+            ...toStyle(typography.micro),
+            color: tokens.color.text.tertiary,
+            textTransform: "uppercase",
+            letterSpacing: "0.15em",
+          }}
+        >
+          {localQuestions.length > 0 ? `${localQuestions.length} OFFLINE · ` : ""}
+          NEXUS · CIPHER · KAOS · AURORA
         </p>
       </div>
+
+      {/* Global keyframe for loading spinner */}
+      <style jsx global>{`
+        @keyframes lab-spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+      `}</style>
     </main>
   );
 }
