@@ -526,10 +526,9 @@ function PlanetOrb({
               border: `1px solid ${planet.color}44`,
               position: "absolute",
               animation: "planetPulse 3s ease-in-out infinite",
-              // @ts-expect-error CSS custom properties
-              "--glow-color": glowIntensity.available,
-              "--glow-color-strong": glowStrong.available,
-            } as React.CSSProperties}
+              "--glow-color": glowIntensity.available as string,
+              "--glow-color-strong": glowStrong.available as string,
+            }}
           />
         )}
       </div>
