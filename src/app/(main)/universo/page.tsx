@@ -526,9 +526,9 @@ function PlanetOrb({
               border: `1px solid ${planet.color}44`,
               position: "absolute",
               animation: "planetPulse 3s ease-in-out infinite",
-              "--glow-color": glowIntensity.available as string,
-              "--glow-color-strong": glowStrong.available as string,
-            }}
+              "--glow-color": glowIntensity.available,
+              "--glow-color-strong": glowStrong.available,
+            } as React.CSSProperties}
           />
         )}
       </div>
