@@ -77,18 +77,26 @@ export function createInitialProgression(): PlayerProgression {
  */
 export function calculatePlanetState(
   planetId: PlanetId,
-  progression: PlayerProgression
+  progression: PlayerProgression | null | undefined
 ): PlanetState {
-  if (!allRequiresMet(planetId, progression)) {
+  // Defensive guard: progression may be null/undefined during first render
+  // or if API response hasn't arrived yet
+  if (!progression) return "undiscovered";
+
+  // Defensive: ensure arrays exist even if JSON deserialization is partial
+  const completed: PlanetId[] = Array.isArray(progression.completed) ? progression.completed : [];
+  const available: PlanetId[] = Array.isArray(progression.available) ? progression.available : [];
+
+  if (!allRequiresMet(planetId, progression, completed)) {
     return "undiscovered";
   }
   if (planetId === progression.activePlanet) {
     return "active";
   }
-  if (progression.completed.includes(planetId)) {
+  if (completed.includes(planetId)) {
     return "completed";
   }
-  if (progression.available.includes(planetId)) {
+  if (available.includes(planetId)) {
     return "available";
   }
   return "undiscovered";
@@ -99,11 +107,12 @@ export function calculatePlanetState(
  */
 function allRequiresMet(
   planetId: PlanetId,
-  progression: PlayerProgression
+  progression: PlayerProgression,
+  completed: PlanetId[]
 ): boolean {
   const planet = planetRegistry[planetId];
   if (planet.requires.length === 0) return true;
-  return planet.requires.every((reqId) => progression.completed.includes(reqId));
+  return planet.requires.every((reqId) => completed.includes(reqId));
 }
 
 // ─── DIAGNOSTIC (pure functions) ──────────────────────────────────────────────
