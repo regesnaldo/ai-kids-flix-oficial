@@ -668,7 +668,7 @@ class AudioManager {
 
     // Audio state toggle
     universeBus.subscribe("AUDIO_STATE_CHANGED", (event) => {
-      if (event.active) {
+      if (event.type === "AUDIO_STATE_CHANGED" && event.active) {
         this.resume();
       } else {
         this.suspend();
