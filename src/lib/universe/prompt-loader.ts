@@ -82,15 +82,18 @@ export function clearPromptCache(): void {
 // ─── DISK LOADER ──────────────────────────────────────────────────────────────
 
 /**
- * Load a prompt from disk. Resolves from src/lib/universe/prompts/{key}.txt.
- * Falls back to buildFallbackPrompt if file not found.
+ * Load a prompt from disk. Server-only — reads from src/lib/universe/prompts/{key}.txt.
  */
 async function loadPromptFromDisk(key: string): Promise<string> {
-  // Resolve the prompt file path relative to this module
-  // In Next.js server context, fs is available
+  // Guard: only attempt fs access on the server
+  if (typeof window !== "undefined") {
+    throw new Error("prompt-loader: fs not available in browser");
+  }
+
   try {
-    const fs = await import("fs/promises");
-    const path = await import("path");
+    // Dynamic import prevents client bundle from tracing fs/promises
+    const fs = await import(/* turbopackIgnore: true */ "fs/promises");
+    const path = await import(/* turbopackIgnore: true */ "path");
 
     const promptsDir = path.resolve(process.cwd(), "src/lib/universe/prompts");
     const filePath = path.join(promptsDir, `${key}.txt`);

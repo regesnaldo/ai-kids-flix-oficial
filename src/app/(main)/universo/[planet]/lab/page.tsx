@@ -37,6 +37,7 @@ import { typography, toStyle } from "@/design-system/typography";
  * Phase 2 will replace this with a database-backed store.
  */
 const MOCK_PROGRESSION: PlayerProgression = {
+  id: "",
   completed: [],
   activePlanet: null,
   available: ["nexus"],
