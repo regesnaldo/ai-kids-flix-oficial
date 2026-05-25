@@ -14,14 +14,14 @@
  * NO hardcoded planet behavior. NO if/switch on planet name.
  */
 
-import React, { useState, useCallback, useEffect, useRef } from "react";
+import React, { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { planetRegistry, type PlanetId } from "@/lib/universe/planet-registry";
-import { calculatePlanetState } from "@/lib/universe/progression-engine";
+import { calculatePlanetState, normalizeProgression } from "@/lib/universe/progression-engine";
 import type { PlayerProgression } from "@/lib/universe/progression-engine";
 import { compressMemory, buildInferencePayload, type MessageStub } from "@/lib/universe/context-compressor";
 import { getPlanetPromptSync } from "@/lib/universe/prompt-loader";
-import { universeBus } from "@/lib/universe/event-bus";
+import { audioManager } from "@/lib/universe/audio-manager";
 import { ScannerRing } from "@/components/hud/ScannerRing";
 import { SignalBars } from "@/components/hud/SignalBars";
 import { GridOverlay } from "@/components/hud/GridOverlay";
@@ -29,22 +29,19 @@ import { ClassificationTag } from "@/components/hud/ClassificationTag";
 import { ActionNode } from "@/components/hud/ActionNode";
 import { tokens } from "@/design-system/tokens";
 import { typography, toStyle } from "@/design-system/typography";
+import { useOasis } from "@/providers/OasisProvider";
 
-// ─── TEMPORARY PROGRESSION STUB ───────────────────────────────────────────────
+// ─── RUNTIME PROGRESSION (Phase 2: live Nexus state) ──────────────────────────
 
 /**
- * Foundation Freeze uses an in-memory progression state.
- * Phase 2 will replace this with a database-backed store.
+ * Phase 2: MOCK_PROGRESSION replaced with live runtime state.
+ *
+ * On mount: fetch progression from API + fall back to nexusRuntime snapshot.
+ * On response: progression updates come from the server via API responses.
+ *
+ * The Nexus is the single source of truth for runtime topology.
+ * Client reads via getSnapshot() — never writes directly.
  */
-const MOCK_PROGRESSION: PlayerProgression = {
-  id: "",
-  completed: [],
-  activePlanet: null,
-  available: ["nexus"],
-  activeHints: [],
-  lastProgressionAt: 0,
-  totalCompleted: 0,
-};
 
 // ─── PAGE ─────────────────────────────────────────────────────────────────────
 
@@ -79,37 +76,40 @@ function PlanetLab({
 }) {
   const planet = planetRegistry[planetId];
   const prompt = getPlanetPromptSync(planetId);
+  const { progressionSnapshot, triggerTransition } = useOasis();
 
   const [messages, setMessages] = useState<MessageStub[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
-  const [progression] = useState<PlayerProgression>(() => ({
-    ...MOCK_PROGRESSION,
-    activePlanet: planetId,
-  }));
+
+  // Build progression from oasis snapshot (SSE-driven, no polling)
+  const progression: PlayerProgression = useMemo(
+    () =>
+      normalizeProgression({
+        completed: progressionSnapshot.completed as PlanetId[],
+        activePlanet: (progressionSnapshot.activePlanet ?? planetId) as PlanetId,
+        available: progressionSnapshot.available as PlanetId[],
+        totalCompleted: progressionSnapshot.totalCompleted,
+      }),
+    [progressionSnapshot, planetId]
+  );
 
   const state = calculatePlanetState(planetId, progression);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
-  // Auto-scroll on new messages
+  // Emit planet activation via triggerTransition on mount
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
-
-  // Emit planet activation event on mount
-  useEffect(() => {
-    universeBus.emit({ type: "PLANET_ACTIVATED", planetId });
+    triggerTransition(planetId as any, "warp");
     return () => {
-      // Cleanup — signal departure
-      universeBus.emit({
-        type: "AUDIO_STATE_CHANGED",
-        planetId,
-        signature: planet.audioSignature,
-        active: false,
-      });
+      // Cleanup — signal audio departure via audioManager
+      try {
+        audioManager.stopSignature(planetId);
+      } catch {
+        // Already stopped
+      }
     };
-  }, [planetId, planet.audioSignature]);
+  }, [planetId]);
 
   // Handle message submission
   const handleSubmit = useCallback(async () => {
@@ -157,12 +157,7 @@ function PlanetLab({
         { role: "assistant", content: assistantContent },
       ]);
 
-      // Emit signal on response
-      universeBus.emit({
-        type: "SIGNAL_DETECTED",
-        planetId,
-        strength: 0.7,
-      });
+      // Response received — progression will sync via SSE
     } catch (err) {
       setMessages((prev) => [
         ...prev,

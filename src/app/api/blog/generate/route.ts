@@ -4,7 +4,7 @@ import { blogPosts, type NewBlogPost } from "@/lib/db/schema-extensions";
 import { eq, desc } from "drizzle-orm";
 import crypto from "crypto";
 
-const DEEPSEEK_URL = "https://api.deepseek.com/v1/chat/completions";
+const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
 const CATEGORIES = ["IA Geral", "Negócios", "Crianças", "Ética", "Futuro", "Ferramentas"];
 const AGENTS = ["nexus", "cipher", "kaos", "aurora"];
 
@@ -19,18 +19,19 @@ export async function POST(request: NextRequest) {
       if (!token) return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
     }
 
-    const apiKey = process.env.DEEPSEEK_API_KEY;
-    if (!apiKey) return NextResponse.json({ error: "DEEPSEEK_API_KEY não configurada" }, { status: 500 });
+    const apiKey = process.env.GROQ_API_KEY;
+    const model = process.env.GROQ_MODEL || "llama-3.3-70b-versatile";
+    if (!apiKey) return NextResponse.json({ error: "GROQ_API_KEY não configurada" }, { status: 500 });
 
     const category = CATEGORIES[Math.floor(Math.random() * CATEGORIES.length)];
     const agentId = AGENTS[Math.floor(Math.random() * AGENTS.length)];
     const agentName = agentId.toUpperCase();
 
-    const response = await fetch(DEEPSEEK_URL, {
+    const response = await fetch(GROQ_URL, {
       method: "POST",
       headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
       body: JSON.stringify({
-        model: "deepseek-chat",
+        model,
         temperature: 0.85,
         max_tokens: 2048,
         response_format: { type: "json_object" },
@@ -62,7 +63,7 @@ Retorne EXATAMENTE este JSON:
 
     const data = await response.json();
     const content = data?.choices?.[0]?.message?.content;
-    if (!content) return NextResponse.json({ error: "DeepSeek retornou vazio" }, { status: 502 });
+    if (!content) return NextResponse.json({ error: "Groq retornou vazio" }, { status: 502 });
 
     const parsed = JSON.parse(content);
     const slug = parsed.title
@@ -86,7 +87,7 @@ Retorne EXATAMENTE este JSON:
       ageRating: category === "Crianças" ? "all" : "teen",
       xpReward: 5,
       whatsappText: parsed.whatsappText || null,
-      generatedBy: "deepseek",
+      generatedBy: "groq",
     } satisfies NewBlogPost);
 
     return NextResponse.json({ success: true, slug, title: parsed.title });

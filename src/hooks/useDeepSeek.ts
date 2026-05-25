@@ -8,7 +8,7 @@ type CacheEntry<T> = {
 };
 
 /**
- * Hook para chamar o endpoint DeepSeek com cache em localStorage.
+ * Hook para chamar o endpoint LLM com cache em localStorage.
  *
  * Padrão: antes de chamar a API, verifica localStorage.
  * Depois de receber resposta, salva no cache.
@@ -62,7 +62,7 @@ export function useDeepSeek() {
   }, []);
 
   /**
-   * Chama a API DeepSeek com cache.
+   * Chama a API LLM com cache.
    * Se os dados já estiverem em cache, retorna imediatamente sem chamar a API.
    */
   const generate = useCallback(

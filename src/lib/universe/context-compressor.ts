@@ -15,7 +15,7 @@
  */
 
 import { planetRegistry, type PlanetId } from "./planet-registry";
-import { universeBus } from "./event-bus";
+import { nexusBus } from "@/lib/nexus/nexus.events";
 
 // ─── TYPES ────────────────────────────────────────────────────────────────────
 
@@ -249,7 +249,7 @@ export function compressMemory(
   }
 
   // Emit compression event for diagnostics
-  universeBus.emit({
+  nexusBus.emit({
     type: "CONTEXT_COMPRESSED",
     planetId,
     tokenCount: context.estimatedTokens,

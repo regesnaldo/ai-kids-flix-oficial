@@ -67,15 +67,19 @@ export async function POST(request: NextRequest) {
     const provider = (process.env.LLM_PROVIDER || "").toLowerCase();
     let responseText: string;
 
-    // Prioriza o provider configurado. Só usa Anthropic se for EXPLICITAMENTE o provider.
+    // Prioriza o provider configurado via LLM_PROVIDER.
     if (provider === "openai" && process.env.OPENAI_API_KEY) {
       responseText = await callOpenAI(systemPrompt, messages);
     } else if (provider === "anthropic" && process.env.ANTHROPIC_API_KEY) {
       responseText = await anthropicCompletionText({ system: systemPrompt, mensagens: messages });
+    } else if (provider === "groq" && process.env.GROQ_API_KEY) {
+      responseText = await callGroq(systemPrompt, messages);
     } else if (process.env.OPENAI_API_KEY) {
       responseText = await callOpenAI(systemPrompt, messages);
     } else if (process.env.ANTHROPIC_API_KEY && !process.env.ANTHROPIC_API_KEY.includes("...")) {
       responseText = await anthropicCompletionText({ system: systemPrompt, mensagens: messages });
+    } else if (process.env.GROQ_API_KEY) {
+      responseText = await callGroq(systemPrompt, messages);
     } else {
       return NextResponse.json({ error: "Nenhum provedor LLM configurado" }, { status: 503 });
     }
@@ -115,6 +119,34 @@ async function callOpenAI(system: string, messages: Array<{ role: string; conten
 
   if (!response.ok) {
     throw new Error(`OpenAI HTTP ${response.status}`);
+  }
+
+  const data = await response.json();
+  return data.choices?.[0]?.message?.content || "Silêncio também é resposta.";
+}
+
+async function callGroq(system: string, messages: Array<{ role: string; content: string }>): Promise<string> {
+  const apiKey = process.env.GROQ_API_KEY;
+  if (!apiKey) throw new Error("GROQ_API_KEY não configurada");
+
+  const model = process.env.GROQ_MODEL || "llama-3.3-70b-versatile";
+
+  const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model,
+      temperature: 0.7,
+      messages: [{ role: "system", content: system }, ...messages],
+    }),
+  });
+
+  if (!response.ok) {
+    const details = await response.text();
+    throw new Error(`Groq HTTP ${response.status}: ${details}`);
   }
 
   const data = await response.json();

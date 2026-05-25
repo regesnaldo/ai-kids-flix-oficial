@@ -5,6 +5,7 @@ import Link from "next/link";
 import Navigation from "@/components/Navigation";
 import { LogosOverlay } from "@/components/logos/LogosOverlay";
 import { shouldShowOnboarding } from "@/lib/onboarding/types";
+import { OasisProvider } from "@/providers/OasisProvider";
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -21,7 +22,8 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
   }, [pathname, router]);
 
   return (
-    <div style={{ backgroundColor: "#0a0e27", minHeight: "100vh", margin: 0 }}>
+    <OasisProvider>
+      <div style={{ backgroundColor: "#0a0e27", minHeight: "100vh", margin: 0 }}>
       <header
         style={{
           position: "fixed",
@@ -48,6 +50,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
       <main style={{ paddingTop: "70px" }}>{children}</main>
       <LogosOverlay />
     </div>
+    </OasisProvider>
   );
 }
 

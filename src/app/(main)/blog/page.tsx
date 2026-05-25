@@ -61,7 +61,7 @@ export default function BlogPage() {
             Blog
           </h1>
           <p className="text-white/50 mt-3 max-w-xl text-base leading-relaxed">
-            Curadoria diária de IA pelos agentes do MENTE.AI. Notícias, análises e reflexões geradas pela DeepSeek.
+            Curadoria diária de IA pelos agentes do MENTE.AI. Notícias, análises e reflexões geradas pelos modelos Groq.
           </p>
         </div>
       </header>

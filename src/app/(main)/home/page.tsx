@@ -10,13 +10,14 @@ import FinalCTA from "@/components/home/FinalCTA";
 import dynamic from "next/dynamic";
 import { agentsShowcase } from "@/data/agents-showcase";
 import { getAgentImage, AGENT_IMAGE_FALLBACK } from "@/lib/getAgentImage";
+import { useOasis } from "@/providers/OasisProvider";
 
 const CinematicParticles = dynamic(
   () => import("@/components/home/CinematicParticles"),
   { ssr: false }
 );
 
-const HeroBanner = memo(function HeroBanner() {
+const HeroBanner = memo(function HeroBanner({ displayName }: { displayName: string }) {
   const [timestamp, setTimestamp] = useState('');
 
   useEffect(() => {
@@ -60,7 +61,7 @@ const HeroBanner = memo(function HeroBanner() {
         textAlign: 'center',
         margin: 0,
       }}>
-        BEM-VINDO AO NEXUS
+        {displayName}
       </h1>
       <p style={{
         fontFamily: 'monospace',
@@ -202,17 +203,26 @@ const AgentCard = memo(function AgentCard({ agent }: { agent: typeof agentsShowc
 /* ─── Page ───────────────────────────────────────────────────────────── */
 
 export default function HomePage() {
+  const { cognitiveProfile, progressionSnapshot, healthStatus } = useOasis();
   const [watchMap, setWatchMap] = useState<Record<string, { completed: boolean }>>({});
-  const [profile, setProfile] = useState<{ archetype?: string; emotionalScore?: number }>({});
 
   useEffect(() => {
     setWatchMap(getWatchMap());
-    setProfile(getProfile());
   }, []);
 
-  const completedCount = useMemo(() => Object.values(watchMap).filter((w) => w.completed).length, [watchMap]);
+  // Progress from oasis runtime (not localStorage)
+  const completedCount = useMemo(
+    () => progressionSnapshot.totalCompleted,
+    [progressionSnapshot.totalCompleted]
+  );
   const totalXp = useMemo(() => completedCount * 55, [completedCount]);
   const hasProgress = useMemo(() => completedCount > 0, [completedCount]);
+
+  // Personalized greeting from Memory Keeper cognitive profile
+  const displayName = cognitiveProfile.archetype !== "explorer"
+    ? `BEM-VINDO DE VOLTA, ${cognitiveProfile.archetype.toUpperCase()}`
+    : "BEM-VINDO AO NEXUS";
+  const isOnline = healthStatus === "optimal" || healthStatus === "degraded";
 
   return (
     <div className="min-h-screen homeContainer" style={{ background: "#0a0a1a" }}>
@@ -267,11 +277,11 @@ export default function HomePage() {
                 background: '#4ade80', animation: 'pulse 2s ease-in-out infinite',
                 boxShadow: '0 0 6px rgba(74, 222, 128, 0.6)',
               }} />
-              METAVERSE ONLINE
+              METAVERSE {isOnline ? "ONLINE" : "DEGRADED"}
             </div>
             {hasProgress && <div className="flex items-center gap-4 text-sm text-gray-400">
               <span className="flex items-center gap-1"><Zap size={14} className="text-yellow-400" /> {totalXp} XP</span>
-              <span className="flex items-center gap-1"><Star size={14} className="text-purple-400" /> {profile.archetype || "Explorador"}</span>
+              <span className="flex items-center gap-1"><Star size={14} className="text-purple-400" /> {cognitiveProfile.archetype || "Explorador"}</span>
             </div>}
           </div>
         </div>
@@ -305,7 +315,7 @@ export default function HomePage() {
         marginTop: '-1px',
       }} />
 
-      <HeroBanner />
+      <HeroBanner displayName={displayName} />
 
       {/* ── PORTALS SECTION ── */}
       <div style={{

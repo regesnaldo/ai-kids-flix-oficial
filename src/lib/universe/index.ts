@@ -3,6 +3,20 @@
  *
  * Client-safe imports come from progression-engine.ts (pure functions only).
  * Server-only DB functions come from progression-engine.server.ts.
+ *
+ * ═══════════════════════════════════════════════════════════════════════════════
+ * NEXUS WIRING (Phase 0 — Foundation Hardening):
+ *
+ * The NexusRuntime (src/lib/nexus/) now wraps these universe components:
+ *   - universeBus       → Governed by nexusBus (nexus.events.ts)
+ *   - planetRegistry     → Read by Nexus for agent registration
+ *   - progression-engine → Pure functions used by nexus.guards.ts for validation
+ *   - context-compressor → Memory compaction, Nexus governs memory access
+ *   - audio-manager      → Lifecycle managed by NexusRuntime
+ *
+ * Import nexusRuntime from "@/lib/nexus" to access the cognitive kernel.
+ * Existing imports from "@/lib/universe" continue to work unchanged.
+ * ═══════════════════════════════════════════════════════════════════════════════
  */
 
 // ─── Configuration ────────────────────────────────────────────────────────────

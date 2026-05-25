@@ -302,7 +302,7 @@ export const blogPosts = mysqlTable(
     ageRating: varchar("age_rating", { length: 10 }).default("all"),
     xpReward: int("xp_reward").default(5),
     whatsappText: text("whatsapp_text"),
-    generatedBy: varchar("generated_by", { length: 50 }).default("deepseek"),
+    generatedBy: varchar("generated_by", { length: 50 }).default("groq"),
     publishedAt: timestamp("published_at").defaultNow().notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },

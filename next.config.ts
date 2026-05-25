@@ -31,6 +31,7 @@ const nextConfig: NextConfig = {
   
   experimental: { 
     optimizeCss: true,
+    instrumentationHook: true, // NEXUS: boots nexusRuntime before any route
   },
   typescript: {
     // ignoreDevErrors removido por ser inválido no v16
