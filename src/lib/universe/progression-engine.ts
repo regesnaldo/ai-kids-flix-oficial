@@ -1,31 +1,21 @@
 /**
- * ─── PROGRESSION ENGINE — Deterministic Planet State Machine ──────────────────
+ * ─── PROGRESSION ENGINE — Pure Functions & Types (Client-Safe) ────────────────
  *
- * AI NEVER updates state directly. The flow is:
+ * This file contains ONLY pure functions with zero side effects.
+ * SAFE to import from Client Components.
  *
- *   AI → Hint Extraction → Validation → Progression Engine → DB → UI
- *
- * Rules:
- *   - Deterministic only — same input always produces same output
- *   - All unlocks validated before state transitions
- *   - Max 2 active hints at any time
- *   - Cooldown system prevents rapid-fire progression
- *   - Respects planetRegistry.unlocks and planetRegistry.requires
- *   - ALL mutations persist to universe_progression table (Drizzle ORM)
+ * DB-dependent functions live in progression-engine.server.ts
  */
 
-import { eq } from "drizzle-orm";
-import { v4 as uuid } from "uuid";
-import { db } from "@/lib/db";
-import { universeProgression } from "@/lib/db/schema";
 import { planetRegistry, type PlanetId, type PlanetState } from "./planet-registry";
-import { universeBus } from "./event-bus";
 
 // ─── TYPES ────────────────────────────────────────────────────────────────────
 
 export interface PlayerProgression {
   /** DB row ID */
   id: string;
+  /** Schema version for evolution safety */
+  _schemaVersion?: number;
   /** Planets the player has completed */
   completed: PlanetId[];
   /** Currently active planet (if any) */
@@ -47,130 +37,110 @@ export interface Hint {
   createdAt: number;
 }
 
-// ─── COOLDOWN ─────────────────────────────────────────────────────────────────
+export type ActionResult =
+  | { success: true; progression: PlayerProgression }
+  | { success: false; error: string };
+
+export type HintResult =
+  | { success: true; progression: PlayerProgression; hint: Hint }
+  | { success: false; error: string };
+
+// ─── CONSTANTS ────────────────────────────────────────────────────────────────
+
+/** Schema version — bump when PlayerProgression shape changes */
+export const SCHEMA_VERSION = 1;
 
 /** Minimum milliseconds between progression changes */
-const PROGRESSION_COOLDOWN_MS = 2000;
+export const PROGRESSION_COOLDOWN_MS = 2000;
 
 /** Maximum active hints at any time */
-const MAX_ACTIVE_HINTS = 2;
+export const MAX_ACTIVE_HINTS = 2;
 
 // ─── INITIAL STATE ────────────────────────────────────────────────────────────
 
+/** The canonical empty progression. ALL initialization MUST use this. */
+const EMPTY_PROGRESSION: PlayerProgression = {
+  id: "",
+  completed: [],
+  activePlanet: null,
+  available: ["nexus"],
+  activeHints: [],
+  lastProgressionAt: 0,
+  totalCompleted: 0,
+  _schemaVersion: SCHEMA_VERSION,
+};
+
 /**
- * Pure factory — returns default progression for a new user.
- * Does NOT touch the DB. Use getOrCreateProgression(userId) for DB-backed init.
+ * Pure factory — default progression for a new user.
+ * Does NOT touch the DB.
  */
 export function createInitialProgression(): PlayerProgression {
-  return {
-    id: "",
-    completed: [],
-    activePlanet: null,
-    available: ["nexus"],
-    activeHints: [],
-    lastProgressionAt: 0,
-    totalCompleted: 0,
-  };
+  return { ...EMPTY_PROGRESSION };
 }
 
-// ─── DB HELPERS ───────────────────────────────────────────────────────────────
+// ─── RUNTIME NORMALIZATION ────────────────────────────────────────────────────
 
 /**
- * Load progression from DB for a user. Creates initial row if none exists.
- * This is the primary entry point for reading progression state.
+ * Normalize potentially corrupted or partial progression data.
+ *
+ * Handles:
+ *   - undefined/missing arrays → []
+ *   - null activePlanet preserved
+ *   - missing numeric fields → 0
+ *   - schema version validation
+ *   - invalid PlanetIds filtered from arrays
+ *
+ * This is the SINGLE normalization boundary. Every entry point
+ * (API response, localStorage, mock data) MUST pass through here.
  */
-export async function getOrCreateProgression(
-  userId: number
-): Promise<PlayerProgression> {
-  const rows = await db
-    .select()
-    .from(universeProgression)
-    .where(eq(universeProgression.userId, userId))
-    .limit(1);
+export function normalizeProgression(
+  raw: Partial<PlayerProgression> | null | undefined
+): PlayerProgression {
+  const defaults = EMPTY_PROGRESSION;
 
-  if (rows.length === 0) {
-    const initial = createInitialProgression();
-    const id = uuid();
-    await db.insert(universeProgression).values({
-      id,
-      userId,
-      completed: initial.completed,
-      activePlanet: initial.activePlanet,
-      available: initial.available,
-      activeHints: initial.activeHints,
-      lastProgressionAt: new Date(0),
-      totalCompleted: initial.totalCompleted,
-    });
-    return { ...initial, id };
+  if (!raw || typeof raw !== "object") {
+    return { ...defaults };
   }
 
-  const row = rows[0];
-  return dbRowToProgression(row);
-}
+  // Defensive: every array field gets normalized
+  const completed = Array.isArray(raw.completed)
+    ? raw.completed.filter((id): id is PlanetId => typeof id === "string" && id in planetRegistry)
+    : [...defaults.completed];
 
-/**
- * Convert a DB row to PlayerProgression interface.
- * Handles JSON parsing and timestamp conversion.
- */
-function dbRowToProgression(
-  row: typeof universeProgression.$inferSelect
-): PlayerProgression {
-  const completed = parseStringArray(row.completed);
-  const available = parseStringArray(row.available);
-  const activeHints = parseHints(row.activeHints);
+  const available = Array.isArray(raw.available)
+    ? raw.available.filter((id): id is PlanetId => typeof id === "string" && id in planetRegistry)
+    : [...defaults.available];
+
+  const activeHints = Array.isArray(raw.activeHints)
+    ? raw.activeHints.filter(
+        (h): h is Hint =>
+          typeof h === "object" &&
+          h !== null &&
+          typeof h.id === "string" &&
+          typeof h.planetId === "string" &&
+          typeof h.text === "string" &&
+          typeof h.createdAt === "number"
+      )
+    : [];
+
+  // Schema version: migrate if needed (future-proof)
+  const version = typeof raw._schemaVersion === "number" ? raw._schemaVersion : 0;
 
   return {
-    id: row.id,
-    completed: completed.filter((id): id is PlanetId => id in planetRegistry),
-    activePlanet: row.activePlanet as PlanetId | null,
-    available: available.filter((id): id is PlanetId => id in planetRegistry),
+    id: typeof raw.id === "string" ? raw.id : defaults.id,
+    _schemaVersion: SCHEMA_VERSION,
+    completed,
+    activePlanet:
+      typeof raw.activePlanet === "string" && raw.activePlanet in planetRegistry
+        ? (raw.activePlanet as PlanetId)
+        : null,
+    available,
     activeHints,
-    lastProgressionAt: row.lastProgressionAt
-      ? new Date(row.lastProgressionAt).getTime()
-      : 0,
-    totalCompleted: row.totalCompleted,
+    lastProgressionAt:
+      typeof raw.lastProgressionAt === "number" ? raw.lastProgressionAt : 0,
+    totalCompleted:
+      typeof raw.totalCompleted === "number" ? raw.totalCompleted : completed.length,
   };
-}
-
-/**
- * Persist a PlayerProgression state back to the DB.
- */
-async function persist(progression: PlayerProgression): Promise<void> {
-  await db
-    .update(universeProgression)
-    .set({
-      completed: progression.completed,
-      activePlanet: progression.activePlanet,
-      available: progression.available,
-      activeHints: progression.activeHints,
-      lastProgressionAt: new Date(progression.lastProgressionAt),
-      totalCompleted: progression.totalCompleted,
-    })
-    .where(eq(universeProgression.id, progression.id));
-}
-
-/**
- * Safely parse a JSON array of strings from DB.
- */
-function parseStringArray(value: unknown): string[] {
-  if (Array.isArray(value)) return value.filter((v): v is string => typeof v === "string");
-  return [];
-}
-
-/**
- * Safely parse hints JSON from DB.
- */
-function parseHints(value: unknown): Hint[] {
-  if (!Array.isArray(value)) return [];
-  return value.filter(
-    (h): h is Hint =>
-      typeof h === "object" &&
-      h !== null &&
-      typeof (h as Hint).id === "string" &&
-      typeof (h as Hint).planetId === "string" &&
-      typeof (h as Hint).text === "string" &&
-      typeof (h as Hint).createdAt === "number"
-  );
 }
 
 // ─── STATE CALCULATION (pure functions — no DB, no side effects) ──────────────
@@ -181,28 +151,28 @@ function parseHints(value: unknown): Hint[] {
  */
 export function calculatePlanetState(
   planetId: PlanetId,
-  progression: PlayerProgression
+  progression: PlayerProgression | null | undefined
 ): PlanetState {
-  // Check if all required planets are completed
-  if (!allRequiresMet(planetId, progression)) {
+  // Defensive guard: progression may be null/undefined during first render
+  // or if API response hasn't arrived yet
+  if (!progression) return "undiscovered";
+
+  // Defensive: ensure arrays exist even if JSON deserialization is partial
+  const completed: PlanetId[] = Array.isArray(progression.completed) ? progression.completed : [];
+  const available: PlanetId[] = Array.isArray(progression.available) ? progression.available : [];
+
+  if (!allRequiresMet(planetId, progression, completed)) {
     return "undiscovered";
   }
-
-  // Active planet
   if (planetId === progression.activePlanet) {
     return "active";
   }
-
-  // Completed
-  if (progression.completed.includes(planetId)) {
+  if (completed.includes(planetId)) {
     return "completed";
   }
-
-  // Available for activation
-  if (progression.available.includes(planetId)) {
+  if (available.includes(planetId)) {
     return "available";
   }
-
   return "undiscovered";
 }
 
@@ -211,208 +181,12 @@ export function calculatePlanetState(
  */
 function allRequiresMet(
   planetId: PlanetId,
-  progression: PlayerProgression
+  progression: PlayerProgression,
+  completed: PlanetId[]
 ): boolean {
   const planet = planetRegistry[planetId];
   if (planet.requires.length === 0) return true;
-  return planet.requires.every((reqId) => progression.completed.includes(reqId));
-}
-
-// ─── PROGRESSION ACTIONS (async — write to DB) ────────────────────────────────
-
-type ActionResult =
-  | { success: true; progression: PlayerProgression }
-  | { success: false; error: string };
-
-/**
- * Activate a planet. Validates state, persists to DB, emits events.
- */
-export async function activatePlanet(
-  planetId: PlanetId,
-  userId: number
-): Promise<ActionResult> {
-  const progression = await getOrCreateProgression(userId);
-  const state = calculatePlanetState(planetId, progression);
-
-  if (state === "undiscovered") {
-    return { success: false, error: "PLANETA AINDA NÃO DESCOBERTO" };
-  }
-  if (state === "completed") {
-    return { success: false, error: "PLANETA JÁ DOMINADO" };
-  }
-  if (state === "active") {
-    return { success: false, error: "PLANETA JÁ ATIVO" };
-  }
-
-  const previousState = state;
-  const newProgression: PlayerProgression = {
-    ...progression,
-    activePlanet: planetId,
-    available: progression.available.filter((id) => id !== planetId),
-    activeHints: progression.activeHints.filter((h) => h.planetId !== planetId),
-    lastProgressionAt: Date.now(),
-  };
-
-  await persist(newProgression);
-
-  universeBus.emit({ type: "PLANET_ACTIVATED", planetId });
-  universeBus.emit({
-    type: "PROGRESSION_STATE_CHANGED",
-    planetId,
-    from: previousState,
-    to: "active",
-  });
-
-  return { success: true, progression: newProgression };
-}
-
-/**
- * Complete a planet. Unlocks its children. Persists to DB.
- */
-export async function completePlanet(
-  planetId: PlanetId,
-  userId: number
-): Promise<ActionResult> {
-  const progression = await getOrCreateProgression(userId);
-  const state = calculatePlanetState(planetId, progression);
-
-  if (state !== "active") {
-    return { success: false, error: "PLANETA NÃO ESTÁ ATIVO" };
-  }
-
-  // Cooldown check
-  if (Date.now() - progression.lastProgressionAt < PROGRESSION_COOLDOWN_MS) {
-    return { success: false, error: "SISTEMA EM RESFRIAMENTO" };
-  }
-
-  const planet = planetRegistry[planetId];
-
-  // Calculate newly unlocked planets
-  const newlyUnlocked = planet.unlocks.filter(
-    (id) =>
-      !progression.completed.includes(id) &&
-      !progression.available.includes(id) &&
-      id !== progression.activePlanet
-  );
-
-  const newProgression: PlayerProgression = {
-    ...progression,
-    completed: [...progression.completed, planetId],
-    activePlanet: null,
-    available: [...progression.available, ...newlyUnlocked],
-    activeHints: progression.activeHints.filter((h) => h.planetId !== planetId),
-    lastProgressionAt: Date.now(),
-    totalCompleted: progression.completed.length + 1,
-  };
-
-  await persist(newProgression);
-
-  // Emit events
-  universeBus.emit({ type: "PLANET_COMPLETED", planetId });
-  universeBus.emit({
-    type: "PROGRESSION_STATE_CHANGED",
-    planetId,
-    from: "active",
-    to: "completed",
-  });
-
-  for (const unlockedId of newlyUnlocked) {
-    universeBus.emit({
-      type: "PLANET_UNLOCKED",
-      planetId: unlockedId,
-      source: planetId,
-    });
-    universeBus.emit({
-      type: "PROGRESSION_STATE_CHANGED",
-      planetId: unlockedId,
-      from: "undiscovered",
-      to: "available",
-    });
-  }
-
-  for (const id of newProgression.available) {
-    if (newlyUnlocked.includes(id)) {
-      universeBus.emit({
-        type: "SIGNAL_DETECTED",
-        planetId: id,
-        strength: 0.5,
-      });
-    }
-  }
-
-  return { success: true, progression: newProgression };
-}
-
-// ─── HINT MANAGEMENT ──────────────────────────────────────────────────────────
-
-type HintResult =
-  | { success: true; progression: PlayerProgression; hint: Hint }
-  | { success: false; error: string };
-
-/**
- * Generate a hint for an active or available planet.
- * Max 2 active hints. Persists to DB.
- */
-export async function generateHint(
-  planetId: PlanetId,
-  text: string,
-  userId: number
-): Promise<HintResult> {
-  const progression = await getOrCreateProgression(userId);
-  const state = calculatePlanetState(planetId, progression);
-
-  if (state !== "active" && state !== "available") {
-    return { success: false, error: "PLANETA NÃO DISPONÍVEL PARA DICAS" };
-  }
-
-  if (progression.activeHints.length >= MAX_ACTIVE_HINTS) {
-    return { success: false, error: "MÁXIMO DE DICAS ATINGIDO" };
-  }
-
-  if (Date.now() - progression.lastProgressionAt < PROGRESSION_COOLDOWN_MS) {
-    return { success: false, error: "SISTEMA EM RESFRIAMENTO" };
-  }
-
-  const hint: Hint = {
-    id: uuid(),
-    planetId,
-    text,
-    createdAt: Date.now(),
-  };
-
-  const newProgression: PlayerProgression = {
-    ...progression,
-    activeHints: [...progression.activeHints, hint],
-    lastProgressionAt: Date.now(),
-  };
-
-  await persist(newProgression);
-
-  universeBus.emit({
-    type: "HINT_GENERATED",
-    planetId,
-    hint: text,
-  });
-
-  return { success: true, progression: newProgression, hint };
-}
-
-/**
- * Clear a specific hint by ID. Persists to DB.
- */
-export async function clearHint(
-  hintId: string,
-  userId: number
-): Promise<PlayerProgression> {
-  const progression = await getOrCreateProgression(userId);
-
-  const newProgression: PlayerProgression = {
-    ...progression,
-    activeHints: progression.activeHints.filter((h) => h.id !== hintId),
-  };
-
-  await persist(newProgression);
-  return newProgression;
+  return planet.requires.every((reqId) => completed.includes(reqId));
 }
 
 // ─── DIAGNOSTIC (pure functions) ──────────────────────────────────────────────

@@ -37,6 +37,7 @@ import { typography, toStyle } from "@/design-system/typography";
  * Phase 2 will replace this with a database-backed store.
  */
 const MOCK_PROGRESSION: PlayerProgression = {
+  id: "",
   completed: [],
   activePlanet: null,
   available: ["nexus"],
@@ -312,7 +313,7 @@ function PlanetLab({
 
         {loading && (
           <div style={{ alignSelf: "flex-start", padding: tokens.spacing.sm }}>
-            <ScannerRing state="scanning" size={20} />
+            <ScannerRing state="scanning" size={32} />
           </div>
         )}
 

@@ -17,9 +17,9 @@ import {
   type PlanetState,
 } from "@/lib/universe/planet-registry";
 import {
-  getOrCreateProgression,
   calculatePlanetState,
-  activatePlanet,
+  createInitialProgression,
+  normalizeProgression,
   type PlayerProgression,
 } from "@/lib/universe/progression-engine";
 import { audioManager } from "@/lib/universe/audio-manager";
@@ -94,21 +94,13 @@ export default function UniversoPage() {
     return () => window.removeEventListener("resize", update);
   }, []);
 
-  // Load progression from DB
+  // Load progression from API (server-side DB call)
   useEffect(() => {
     setMounted(true);
-    getOrCreateProgression(1).then(setProgression).catch(() => {
-      // Fallback: estado inicial para primeiro acesso
-      setProgression({
-        id: "",
-        completed: [],
-        activePlanet: null,
-        available: ["nexus"],
-        activeHints: [],
-        lastProgressionAt: 0,
-        totalCompleted: 0,
-      });
-    });
+    fetch("/api/universe/progression")
+      .then((r) => r.json())
+      .then((data) => setProgression(normalizeProgression(data)))
+      .catch(() => setProgression(createInitialProgression()));
   }, []);
 
   const stars = useMemo(() => (mounted ? createStars() : []), [mounted]);
@@ -181,11 +173,16 @@ export default function UniversoPage() {
         await audioManager.init();
       }
 
-      // Activate planet (writes to DB + emits events)
+      // Activate planet via API (server-side DB call)
       if (state === "available") {
-        const result = await activatePlanet(planetId, 1);
+        const res = await fetch("/api/universe/progression", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "activate", planetId }),
+        });
+        const result = await res.json();
         if (result.success) {
-          setProgression(result.progression);
+          setProgression(normalizeProgression(result.progression));
           audioManager.playSignature(planetId);
         }
       } else if (state === "active") {
@@ -530,7 +527,6 @@ function PlanetOrb({
               border: `1px solid ${planet.color}44`,
               position: "absolute",
               animation: "planetPulse 3s ease-in-out infinite",
-              // @ts-expect-error CSS custom properties
               "--glow-color": glowIntensity.available,
               "--glow-color-strong": glowStrong.available,
             } as React.CSSProperties}

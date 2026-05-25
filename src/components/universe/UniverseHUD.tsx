@@ -68,12 +68,32 @@ function getSignalStrength(progression: PlayerProgression): "weak" | "moderate" 
 // ─── COMPONENT ────────────────────────────────────────────────────────────────
 
 export function UniverseHUD({ progression, className = "" }: UniverseHUDProps) {
-  const counts = countByState(progression);
+  // Runtime normalization — single point, reused throughout
+  const activeHints = Array.isArray(progression?.activeHints)
+    ? progression.activeHints
+    : [];
+  const activePlanet =
+    typeof progression?.activePlanet === "string" &&
+    progression.activePlanet in planetRegistry
+      ? progression.activePlanet
+      : null;
+  const totalCompleted = typeof progression?.totalCompleted === "number"
+    ? progression.totalCompleted
+    : 0;
+
+  const normalized: PlayerProgression = {
+    ...progression,
+    activeHints,
+    activePlanet,
+    totalCompleted,
+  };
+
+  const counts = countByState(normalized);
   const territories = counts.available + counts.active + counts.completed;
-  const activeSignals = counts.active + progression.activeHints.length;
-  const highestClearance = getHighestClearance(progression);
-  const signalStrength = getSignalStrength(progression);
-  const isScanning = progression.activePlanet !== null;
+  const activeSignals = counts.active + activeHints.length;
+  const highestClearance = getHighestClearance(normalized);
+  const signalStrength = getSignalStrength(normalized);
+  const isScanning = activePlanet !== null;
 
   return (
     <div
@@ -99,7 +119,7 @@ export function UniverseHUD({ progression, className = "" }: UniverseHUDProps) {
       >
         <ScannerRing
           state={isScanning ? "scanning" : "idle"}
-          size={28}
+          size={32}
         />
         <span
           style={{
@@ -130,19 +150,19 @@ export function UniverseHUD({ progression, className = "" }: UniverseHUDProps) {
               color: tokens.color.text.tertiary,
             }}
           >
-            {progression.totalCompleted}/{TOTAL_PLANETS}
+            {totalCompleted}/{TOTAL_PLANETS}
           </span>
           <SignalBars state={signalStrength} />
         </div>
 
-        {progression.activePlanet && (
+        {activePlanet && (
           <span
             style={{
               ...toStyle(typography.restricted),
-              color: planetRegistry[progression.activePlanet].color,
+              color: planetRegistry[activePlanet].color,
             }}
           >
-            {planetRegistry[progression.activePlanet].name}: MISSÃO ATIVA
+            {planetRegistry[activePlanet].name}: MISSÃO ATIVA
           </span>
         )}
       </div>

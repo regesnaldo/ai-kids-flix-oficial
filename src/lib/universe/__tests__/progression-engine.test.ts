@@ -275,7 +275,7 @@ describe("Progression Engine — countByState", () => {
 describe("Progression Engine — getOrCreateProgression", () => {
   test("usuário novo: cria registro no DB e retorna estado inicial", async () => {
     mockDbEmpty();
-    const { getOrCreateProgression } = await import("../progression-engine");
+    const { getOrCreateProgression } = await import("../progression-engine.server");
 
     const p = await getOrCreateProgression(1);
 
@@ -293,7 +293,7 @@ describe("Progression Engine — getOrCreateProgression", () => {
       available: ["kaos", "lyra"],
       totalCompleted: 1,
     });
-    const { getOrCreateProgression } = await import("../progression-engine");
+    const { getOrCreateProgression } = await import("../progression-engine.server");
 
     const p = await getOrCreateProgression(1);
 
@@ -308,7 +308,7 @@ describe("Progression Engine — getOrCreateProgression", () => {
       completed: ["nexus", "invalid_planet", 123, null],
       available: ["kaos", "not_real"],
     });
-    const { getOrCreateProgression } = await import("../progression-engine");
+    const { getOrCreateProgression } = await import("../progression-engine.server");
 
     const p = await getOrCreateProgression(1);
 
@@ -324,7 +324,7 @@ describe("Progression Engine — getOrCreateProgression", () => {
         "not_an_object",
       ],
     });
-    const { getOrCreateProgression } = await import("../progression-engine");
+    const { getOrCreateProgression } = await import("../progression-engine.server");
 
     const p = await getOrCreateProgression(1);
 
@@ -340,7 +340,7 @@ describe("Progression Engine — getOrCreateProgression", () => {
 describe("Progression Engine — activatePlanet", () => {
   test("ativa nexus com sucesso", async () => {
     mockDbHasRow({ available: ["nexus"] });
-    const { activatePlanet } = await import("../progression-engine");
+    const { activatePlanet } = await import("../progression-engine.server");
 
     const result = await activatePlanet("nexus", 1);
 
@@ -354,7 +354,7 @@ describe("Progression Engine — activatePlanet", () => {
 
   test("rejeita ativar planeta undiscovered", async () => {
     mockDbHasRow(); // estado limpo
-    const { activatePlanet } = await import("../progression-engine");
+    const { activatePlanet } = await import("../progression-engine.server");
 
     const result = await activatePlanet("kaos", 1);
 
@@ -366,7 +366,7 @@ describe("Progression Engine — activatePlanet", () => {
 
   test("rejeita ativar planeta já completado", async () => {
     mockDbHasRow({ completed: ["nexus"], totalCompleted: 1, available: [] });
-    const { activatePlanet } = await import("../progression-engine");
+    const { activatePlanet } = await import("../progression-engine.server");
 
     const result = await activatePlanet("nexus", 1);
 
@@ -378,7 +378,7 @@ describe("Progression Engine — activatePlanet", () => {
 
   test("rejeita ativar planeta já ativo", async () => {
     mockDbHasRow({ activePlanet: "nexus", available: [] });
-    const { activatePlanet } = await import("../progression-engine");
+    const { activatePlanet } = await import("../progression-engine.server");
 
     const result = await activatePlanet("nexus", 1);
 
@@ -400,7 +400,7 @@ describe("Progression Engine — completePlanet", () => {
       available: [],
       lastProgressionAt: new Date(0),
     });
-    const { completePlanet } = await import("../progression-engine");
+    const { completePlanet } = await import("../progression-engine.server");
 
     const result = await completePlanet("nexus", 1);
 
@@ -423,7 +423,7 @@ describe("Progression Engine — completePlanet", () => {
 
   test("rejeita completar planeta não ativo", async () => {
     mockDbHasRow({ available: ["nexus"] });
-    const { completePlanet } = await import("../progression-engine");
+    const { completePlanet } = await import("../progression-engine.server");
 
     const result = await completePlanet("nexus", 1);
 
@@ -439,7 +439,7 @@ describe("Progression Engine — completePlanet", () => {
       activePlanet: "nexus",
       lastProgressionAt: new Date(agoraMs), // acabou de mudar
     });
-    const { completePlanet } = await import("../progression-engine");
+    const { completePlanet } = await import("../progression-engine.server");
 
     const result = await completePlanet("nexus", 1);
 
@@ -455,7 +455,7 @@ describe("Progression Engine — completePlanet", () => {
       activePlanet: "nexus",
       lastProgressionAt: new Date(tresSegundosAtras),
     });
-    const { completePlanet } = await import("../progression-engine");
+    const { completePlanet } = await import("../progression-engine.server");
 
     const result = await completePlanet("nexus", 1);
 
@@ -470,7 +470,7 @@ describe("Progression Engine — completePlanet", () => {
 describe("Progression Engine — Fluxo Completo", () => {
   test("nexus → kaos → ethos → volt → stratos", async () => {
     const { getOrCreateProgression, activatePlanet, completePlanet } =
-      await import("../progression-engine");
+      await import("../progression-engine.server");
 
     // ── Estado inicial ──────────────────────────────────────────
     mockDbEmpty(); // insert
@@ -584,7 +584,7 @@ describe("Progression Engine — Hints", () => {
       activePlanet: "nexus",
       lastProgressionAt: new Date(0),
     });
-    const { generateHint } = await import("../progression-engine");
+    const { generateHint } = await import("../progression-engine.server");
 
     const result = await generateHint("nexus", "Tente explorar o conceito de rede.", 1);
 
@@ -598,7 +598,7 @@ describe("Progression Engine — Hints", () => {
 
   test("rejeita hint para planeta undiscovered", async () => {
     mockDbHasRow({ lastProgressionAt: new Date(0) });
-    const { generateHint } = await import("../progression-engine");
+    const { generateHint } = await import("../progression-engine.server");
 
     const result = await generateHint("kaos", "dica", 1);
 
@@ -617,7 +617,7 @@ describe("Progression Engine — Hints", () => {
       ] as Hint[],
       lastProgressionAt: new Date(0),
     });
-    const { generateHint } = await import("../progression-engine");
+    const { generateHint } = await import("../progression-engine.server");
 
     const result = await generateHint("nexus", "dica 3", 1);
 
@@ -635,7 +635,7 @@ describe("Progression Engine — Hints", () => {
       activeHints: [hint1, hint2],
       lastProgressionAt: new Date(0),
     });
-    const { clearHint } = await import("../progression-engine");
+    const { clearHint } = await import("../progression-engine.server");
 
     const p = await clearHint("h1", 1);
 
