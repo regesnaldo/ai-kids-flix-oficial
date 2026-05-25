@@ -8,7 +8,7 @@ import JourneyCards from "@/components/home/JourneyCards";
 import UniversesGrid from "@/components/home/UniversesGrid";
 import FinalCTA from "@/components/home/FinalCTA";
 import dynamic from "next/dynamic";
-import { agentsShowcase } from "@/data/agents-showcase";
+import { agentsShowcase } from "@/data/agents";
 import { getAgentImage, AGENT_IMAGE_FALLBACK } from "@/lib/getAgentImage";
 import { useOasis } from "@/providers/OasisProvider";
 

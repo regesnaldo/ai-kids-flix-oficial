@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Play, Star } from "lucide-react";
-import { allAgents } from "@/data/all-agents";
+import { allAgents } from "@/data/agents";
 
 const container = {
   hidden: {},

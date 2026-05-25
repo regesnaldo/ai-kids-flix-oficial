@@ -3,7 +3,7 @@
 import { memo } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { allAgents, type HomeAgent } from "@/data/all-agents";
+import { allAgents, type HomeAgent } from "@/data/agents";
 import { getAgentImage, AGENT_IMAGE_FALLBACK } from "@/lib/getAgentImage";
 
 const GLOW_COLORS: Record<string, string> = {

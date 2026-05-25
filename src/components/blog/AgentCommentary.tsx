@@ -1,6 +1,6 @@
 'use client';
 
-import { allAgents } from '@/data/all-agents';
+import { allAgents } from '@/data/agents';
 
 const AGENT_LABELS: Record<string, string> = {
   nexus: 'NEXUS conecta',

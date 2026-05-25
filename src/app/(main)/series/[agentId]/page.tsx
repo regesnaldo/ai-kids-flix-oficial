@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { ArrowLeft, Loader2, Play, Star } from "lucide-react";
-import { allAgents } from "@/data/all-agents";
+import { allAgents } from "@/data/agents";
 import { useDeepSeek } from "@/hooks/useDeepSeek";
 
 interface SeasonTheme {
