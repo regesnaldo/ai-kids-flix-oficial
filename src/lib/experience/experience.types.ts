@@ -160,7 +160,7 @@ export interface DegradationCommand {
  * via subscribeToEvents().
  */
 export type CinematicEvent =
-  | { type: "PLANET_ENTER"; planetId: PlanetId; transitionStyle: "warp" | "portal" }
+  | { type: "PLANET_ENTER"; planetId: PlanetId; transitionStyle: "warp" | "fade" | "glitch" | "portal" }
   | { type: "PLANET_EXIT"; planetId: PlanetId; nextScene: SceneId }
   | { type: "REWARD_UNLOCK"; planetId: PlanetId; rewardLabel: string }
   | { type: "DANGER_PULSE"; level: "low" | "elevated" | "critical"; planetId: PlanetId }
