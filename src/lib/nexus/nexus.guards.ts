@@ -180,13 +180,13 @@ export function validateStateTransition(
 ): { valid: boolean; reason?: string } {
   switch (proposal.type) {
     case "PLANET_ACTIVATE":
-      return validatePlanetActivate(proposal, state);
+      return validatePlanetActivate(proposal as DeltaProposal<"PLANET_ACTIVATE">, state);
     case "PLANET_COMPLETE":
-      return validatePlanetComplete(proposal, state);
+      return validatePlanetComplete(proposal as DeltaProposal<"PLANET_COMPLETE">, state);
     case "AGENT_STATE_CHANGE":
-      return validateAgentStateChange(proposal, state);
+      return validateAgentStateChange(proposal as DeltaProposal<"AGENT_STATE_CHANGE">, state);
     case "HINT_GENERATE":
-      return validateHintGenerate(proposal, state);
+      return validateHintGenerate(proposal as DeltaProposal<"HINT_GENERATE">, state);
     default:
       // PROGRESSION_INIT, MEMORY_UPDATE, CONTEXT_SYNC, HINT_CLEAR are always valid
       // (authority + scope guards handle them)
