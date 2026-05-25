@@ -384,11 +384,29 @@ export default function LabPage() {
           minHeight: "100vh",
         }}
       >
+        {/* ── BACK BUTTON ───────────────────────────────────────────────── */}
+        <button
+          onClick={() => router.back()}
+          style={{
+            alignSelf: "flex-start",
+            padding: "6px 16px",
+            fontSize: "0.85rem",
+            color: "#A0A0B0",
+            background: "transparent",
+            border: "1px solid #2A2A3F",
+            borderRadius: "4px",
+            cursor: "pointer",
+          }}
+        >
+          ← VOLTAR
+        </button>
+
         {/* ── TITLE ─────────────────────────────────────────────────────── */}
         <div style={{ textAlign: "center" }}>
           <h1
             style={{
               ...toStyle(typography.broadcast),
+              fontSize: "2.5rem",
               color: tokens.color.access.deep,
               textShadow: tokens.shadow.glowCyan,
               margin: 0,
@@ -398,7 +416,7 @@ export default function LabPage() {
           </h1>
           <p
             style={{
-              ...toStyle(typography.operationalMono),
+              fontSize: "1.2rem",
               color: tokens.color.text.secondary,
               marginTop: tokens.spacing.sm,
             }}
@@ -413,7 +431,7 @@ export default function LabPage() {
             display: "flex",
             alignItems: "center",
             gap: tokens.spacing.sm,
-            ...toStyle(typography.micro),
+            fontSize: "1rem",
             color: tokens.color.text.tertiary,
           }}
         >
@@ -457,7 +475,7 @@ export default function LabPage() {
         {/* Mode description */}
         <p
           style={{
-            ...toStyle(typography.micro),
+            fontSize: "0.9rem",
             color: tokens.color.text.tertiary,
             textAlign: "center",
             marginTop: `-${tokens.spacing.lg}`,
@@ -528,42 +546,40 @@ export default function LabPage() {
           style={{
             display: "flex",
             flexWrap: "wrap",
-            gap: tokens.spacing.sm,
+            gap: "10px",
             justifyContent: "center",
-            maxWidth: "560px",
+            maxWidth: "600px",
           }}
         >
-          {EXAMPLE_CHIPS.map((chip) => {
-            const clearance = CHIP_CLEARANCE[chip] ?? "surface";
+          {EXAMPLE_CHIPS.map((chip, idx) => {
+            const colors = ["#00E5FF", "#7C3AED", "#00E5FF", "#7C3AED", "#00E5FF", "#7C3AED"];
+            const bg = colors[idx % colors.length];
             return (
               <button
                 key={chip}
                 onClick={() => handleStart(chip)}
                 disabled={isLoading}
                 style={{
-                  all: "unset",
-                  display: "inline-flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  gap: "4px",
+                  borderRadius: "50px",
+                  padding: "12px 24px",
+                  fontSize: "1rem",
+                  fontWeight: 700,
+                  color: "#FFFFFF",
+                  background: bg,
+                  border: "none",
                   cursor: isLoading ? "not-allowed" : "pointer",
-                  opacity: isLoading ? 0.5 : 1,
+                  opacity: isLoading ? 0.6 : 1,
+                  whiteSpace: "nowrap",
+                  transition: "opacity 0.2s, transform 0.15s",
+                }}
+                onMouseEnter={(e) => {
+                  if (!isLoading) (e.currentTarget as HTMLButtonElement).style.opacity = "0.85";
+                }}
+                onMouseLeave={(e) => {
+                  if (!isLoading) (e.currentTarget as HTMLButtonElement).style.opacity = "1";
                 }}
               >
-                <ClassificationTag
-                  state="default"
-                  clearance={clearance}
-                  label={chip}
-                />
-                <span
-                  style={{
-                    ...toStyle(typography.micro),
-                    color: tokens.color.access.surface,
-                    textTransform: "uppercase",
-                  }}
-                >
-                  INICIAR
-                </span>
+                {chip}
               </button>
             );
           })}

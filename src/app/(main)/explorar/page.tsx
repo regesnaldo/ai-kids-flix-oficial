@@ -78,14 +78,29 @@ function FilterTag({
       whileHover={{ scale: 1.04 }}
       whileTap={{ scale: 0.96 }}
       onClick={onClick}
-      className="px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors duration-200"
+      className="px-4 py-2 text-sm font-medium whitespace-nowrap transition-colors duration-200"
       style={{
-        background: active ? `${color}18` : "rgba(255,255,255,0.06)",
-        color: active ? color : "rgba(255,255,255,0.7)",
+        borderRadius: "4px",
+        background: active ? `${color}18` : "#1E1E2F",
+        color: active ? color : "#FFFFFF",
         border: active
           ? `1px solid ${color}40`
-          : "1px solid rgba(255,255,255,0.08)",
+          : "1px solid #2A2A3F",
         boxShadow: active ? `0 0 12px ${color}15` : "none",
+        cursor: "pointer",
+        fontSize: "0.9rem",
+      }}
+      onMouseEnter={(e) => {
+        if (!active) {
+          (e.currentTarget as HTMLButtonElement).style.background = "#2A2A3F";
+          (e.currentTarget as HTMLButtonElement).style.borderColor = "#00E5FF";
+        }
+      }}
+      onMouseLeave={(e) => {
+        if (!active) {
+          (e.currentTarget as HTMLButtonElement).style.background = "#1E1E2F";
+          (e.currentTarget as HTMLButtonElement).style.borderColor = "#2A2A3F";
+        }
       }}
     >
       {label}
@@ -97,7 +112,7 @@ function FilterTag({
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
   return (
-    <h3 className="text-xs font-bold uppercase tracking-[0.15em] text-gray-500 mb-3">
+    <h3 className="mb-3" style={{ fontSize: "0.75rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", color: "#A0A0B0" }}>
       {children}
     </h3>
   );
@@ -337,16 +352,16 @@ function ExplorarContent() {
         {/* Results heading */}
         <div className="mb-6">
           {searchQuery ? (
-            <h2 className="text-xl font-bold text-white">
-              🔍 Resultados para &quot;{searchQuery}&quot;
+            <h2 className="text-xl font-bold text-white" style={{ fontSize: "1.5rem" }}>
+              Resultados para &quot;{searchQuery}&quot;
             </h2>
           ) : activeFilterCount > 0 ? (
-            <h2 className="text-xl font-bold text-white">
-              🎯 Agentes filtrados
+            <h2 className="text-xl font-bold text-white" style={{ fontSize: "1.5rem" }}>
+              Agentes filtrados
             </h2>
           ) : (
-            <h2 className="text-xl font-bold text-white">
-              🗂️ Todos os agentes
+            <h2 className="text-xl font-bold text-white" style={{ fontSize: "1.5rem" }}>
+              Todos os agentes
             </h2>
           )}
           <p className="mt-1 text-sm text-gray-400">
@@ -424,15 +439,15 @@ function ExplorarContent() {
                       <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
                       <div className="absolute bottom-0 left-0 right-0 p-3">
                         <span
-                          className="inline-block px-2 py-0.5 text-white text-[9px] font-bold rounded mb-1"
-                          style={{ background: agent.color }}
+                          className="inline-block px-2 py-0.5 text-white font-bold rounded mb-1"
+                          style={{ background: agent.color, fontSize: "0.75rem" }}
                         >
                           {agent.category}
                         </span>
-                        <p className="text-sm font-bold text-white leading-tight">
+                        <p className="font-bold text-white leading-tight" style={{ fontSize: "1rem" }}>
                           {agent.name}
                         </p>
-                        <p className="text-[10px] text-gray-400 mt-0.5 line-clamp-2">
+                        <p className="text-gray-400 mt-0.5 line-clamp-2" style={{ fontSize: "0.85rem" }}>
                           {agent.description}
                         </p>
                       </div>
