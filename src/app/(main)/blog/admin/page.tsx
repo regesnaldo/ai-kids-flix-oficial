@@ -42,7 +42,7 @@ export default function BlogAdminPage() {
             Gerar Post do Dia
           </h2>
           <p className="text-gray-400 text-sm mb-4">
-            Dispara a DeepSeek para gerar um novo post cinematográfico sobre IA em português brasileiro.
+            Dispara o Groq para gerar um novo post cinematográfico sobre IA em português brasileiro.
             O post é automaticamente publicado no blog.
           </p>
           <button

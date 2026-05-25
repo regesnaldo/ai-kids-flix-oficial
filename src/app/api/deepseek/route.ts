@@ -2,10 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 
-const DEEPSEEK_BASE = "https://api.deepseek.com/v1";
+const GROQ_BASE = "https://api.groq.com/openai/v1";
 const TIMEOUT_MS = 45_000;
 
-interface DeepSeekRequest {
+interface LLMRequest {
   system: string;
   prompt: string;
   temperature?: number;
@@ -15,15 +15,15 @@ interface DeepSeekRequest {
 
 export async function POST(request: NextRequest) {
   try {
-    const apiKey = process.env.DEEPSEEK_API_KEY;
+    const apiKey = process.env.GROQ_API_KEY;
     if (!apiKey) {
       return NextResponse.json(
-        { error: "DEEPSEEK_API_KEY não configurada" },
+        { error: "GROQ_API_KEY não configurada" },
         { status: 500 }
       );
     }
 
-    const body = (await request.json()) as DeepSeekRequest;
+    const body = (await request.json()) as LLMRequest;
 
     if (!body.system || !body.prompt) {
       return NextResponse.json(
@@ -32,11 +32,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const model = process.env.GROQ_MODEL || "llama-3.3-70b-versatile";
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
 
     try {
-      const response = await fetch(`${DEEPSEEK_BASE}/chat/completions`, {
+      const response = await fetch(`${GROQ_BASE}/chat/completions`, {
         method: "POST",
         signal: controller.signal,
         headers: {
@@ -44,7 +45,7 @@ export async function POST(request: NextRequest) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          model: process.env.DEEPSEEK_MODEL || "deepseek-chat",
+          model,
           temperature: body.temperature ?? 0.8,
           max_tokens: body.maxTokens ?? 2048,
           response_format: body.jsonMode ? { type: "json_object" } : undefined,
@@ -58,7 +59,7 @@ export async function POST(request: NextRequest) {
       if (!response.ok) {
         const errText = await response.text();
         return NextResponse.json(
-          { error: `DeepSeek HTTP ${response.status}: ${errText.slice(0, 500)}` },
+          { error: `Groq HTTP ${response.status}: ${errText.slice(0, 500)}` },
           { status: response.status }
         );
       }
@@ -69,7 +70,7 @@ export async function POST(request: NextRequest) {
 
       if (typeof content !== "string" || !content.trim()) {
         return NextResponse.json(
-          { error: "Resposta vazia do DeepSeek" },
+          { error: "Resposta vazia do Groq" },
           { status: 502 }
         );
       }
@@ -81,7 +82,7 @@ export async function POST(request: NextRequest) {
   } catch (err) {
     if (err instanceof Error && err.name === "AbortError") {
       return NextResponse.json(
-        { error: "DeepSeek timeout" },
+        { error: "Groq timeout" },
         { status: 504 }
       );
     }

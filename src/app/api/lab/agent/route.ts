@@ -11,23 +11,24 @@ const AGENTS: Record<string, { name: string; role: string; color: string; catchp
 
 const AGENT_ORDER = ["nexus", "cipher", "kaos", "aurora"];
 
-// ── DeepSeek API call ──────────────────────────────────────────────────
-const DEEPSEEK_BASE = "https://api.deepseek.com/v1";
-const DEEPSEEK_TIMEOUT = 45_000;
+// ── Groq API call ──────────────────────────────────────────────────
+const GROQ_BASE = "https://api.groq.com/openai/v1";
+const GROQ_TIMEOUT = 45_000;
 
-async function callDeepSeek(systemPrompt: string, maxTokens = 1500): Promise<string> {
-  const apiKey = process.env.DEEPSEEK_API_KEY;
+async function callGroq(systemPrompt: string, maxTokens = 1500): Promise<string> {
+  const apiKey = process.env.GROQ_API_KEY;
   if (!apiKey) {
-    throw new Error("DEEPSEEK_API_KEY não configurada no ambiente. Configure em .env.local");
+    throw new Error("GROQ_API_KEY não configurada no ambiente. Configure em .env.local");
   }
 
-  console.log("[lab/agent] Chamando DeepSeek...", { model: "deepseek-chat", maxTokens });
+  const model = process.env.GROQ_MODEL || "llama-3.3-70b-versatile";
+  console.log("[lab/agent] Chamando Groq...", { model, maxTokens });
 
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), DEEPSEEK_TIMEOUT);
+  const timer = setTimeout(() => controller.abort(), GROQ_TIMEOUT);
 
   try {
-    const response = await fetch(`${DEEPSEEK_BASE}/chat/completions`, {
+    const response = await fetch(`${GROQ_BASE}/chat/completions`, {
       method: "POST",
       signal: controller.signal,
       headers: {
@@ -35,7 +36,7 @@ async function callDeepSeek(systemPrompt: string, maxTokens = 1500): Promise<str
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "deepseek-chat",
+        model,
         temperature: 0.85,
         max_tokens: maxTokens,
         messages: [
@@ -46,23 +47,23 @@ async function callDeepSeek(systemPrompt: string, maxTokens = 1500): Promise<str
 
     if (!response.ok) {
       const errText = await response.text().catch(() => "sem corpo");
-      console.error("[lab/agent] DeepSeek HTTP error", { status: response.status, body: errText.slice(0, 300) });
-      throw new Error(`DeepSeek retornou HTTP ${response.status}: ${errText.slice(0, 200)}`);
+      console.error("[lab/agent] Groq HTTP error", { status: response.status, body: errText.slice(0, 300) });
+      throw new Error(`Groq retornou HTTP ${response.status}: ${errText.slice(0, 200)}`);
     }
 
     const data = await response.json();
     const content: string | undefined = data?.choices?.[0]?.message?.content;
 
     if (typeof content !== "string" || !content.trim()) {
-      console.error("[lab/agent] DeepSeek resposta vazia", { data: JSON.stringify(data).slice(0, 300) });
-      throw new Error("DeepSeek retornou resposta vazia");
+      console.error("[lab/agent] Groq resposta vazia", { data: JSON.stringify(data).slice(0, 300) });
+      throw new Error("Groq retornou resposta vazia");
     }
 
-    console.log("[lab/agent] DeepSeek OK", { length: content.length });
+    console.log("[lab/agent] Groq OK", { length: content.length });
     return content;
   } catch (err) {
     if (err instanceof Error && err.name === "AbortError") {
-      throw new Error("DeepSeek timeout — a API demorou mais de 45 segundos para responder");
+      throw new Error("Groq timeout — a API demorou mais de 45 segundos para responder");
     }
     throw err;
   } finally {
@@ -203,7 +204,7 @@ export async function POST(request: NextRequest) {
     kvIncr("global_active", 60);
 
     try {
-      response = await callDeepSeek(systemPrompt, maxTokens);
+      response = await callGroq(systemPrompt, maxTokens);
     } catch (err: any) {
       kvDecr("global_active"); // decrement on error
       console.error("[lab/agent] Falha na chamada LLM", {
@@ -214,10 +215,10 @@ export async function POST(request: NextRequest) {
 
       // Fallback: responder com erro amigável em PT-BR
       const errorMsg = err?.message?.includes("API_KEY")
-        ? "Chave da API DeepSeek não configurada. Configure DEEPSEEK_API_KEY no .env.local."
+        ? "Chave da API Groq não configurada. Configure GROQ_API_KEY no .env.local."
         : err?.message?.includes("timeout")
-        ? "A API DeepSeek demorou muito para responder. Tente novamente."
-        : `Erro ao chamar DeepSeek: ${err?.message || "Erro desconhecido"}. Verifique os logs do servidor.`;
+        ? "A API Groq demorou muito para responder. Tente novamente."
+        : `Erro ao chamar Groq: ${err?.message || "Erro desconhecido"}. Verifique os logs do servidor.`;
 
       return NextResponse.json({ error: errorMsg }, { status: 502 });
     }

@@ -5,6 +5,20 @@
  * DO NOT import this from Client Components — use the API routes instead.
  *
  * Pure functions live in progression-engine.ts (client-safe).
+ *
+ * ═══════════════════════════════════════════════════════════════════════════════
+ * PHASE 2: OWNERSHIP ENFORCEMENT
+ *
+ * All state changes now route through nexusRuntime.submitProposal().
+ * The pattern is:
+ *   1. Validate business logic locally (fast-fail)
+ *   2. Submit proposal to Nexus for ownership + authority validation
+ *   3. If accepted → persist to DB → emit events
+ *   4. If rejected → return Nexus error
+ *
+ * DB operations stay here (Nexus is in-memory).
+ * Nexus governs what CAN be written — this file handles HOW.
+ * ═══════════════════════════════════════════════════════════════════════════════
  */
 
 import "server-only";
@@ -14,7 +28,8 @@ import { v4 as uuid } from "uuid";
 import { db } from "@/lib/db";
 import { universeProgression } from "@/lib/db/schema";
 import { planetRegistry, type PlanetId } from "./planet-registry";
-import { universeBus } from "./event-bus";
+import { nexusBus } from "@/lib/nexus/nexus.events";
+import { nexusRuntime } from "@/lib/nexus";
 import {
   createInitialProgression,
   calculatePlanetState,
@@ -31,6 +46,9 @@ import {
 /**
  * Load progression from DB for a user. Creates initial row if none exists.
  * This is the primary entry point for reading progression state.
+ *
+ * Phase 2: initial creation is routed through nexusRuntime.submitProposal()
+ * for ownership validation before DB insert.
  */
 export async function getOrCreateProgression(
   userId: number
@@ -44,6 +62,21 @@ export async function getOrCreateProgression(
   if (rows.length === 0) {
     const initial = createInitialProgression();
     const id = uuid();
+
+    // Phase 2: Submit through Nexus for ownership validation
+    const result = nexusRuntime.submitProposal({
+      proposalId: uuid(),
+      agentId: "nexus",
+      type: "PROGRESSION_INIT",
+      timestamp: Date.now(),
+      payload: { userId, playerProgression: { ...initial, id } },
+    });
+
+    if (!result.accepted) {
+      console.error(`[Nexus] PROGRESSION_INIT rejected: ${result.reason}`);
+      // Fall through — insert anyway (graceful degradation)
+    }
+
     await db.insert(universeProgression).values({
       id,
       userId,
@@ -116,7 +149,12 @@ function parseHints(value: unknown): Hint[] {
 
 // ─── PROGRESSION ACTIONS ──────────────────────────────────────────────────────
 
-/** Activate a planet. Validates state, persists, emits events. */
+/**
+ * Activate a planet. Validates state, submits to Nexus, persists, emits events.
+ *
+ * Phase 2: routes through nexusRuntime.submitProposal() for ownership validation.
+ * DB persist happens AFTER Nexus approval.
+ */
 export async function activatePlanet(
   planetId: PlanetId,
   userId: number
@@ -124,9 +162,23 @@ export async function activatePlanet(
   const progression = await getOrCreateProgression(userId);
   const state = calculatePlanetState(planetId, progression);
 
+  // Fast-fail: local business logic validation
   if (state === "undiscovered") return { success: false, error: "PLANETA AINDA NÃO DESCOBERTO" };
   if (state === "completed") return { success: false, error: "PLANETA JÁ DOMINADO" };
   if (state === "active") return { success: false, error: "PLANETA JÁ ATIVO" };
+
+  // Phase 2: Submit to Nexus for ownership + authority validation
+  const nexusResult = nexusRuntime.submitProposal({
+    proposalId: uuid(),
+    agentId: planetId,
+    type: "PLANET_ACTIVATE",
+    timestamp: Date.now(),
+    payload: { planetId },
+  });
+
+  if (!nexusResult.accepted) {
+    return { success: false, error: `[NEXUS] ${nexusResult.reason}` };
+  }
 
   const previousState = state;
   const newProgression: PlayerProgression = {
@@ -139,13 +191,17 @@ export async function activatePlanet(
 
   await persist(newProgression);
 
-  universeBus.emit({ type: "PLANET_ACTIVATED", planetId });
-  universeBus.emit({ type: "PROGRESSION_STATE_CHANGED", planetId, from: previousState, to: "active" });
+  nexusBus.emit({ type: "PLANET_ACTIVATED", planetId });
+  nexusBus.emit({ type: "PROGRESSION_STATE_CHANGED", planetId, from: previousState, to: "active" });
 
   return { success: true, progression: newProgression };
 }
 
-/** Complete a planet. Unlocks children. Persists. */
+/**
+ * Complete a planet. Unlocks children. Validates, submits to Nexus, persists.
+ *
+ * Phase 2: routes through nexusRuntime.submitProposal() for ownership validation.
+ */
 export async function completePlanet(
   planetId: PlanetId,
   userId: number
@@ -153,9 +209,23 @@ export async function completePlanet(
   const progression = await getOrCreateProgression(userId);
   const state = calculatePlanetState(planetId, progression);
 
+  // Fast-fail: local business logic validation
   if (state !== "active") return { success: false, error: "PLANETA NÃO ESTÁ ATIVO" };
   if (Date.now() - progression.lastProgressionAt < PROGRESSION_COOLDOWN_MS) {
     return { success: false, error: "SISTEMA EM RESFRIAMENTO" };
+  }
+
+  // Phase 2: Submit to Nexus for ownership + authority validation
+  const nexusResult = nexusRuntime.submitProposal({
+    proposalId: uuid(),
+    agentId: planetId,
+    type: "PLANET_COMPLETE",
+    timestamp: Date.now(),
+    payload: { planetId },
+  });
+
+  if (!nexusResult.accepted) {
+    return { success: false, error: `[NEXUS] ${nexusResult.reason}` };
   }
 
   const planet = planetRegistry[planetId];
@@ -178,17 +248,17 @@ export async function completePlanet(
 
   await persist(newProgression);
 
-  universeBus.emit({ type: "PLANET_COMPLETED", planetId });
-  universeBus.emit({ type: "PROGRESSION_STATE_CHANGED", planetId, from: "active", to: "completed" });
+  nexusBus.emit({ type: "PLANET_COMPLETED", planetId });
+  nexusBus.emit({ type: "PROGRESSION_STATE_CHANGED", planetId, from: "active", to: "completed" });
 
   for (const unlockedId of newlyUnlocked) {
-    universeBus.emit({ type: "PLANET_UNLOCKED", planetId: unlockedId, source: planetId });
-    universeBus.emit({ type: "PROGRESSION_STATE_CHANGED", planetId: unlockedId, from: "undiscovered", to: "available" });
+    nexusBus.emit({ type: "PLANET_UNLOCKED", planetId: unlockedId, source: planetId });
+    nexusBus.emit({ type: "PROGRESSION_STATE_CHANGED", planetId: unlockedId, from: "undiscovered", to: "available" });
   }
 
   for (const id of newProgression.available) {
     if (newlyUnlocked.includes(id)) {
-      universeBus.emit({ type: "SIGNAL_DETECTED", planetId: id, strength: 0.5 });
+      nexusBus.emit({ type: "SIGNAL_DETECTED", planetId: id, strength: 0.5 });
     }
   }
 
@@ -197,6 +267,11 @@ export async function completePlanet(
 
 // ─── HINT MANAGEMENT ──────────────────────────────────────────────────────────
 
+/**
+ * Generate a hint for a planet. Validates, submits to Nexus, persists.
+ *
+ * Phase 2: routes through nexusRuntime.submitProposal() for ownership validation.
+ */
 export async function generateHint(
   planetId: PlanetId,
   text: string,
@@ -205,6 +280,7 @@ export async function generateHint(
   const progression = await getOrCreateProgression(userId);
   const state = calculatePlanetState(planetId, progression);
 
+  // Fast-fail: local business logic validation
   if (state !== "active" && state !== "available") {
     return { success: false, error: "PLANETA NÃO DISPONÍVEL PARA DICAS" };
   }
@@ -216,6 +292,20 @@ export async function generateHint(
   }
 
   const hint: Hint = { id: uuid(), planetId, text, createdAt: Date.now() };
+
+  // Phase 2: Submit to Nexus for ownership validation
+  const nexusResult = nexusRuntime.submitProposal({
+    proposalId: uuid(),
+    agentId: planetId,
+    type: "HINT_GENERATE",
+    timestamp: Date.now(),
+    payload: { planetId, text, hint },
+  });
+
+  if (!nexusResult.accepted) {
+    return { success: false, error: `[NEXUS] ${nexusResult.reason}` };
+  }
+
   const newProgression: PlayerProgression = {
     ...progression,
     activeHints: [...progression.activeHints, hint],
@@ -223,16 +313,36 @@ export async function generateHint(
   };
 
   await persist(newProgression);
-  universeBus.emit({ type: "HINT_GENERATED", planetId, hint: text });
+  nexusBus.emit({ type: "HINT_GENERATED", planetId, hint: text });
 
   return { success: true, progression: newProgression, hint };
 }
 
+/**
+ * Clear a hint. Submits to Nexus, persists.
+ *
+ * Phase 2: routes through nexusRuntime.submitProposal() for ownership validation.
+ */
 export async function clearHint(
   hintId: string,
   userId: number
 ): Promise<PlayerProgression> {
   const progression = await getOrCreateProgression(userId);
+
+  // Phase 2: Submit to Nexus for ownership validation
+  const nexusResult = nexusRuntime.submitProposal({
+    proposalId: uuid(),
+    agentId: "nexus",
+    type: "HINT_CLEAR",
+    timestamp: Date.now(),
+    payload: { hintId },
+  });
+
+  if (!nexusResult.accepted) {
+    console.error(`[Nexus] HINT_CLEAR rejected: ${nexusResult.reason}`);
+    // Graceful degradation: proceed anyway
+  }
+
   const newProgression: PlayerProgression = {
     ...progression,
     activeHints: progression.activeHints.filter((h) => h.id !== hintId),

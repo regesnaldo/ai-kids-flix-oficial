@@ -18,7 +18,6 @@ import {
 } from "@/lib/universe/planet-registry";
 import {
   calculatePlanetState,
-  createInitialProgression,
   normalizeProgression,
   type PlayerProgression,
 } from "@/lib/universe/progression-engine";
@@ -27,6 +26,7 @@ import { MissionOrbit } from "@/components/universe/MissionOrbit";
 import { UniverseHUD } from "@/components/universe/UniverseHUD";
 import { tokens } from "@/design-system/tokens";
 import { typography, toStyle } from "@/design-system/typography";
+import { useOasis } from "@/providers/OasisProvider";
 
 // ─── ORBITAL LAYOUT ───────────────────────────────────────────────────────────
 
@@ -79,7 +79,7 @@ const STATE_LABEL: Record<PlanetState, string> = {
 
 export default function UniversoPage() {
   const router = useRouter();
-  const [progression, setProgression] = useState<PlayerProgression | null>(null);
+  const { progressionSnapshot, currentScene, healthStatus, triggerTransition } = useOasis();
   const [hoveredPlanet, setHoveredPlanet] = useState<PlanetId | null>(null);
   const [enteringId, setEnteringId] = useState<PlanetId | null>(null);
   const [flashActive, setFlashActive] = useState(false);
@@ -94,21 +94,28 @@ export default function UniversoPage() {
     return () => window.removeEventListener("resize", update);
   }, []);
 
-  // Load progression from API (server-side DB call)
+  // Mark mounted for hydration-safe star generation
   useEffect(() => {
     setMounted(true);
-    fetch("/api/universe/progression")
-      .then((r) => r.json())
-      .then((data) => setProgression(normalizeProgression(data)))
-      .catch(() => setProgression(createInitialProgression()));
   }, []);
+
+  // Build progression from oasis snapshot (SSE-driven, no polling)
+  const progression: PlayerProgression = useMemo(
+    () =>
+      normalizeProgression({
+        completed: progressionSnapshot.completed as PlanetId[],
+        activePlanet: progressionSnapshot.activePlanet as PlanetId | null,
+        available: progressionSnapshot.available as PlanetId[],
+        totalCompleted: progressionSnapshot.totalCompleted,
+      }),
+    [progressionSnapshot]
+  );
 
   const stars = useMemo(() => (mounted ? createStars() : []), [mounted]);
 
   // Planet state calculator (pure, derived from progression)
   const getState = useCallback(
     (id: PlanetId): PlanetState => {
-      if (!progression) return "undiscovered";
       return calculatePlanetState(id, progression);
     },
     [progression]
@@ -133,7 +140,6 @@ export default function UniversoPage() {
 
   // ── SVG connections (NEXUS → available/active, completed → unlocked) ──
   const orbitConnections = useMemo(() => {
-    if (!progression) return [];
     const conns: { from: PlanetId; to: PlanetId }[] = [];
     const added = new Set<string>();
 
@@ -182,8 +188,8 @@ export default function UniversoPage() {
         });
         const result = await res.json();
         if (result.success) {
-          setProgression(normalizeProgression(result.progression));
           audioManager.playSignature(planetId);
+          triggerTransition(planetId as any, "warp");
         }
       } else if (state === "active") {
         audioManager.playSignature(planetId);
@@ -222,7 +228,7 @@ export default function UniversoPage() {
 
       {/* Header */}
       <div style={styles.headerLabel}>
-        NEXUS PRIME // MAPA GALACTICO // {progression?.totalCompleted ?? 0}/12 MUNDOS ATIVOS
+        NEXUS PRIME // MAPA GALACTICO // {progression.totalCompleted}/12 MUNDOS ATIVOS
       </div>
       <button
         style={styles.backButton}
@@ -236,15 +242,13 @@ export default function UniversoPage() {
       <div style={styles.solarSystem}>
 
         {/* ── MissionOrbit: SVG connection lines ── */}
-        {progression && (
-          <MissionOrbit
-            connections={orbitConnections}
-            progression={progression}
-            positions={orbitPositions}
-            width={viewport.w}
-            height={viewport.h}
-          />
-        )}
+        <MissionOrbit
+          connections={orbitConnections}
+          progression={progression}
+          positions={orbitPositions}
+          width={viewport.w}
+          height={viewport.h}
+        />
 
         {/* ── Orbital rings ── */}
         {ALL_PLANET_IDS.filter((id) => id !== "nexus").map((id) => {
@@ -306,10 +310,10 @@ export default function UniversoPage() {
       {flashActive && <div style={styles.flashOverlay} />}
 
       {/* ── UniverseHUD: sistema operacional overlay ── */}
-      {progression && <UniverseHUD progression={progression} />}
+      <UniverseHUD progression={progression} />
 
       {/* Keyframes */}
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         @keyframes twinkleStar {
           from { opacity: 0.35; transform: scale(1); }
           to { opacity: 0.95; transform: scale(1.2); }
@@ -327,7 +331,7 @@ export default function UniversoPage() {
           0%, 100% { box-shadow: var(--glow-color); }
           50% { box-shadow: var(--glow-color-strong); }
         }
-      `}</style>
+      ` }} />
     </div>
   );
 }
