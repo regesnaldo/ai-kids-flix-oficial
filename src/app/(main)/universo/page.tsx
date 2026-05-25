@@ -309,7 +309,7 @@ export default function UniversoPage() {
       {progression && <UniverseHUD progression={progression} />}
 
       {/* Keyframes */}
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         @keyframes twinkleStar {
           from { opacity: 0.35; transform: scale(1); }
           to { opacity: 0.95; transform: scale(1.2); }
@@ -327,7 +327,7 @@ export default function UniversoPage() {
           0%, 100% { box-shadow: var(--glow-color); }
           50% { box-shadow: var(--glow-color-strong); }
         }
-      `}</style>
+      ` }} />
     </div>
   );
 }
