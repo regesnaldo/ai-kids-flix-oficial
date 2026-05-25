@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { HomeAgent } from "@/data/all-agents";
+import { HomeAgent } from "@/data/agents";
 
 interface CategoryCardProps {
   categoryName: string;

@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { Clock, Zap, User } from 'lucide-react';
 import { WhatsAppShare } from './WhatsAppShare';
-import { allAgents } from '@/data/all-agents';
+import { allAgents } from '@/data/agents';
 
 interface PostCardProps {
   slug: string;

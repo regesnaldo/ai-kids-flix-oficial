@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { Suspense, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
-import { allAgents } from "@/data/all-agents";
+import { allAgents } from "@/data/agents";
 
 /* ─── Filter Data ────────────────────────────────────────────────────── */
 

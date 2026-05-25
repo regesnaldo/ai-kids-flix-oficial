@@ -9,7 +9,7 @@ import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Check, Info, Plus } from 'lucide-react';
-import type { HomeAgent } from '@/data/all-agents';
+import type { HomeAgent } from '@/data/agents';
 import { useMyList } from '@/hooks/useMyList';
 
 interface AgentCardProps {

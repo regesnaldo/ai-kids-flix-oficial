@@ -14,7 +14,7 @@ import { useRef } from 'react';
 import { motion } from 'framer-motion';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import AgentCard from './AgentCard';
-import type { HomeAgent } from '@/data/all-agents';
+import type { HomeAgent } from '@/data/agents';
 
 interface AgentRowProps {
   title: string;

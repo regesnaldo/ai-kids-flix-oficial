@@ -11,7 +11,7 @@ import {
   AnimatePresence,
 } from "framer-motion";
 import Link from "next/link";
-import { agentsShowcase } from "@/data/agents-showcase";
+import { agentsShowcase } from "@/data/agents";
 import AgentCard from "./AgentCard";
 
 const AUTOPLAY_MS = 8000;

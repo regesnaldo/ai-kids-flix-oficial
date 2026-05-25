@@ -11,7 +11,7 @@ import { WhatsAppShare } from "@/components/blog/WhatsAppShare";
 import { ParentalGate } from "@/components/blog/ParentalGate";
 import { TableOfContents } from "@/components/blog/TableOfContents";
 import { queueConquest } from "@/components/gamification/ConquestNotification";
-import { allAgents } from "@/data/all-agents";
+import { allAgents } from "@/data/agents";
 
 interface Post {
   id: string;

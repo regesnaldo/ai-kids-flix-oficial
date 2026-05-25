@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, ChevronLeft, ChevronRight, Loader2, Play, Sparkles, Zap } from "lucide-react";
-import { allAgents } from "@/data/all-agents";
+import { allAgents } from "@/data/agents";
 import { useDeepSeek } from "@/hooks/useDeepSeek";
 import { queueConquest } from "@/components/gamification/ConquestNotification";
 import { useGamification } from "@/components/gamification/GamificationProvider";

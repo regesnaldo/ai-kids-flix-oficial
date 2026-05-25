@@ -15,8 +15,8 @@ import HeroBanner from '@/components/home/HeroBanner';
 import AgentRow from '@/components/home/AgentRow';
 import AgentDetailModal from '@/components/home/AgentDetailModal';
 import InfoModal from '@/components/home/InfoModal';
-import { allAgents, AGENT_ROWS } from '@/data/all-agents';
-import type { HomeAgent } from '@/data/all-agents';
+import { allAgents, AGENT_ROWS } from '@/data/agents';
+import type { HomeAgent } from '@/data/agents';
 
 export default function HomePage() {
   const [selectedAgent, setSelectedAgent] = useState<HomeAgent | null>(null);
