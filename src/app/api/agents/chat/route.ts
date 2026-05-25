@@ -1,12 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { runAgent } from '@/lib/langchain/agentRunner'
-import { NEXUS_PROMPT, VOLT_PROMPT, AURORA_PROMPT } from '@/lib/langchain/agents'
-
-const AGENT_PROMPTS: Record<string, string> = {
-  nexus: NEXUS_PROMPT,
-  volt: VOLT_PROMPT,
-  aurora: AURORA_PROMPT,
-}
+import { AGENT_PROMPTS, type AgentId } from '@/canon/agents/canon'
 
 // ─── Visual Story Intent Detection ──────────────────────────────────────────
 
@@ -96,16 +90,17 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const systemPrompt = AGENT_PROMPTS[agentId.toLowerCase()]
-    if (!systemPrompt) {
+    const agentKey = agentId.toLowerCase() as AgentId
+    if (agentKey !== 'nexus' && agentKey !== 'cipher' && agentKey !== 'kaos' && agentKey !== 'aurora') {
       return NextResponse.json(
         { error: `Agent ${agentId} not found` },
         { status: 404 }
       )
     }
+    const systemPrompt = AGENT_PROMPTS[agentKey]
 
     // ── Visual Story detection (NEXUS only) ──────────────────────────────
-    if (agentId.toLowerCase() === 'nexus') {
+    if (agentKey === 'nexus') {
       const { detected, topic } = detectVisualStoryIntent(message)
       if (detected && topic.length >= 5) {
         const frames = extractFrameCount(message)

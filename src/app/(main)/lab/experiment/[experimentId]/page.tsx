@@ -12,6 +12,11 @@ import { ExperimentResult } from "@/components/lab/ExperimentResult";
 import { useExperimentEngine } from "@/hooks/useExperimentEngine";
 import type { AgentNodeStatus } from "@/components/lab/AgentNode";
 import { saveToLocalCache } from "@/lib/client-cache";
+import { useCognitiveStore } from "@/store/useCognitiveStore";
+import dynamic from "next/dynamic";
+
+const LabCanvas = dynamic(() => import("@/components/lab/LabCanvas"), { ssr: false });
+const AgentChatOverlay = dynamic(() => import("@/components/lab/AgentChatOverlay"), { ssr: false });
 
 const AGENT_ORDER = ["nexus", "cipher", "kaos", "aurora"];
 
@@ -54,6 +59,14 @@ export default function ExperimentPage({
     loadCachedResult,
     setMode,
   } = useExperimentEngine(experimentId === "cached" ? null : experimentId);
+
+  // ── Cognitive decay tick ─────────────────────────────────────────────────────
+  useEffect(() => {
+    const id = setInterval(() => {
+      useCognitiveStore.getState().decayTick()
+    }, 2000)
+    return () => clearInterval(id)
+  }, []);
 
   // ── Handle cached mode ─────────────────────────────────────────────
   const cacheData = useMemo(() => {
@@ -385,6 +398,9 @@ export default function ExperimentPage({
           )}
         </aside>
       </div>
+
+      <LabCanvas />
+      <AgentChatOverlay />
     </main>
   );
 }

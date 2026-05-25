@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useRef, useEffect } from "react";
 import { findInLocalCache, saveToLocalCache, logUnansweredQuestion } from "@/lib/client-cache";
+import { AGENTS, AGENT_ORDER, type AgentId } from "@/canon/agents/canon";
 
 // ── Types ────────────────────────────────────────────────────────────
 export interface AgentResult {
@@ -25,16 +26,6 @@ export interface LabEvent {
 }
 
 export type ExperimentPhase = "idle" | "running" | "paused" | "complete";
-
-// ── Agent order ───────────────────────────────────────────────────────
-const AGENT_ORDER = ["nexus", "cipher", "kaos", "aurora"];
-
-const AGENTS: Record<string, { name: string; role: string; color: string }> = {
-  nexus: { name: "NEXUS", role: "O Conector", color: "#00f5ff" },
-  cipher: { name: "CIPHER", role: "O Criptógrafo", color: "#00ff88" },
-  kaos: { name: "KAOS", role: "O Caos Criativo", color: "#ff6b35" },
-  aurora: { name: "AURORA", role: "A Sintetizadora", color: "#a78bfa" },
-};
 
 // ── Hook ──────────────────────────────────────────────────────────────
 export function useExperimentEngine(experimentId: string | null) {
@@ -225,13 +216,15 @@ export function useExperimentEngine(experimentId: string | null) {
     const { nexus, cipher, kaos, aurora, board: facts } = cached;
     const outputs: Record<string, AgentResult> = {};
 
-    for (const [agent, narrative] of Object.entries({ nexus, cipher, kaos, aurora })) {
+    for (const entry of Object.entries({ nexus, cipher, kaos, aurora })) {
+      const agent = entry[0] as AgentId
+      const narrative = entry[1]
       if (narrative) {
         outputs[agent] = {
           agent,
-          agentName: AGENTS[agent]?.name || agent.toUpperCase(),
-          agentRole: AGENTS[agent]?.role || "",
-          agentColor: AGENTS[agent]?.color || "#888",
+          agentName: AGENTS[agent]?.identity.name || agent.toUpperCase(),
+          agentRole: AGENTS[agent]?.identity.role || "",
+          agentColor: AGENTS[agent]?.identity.color || "#888",
           narrative: narrative as string,
           facts: [],
           nextAgent: "",
