@@ -181,15 +181,19 @@ export default function UniversoPage() {
 
       // Activate planet via API (server-side DB call)
       if (state === "available") {
-        const res = await fetch("/api/universe/progression", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ action: "activate", planetId }),
-        });
-        const result = await res.json();
-        if (result.success) {
-          audioManager.playSignature(planetId);
-          triggerTransition(planetId as any, "warp");
+        try {
+          const res = await fetch("/api/universe/progression", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ action: "activate", planetId }),
+          });
+          const result = await res.json();
+          if (result.success) {
+            audioManager.playSignature(planetId);
+            triggerTransition(planetId as any, "warp");
+          }
+        } catch {
+          console.error("Falha ao ativar planeta via API");
         }
       } else if (state === "active") {
         audioManager.playSignature(planetId);
