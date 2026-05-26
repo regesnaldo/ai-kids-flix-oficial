@@ -1,15 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getBoard, saveBoard, kvSet, kvGetCounter, kvIncr, kvDecr, type AgentStep } from "../board-store";
-
-// ── Agent definitions ──────────────────────────────────────────────────
-const AGENTS: Record<string, { name: string; role: string; color: string; catchphrase: string }> = {
-  nexus: { name: "NEXUS", role: "O Conector", color: "#00f5ff", catchphrase: "Vamos conectar os pontos!" },
-  cipher: { name: "CIPHER", role: "O Criptógrafo", color: "#00ff88", catchphrase: "Os padrões estão por toda parte..." },
-  kaos: { name: "KAOS", role: "O Caos Criativo", color: "#ff6b35", catchphrase: "E se tudo estiver errado?!" },
-  aurora: { name: "AURORA", role: "A Sintetizadora", color: "#a78bfa", catchphrase: "Toda descoberta é uma forma de poesia." },
-};
-
-const AGENT_ORDER = ["nexus", "cipher", "kaos", "aurora"];
+import { AGENTS, AGENT_ORDER } from "@/canon/agents/canon";
 
 // ── Groq API call ──────────────────────────────────────────────────
 const GROQ_BASE = "https://api.groq.com/openai/v1";
@@ -157,16 +148,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Experimento não encontrado. Pode ter expirado (TTL 24h)." }, { status: 404 });
     }
 
-    const agentDef = AGENTS[body.agent];
-    if (!agentDef) {
+    const agent = body.agent
+    if (agent !== 'nexus' && agent !== 'cipher' && agent !== 'kaos' && agent !== 'aurora') {
       console.warn("[lab/agent] Agente desconhecido", { agent: body.agent });
       return NextResponse.json({ error: `Agente desconhecido: ${body.agent}. Use: nexus, cipher, kaos ou aurora.` }, { status: 400 });
     }
 
-    const agentIndex = AGENT_ORDER.indexOf(body.agent);
-    if (agentIndex === -1) {
-      return NextResponse.json({ error: "Agente fora da ordem do pipeline" }, { status: 400 });
-    }
+    const agentDef = AGENTS[agent];
+    const agentIndex = AGENT_ORDER.indexOf(agent);
 
     // ── Inject idea ────────────────────────────────────────────────
     if (body.injectIdea) {
@@ -286,9 +275,9 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       agent: body.agent,
-      agentName: agentDef.name,
-      agentRole: agentDef.role,
-      agentColor: agentDef.color,
+      agentName: agentDef.identity.name,
+      agentRole: agentDef.identity.role,
+      agentColor: agentDef.identity.color,
       narrative,
       facts,
       nextAgent: board.currentAgent,

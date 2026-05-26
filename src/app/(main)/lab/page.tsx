@@ -7,6 +7,10 @@ import { LabPromptInput } from "@/components/lab/LabPromptInput";
 import { RateLimitScreen } from "@/components/lab/RateLimitScreen";
 import { WifiOff } from "lucide-react";
 import { findInLocalCache, saveToLocalCache, getLocalQuestions, normalizeQuestion } from "@/lib/client-cache";
+import dynamic from "next/dynamic";
+
+const LabCanvas = dynamic(() => import("@/components/lab/LabCanvas"), { ssr: false });
+const AgentChatOverlay = dynamic(() => import("@/components/lab/AgentChatOverlay"), { ssr: false });
 
 // ─── Design System ────────────────────────────────────────────────────────────
 import { tokens } from "@/design-system/tokens";
@@ -16,6 +20,7 @@ import { typography, toStyle } from "@/design-system/typography";
 import { useLabInterface } from "@/components/lab/useLabInterface";
 // ─── Phase 4 — Motion System ──────────────────────────────────────────────────
 import { LabMotionController } from "@/components/motion";
+import { useCognitiveStore } from "@/store/useCognitiveStore";
 import {
   ScannerRing,
   SignalBars,
@@ -178,6 +183,14 @@ export default function LabPage() {
   useEffect(() => {
     localStorage.setItem("mente_ai_lab_mode", labMode);
   }, [labMode]);
+
+  // ── Cognitive decay tick ─────────────────────────────────────────────────────
+  useEffect(() => {
+    const id = setInterval(() => {
+      useCognitiveStore.getState().decayTick()
+    }, 2000)
+    return () => clearInterval(id)
+  }, []);
 
   // ── Handle start ────────────────────────────────────────────────────────────
   const handleStart = useCallback(async (topic: string) => {
@@ -670,6 +683,10 @@ export default function LabPage() {
           NEXUS · CIPHER · KAOS · AURORA
         </p>
       </div>
+
+      {/* Three.js canvas + Chat overlay — only after mount */}
+      {mounted && <LabCanvas />}
+      {mounted && <AgentChatOverlay />}
 
       {/* Global keyframe for loading spinner */}
       <style jsx global>{`
