@@ -50,7 +50,7 @@ export function savePreferences(prefs: Partial<UserPreferences>): void {
     updatedAt: new Date().toISOString(),
   };
   const merged = { ...existing, ...prefs, updatedAt: new Date().toISOString() };
-  try { window.localStorage.setItem(STORAGE_KEY, JSON.stringify(merged)); } catch { }
+  try { window.localStorage.setItem(STORAGE_KEY, JSON.stringify(merged)); } catch (error) { console.error('[MENTE.AI] Error in onboarding/types.ts:', error); }
 }
 
 export function shouldShowOnboarding(): boolean {

@@ -66,7 +66,7 @@ export function useExperimentEngine(experimentId: string | null) {
         const data = await res.json();
         if (data.facts) setBoardFacts(data.facts);
         if (data.history) setHistory(data.history);
-      } catch {}
+      } catch (error) { console.error('[MENTE.AI] Error in useExperimentEngine.ts:', error); }
     };
 
     const interval = setInterval(poll, 2000);

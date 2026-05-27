@@ -124,7 +124,7 @@ export default function LabPage() {
       if (saved === "fast" || saved === "full") {
         setLabMode(saved);
       }
-    } catch {}
+    } catch (error) { console.error('[MENTE.AI] Error in lab/page.tsx:', error); }
   }, []);
 
   // ─── Phase 3 — HUD Interface ────────────────────────────────────────────────
@@ -176,7 +176,7 @@ export default function LabPage() {
     try {
       const stored = localStorage.getItem("lab_experiments");
       if (stored) setPastExperiments(JSON.parse(stored));
-    } catch {}
+    } catch (error) { console.error('[MENTE.AI] Error in lab/page.tsx:', error); }
   }, []);
 
   // ── Save mode ───────────────────────────────────────────────────────────────

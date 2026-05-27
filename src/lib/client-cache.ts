@@ -65,7 +65,7 @@ export function logUnansweredQuestion(question: string) {
     // Keep only last 100
     const trimmed = unanswered.slice(-100);
     localStorage.setItem("mente_ai_unanswered", JSON.stringify(trimmed));
-  } catch {}
+  } catch (error) { console.error('[MENTE.AI] Error in client-cache.ts:', error); }
 }
 
 /** Check which questions are available offline */

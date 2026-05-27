@@ -117,7 +117,7 @@ export default function ExperimentPage({
           },
         })
       );
-    } catch {}
+    } catch (error) { console.error('[MENTE.AI] Error in lab/experiment/[experimentId]/page.tsx:', error); }
   }, [rollbackUsed]);
 
   useEffect(() => {
@@ -145,7 +145,7 @@ export default function ExperimentPage({
             localStorage.setItem("lab_experiments", JSON.stringify(exps));
           }
         }
-      } catch {}
+      } catch (error) { console.error('[MENTE.AI] Error in lab/experiment/[experimentId]/page.tsx:', error); }
     }
   }, [phase, experimentId, awardXp]);
 

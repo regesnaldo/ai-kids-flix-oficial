@@ -39,7 +39,7 @@ export function saveProfile(profile: UserProfile): void {
   if (typeof window === "undefined") return;
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...profile, lastUpdated: Date.now() }));
-  } catch { }
+  } catch (error) { console.error('[MENTE.AI] Error in engine/profiler.ts:', error); }
 }
 
 export function updateProfile(deltas: Partial<Record<"emotionalScore" | "intellectualScore" | "moralScore", number>>): UserProfile {

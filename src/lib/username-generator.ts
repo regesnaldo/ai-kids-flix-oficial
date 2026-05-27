@@ -21,9 +21,9 @@ export function getOrCreateUsername(userId: number | string, email?: string): st
   try {
     const stored = localStorage.getItem(key);
     if (stored) return stored;
-  } catch {}
+  } catch (error) { console.error('[MENTE.AI] Error in username-generator.ts:', error); }
   const seed = String(userId) + (email || '');
   const name = generateUsername(seed);
-  try { localStorage.setItem(key, name); } catch {}
+  try { localStorage.setItem(key, name); } catch (error) { console.error('[MENTE.AI] Error in username-generator.ts:', error); }
   return name;
 }

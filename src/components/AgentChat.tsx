@@ -182,7 +182,7 @@ export default function AgentChat({
             setTransition({ from: agentId, to: checkData.transitionTo, reason: checkData.transitionReason || 'Transicao narrativa' })
           }
         }
-      } catch { }
+      } catch (error) { console.error('[MENTE.AI] Error in AgentChat.tsx:', error); }
     }
   }
 
