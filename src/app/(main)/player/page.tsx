@@ -17,6 +17,7 @@ function getWatchMap(): Record<string, WatchState> {
 
 function saveWatchMap(map: Record<string, WatchState>) {
   try { globalThis.localStorage?.setItem(WATCH_KEY, JSON.stringify(map)); } catch (error) { console.error('[MENTE.AI] Error in player/page.tsx:', error); }
+  // TODO: [MENTE.AI] adicionar feedback visual ao usuário
 }
 
 function getAgentImage(agentId: string): string {

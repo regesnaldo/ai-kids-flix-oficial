@@ -194,6 +194,7 @@ export default function UniversoPage() {
           }
         } catch {
           console.error("Falha ao ativar planeta via API");
+          // TODO: [MENTE.AI] adicionar feedback visual ao usuário
         }
       } else if (state === "active") {
         audioManager.playSignature(planetId);

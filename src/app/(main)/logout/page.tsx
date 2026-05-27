@@ -12,6 +12,7 @@ export default function LogoutPage() {
 
   useEffect(() => {
     void fetch('/api/auth/logout', { method: 'POST' }).catch((error) => console.error('[Logout] fetch error:', error));
+    // TODO: [MENTE.AI] adicionar feedback visual ao usuário
 
     intervalRef.current = globalThis.setInterval(() => {
       setSeconds((s) => s - 1);
@@ -28,6 +29,7 @@ export default function LogoutPage() {
     if (intervalRef.current) globalThis.clearInterval(intervalRef.current);
     intervalRef.current = null;
     void fetch('/api/auth/logout', { method: 'POST' }).then(() => router.push('/')).catch((error) => console.error('[Logout] fetch error:', error));
+    // TODO: [MENTE.AI] adicionar feedback visual ao usuário
   }, [seconds, router]);
 
   return (
@@ -62,6 +64,7 @@ export default function LogoutPage() {
             type="button"
             onClick={async () => {
               await fetch('/api/auth/logout', { method: 'POST' }).catch((error) => console.error('[Logout] fetch error:', error));
+              // TODO: [MENTE.AI] adicionar feedback visual ao usuário
               router.push('/');
             }}
             className="mt-6 bg-blue-600 hover:bg-blue-700 text-white w-full py-3 rounded font-semibold text-lg transition"

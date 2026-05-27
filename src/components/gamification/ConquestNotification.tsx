@@ -22,6 +22,7 @@ export function queueConquest(conquest: Conquest) {
     localStorage.setItem(CONQUESTS_KEY, JSON.stringify(queue));
     window.dispatchEvent(new Event("mente_ai_conquest"));
   } catch (error) { console.error('[MENTE.AI] Error in ConquestNotification.tsx:', error); }
+  // TODO: [MENTE.AI] adicionar feedback visual ao usuário
 }
 
 interface ConquestNotificationProps {
@@ -44,6 +45,7 @@ export function ConquestNotification({ suppressed = false }: ConquestNotificatio
       setActive(next);
       setTimeout(() => setActive(null), 4000);
     } catch (error) { console.error('[MENTE.AI] Error in ConquestNotification.tsx:', error); }
+    // TODO: [MENTE.AI] adicionar feedback visual ao usuário
   }, [suppressed]);
 
   useEffect(() => {

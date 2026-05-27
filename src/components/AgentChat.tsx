@@ -183,6 +183,7 @@ export default function AgentChat({
           }
         }
       } catch (error) { console.error('[MENTE.AI] Error in AgentChat.tsx:', error); }
+      // TODO: [MENTE.AI] adicionar feedback visual ao usuário
     }
   }
 

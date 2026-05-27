@@ -121,6 +121,7 @@ export default function ScreenplayPlayerPage() {
           });
         }
       } catch (error) { console.error('[MENTE.AI] Error in series/[agentId]/[season]/[episode]/page.tsx:', error); }
+      // TODO: [MENTE.AI] adicionar feedback visual ao usuário
     })();
   }, [phase, xpAwarded, agentId, season, episode, selectedChoice, agent]);
 
