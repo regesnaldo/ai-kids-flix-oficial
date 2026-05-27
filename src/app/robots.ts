@@ -1,21 +1,12 @@
-import type { MetadataRoute } from "next";
-
-const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL || "https://ai-kids-flix.vercel.app";
+import { MetadataRoute } from 'next'
 
 export default function robots(): MetadataRoute.Robots {
   return {
-    rules: [
-      {
-        userAgent: "*",
-        allow: "/",
-        disallow: ["/api/", "/logout", "/conta/"],
-      },
-      {
-        userAgent: "GPTBot",
-        disallow: "/",
-      },
-    ],
-    sitemap: `${SITE_URL}/sitemap.xml`,
-  };
+    rules: {
+      userAgent: '*',
+      allow: '/',
+      disallow: ['/api/', '/admin/'],
+    },
+    sitemap: 'https://mente-ai.vercel.app/sitemap.xml',
+  }
 }

@@ -32,7 +32,7 @@ export default function BlogPage() {
         const res = await fetch("/api/blog/generate");
         const data = await res.json();
         if (Array.isArray(data)) setPosts(data);
-      } catch (error) { console.error('[MENTE.AI] Error in blog/page.tsx:', error); } finally { setLoading(false); }
+      } catch (error) { console.error('[MENTE.AI] Error in blog/page.tsx:', error); /* TODO: [MENTE.AI] adicionar feedback visual ao usuário */ } finally { setLoading(false); }
     })();
   }, []);
 

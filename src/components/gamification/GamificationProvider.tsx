@@ -69,8 +69,10 @@ export function GamificationProvider({ children, userId, email }: { children: Re
           const stored = localStorage.getItem("mente_ai_username");
           if (stored) return stored;
         } catch (error) { console.error('[MENTE.AI] Error in GamificationProvider.tsx:', error); }
+          // TODO: [MENTE.AI] adicionar feedback visual ao usuário
         const name = generateUsername(String(userId) || "anon" + (email || ""));
-        try { localStorage.setItem("mente_ai_username", name); } catch (error) { console.error('[MENTE.AI] Error in GamificationProvider.tsx:', error); }
+try { localStorage.setItem("mente_ai_username", name); } catch (error) { console.error('[MENTE.AI] Error in GamificationProvider.tsx:', error); }
+          // TODO: [MENTE.AI] adicionar feedback visual ao usuário
         return name;
       })()
     : "EXPLORADOR";
@@ -95,6 +97,7 @@ export function GamificationProvider({ children, userId, email }: { children: Re
       setEpisodeCount(data.episodeCount ?? 0);
       setValidReferrals(data.validReferrals ?? 0);
     } catch (error) { console.error('[MENTE.AI] Error in GamificationProvider.tsx:', error); }
+    // TODO: [MENTE.AI] adicionar feedback visual ao usuário
   }, [userId]);
 
   useEffect(() => {

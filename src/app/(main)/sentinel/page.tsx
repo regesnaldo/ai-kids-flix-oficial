@@ -37,6 +37,7 @@ export default function SentinelPage() {
         setData(json)
       } catch (e) {
         console.error(e)
+        // TODO: [MENTE.AI] adicionar feedback visual ao usuário
       } finally {
         setLoading(false)
       }

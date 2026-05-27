@@ -216,6 +216,7 @@ function initializeOasisRuntime(): void {
     }
   ).catch((err) => {
     console.error("[OasisProvider] Failed to load experience layer:", err);
+    // TODO: [MENTE.AI] adicionar feedback visual ao usuário
   });
 }
 
@@ -362,6 +363,7 @@ export function useOasis(): OasisContext {
         }
       ).catch((err) => {
         console.error("[useOasis] Transition failed:", err);
+        // TODO: [MENTE.AI] adicionar feedback visual ao usuário
       });
     },
     []

@@ -118,6 +118,7 @@ export default function ExperimentPage({
         })
       );
     } catch (error) { console.error('[MENTE.AI] Error in lab/experiment/[experimentId]/page.tsx:', error); }
+    // TODO: [MENTE.AI] adicionar feedback visual ao usuário
   }, [rollbackUsed]);
 
   useEffect(() => {
@@ -146,6 +147,7 @@ export default function ExperimentPage({
           }
         }
       } catch (error) { console.error('[MENTE.AI] Error in lab/experiment/[experimentId]/page.tsx:', error); }
+      // TODO: [MENTE.AI] adicionar feedback visual ao usuário
     }
   }, [phase, experimentId, awardXp]);
 
