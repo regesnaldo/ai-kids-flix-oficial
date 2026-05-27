@@ -95,7 +95,7 @@ export default function BlogPostPage() {
           setXpAwarded(true);
           queueConquest({ id: `blog_${post.slug}`, xp: data.xpAwarded, message: "Post lido!" });
         }
-      } catch {}
+      } catch (error) { console.error('[MENTE.AI] Error in blog/[slug]/page.tsx:', error); }
     }, 8000);
     return () => clearTimeout(timer);
   }, [post, xpAwarded]);
@@ -109,7 +109,7 @@ export default function BlogPostPage() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ postId: post.id, choiceMade: ["A", "B", "C"][idx] }),
         });
-      } catch {}
+      } catch (error) { console.error('[MENTE.AI] Error in blog/[slug]/page.tsx:', error); }
     }
   };
 

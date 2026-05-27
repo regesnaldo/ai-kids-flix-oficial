@@ -25,7 +25,7 @@ export default function GamificationWrapper({ children }: { children: React.Reac
         if (data?.authenticated && data?.user) {
           setSession(data.user);
         }
-      } catch {}
+      } catch (error) { console.error('[MENTE.AI] Error in GamificationWrapper.tsx:', error); }
     })();
   }, []);
 

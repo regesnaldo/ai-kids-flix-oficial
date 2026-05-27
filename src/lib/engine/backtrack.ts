@@ -18,7 +18,7 @@ function loadHistory(): HistoryEntry[] {
 
 function saveHistory(history: HistoryEntry[]) {
   if (typeof window === "undefined") return;
-  try { localStorage.setItem(HISTORY_KEY, JSON.stringify(history)); } catch { }
+  try { localStorage.setItem(HISTORY_KEY, JSON.stringify(history)); } catch (error) { console.error('[MENTE.AI] Error in engine/backtrack.ts:', error); }
 }
 
 export function pushTransition(agent: string, reason: string) {

@@ -120,7 +120,7 @@ export default function ScreenplayPlayerPage() {
             episode,
           });
         }
-      } catch {}
+      } catch (error) { console.error('[MENTE.AI] Error in series/[agentId]/[season]/[episode]/page.tsx:', error); }
     })();
   }, [phase, xpAwarded, agentId, season, episode, selectedChoice, agent]);
 

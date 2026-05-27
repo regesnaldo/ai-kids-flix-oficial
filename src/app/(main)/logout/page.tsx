@@ -11,7 +11,7 @@ export default function LogoutPage() {
   const intervalRef = useRef<ReturnType<typeof globalThis.setInterval> | null>(null);
 
   useEffect(() => {
-    void fetch('/api/auth/logout', { method: 'POST' });
+    void fetch('/api/auth/logout', { method: 'POST' }).catch((error) => console.error('[Logout] fetch error:', error));
 
     intervalRef.current = globalThis.setInterval(() => {
       setSeconds((s) => s - 1);
@@ -27,7 +27,7 @@ export default function LogoutPage() {
     if (seconds > 0) return;
     if (intervalRef.current) globalThis.clearInterval(intervalRef.current);
     intervalRef.current = null;
-    void fetch('/api/auth/logout', { method: 'POST' }).then(() => router.push('/'));
+    void fetch('/api/auth/logout', { method: 'POST' }).then(() => router.push('/')).catch((error) => console.error('[Logout] fetch error:', error));
   }, [seconds, router]);
 
   return (
@@ -61,7 +61,7 @@ export default function LogoutPage() {
           <button
             type="button"
             onClick={async () => {
-              await fetch('/api/auth/logout', { method: 'POST' });
+              await fetch('/api/auth/logout', { method: 'POST' }).catch((error) => console.error('[Logout] fetch error:', error));
               router.push('/');
             }}
             className="mt-6 bg-blue-600 hover:bg-blue-700 text-white w-full py-3 rounded font-semibold text-lg transition"

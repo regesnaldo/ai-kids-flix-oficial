@@ -47,10 +47,10 @@ function getUserId(request: NextRequest): string {
         try {
           const decoded = JSON.parse(Buffer.from(payload, "base64").toString());
           if (decoded?.userId) return `user_${decoded.userId}`;
-        } catch {}
+        } catch (error) { console.error('[MENTE.AI] Error in api/lab/start/route.ts:', error); }
       }
     }
-  } catch {}
+  } catch (error) { console.error('[MENTE.AI] Error in api/lab/start/route.ts:', error); }
 
   // Fallback: IP
   const forwarded = request.headers.get("x-forwarded-for");
