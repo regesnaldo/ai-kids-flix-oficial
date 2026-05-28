@@ -8,8 +8,6 @@ import * as THREE from 'three'
 
 const PARTICLE_COUNT = 500
 const SPHERE_RADIUS = 8
-const CONNECTION_DIST = 2
-const MAX_LINES = 300
 
 function generateSpherePositions(count: number, radius: number) {
   const pos = new Float32Array(count * 3)
@@ -22,25 +20,6 @@ function generateSpherePositions(count: number, radius: number) {
     pos[i * 3 + 2] = r * Math.cos(phi)
   }
   return pos
-}
-
-function computeConnections(positions: Float32Array, maxDist: number, maxLines: number) {
-  const pairs: number[] = []
-  const count = positions.length / 3
-  for (let i = 0; i < count && pairs.length < maxLines * 6; i++) {
-    for (let j = i + 1; j < count && pairs.length < maxLines * 6; j++) {
-      const dx = positions[i * 3] - positions[j * 3]
-      const dy = positions[i * 3 + 1] - positions[j * 3 + 1]
-      const dz = positions[i * 3 + 2] - positions[j * 3 + 2]
-      if (dx * dx + dy * dy + dz * dz < maxDist * maxDist) {
-        pairs.push(positions[i * 3], positions[i * 3 + 1], positions[i * 3 + 2])
-        pairs.push(positions[j * 3], positions[j * 3 + 1], positions[j * 3 + 2])
-      }
-    }
-  }
-  const geo = new THREE.BufferGeometry()
-  geo.setAttribute('position', new THREE.Float32BufferAttribute(pairs, 3))
-  return geo
 }
 
 function ParticleField({ positions }: { positions: Float32Array }) {
@@ -106,14 +85,6 @@ function ParticleField({ positions }: { positions: Float32Array }) {
   )
 }
 
-function ConnectionLines({ geometry }: { geometry: THREE.BufferGeometry }) {
-  return (
-    <lineSegments geometry={geometry}>
-      <lineBasicMaterial color="#00FFFF" transparent opacity={0.15} depthWrite={false} />
-    </lineSegments>
-  )
-}
-
 function Nucleus({ onClick }: { onClick: () => void }) {
   const sphereRef = useRef<THREE.Mesh>(null!)
   const ring1Ref = useRef<THREE.Mesh>(null!)
@@ -150,12 +121,10 @@ function Nucleus({ onClick }: { onClick: () => void }) {
 
 function Scene({ onNucleusClick }: { onNucleusClick: () => void }) {
   const positions = useMemo(() => generateSpherePositions(PARTICLE_COUNT, SPHERE_RADIUS), [])
-  const connectionGeo = useMemo(() => computeConnections(positions, CONNECTION_DIST, MAX_LINES), [positions])
 
   return (
     <>
       <ParticleField positions={positions} />
-      <ConnectionLines geometry={connectionGeo} />
       <Nucleus onClick={onNucleusClick} />
       <OrbitControls enableZoom minDistance={6} maxDistance={20} autoRotate autoRotateSpeed={0.3} />
     </>
