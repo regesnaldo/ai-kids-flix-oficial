@@ -90,15 +90,15 @@ function ParticleField({ positions }: { positions: Float32Array }) {
     <group>
       <points ref={cyanRef}>
         <bufferGeometry>
-          <bufferAttribute attach="attributes-position" count={400} array={cyanPositions} itemSize={3} />
-          <bufferAttribute attach="attributes-color" count={400} array={cyanColors} itemSize={3} />
+          <bufferAttribute attach="attributes-position" args={[cyanPositions, 3]} />
+          <bufferAttribute attach="attributes-color" args={[cyanColors, 3]} />
         </bufferGeometry>
         <pointsMaterial size={0.05} vertexColors transparent opacity={0.8} sizeAttenuation blending={THREE.AdditiveBlending} depthWrite={false} />
       </points>
       <points ref={staticRef}>
         <bufferGeometry>
-          <bufferAttribute attach="attributes-position" count={100} array={staticPositions} itemSize={3} />
-          <bufferAttribute attach="attributes-color" count={100} array={staticColors} itemSize={3} />
+          <bufferAttribute attach="attributes-position" args={[staticPositions, 3]} />
+          <bufferAttribute attach="attributes-color" args={[staticColors, 3]} />
         </bufferGeometry>
         <pointsMaterial size={0.03} vertexColors transparent opacity={0.6} sizeAttenuation blending={THREE.AdditiveBlending} depthWrite={false} />
       </points>
