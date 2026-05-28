@@ -1,530 +1,192 @@
 'use client'
 
-import { useEffect, useCallback, useRef, useState } from 'react'
-import Link from 'next/link'
+import { useEffect, useRef, useState, useCallback } from 'react'
 import dynamic from 'next/dynamic'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useNexusStore } from '@/store/useNexusStore'
-import {
-  NEXUS_INTRO_VOICE,
-  NEXUS_FIRST_QUESTION,
-  NEXUS_INITIAL_OPTIONS,
-  fetchNexusResponse,
-  speakAsNexus,
-} from '@/lib/laboratorio/nexus-orchestrator'
 
-const NexusDialog = dynamic(
-  () => import('@/components/universo/NexusDialog').then((m) => m.NexusDialog),
-  { ssr: false }
+const NexusCosmos = dynamic(
+  () => import('@/components/universo/NexusCosmos'),
+  { ssr: false, loading: () => <div className="w-full h-full bg-black" /> }
 )
 
-const NexusCanvas = dynamic(
-  () => import('@/components/universo/NexusCanvas'),
-  {
-    ssr: false,
-    loading: () => <div className="w-full h-full bg-black" />,
-  }
-)
-
-// ── Utilitario ────────────────────────────────────────────────────────────────
-function delay(ms: number) {
-  return new Promise<void>((r) => setTimeout(r, ms))
-}
-
-// ── Sequencia cinematografica de entrada ─────────────────────────────────────
-function NexusIntro({ onComplete }: { onComplete: () => void }) {
-  const setIntroStep = useNexusStore((s) => s.setIntroStep)
-  const introStep    = useNexusStore((s) => s.introStep)
-  const hasRun       = useRef(false)
+function CinematicIntro({ onComplete }: { onComplete: () => void }) {
+  const [text, setText] = useState('')
+  const [visible, setVisible] = useState(true)
+  const fullText = '> INICIALIZANDO NEXUS...\n> SINCRONIZANDO 500 NÓS DE DADOS...\n> BEM-VINDO AO KERNEL DO METAVERSO.'
 
   useEffect(() => {
-    if (hasRun.current) return
-    hasRun.current = true
-
-    async function run() {
-      // Step 1 — tela preta com fade out
-      setIntroStep('fade-in')
-      await delay(900)
-
-      // Step 2 — particulas surgem no canvas
-      setIntroStep('particles')
-      await delay(1600)
-
-      // Step 3 — voz do NEXUS
-      setIntroStep('voice')
-      await speakAsNexus(NEXUS_INTRO_VOICE)
-      await delay(500)
-
-      // Step 4 — primeira pergunta aparece
-      setIntroStep('question')
-      await delay(300)
-
-      onComplete()
-    }
-
-    run()
-  }, [setIntroStep, onComplete])
+    let i = 0
+    const interval = setInterval(() => {
+      i++
+      setText(fullText.slice(0, i))
+      if (i >= fullText.length) {
+        clearInterval(interval)
+        setTimeout(() => {
+          setVisible(false)
+          setTimeout(onComplete, 600)
+        }, 1500)
+      }
+    }, 30)
+    return () => clearInterval(interval)
+  }, [fullText, onComplete])
 
   return (
     <AnimatePresence>
-      {/* Fade inicial — tela preta saindo */}
-      {introStep === 'fade-in' && (
+      {visible && (
         <motion.div
-          key="blackout"
-          className="absolute inset-0 z-30 bg-black"
+          className="absolute inset-0 z-50 flex items-center justify-center bg-black"
           initial={{ opacity: 1 }}
-          animate={{ opacity: 0 }}
-          transition={{ duration: 1.4, ease: 'easeOut' }}
-        />
-      )}
-
-      {/* Frase de boas-vindas do NEXUS */}
-      {(introStep === 'particles' || introStep === 'voice') && (
-        <motion.div
-          key="welcome"
-          className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0, transition: { duration: 0.6 } }}
-          transition={{ duration: 0.9 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.6 }}
         >
-          <motion.p
-            className="font-mono text-blue-200 text-lg md:text-2xl text-center max-w-lg px-8 leading-relaxed tracking-wide"
-            style={{ textShadow: '0 0 30px rgba(59,130,246,0.9), 0 0 60px rgba(59,130,246,0.4)' }}
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4, duration: 1 }}
-          >
-            {NEXUS_INTRO_VOICE}
-          </motion.p>
+          <pre className="font-mono text-[#00FF88] text-sm md:text-base leading-loose whitespace-pre-line">
+            {text}<span className="animate-pulse">▌</span>
+          </pre>
         </motion.div>
-      )}
-
-      {/* Pulso de luz azul durante a voz */}
-      {introStep === 'voice' && (
-        <motion.div
-          key="glow-pulse"
-          className="absolute inset-0 z-10 pointer-events-none"
-          style={{
-            background:
-              'radial-gradient(ellipse at center, rgba(59,130,246,0.25) 0%, transparent 68%)',
-          }}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: [0, 1, 0.4, 1, 0] }}
-          transition={{ duration: 3, ease: 'easeInOut' }}
-        />
       )}
     </AnimatePresence>
   )
 }
 
-// ── Chat com NEXUS (terminal cinematografico) ────────────────────────────────
-type ChatTurn = { role: 'user' | 'assistant'; content: string }
+function HUD() {
+  const [utc, setUtc] = useState('')
 
-function NexusChatTerminal() {
-  const [history, setHistory] = useState<ChatTurn[]>([])
-  const [input, setInput] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
-  const [typedReply, setTypedReply] = useState('')
-
-  const handleSubmit = useCallback(async () => {
-    const question = input.trim()
-    if (!question || isLoading) return
-
-    const nextHistory: ChatTurn[] = [...history, { role: 'user', content: question }]
-    setHistory(nextHistory)
-    setInput('')
-    setIsLoading(true)
-    setTypedReply('')
-
-    try {
-      const res = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ agentId: 'nexus', messages: nextHistory }),
-      })
-      const data = await res.json()
-      const reply: string = typeof data?.message === 'string' ? data.message : 'O cosmos está em silêncio. Tente novamente.'
-
-      // Animacao de digitacao
-      let i = 0
-      const step = () => {
-        i += 2
-        setTypedReply(reply.slice(0, i))
-        if (i < reply.length) {
-          setTimeout(step, 18)
-        } else {
-          setHistory([...nextHistory, { role: 'assistant', content: reply }])
-          setTypedReply('')
-          setIsLoading(false)
-        }
-      }
-      step()
-    } catch {
-      setHistory([...nextHistory, { role: 'assistant', content: 'O cosmos está em silêncio. Tente novamente.' }])
-      setIsLoading(false)
+  useEffect(() => {
+    const update = () => {
+      const now = new Date()
+      const iso = now.toISOString()
+      setUtc(`UTC ${iso.slice(0, 10)} // ${iso.slice(11, 19)}`)
     }
-  }, [input, history, isLoading])
+    update()
+    const id = setInterval(update, 1000)
+    return () => clearInterval(id)
+  }, [])
 
   return (
-    <div className="border border-blue-500/20 bg-black/60 backdrop-blur-sm rounded-2xl overflow-hidden">
-      <div className="border-b border-blue-500/15 px-5 py-3 flex items-center gap-2">
-        <div className="w-2 h-2 rounded-full bg-blue-400 animate-pulse" />
-        <span className="font-mono text-[11px] tracking-[0.25em] uppercase text-blue-300/70">terminal — nexus</span>
+    <div className="absolute inset-0 pointer-events-none z-10">
+      <div className="absolute top-5 left-5 font-mono">
+        <p className="text-[#00FF88] text-xs tracking-wider">NEXUS // KERNEL ORQUESTRADOR</p>
+        <p className="text-[#00FFFF] text-[10px] mt-1">PARTÍCULAS ATIVAS: 500</p>
+        <p className="text-[#00FF88] text-[10px] mt-1 animate-pulse">STATUS: ONLINE</p>
       </div>
-
-      <div className="px-5 py-6 min-h-[300px] max-h-[480px] overflow-y-auto space-y-5 font-mono text-sm">
-        {history.length === 0 && !typedReply && (
-          <p className="text-blue-300/40 italic">
-            O cosmos aguarda sua pergunta. Cada partícula de luz é um pensamento esperando para ser conectado.
-          </p>
-        )}
-        {history.map((turn, idx) => (
-          <div key={idx} className="space-y-1">
-            <div className="text-[10px] tracking-[0.2em] uppercase text-blue-400/50">
-              {turn.role === 'user' ? 'você' : 'nexus'}
-            </div>
-            <div className={turn.role === 'user' ? 'text-zinc-300' : 'text-blue-100 leading-relaxed'}>
-              {turn.content}
-            </div>
-          </div>
-        ))}
-        {typedReply && (
-          <div className="space-y-1">
-            <div className="text-[10px] tracking-[0.2em] uppercase text-blue-400/50">nexus</div>
-            <div className="text-blue-100 leading-relaxed">
-              {typedReply}
-              <span className="inline-block w-2 h-4 bg-blue-300/80 ml-1 animate-pulse align-middle" />
-            </div>
-          </div>
-        )}
+      <div className="absolute top-5 right-5 font-mono text-[#0088FF] text-[10px]">
+        {utc}
       </div>
-
-      <div className="border-t border-blue-500/15 px-5 py-4 flex gap-3">
-        <input
-          type="text"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => { if (e.key === 'Enter') handleSubmit() }}
-          placeholder="Faça uma pergunta ao cosmos..."
-          disabled={isLoading}
-          className="flex-1 bg-transparent border border-blue-500/25 rounded-lg px-4 py-2.5 text-blue-100 placeholder:text-blue-400/30 font-mono text-sm focus:outline-none focus:border-blue-400/60 transition disabled:opacity-50"
-        />
-        <button
-          onClick={handleSubmit}
-          disabled={isLoading || !input.trim()}
-          className="px-5 py-2.5 border border-blue-400/40 text-blue-200 font-mono text-xs tracking-[0.2em] uppercase rounded-lg hover:bg-blue-500/10 hover:border-blue-400/70 transition disabled:opacity-30 disabled:cursor-not-allowed"
-        >
-          {isLoading ? 'conectando' : 'conectar'}
-        </button>
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2">
+        <p className="font-mono text-[#00FFFF] text-[11px] opacity-70 animate-pulse">
+          [ CLIQUE NO NÚCLEO PARA INICIAR CONTATO ]
+        </p>
       </div>
     </div>
   )
 }
 
-// ── Pagina principal do Universo NEXUS ────────────────────────────────────────
-export default function NexusUniversePage() {
-  const {
-    introSeen,
-    introStep,
-    markIntroSeen,
-    setIntroStep,
-    dialogueState,
-    selectedOption,
-    setDialogueState,
-    setSelectedOption,
-    isSpeaking,
-    audioEnabled,
-    setIsSpeaking,
-    setAudioEnabled,
-    profile,
-    updateProfile,
-    addMessage,
-    messages,
-  } = useNexusStore()
+const MOCK_RESPONSES = [
+  'Você chegou ao núcleo do metaverso. Sua jornada começa aqui.',
+  'Cada decisão sua alimenta o cosmos. O metaverso observa.',
+  'Bem-vindo, participante. Estou processando sua presença.',
+]
 
-  // Inicia a intro se o usuario nunca a viu
+function ChatPanel({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const [messages, setMessages] = useState<{ role: string; content: string }[]>([])
+  const [input, setInput] = useState('')
+  const endRef = useRef<HTMLDivElement>(null)
+
   useEffect(() => {
-    if (!introSeen) {
-      setIntroStep('fade-in')
-    }
-  }, [introSeen, setIntroStep])
+    endRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [messages])
 
-  const handleIntroComplete = useCallback(() => {
-    markIntroSeen()
-  }, [markIntroSeen])
-
-  // Usuario escolhe uma opcao → LangChain responde
-  const handleOptionSelect = useCallback(
-    async (option: string) => {
-      setSelectedOption(option)
-      setDialogueState('responding')
-      updateProfile(option)
-      addMessage({ role: 'user', content: option, timestamp: Date.now() })
-
-      const history = messages.map((m) => ({
-        role: m.role === 'nexus' ? ('assistant' as const) : ('user' as const),
-        content: m.content,
-      }))
-
-      const reply = await fetchNexusResponse(option, profile, history)
-      addMessage({ role: 'nexus', content: reply, timestamp: Date.now() })
-
-      if (audioEnabled) {
-        setIsSpeaking(true)
-        await speakAsNexus(reply)
-        setIsSpeaking(false)
-      }
-    },
-    [
-      setSelectedOption, setDialogueState, updateProfile,
-      addMessage, messages, profile, audioEnabled, setIsSpeaking,
-    ]
-  )
-
-  const handleResponseComplete = useCallback(() => {
-    setDialogueState('awaiting')
-  }, [setDialogueState])
-
-  const handleSpeak = useCallback(
-    async (text: string) => {
-      if (isSpeaking) return
-      setIsSpeaking(true)
-      await speakAsNexus(text)
-      setIsSpeaking(false)
-    },
-    [isSpeaking, setIsSpeaking]
-  )
-
-  const showDialog =
-    introSeen || introStep === 'question' || introStep === 'done'
-
-  const portais = [
-    { id: 'volt',  name: 'VOLT',  subtitle: 'O Energético',     color: '#F59E0B' },
-    { id: 'kaos',  name: 'KAOS',  subtitle: 'O Caos Criativo',  color: '#EF4444' },
-    { id: 'ethos', name: 'ETHOS', subtitle: 'O Filósofo',       color: '#8B5CF6' },
-  ]
+  const handleSubmit = useCallback(() => {
+    const text = input.trim()
+    if (!text) return
+    setInput('')
+    setMessages((prev) => [...prev, { role: 'user', content: text }])
+    const reply = MOCK_RESPONSES[Math.floor(Math.random() * MOCK_RESPONSES.length)]
+    setTimeout(() => {
+      setMessages((prev) => [...prev, { role: 'nexus', content: reply }])
+    }, 600)
+  }, [input])
 
   return (
-    <main className="bg-black">
-
-      {/* ═══ SECAO 0 — Cosmic Entry (canvas 3D + intro cinematografica) ══════ */}
-      <section className="relative w-full h-screen overflow-hidden">
-
-        {/* Canvas 3D — sempre presente em background */}
-        <div className="absolute inset-0 z-0">
-          <NexusCanvas />
-        </div>
-
-        {/* Vinheta de profundidade */}
-        <div
-          className="absolute inset-0 z-5 pointer-events-none"
-          style={{
-            background:
-              'linear-gradient(to top, rgba(0,0,0,0.55) 0%, transparent 40%, rgba(0,0,0,0.25) 100%)',
-          }}
-        />
-
-        {/* Intro cinematografica — apenas na primeira visita */}
-        {!introSeen && <NexusIntro onComplete={handleIntroComplete} />}
-
-        {/* Badge de arquetipo — aparece apos o primeiro turno */}
-        <AnimatePresence>
-          {showDialog && profile.turnCount > 0 && (
-            <motion.div
-              key="archetype"
-              initial={{ opacity: 0, x: -16 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.5 }}
-              className="absolute top-5 left-5 z-20 pointer-events-none"
+    <AnimatePresence>
+      {open && (
+        <motion.aside
+          initial={{ x: 380 }}
+          animate={{ x: 0 }}
+          exit={{ x: 380 }}
+          transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+          className="fixed right-0 top-0 h-full w-[380px] z-30 flex flex-col"
+          style={{ background: 'rgba(0,0,0,0.92)', borderLeft: '1px solid rgba(0,255,255,0.13)' }}
+        >
+          <div className="border-b border-[#00FFFF]/10 px-5 py-4 flex items-center justify-between">
+            <span className="font-mono text-[#00FF88] text-sm tracking-wider">// NEXUS PRIME</span>
+            <button
+              onClick={onClose}
+              className="text-[#00FFFF]/50 hover:text-[#00FFFF] transition text-lg"
+              aria-label="Fechar painel"
             >
-              <div className="font-mono text-xs text-blue-400/70 border border-blue-500/25 bg-black/50 backdrop-blur-sm px-3 py-1.5 rounded-lg">
-                <span className="text-blue-500/40 mr-1.5">arquetipo</span>
-                {profile.archetypeLabel}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Contador de turnos — canto superior direito */}
-        <AnimatePresence>
-          {showDialog && profile.turnCount > 0 && (
-            <motion.div
-              key="turns"
-              initial={{ opacity: 0, x: 16 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-              className="absolute top-5 right-5 z-20 pointer-events-none"
-            >
-              <div className="font-mono text-xs text-blue-400/40 border border-blue-500/15 bg-black/40 backdrop-blur-sm px-3 py-1.5 rounded-lg">
-                turno {profile.turnCount}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Dialogo — aparece apos a intro */}
-        <AnimatePresence>
-          {showDialog && (
-            <motion.div
-              key="dialog"
-              className="absolute inset-0 z-10 pointer-events-none"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.7 }}
-            >
-              <NexusDialog
-                dialogueState={dialogueState}
-                selectedOption={selectedOption}
-                onOptionSelect={handleOptionSelect}
-                onResponseComplete={handleResponseComplete}
-                onSpeak={handleSpeak}
-                isSpeaking={isSpeaking}
-                audioEnabled={audioEnabled}
-                onToggleAudio={() => setAudioEnabled(!audioEnabled)}
-                firstQuestion={NEXUS_FIRST_QUESTION}
-                initialOptions={NEXUS_INITIAL_OPTIONS}
-                latestNexusMessage={
-                  messages.filter((m) => m.role === 'nexus').at(-1)?.content
-                }
-              />
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Indicador de scroll */}
-        <AnimatePresence>
-          {showDialog && (
-            <motion.div
-              key="scroll-hint"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 2.5, duration: 0.8 }}
-              className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 pointer-events-none"
-            >
-              <div className="flex flex-col items-center gap-2 text-blue-300/50">
-                <span className="font-mono text-[10px] tracking-[0.35em] uppercase">role para baixo</span>
-                <div className="w-px h-12 bg-gradient-to-b from-blue-400/60 to-transparent animate-pulse" />
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-      </section>
-
-      {/* ═══ SECAO 1 — Identidade canonica do NEXUS ═════════════════════════ */}
-      <section className="relative w-full bg-gradient-to-b from-[#0a1628] via-[#1e3a5f] to-[#0a1628] py-32 px-6 md:px-12">
-        <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-16">
-            <p className="text-cyan-300/60 text-xs tracking-[0.4em] uppercase mb-4">Identidade Canônica</p>
-            <h2 className="text-white text-5xl md:text-6xl font-black mb-3">NEXUS</h2>
-            <p className="text-blue-200/80 text-xl md:text-2xl font-light">O Arquiteto do Conhecimento</p>
+              ✕
+            </button>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-6 mb-6">
-            <div className="bg-black/40 border border-blue-500/20 rounded-2xl p-8 backdrop-blur-sm">
-              <h3 className="text-blue-300/70 text-[10px] tracking-[0.35em] uppercase mb-5">Valores</h3>
-              <div className="flex flex-wrap gap-2">
-                {['conexão', 'orquestração', 'atenção', 'transformers'].map((v) => (
-                  <span
-                    key={v}
-                    className="px-4 py-1.5 bg-blue-500/10 border border-blue-500/30 rounded-full text-blue-100 text-sm tracking-wide"
-                  >
-                    {v}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            <div className="bg-black/40 border border-blue-500/20 rounded-2xl p-8 backdrop-blur-sm">
-              <h3 className="text-blue-300/70 text-[10px] tracking-[0.35em] uppercase mb-5">Missão no Laboratório</h3>
-              <p className="text-blue-100/90 leading-relaxed text-sm">
-                Explicar como transformers processam tokens com atenção multi-head. Conecta os pontos entre entrada e saída mostrando o caminho da informação.
+          <div className="flex-1 overflow-y-auto p-5 space-y-4 font-mono text-sm">
+            {messages.length === 0 && (
+              <p className="text-[#00FFFF]/30 italic text-xs">
+                O núcleo aguarda sua transmissão. Digite algo para iniciar o contato.
               </p>
-            </div>
-          </div>
-
-          <div className="bg-black/40 border border-blue-500/20 rounded-2xl p-8 backdrop-blur-sm">
-            <h3 className="text-blue-300/70 text-[10px] tracking-[0.35em] uppercase mb-5">Abordagem</h3>
-            <p className="text-blue-100/90 leading-relaxed text-base md:text-lg">
-              Explicativo, técnico mas acessível, usa analogias de conexão e redes. Fala como um mentor paciente que conecta conceitos complexos com exemplos do dia a dia. &ldquo;Vamos conectar os pontos!&rdquo; é seu bordão.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* ═══ SECAO 2 — Dialogo cosmico ═════════════════════════════════════ */}
-      <section className="relative w-full bg-[#07070f] py-32 px-6 md:px-12">
-        <div className="max-w-3xl mx-auto">
-          <div className="text-center mb-12">
-            <p className="text-cyan-300/60 text-xs tracking-[0.4em] uppercase mb-4">Diálogo Cósmico</p>
-            <h2 className="text-white text-4xl md:text-5xl font-black mb-3">Faça sua pergunta</h2>
-            <p className="text-blue-200/50 text-sm md:text-base">
-              NEXUS nunca dá a resposta completa. Ele abre portas e devolve a pergunta que você ainda não formulou.
-            </p>
-          </div>
-
-          <NexusChatTerminal />
-        </div>
-      </section>
-
-      {/* ═══ SECAO 3 — Portais para outros universos ════════════════════════ */}
-      <section className="relative w-full bg-gradient-to-b from-[#07070f] to-black py-32 px-6 md:px-12">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <p className="text-cyan-300/60 text-xs tracking-[0.4em] uppercase mb-4">Portais Conectados</p>
-            <h2 className="text-white text-4xl md:text-5xl font-black mb-3">O NEXUS conecta todos os universos</h2>
-            <p className="text-blue-200/50 text-sm md:text-base max-w-xl mx-auto">
-              Cada agente é uma dimensão própria. Atravesse os portais para entrar em mundos guiados por outras vozes.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-6">
-            {portais.map((agente) => (
-              <Link
-                key={agente.id}
-                href={`/universo/${agente.id}`}
-                className="group relative block bg-black/60 border border-white/10 rounded-2xl overflow-hidden hover:border-white/30 transition-all duration-500"
-                style={{ boxShadow: `0 0 0 0 ${agente.color}00` }}
-              >
-                <div className="relative h-72 overflow-hidden">
-                  <img
-                    src={`/images/agentes/${agente.id}.png`}
-                    alt={agente.name}
-                    className="w-full h-full object-cover object-top opacity-70 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700"
-                  />
-                  <div
-                    className="absolute inset-0"
-                    style={{
-                      background: `linear-gradient(to top, ${agente.color}40 0%, transparent 60%)`,
-                    }}
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent" />
-                </div>
-
-                <div className="p-6">
-                  <p
-                    className="text-[10px] tracking-[0.35em] uppercase mb-2"
-                    style={{ color: agente.color }}
-                  >
-                    {agente.subtitle}
-                  </p>
-                  <h3 className="text-white text-2xl font-black mb-5 tracking-tight">{agente.name}</h3>
-                  <div
-                    className="inline-block w-full text-center py-3 border rounded-lg text-sm font-semibold tracking-wide transition-all duration-300 group-hover:bg-white/5"
-                    style={{ borderColor: `${agente.color}80`, color: agente.color }}
-                  >
-                    Entrar no Universo
-                  </div>
-                </div>
-              </Link>
+            )}
+            {messages.map((msg, i) => (
+              <div key={i} className={msg.role === 'user' ? 'text-right' : ''}>
+                <p className={`text-[10px] tracking-wider uppercase mb-1 ${msg.role === 'user' ? 'text-[#00FFFF]/50' : 'text-[#00FF88]/50'}`}>
+                  {msg.role === 'user' ? 'você' : 'nexus'}
+                </p>
+                <p className={msg.role === 'user' ? 'text-[#00FFFF]' : 'text-[#00FF88]'}>
+                  {msg.content}
+                </p>
+              </div>
             ))}
+            <div ref={endRef} />
           </div>
-        </div>
-      </section>
 
+          <div className="border-t border-[#00FFFF]/10 p-4 flex gap-3">
+            <input
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
+              placeholder="Digite sua mensagem..."
+              className="flex-1 bg-transparent border border-[#00FFFF]/20 rounded px-4 py-2.5 text-[#00FFFF] font-mono text-sm placeholder-[#00FFFF]/30 focus:outline-none focus:border-[#00FFFF]/50 transition"
+            />
+            <button
+              onClick={handleSubmit}
+              className="px-4 py-2.5 border border-[#00FFFF]/30 text-[#00FFFF] font-mono text-xs tracking-widest uppercase rounded hover:bg-[#00FFFF]/10 transition"
+            >
+              TRANSMITIR
+            </button>
+          </div>
+        </motion.aside>
+      )}
+    </AnimatePresence>
+  )
+}
+
+export default function NexusUniversePage() {
+  const [chatOpen, setChatOpen] = useState(false)
+  const [introDone, setIntroDone] = useState(false)
+
+  return (
+    <main className="relative w-full h-screen overflow-hidden bg-black">
+      <div className="absolute inset-0">
+        <NexusCosmos onNucleusClick={() => setChatOpen(true)} />
+      </div>
+
+      <AnimatePresence>
+        {introDone && <HUD />}
+      </AnimatePresence>
+
+      {!introDone && <CinematicIntro onComplete={() => setIntroDone(true)} />}
+
+      <ChatPanel open={chatOpen} onClose={() => setChatOpen(false)} />
     </main>
   )
 }

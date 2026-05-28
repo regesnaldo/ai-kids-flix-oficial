@@ -344,6 +344,45 @@ export default function HomePage() {
 
       <div style={{ paddingBottom: '2rem' }} />
 
+      {/* ── NEXUS PORTAL ── */}
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        padding: '2rem 0',
+      }}>
+        <Link
+          href="/universo/nexus"
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.75rem',
+            padding: '1rem 2.5rem',
+            border: '1px solid rgba(0,255,255,0.3)',
+            borderRadius: '8px',
+            background: 'rgba(0,255,255,0.05)',
+            color: '#00FFFF',
+            fontFamily: 'monospace',
+            fontSize: '14px',
+            letterSpacing: '0.15em',
+            textTransform: 'uppercase',
+            textDecoration: 'none',
+            transition: 'all 0.3s ease',
+            cursor: 'pointer',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = 'rgba(0,255,255,0.12)'
+            e.currentTarget.style.boxShadow = '0 0 30px rgba(0,255,255,0.15)'
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = 'rgba(0,255,255,0.05)'
+            e.currentTarget.style.boxShadow = 'none'
+          }}
+        >
+          <span style={{ fontSize: '18px' }}>✦</span>
+          ENTRAR NO UNIVERSO NEXUS
+        </Link>
+      </div>
+
       {/* ── CTA ── */}
       <FinalCTA />
 
