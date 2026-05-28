@@ -119,7 +119,7 @@ function Nucleus({ onClick }: { onClick: () => void }) {
   )
 }
 
-function Scene({ onNucleusClick }: { onNucleusClick: () => void }) {
+function Scene({ onNucleusClick = () => {} }: { onNucleusClick?: () => void }) {
   const positions = useMemo(() => generateSpherePositions(PARTICLE_COUNT, SPHERE_RADIUS), [])
 
   return (
@@ -131,7 +131,7 @@ function Scene({ onNucleusClick }: { onNucleusClick: () => void }) {
   )
 }
 
-export default function NexusCosmos({ onNucleusClick }: { onNucleusClick: () => void }) {
+export default function NexusCosmos({ onNucleusClick = () => {} }: { onNucleusClick?: () => void }) {
   return (
     <Canvas camera={{ position: [0, 0, 12], fov: 60 }} dpr={[1, 2]} gl={{ antialias: true }}>
       <color attach="background" args={['#000000']} />
