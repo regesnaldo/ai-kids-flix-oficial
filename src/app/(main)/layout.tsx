@@ -16,7 +16,10 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
       pathname.startsWith("/login") ||
       pathname.startsWith("/planos") ||
       pathname.startsWith("/sucesso") ||
-      pathname.startsWith("/conta");
+      pathname.startsWith("/conta") ||
+      pathname.startsWith("/onboarding") ||
+      pathname.startsWith("/home") ||
+      pathname.startsWith("/universo");
     if (blocked) return;
     if (shouldShowOnboarding()) router.push("/onboarding");
   }, [pathname, router]);
