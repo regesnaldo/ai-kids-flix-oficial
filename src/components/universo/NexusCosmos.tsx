@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useMemo } from 'react'
+import { useRef, useMemo, useState, useEffect } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { OrbitControls } from '@react-three/drei'
 import { EffectComposer, Bloom } from '@react-three/postprocessing'
@@ -8,6 +8,14 @@ import * as THREE from 'three'
 
 const PARTICLE_COUNT = 500
 const SPHERE_RADIUS = 8
+
+const NEXUS_RESPONSES = [
+  'Você chegou ao núcleo do metaverso. Sua jornada começa aqui.',
+  'Cada decisão sua alimenta o cosmos. O metaverso observa.',
+  'Bem-vindo, participante. Estou processando sua presença.',
+  'O conhecimento que você busca está distribuído em 12 universos.',
+  'Sua consciência foi registrada. O NEXUS reconhece você.',
+]
 
 function generateSpherePositions(count: number, radius: number) {
   const pos = new Float32Array(count * 3)
@@ -51,7 +59,7 @@ function ParticleField({ positions }: { positions: Float32Array }) {
       }
     }
     return { cyanPositions: cPos, cyanColors: cCol, staticPositions: sPos, staticColors: sCol }
-  }, [positions])
+  }, [positions, count])
 
   useFrame(({ clock }) => {
     const t = clock.getElapsedTime()
@@ -60,9 +68,7 @@ function ParticleField({ positions }: { positions: Float32Array }) {
       cyanRef.current.scale.setScalar(pulse)
       cyanRef.current.rotation.y += 0.0005
     }
-    if (staticRef.current) {
-      staticRef.current.rotation.y += 0.0003
-    }
+    if (staticRef.current) staticRef.current.rotation.y += 0.0003
   })
 
   return (
@@ -121,7 +127,6 @@ function Nucleus({ onClick }: { onClick: () => void }) {
 
 function Scene({ onNucleusClick = () => {} }: { onNucleusClick?: () => void }) {
   const positions = useMemo(() => generateSpherePositions(PARTICLE_COUNT, SPHERE_RADIUS), [])
-
   return (
     <>
       <ParticleField positions={positions} />
@@ -131,14 +136,182 @@ function Scene({ onNucleusClick = () => {} }: { onNucleusClick?: () => void }) {
   )
 }
 
-export default function NexusCosmos({ onNucleusClick = () => {} }: { onNucleusClick?: () => void }) {
+function CinematicIntro({ onComplete }: { onComplete: () => void }) {
+  const lines = [
+    '> INICIALIZANDO NEXUS...',
+    '> SINCRONIZANDO 500 NÓS DE DADOS...',
+    '> BEM-VINDO AO KERNEL DO METAVERSO.',
+  ]
+  const [visibleLines, setVisibleLines] = useState<string[]>([])
+  const [fading, setFading] = useState(false)
+
+  useEffect(() => {
+    let i = 0
+    const interval = setInterval(() => {
+      if (i < lines.length) {
+        setVisibleLines(prev => [...prev, lines[i]])
+        i++
+      } else {
+        clearInterval(interval)
+        setTimeout(() => setFading(true), 800)
+        setTimeout(() => onComplete(), 1600)
+      }
+    }, 1200)
+    return () => clearInterval(interval)
+  }, [])
+
   return (
-    <Canvas camera={{ position: [0, 0, 12], fov: 60 }} dpr={[1, 2]} gl={{ antialias: true }}>
-      <color attach="background" args={['#000000']} />
-      <Scene onNucleusClick={onNucleusClick} />
-      <EffectComposer>
-        <Bloom luminanceThreshold={0} luminanceSmoothing={0.9} height={300} intensity={0.8} />
-      </EffectComposer>
-    </Canvas>
+    <div style={{
+      position: 'fixed', inset: 0, backgroundColor: '#000000',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      zIndex: 100, opacity: fading ? 0 : 1,
+      transition: 'opacity 0.8s ease',
+    }}>
+      <div style={{ fontFamily: 'monospace', color: '#00FF88', fontSize: '14px', lineHeight: '2' }}>
+        {visibleLines.map((line, i) => (
+          <div key={i} style={{ animation: 'fadeIn 0.3s ease' }}>{line}</div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function HUDOverlay({ onNucleusClick }: { onNucleusClick: () => void }) {
+  const [time, setTime] = useState('')
+  const [blink, setBlink] = useState(true)
+
+  useEffect(() => {
+    const tick = () => setTime(new Date().toUTCString().slice(0, 25))
+    tick()
+    const t = setInterval(tick, 1000)
+    const b = setInterval(() => setBlink(v => !v), 1000)
+    return () => { clearInterval(t); clearInterval(b) }
+  }, [])
+
+  return (
+    <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 10 }}>
+      <div style={{
+        position: 'absolute', top: '80px', left: '16px',
+        fontFamily: 'monospace', fontSize: '11px', lineHeight: '1.8',
+      }}>
+        <div style={{ color: '#00FF88' }}>NEXUS // KERNEL ORQUESTRADOR</div>
+        <div style={{ color: '#00FFFF' }}>PARTÍCULAS ATIVAS: 500</div>
+        <div style={{ color: '#00FF88' }}>STATUS: ONLINE</div>
+      </div>
+      <div style={{
+        position: 'absolute', top: '80px', right: '16px',
+        fontFamily: 'monospace', fontSize: '10px', color: '#0088FF', textAlign: 'right',
+      }}>
+        {time}
+      </div>
+      <div style={{
+        position: 'absolute', bottom: '32px', left: '50%',
+        transform: 'translateX(-50%)',
+        fontFamily: 'monospace', fontSize: '11px',
+        color: '#00FFFF', opacity: blink ? 0.7 : 0.2,
+        transition: 'opacity 0.5s ease', pointerEvents: 'auto',
+        cursor: 'pointer', letterSpacing: '0.1em',
+      }} onClick={onNucleusClick}>
+        [ CLIQUE NO NÚCLEO PARA INICIAR CONTATO ]
+      </div>
+    </div>
+  )
+}
+
+function ChatPanel({ onClose }: { onClose: () => void }) {
+  const [messages, setMessages] = useState([
+    { role: 'nexus', text: 'Você chegou ao núcleo do metaverso. Sua jornada começa aqui.' }
+  ])
+  const [input, setInput] = useState('')
+  const responseIndex = useRef(1)
+
+  const send = () => {
+    if (!input.trim()) return
+    const userMsg = { role: 'user', text: input.trim() }
+    const nexusMsg = { role: 'nexus', text: NEXUS_RESPONSES[responseIndex.current % NEXUS_RESPONSES.length] }
+    responseIndex.current++
+    setMessages(prev => [...prev, userMsg, nexusMsg])
+    setInput('')
+  }
+
+  return (
+    <div style={{
+      position: 'absolute', top: 0, right: 0, bottom: 0, width: '380px',
+      backgroundColor: 'rgba(0,0,0,0.92)',
+      borderLeft: '1px solid rgba(0,255,255,0.15)',
+      display: 'flex', flexDirection: 'column', zIndex: 20,
+    }}>
+      <div style={{
+        padding: '16px', borderBottom: '1px solid rgba(0,255,255,0.1)',
+        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+      }}>
+        <span style={{ fontFamily: 'monospace', color: '#00FF88', fontSize: '13px' }}>
+          // NEXUS PRIME
+        </span>
+        <button onClick={onClose} style={{
+          background: 'none', border: 'none', color: '#00FFFF',
+          cursor: 'pointer', fontSize: '18px', lineHeight: 1,
+        }}>×</button>
+      </div>
+      <div style={{ flex: 1, overflowY: 'auto', padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        {messages.map((m, i) => (
+          <div key={i} style={{
+            fontFamily: 'monospace', fontSize: '12px', lineHeight: '1.6',
+            color: m.role === 'nexus' ? '#00FFFF' : '#ffffff',
+            alignSelf: m.role === 'user' ? 'flex-end' : 'flex-start',
+            maxWidth: '85%',
+            padding: '8px 12px',
+            backgroundColor: m.role === 'nexus' ? 'rgba(0,255,255,0.05)' : 'rgba(255,255,255,0.05)',
+            borderRadius: '4px',
+          }}>
+            {m.role === 'nexus' && <span style={{ color: '#00FF88', marginRight: '8px' }}>[NEXUS]</span>}
+            {m.text}
+          </div>
+        ))}
+      </div>
+      <div style={{ padding: '12px', borderTop: '1px solid rgba(0,255,255,0.1)', display: 'flex', gap: '8px' }}>
+        <input
+          value={input}
+          onChange={e => setInput(e.target.value)}
+          onKeyDown={e => e.key === 'Enter' && send()}
+          placeholder="Transmitir mensagem..."
+          style={{
+            flex: 1, backgroundColor: 'rgba(0,255,255,0.05)',
+            border: '1px solid rgba(0,255,255,0.2)', borderRadius: '4px',
+            color: '#ffffff', fontFamily: 'monospace', fontSize: '12px',
+            padding: '8px 12px', outline: 'none',
+          }}
+        />
+        <button onClick={send} style={{
+          backgroundColor: 'rgba(0,255,255,0.1)',
+          border: '1px solid rgba(0,255,255,0.3)',
+          color: '#00FFFF', fontFamily: 'monospace', fontSize: '11px',
+          padding: '8px 12px', cursor: 'pointer', borderRadius: '4px',
+          letterSpacing: '0.05em',
+        }}>
+          TRANSMITIR
+        </button>
+      </div>
+    </div>
+  )
+}
+
+export default function NexusCosmos({ onNucleusClick: _externalClick = () => {} }: { onNucleusClick?: () => void }) {
+  const [introComplete, setIntroComplete] = useState(false)
+  const [chatOpen, setChatOpen] = useState(false)
+
+  return (
+    <div style={{ position: 'relative', width: '100%', height: '100vh', backgroundColor: '#000000' }}>
+      {!introComplete && <CinematicIntro onComplete={() => setIntroComplete(true)} />}
+      <Canvas camera={{ position: [0, 0, 12], fov: 60 }} dpr={[1, 2]} gl={{ antialias: true }}>
+        <color attach="background" args={['#000000']} />
+        <Scene onNucleusClick={() => setChatOpen(true)} />
+        <EffectComposer>
+          <Bloom luminanceThreshold={0} luminanceSmoothing={0.9} height={300} intensity={0.8} />
+        </EffectComposer>
+      </Canvas>
+      {introComplete && <HUDOverlay onNucleusClick={() => setChatOpen(true)} />}
+      {chatOpen && <ChatPanel onClose={() => setChatOpen(false)} />}
+    </div>
   )
 }
