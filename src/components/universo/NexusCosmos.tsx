@@ -106,8 +106,16 @@ function Nucleus({ onClick }: { onClick: () => void }) {
     <group>
       <mesh
         ref={sphereRef}
-        onClick={(e) => { e.stopPropagation(); onClick() }}
-        onPointerOver={(e) => { document.body.style.cursor = 'pointer'; e.stopPropagation() }}
+        onClick={(e) => {
+          e.stopPropagation()
+          playNucleusClick().catch(console.error)
+          onClick()
+        }}
+        onPointerOver={(e) => {
+          document.body.style.cursor = 'pointer'
+          e.stopPropagation()
+          playNucleusHover().catch(console.error)
+        }}
         onPointerOut={() => { document.body.style.cursor = 'default' }}
       >
         <sphereGeometry args={[0.4, 32, 32]} />
@@ -135,6 +143,68 @@ function Scene({ onNucleusClick = () => {} }: { onNucleusClick?: () => void }) {
     </>
   )
 }
+
+// ─── AUDIO ENGINE — NEXUS SOUND DESIGN ───────────────────────────────────────
+
+let toneStarted = false
+
+async function initAudio() {
+  if (toneStarted) return
+  const { start } = await import('tone')
+  await start()
+  toneStarted = true
+}
+
+async function createAmbientDrone() {
+  const { Synth, Reverb, Volume, start } = await import('tone')
+  await start()
+
+  const vol = new Volume(-20).toDestination()
+  const reverb = new Reverb({ decay: 8, wet: 0.8 }).connect(vol)
+
+  const drone1 = new Synth({
+    oscillator: { type: 'sine' },
+    envelope: { attack: 4, decay: 0, sustain: 1, release: 6 },
+  }).connect(reverb)
+
+  const drone2 = new Synth({
+    oscillator: { type: 'sine' },
+    envelope: { attack: 6, decay: 0, sustain: 1, release: 8 },
+  }).connect(reverb)
+
+  drone1.triggerAttack('C1')
+  setTimeout(() => drone2.triggerAttack('G1'), 2000)
+
+  return { drone1, drone2, vol }
+}
+
+async function playNucleusHover() {
+  const { Synth, Reverb, start } = await import('tone')
+  await start()
+  const reverb = new Reverb({ decay: 2, wet: 0.5 }).toDestination()
+  const synth = new Synth({
+    oscillator: { type: 'sine' },
+    envelope: { attack: 0.1, decay: 0.3, sustain: 0.2, release: 1 },
+    volume: -25,
+  }).connect(reverb)
+  synth.triggerAttackRelease('G2', '0.3')
+}
+
+async function playNucleusClick() {
+  const { MetalSynth, Reverb, start } = await import('tone')
+  await start()
+  const reverb = new Reverb({ decay: 6, wet: 0.9 }).toDestination()
+  const metal = new MetalSynth({
+    envelope: { attack: 0.001, decay: 0.4, release: 4 },
+    harmonicity: 5.1,
+    modulationIndex: 32,
+    resonance: 4000,
+    octaves: 1.5,
+    volume: -18,
+  }).connect(reverb)
+  metal.triggerAttackRelease('G3', '32n')
+}
+// ─────────────────────────────────────────────────────────────────────────────
 
 function CinematicIntro({ onComplete }: { onComplete: () => void }) {
   const lines = [
@@ -299,6 +369,22 @@ function ChatPanel({ onClose }: { onClose: () => void }) {
 export default function NexusCosmos({ onNucleusClick: _externalClick = () => {} }: { onNucleusClick?: () => void }) {
   const [introComplete, setIntroComplete] = useState(false)
   const [chatOpen, setChatOpen] = useState(false)
+  const droneRef = useRef<any>(null)
+
+  useEffect(() => {
+    if (!introComplete) return
+    const startDrone = async () => {
+      const drone = await createAmbientDrone()
+      droneRef.current = drone
+    }
+    startDrone().catch(console.error)
+    return () => {
+      if (droneRef.current) {
+        droneRef.current.drone1.triggerRelease()
+        droneRef.current.drone2.triggerRelease()
+      }
+    }
+  }, [introComplete])
 
   return (
     <div style={{ position: 'relative', width: '100%', height: '100vh', backgroundColor: '#000000' }}>
