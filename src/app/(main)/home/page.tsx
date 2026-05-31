@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useOasis } from "@/providers/OasisProvider";
 import { useSession } from "@/providers/SessionProvider";
+import { createEmotionStyleElement, getPaletteFromEmotionalState, emotionPaletteToStyle } from "@/design-system/colorEngine";
 
 const AGENTS = [
   { id: "nexus", name: "NEXUS", faction: "INTELIGÊNCIA" },
@@ -83,8 +84,32 @@ export default function HomePage() {
     router.push("/login");
   }
 
+  // ── Emotion Palette ────────────────────────────────────────────
+  useEffect(() => {
+    createEmotionStyleElement()
+  }, [])
+
+  const palette = useMemo(() => {
+    // Derive emotion from health + progression signals
+    if (!isOnline) return emotionPaletteToStyle(getPaletteFromEmotionalState(
+      { dominantEmotion: 'fear', intensity: 0.5, targetColor: { r: 128, g: 0, b: 128 }, emotionalMemory: [], lastUpdate: Date.now(), stability: 0 }
+    ))
+    if (completedCount >= 6) return emotionPaletteToStyle(getPaletteFromEmotionalState(
+      { dominantEmotion: 'joy', intensity: 0.7, targetColor: { r: 255, g: 200, b: 50 }, emotionalMemory: [], lastUpdate: Date.now(), stability: 0.8 }
+    ))
+    if (completedCount >= 3) return emotionPaletteToStyle(getPaletteFromEmotionalState(
+      { dominantEmotion: 'curiosity', intensity: 0.6, targetColor: { r: 50, g: 200, b: 200 }, emotionalMemory: [], lastUpdate: Date.now(), stability: 0.6 }
+    ))
+    if (completedCount >= 1) return emotionPaletteToStyle(getPaletteFromEmotionalState(
+      { dominantEmotion: 'surprise', intensity: 0.5, targetColor: { r: 255, g: 140, b: 0 }, emotionalMemory: [], lastUpdate: Date.now(), stability: 0.4 }
+    ))
+    return emotionPaletteToStyle(getPaletteFromEmotionalState(
+      { dominantEmotion: 'neutral', intensity: 0, targetColor: { r: 128, g: 128, b: 128 }, emotionalMemory: [], lastUpdate: Date.now(), stability: 1 }
+    ))
+  }, [completedCount, isOnline])
+
   return (
-    <div style={{ minHeight: "100vh", backgroundColor: "#000000", color: "#ffffff" }}>
+    <div className="emotion-aware" style={{ minHeight: "100vh", color: "#ffffff", ...palette }}>
       <UtcClock />
       <FooterHud />
 
