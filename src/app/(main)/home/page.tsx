@@ -86,7 +86,7 @@ export default function HomePage() {
 
       {/* HEADER */}
       <header style={{
-        position: "fixed", top: 0, left: 0, right: 0, zIndex: 100,
+        position: "fixed", top: 0, left: 0, right: 0, zIndex: 200,
         padding: "1rem 2rem",
         display: "flex", alignItems: "center", justifyContent: "space-between",
         background: "linear-gradient(to bottom, rgba(0,0,0,0.95), transparent)",
@@ -118,7 +118,7 @@ export default function HomePage() {
       </header>
 
       {/* MAIN CONTENT */}
-      <main style={{ paddingTop: "100px", paddingBottom: "80px", maxWidth: "1200px", margin: "0 auto", padding: "100px 2rem 80px" }}>
+      <main style={{ paddingTop: "100px", paddingBottom: "80px", maxWidth: "1200px", margin: "0 auto", padding: "120px 2rem 80px" }}>
 
         {/* GREETING */}
         <div style={{ marginBottom: "2rem" }}>
