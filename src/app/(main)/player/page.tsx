@@ -7,18 +7,8 @@ import { getEpisodeById, getSeasonById } from "@/constants/catalog";
 
 interface ChatTurn { role: "user" | "assistant"; content: string; }
 
-type WatchState = { watchedPct: number; completed: boolean; updatedAt: number };
-
-const WATCH_KEY = "mente_ai_watch_progress_v1";
-
-function getWatchMap(): Record<string, WatchState> {
-  try { return JSON.parse(globalThis.localStorage?.getItem(WATCH_KEY) || "{}"); } catch { return {}; }
-}
-
-function saveWatchMap(map: Record<string, WatchState>) {
-  try { globalThis.localStorage?.setItem(WATCH_KEY, JSON.stringify(map)); } catch (error) { console.error('[MENTE.AI] Error in player/page.tsx:', error); }
-  // TODO: [MENTE.AI] adicionar feedback visual ao usuário
-}
+import { getWatchMap, saveWatchMap } from "@/lib/watch-progress";
+import type { WatchState } from "@/lib/watch-progress";
 
 function getAgentImage(agentId: string): string {
   return `/images/agentes/${agentId.toLowerCase()}.png`;

@@ -7,18 +7,7 @@ import { Play, Info, ChevronLeft, ChevronRight, Clock, Zap, Star } from 'lucide-
 import { CATALOG } from '@/constants/catalog';
 import type { Season, Episode } from '@/constants/catalog';
 
-const WATCH_STORAGE_KEY = 'mente_ai_watch_progress_v1';
-
-function getWatchMap(): Record<string, { watchedPct: number; completed: boolean }> {
-  try {
-    const raw = globalThis.localStorage?.getItem(WATCH_STORAGE_KEY);
-    if (!raw) return {};
-    const parsed = JSON.parse(raw);
-    return parsed && typeof parsed === 'object' ? parsed : {};
-  } catch {
-    return {};
-  }
-}
+import { getWatchMap } from "@/lib/watch-progress";
 
 function getEpisodeThumb(agentId: string): string {
   return `/images/agentes/${agentId.toLowerCase()}.png`;
