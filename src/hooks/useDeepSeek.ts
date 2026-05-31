@@ -74,6 +74,7 @@ export function useDeepSeek() {
       system: string;
       prompt: string;
       temperature?: number;
+      maxTokens?: number;
       jsonMode?: boolean;
     }): Promise<T | null> => {
       const key = cacheKey(
@@ -92,14 +93,14 @@ export function useDeepSeek() {
       setError(null);
 
       try {
-        const res = await fetch("/api/deepseek", {
+        const res = await fetch("/api/llm/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             system: params.system,
             prompt: params.prompt,
             temperature: params.temperature,
-            jsonMode: params.jsonMode,
+            maxTokens: params.maxTokens,
           }),
         });
 
