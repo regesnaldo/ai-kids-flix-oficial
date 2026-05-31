@@ -3,6 +3,7 @@ import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useOasis } from "@/providers/OasisProvider";
+import { useSession } from "@/providers/SessionProvider";
 
 const AGENTS = [
   { id: "nexus", name: "NEXUS", faction: "INTELIGÊNCIA" },
@@ -60,19 +61,22 @@ function FooterHud() {
 export default function HomePage() {
   const router = useRouter();
   const { cognitiveProfile, progressionSnapshot, healthStatus } = useOasis();
+  const { user, isLoading: sessionLoading } = useSession();
 
   const completedCount = useMemo(
     () => progressionSnapshot.totalCompleted ?? 0,
     [progressionSnapshot.totalCompleted]
   );
 
-  const username = cognitiveProfile.archetype !== "explorer"
-    ? cognitiveProfile.archetype.toUpperCase()
-    : "PARTICIPANTE";
+  const username = !sessionLoading && user?.name
+    ? user.name
+    : cognitiveProfile.archetype !== "explorer"
+      ? cognitiveProfile.archetype.toUpperCase()
+      : "PARTICIPANTE";
 
   const isOnline = healthStatus === "optimal" || healthStatus === "degraded";
   const nextAgent = AGENTS[completedCount] ?? AGENTS[0];
-  const showUpgrade = completedCount >= 3;
+  const showUpgrade = completedCount >= 3 && (!user || user.plan === "FREE");
 
   function handleLogout() {
     document.cookie = "mente_ai_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
