@@ -84,7 +84,12 @@ export async function POST(req: NextRequest) {
         const session = event.data.object as Stripe.Checkout.Session
         const customerId = normalizeStripeId(session.customer)
         const email = session.customer_details?.email ?? null
-        const userId = await findUserIdByCustomerOrEmail(customerId, email)
+
+        // Try metadata.userId first (set by checkout route with JWT)
+        let userId = session.metadata?.userId ? Number(session.metadata.userId) : null
+        if (!userId || !Number.isInteger(userId) || userId <= 0) {
+          userId = await findUserIdByCustomerOrEmail(customerId, email)
+        }
 
         const subscriptionId = normalizeStripeId(session.subscription)
         let plan: 'FREE' | 'BASIC' | 'PREMIUM' | 'FAMILY' | null = null
