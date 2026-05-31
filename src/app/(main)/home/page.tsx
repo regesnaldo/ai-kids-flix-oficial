@@ -118,7 +118,7 @@ export default function HomePage() {
       </header>
 
       {/* MAIN CONTENT */}
-      <main style={{ paddingTop: "100px", paddingBottom: "80px", maxWidth: "1200px", margin: "0 auto", padding: "120px 2rem 80px" }}>
+      <main style={{ paddingTop: "140px", paddingBottom: "80px", maxWidth: "1200px", margin: "0 auto", padding: "140px 2rem 80px" }}>
 
         {/* GREETING */}
         <div style={{ marginBottom: "2rem" }}>
