@@ -144,24 +144,16 @@ function Scene({ onNucleusClick = () => {} }: { onNucleusClick?: () => void }) {
   )
 }
 
-// ─── AUDIO ENGINE — NEXUS SOUND DESIGN ───────────────────────────────────────
+// ─── AUDIO ENGINE — NEXUS SOUND DESIGN ───────────────────────
+// Direction: Damien Chazelle — sound as narrative, silence as impact
 
 let toneStarted = false
 
-async function initAudio() {
-  if (toneStarted) return
-  const { start } = await import('tone')
-  await start()
-  toneStarted = true
-}
-
 async function createAmbientDrone() {
   const { Synth, Reverb, Volume, start } = await import('tone')
-  await start()
-
+  if (!toneStarted) { await start(); toneStarted = true }
   const vol = new Volume(-20).toDestination()
   const reverb = new Reverb({ decay: 8, wet: 0.8 }).connect(vol)
-
   const drone1 = new Synth({
     oscillator: { type: 'sine' },
     envelope: { attack: 4, decay: 0, sustain: 1, release: 6 },
@@ -180,7 +172,7 @@ async function createAmbientDrone() {
 
 async function playNucleusHover() {
   const { Synth, Reverb, start } = await import('tone')
-  await start()
+  if (!toneStarted) { await start(); toneStarted = true }
   const reverb = new Reverb({ decay: 2, wet: 0.5 }).toDestination()
   const synth = new Synth({
     oscillator: { type: 'sine' },
@@ -192,7 +184,7 @@ async function playNucleusHover() {
 
 async function playNucleusClick() {
   const { MetalSynth, Reverb, start } = await import('tone')
-  await start()
+  if (!toneStarted) { await start(); toneStarted = true }
   const reverb = new Reverb({ decay: 6, wet: 0.9 }).toDestination()
   const metal = new MetalSynth({
     envelope: { attack: 0.001, decay: 0.4, release: 4 },
@@ -204,7 +196,7 @@ async function playNucleusClick() {
   }).connect(reverb)
   metal.triggerAttackRelease('G3', '32n')
 }
-// ─────────────────────────────────────────────────────────────────────────────
+// ──────────────────────────────────────────────────────────────
 
 function CinematicIntro({ onComplete }: { onComplete: () => void }) {
   const lines = [
