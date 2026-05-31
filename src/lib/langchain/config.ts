@@ -1,13 +1,14 @@
-import { ChatOpenAI } from '@langchain/openai'
+/**
+ * ─── LangChain config — DEPRECATED ──────────────────────────────────────
+ *
+ * This file now delegates to src/lib/llm/provider.ts.
+ * Kept for backward compatibility — all consumers of createAgentLLM()
+ * continue working without changes.
+ *
+ * New code: import { createLLM } from '@/lib/llm/provider'
+ */
 
-const GROQ_BASE_URL = 'https://api.groq.com/openai/v1'
+import { createLLM } from '@/lib/llm/provider'
 
-export const createAgentLLM = () => new ChatOpenAI({
-  modelName: process.env.GROQ_MODEL || 'llama-3.3-70b-versatile',
-  apiKey: process.env.GROQ_API_KEY,
-  configuration: {
-    baseURL: GROQ_BASE_URL,
-  },
-  temperature: 0.7,
-  maxTokens: 1000,
-})
+/** @deprecated Use createLLM() from @/lib/llm/provider instead. */
+export const createAgentLLM = () => createLLM({ provider: 'auto' })
