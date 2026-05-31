@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getAuthCookieFromRequest, verifyToken } from "@/lib/auth";
 import Stripe from "stripe";
 
 const PRICE_IDS: Record<string, Record<string, string>> = {
@@ -21,17 +22,21 @@ const PRICE_IDS: Record<string, Record<string, string>> = {
 
 export async function POST(request: NextRequest) {
   try {
-    const apiKey = process.env.CHECKOUT_API_KEY;
-    const authenticator = process.env.CHECKOUT_AUTHENTICATOR;
-    const isDev = process.env.NODE_ENV === "development";
-
-    if (!apiKey || !authenticator) {
-      if (isDev) {
-        console.warn("Checkout API: Running in dev mode without credentials");
-      } else {
-        throw new Error("Neither apiKey nor config.authenticator provided");
-      }
+    // Auth: extract userId from JWT (same pattern as all other API routes)
+    const token = getAuthCookieFromRequest(request);
+    if (!token) {
+      return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
     }
+    const payload = await verifyToken(token);
+    if (!payload) {
+      return NextResponse.json({ error: "Token inválido" }, { status: 401 });
+    }
+    const userId = Number(payload.userId);
+    if (!Number.isInteger(userId) || userId <= 0) {
+      return NextResponse.json({ error: "Usuário inválido" }, { status: 401 });
+    }
+
+    const isDev = process.env.NODE_ENV === "development";
 
     const { plano, periodo } = await request.json();
 
@@ -70,6 +75,10 @@ export async function POST(request: NextRequest) {
       success_url: `${origin}/sucesso?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/planos`,
       locale: "pt-BR",
+      client_reference_id: String(userId),
+      metadata: {
+        userId: String(userId),
+      },
     });
 
     return NextResponse.json({ url: session.url });
