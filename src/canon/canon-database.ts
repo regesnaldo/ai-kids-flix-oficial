@@ -1090,7 +1090,73 @@ export const CANON_DATABASE: CanonAgent[] = [
     season: 1,
     minUserLevel: 1,
     narrativeRole: "A Autoridade Legítima, lidera através do respeito"
-  }
+  },
+
+  // ==================== AGENTES MENTE.AI (12 canônicos) ====================
+  // Mapeados do canon.ts — dimensão philosophical para consistência grega
+  {
+    name: "CIPHER",
+    dimension: "philosophical",
+    level: "operator",
+    faction: "order",
+    season: 1,
+    minUserLevel: 1,
+    narrativeRole: "O Decifrador de Padrões, revela códigos ocultos e estruturas"
+  },
+  {
+    name: "AURORA",
+    dimension: "philosophical",
+    level: "operator",
+    faction: "balance",
+    season: 1,
+    minUserLevel: 1,
+    narrativeRole: "A Síntese Criativa, transforma lógica em arte e poesia"
+  },
+  {
+    name: "VOLT",
+    dimension: "philosophical",
+    level: "operator",
+    faction: "chaos",
+    season: 1,
+    minUserLevel: 1,
+    narrativeRole: "A Energia do Aprendizado, corrente elétrica do backpropagation"
+  },
+  {
+    name: "LYRA",
+    dimension: "philosophical",
+    level: "operator",
+    faction: "balance",
+    season: 1,
+    minUserLevel: 1,
+    narrativeRole: "A Alma Artística, sinestesia entre dados e emoção"
+  },
+  {
+    name: "AXIOM",
+    dimension: "philosophical",
+    level: "operator",
+    faction: "order",
+    season: 1,
+    minUserLevel: 1,
+    narrativeRole: "O Método Científico, verdade guiada por dados e evidência"
+  },
+  {
+    name: "TERRA",
+    dimension: "philosophical",
+    level: "operator",
+    faction: "balance",
+    season: 1,
+    minUserLevel: 1,
+    narrativeRole: "A Guardiã da Humanidade, empatia e impacto humano da tecnologia"
+  },
+  {
+    name: "PRISM",
+    dimension: "philosophical",
+    level: "operator",
+    faction: "balance",
+    season: 1,
+    minUserLevel: 1,
+    narrativeRole: "O Revelador de Perspectivas, múltiplos ângulos da mesma verdade"
+  },
 ];
 
 // Helper: Buscar agente canônico por nome
