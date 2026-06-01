@@ -16,9 +16,8 @@ import {
 
 // ─── Helper: extrai userId do cookie JWT ─────────────────────────────────
 
-async function getUserIdFromRequest(request: NextRequest | Request): Promise<number> {
-  const req = request instanceof Request ? NextRequest.from(new Request(request)) : request;
-  const token = getAuthCookieFromRequest(req);
+async function getUserIdFromRequest(request: NextRequest): Promise<number> {
+  const token = getAuthCookieFromRequest(request);
   if (!token) throw new AuthError("Token não encontrado");
   const payload = await verifyToken(token);
   if (!payload) throw new AuthError("Token inválido");
