@@ -21,6 +21,21 @@ const AGENTS = [
   { id: "janus", name: "JANUS", faction: "CONEXÃO" },
 ];
 
+const AGENT_COLORS: Record<string, { accent: string; dark: string; text: string }> = {
+  nexus:   { accent: "#00FFFF", dark: "rgba(0,255,255,0.06)", text: "rgba(0,255,255,0.35)" },
+  volt:    { accent: "#FFD700", dark: "rgba(255,215,0,0.06)", text: "rgba(255,215,0,0.35)" },
+  aurora:  { accent: "#A78BFA", dark: "rgba(167,139,250,0.06)", text: "rgba(167,139,250,0.35)" },
+  ethos:   { accent: "#F87171", dark: "rgba(248,113,113,0.06)", text: "rgba(248,113,113,0.35)" },
+  kaos:    { accent: "#FB923C", dark: "rgba(251,146,60,0.06)", text: "rgba(251,146,60,0.35)" },
+  cipher:  { accent: "#34D399", dark: "rgba(52,211,153,0.06)", text: "rgba(52,211,153,0.35)" },
+  lyra:    { accent: "#F472B6", dark: "rgba(244,114,182,0.06)", text: "rgba(244,114,182,0.35)" },
+  axiom:   { accent: "#60A5FA", dark: "rgba(96,165,250,0.06)", text: "rgba(96,165,250,0.35)" },
+  stratos: { accent: "#818CF8", dark: "rgba(129,140,248,0.06)", text: "rgba(129,140,248,0.35)" },
+  terra:   { accent: "#4ADE80", dark: "rgba(74,222,128,0.06)", text: "rgba(74,222,128,0.35)" },
+  prism:   { accent: "#C084FC", dark: "rgba(192,132,252,0.06)", text: "rgba(192,132,252,0.35)" },
+  janus:   { accent: "#FBBF24", dark: "rgba(251,191,36,0.06)", text: "rgba(251,191,36,0.35)" },
+}
+
 function UtcClock() {
   const [clock, setClock] = useState("");
   useEffect(() => {
@@ -323,32 +338,63 @@ export default function HomePage() {
         }}>
           {AGENTS.map((agent, i) => {
             const unlocked = i < completedCount;
+            const glow = AGENT_COLORS[agent.id] ?? { accent: "#00FFFF", dark: "rgba(0,255,255,0.06)", text: "rgba(0,255,255,0.35)" }
+            const [hovered, setHovered] = useState(false)
             return (
-              <Link key={agent.id} href={`/universo/${agent.id}`} style={{ textDecoration: "none" }}>
+              <Link key={agent.id} href={unlocked ? `/universo/${agent.id}` : "#"}
+                style={{ textDecoration: "none", pointerEvents: unlocked ? "auto" : "none" }}
+                onMouseEnter={() => setHovered(true)}
+                onMouseLeave={() => setHovered(false)}
+              >
                 <div style={{
-                  background: unlocked ? "rgba(0,255,255,0.05)" : "rgba(0,255,255,0.02)",
-                  border: `1px solid ${unlocked ? "rgba(0,255,255,0.3)" : "rgba(0,255,255,0.1)"}`,
-                  borderRadius: "4px", padding: "20px", cursor: "pointer",
-                  transition: "all 0.2s ease",
-                }}
-                  onMouseEnter={e => {
-                    (e.currentTarget as HTMLDivElement).style.background = "rgba(0,255,255,0.08)";
-                    (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(0,255,255,0.5)";
-                  }}
-                  onMouseLeave={e => {
-                    (e.currentTarget as HTMLDivElement).style.background = unlocked ? "rgba(0,255,255,0.05)" : "rgba(0,255,255,0.02)";
-                    (e.currentTarget as HTMLDivElement).style.borderColor = unlocked ? "rgba(0,255,255,0.3)" : "rgba(0,255,255,0.1)";
-                  }}
-                >
-                  <p style={{ fontFamily: "monospace", fontSize: "14px", color: "#00FFFF", letterSpacing: "0.1em", margin: "0 0 0.25rem", textTransform: "uppercase" }}>
+                  position: "relative",
+                  background: unlocked ? "rgba(0,0,0,0.5)" : "rgba(0,0,0,0.3)",
+                  border: `1.5px solid ${unlocked ? glow.accent : "rgba(255,255,255,0.08)"}`,
+                  borderRadius: "8px", padding: "20px", cursor: unlocked ? "pointer" : "default",
+                  transition: "all 0.35s cubic-bezier(0.23, 1, 0.32, 1)",
+                  transform: hovered && unlocked ? "translateY(-4px) perspective(600px) rotateX(2deg)" : "none",
+                  boxShadow: hovered && unlocked ? `0 16px 48px ${glow.accent}20, 0 0 24px ${glow.accent}15, inset 0 1px 0 ${glow.accent}10` : "none",
+                  overflow: "hidden",
+                }}>
+                  <div style={{
+                    position: "absolute", top: 0, left: 0, right: 0, height: "2px",
+                    background: glow.accent,
+                    transform: hovered && unlocked ? "scaleX(1)" : "scaleX(0)",
+                    transformOrigin: "left",
+                    transition: "transform 0.35s cubic-bezier(0.23, 1, 0.32, 1)",
+                    opacity: unlocked ? 1 : 0.2,
+                  }} />
+                  <p style={{
+                    fontFamily: "monospace", fontSize: "14px",
+                    color: unlocked ? glow.accent : "#555",
+                    letterSpacing: "0.1em", margin: "0 0 0.25rem",
+                    textTransform: "uppercase",
+                    transition: "color 0.3s ease",
+                    textShadow: hovered && unlocked ? `0 0 12px ${glow.accent}60` : "none",
+                  }}>
                     {agent.name}
                   </p>
-                  <p style={{ fontFamily: "monospace", fontSize: "10px", color: "#00FF88", margin: "0 0 0.5rem" }}>
+                  <p style={{ fontFamily: "monospace", fontSize: "10px", color: unlocked ? "#00FF88" : "#444", margin: "0 0 0.5rem" }}>
                     {agent.faction}
                   </p>
                   <p style={{ fontFamily: "monospace", fontSize: "10px", color: unlocked ? "#00FF88" : "rgba(255,255,255,0.3)", margin: 0 }}>
-                    {unlocked ? "ONLINE" : "LOCKED"}
+                    {unlocked ? "● ONLINE" : "🔒 BLOQUEADO"}
                   </p>
+                  {hovered && (
+                    <div style={{
+                      position: "absolute", bottom: "-36px", left: "50%",
+                      transform: "translateX(-50%)",
+                      background: "rgba(0,0,0,0.92)",
+                      border: `1px solid ${glow.accent}44`,
+                      borderRadius: "9999px", padding: "4px 14px",
+                      fontFamily: "monospace", fontSize: "10px",
+                      color: glow.accent, whiteSpace: "nowrap", zIndex: 10,
+                      animation: "fadeIn 0.2s ease", pointerEvents: "none",
+                      boxShadow: `0 4px 12px rgba(0,0,0,0.6), 0 0 8px ${glow.accent}20`,
+                    }}>
+                      {unlocked ? `ENTRAR NO MUNDO DE ${agent.name}` : `${agent.name} — COMPLETE MAIS MUNDOS`}
+                    </div>
+                  )}
                 </div>
               </Link>
             );
