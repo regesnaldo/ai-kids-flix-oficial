@@ -15,17 +15,22 @@ const DESTINATIONS: Record<string, string[]> = {
 };
 
 export async function GET() {
-  const session = await getSessionUser();
+  try {
+    const session = await getSessionUser();
 
-  // Return a default journey state until Phase 2 DB tables are available.
-  const archetype = 'creative';
-  const recommended = (DESTINATIONS[archetype]?.[0] ?? 'NEXUS').toUpperCase();
+    // Return a default journey state until Phase 2 DB tables are available.
+    const archetype = 'creative';
+    const recommended = (DESTINATIONS[archetype]?.[0] ?? 'NEXUS').toUpperCase();
 
-  return NextResponse.json({
-    archetype,
-    recommended,
-    visited: [],
-    userId: session?.userId ?? null,
-    dimensions: { emotional: 0, intellectual: 0, moral: 0 },
-  });
+    return NextResponse.json({
+      archetype,
+      recommended,
+      visited: [],
+      userId: session?.userId ?? null,
+      dimensions: { emotional: 0, intellectual: 0, moral: 0 },
+    });
+  } catch (error) {
+    console.error("Erro em GET /api/home/journey:", error);
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+  }
 }
