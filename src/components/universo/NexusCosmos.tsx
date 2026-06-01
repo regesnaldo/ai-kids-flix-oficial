@@ -5,6 +5,9 @@ import { Canvas, useFrame } from '@react-three/fiber'
 import { OrbitControls } from '@react-three/drei'
 import { EffectComposer, Bloom } from '@react-three/postprocessing'
 import * as THREE from 'three'
+import { createAmbientDrone, playNucleusHover, playNucleusClick, stopAmbientDrone, type NexusDroneHandle } from '@/lib/audio/nexus-audio'
+import { useTts } from '@/hooks/useTts'
+import { getAgentVoiceId } from '@/lib/audio/voices'
 
 const PARTICLE_COUNT = 500
 const SPHERE_RADIUS = 8
@@ -198,29 +201,32 @@ async function playNucleusClick() {
 }
 // ──────────────────────────────────────────────────────────────
 
-function CinematicIntro({ onComplete }: { onComplete: () => void }) {
+function CinematicIntro({ onComplete, speak }: { onComplete: () => void; speak: (text: string) => Promise<void> }) {
   const lines = [
     '> INICIALIZANDO NEXUS...',
     '> SINCRONIZANDO 500 NÓS DE DADOS...',
     '> BEM-VINDO AO KERNEL DO METAVERSO.',
   ]
-  const [visibleLines, setVisibleLines] = useState<string[]>([])
-  const [fading, setFading] = useState(false)
+  const [visibleLines, setVisibleLines] = useState<string[]>([]);
+  const [fading, setFading] = useState(false);
 
   useEffect(() => {
-    let i = 0
+    let i = 0;
     const interval = setInterval(() => {
       if (i < lines.length) {
-        setVisibleLines(prev => [...prev, lines[i]])
-        i++
+        const line = lines[i];
+        setVisibleLines(prev => [...prev, line]);
+        // Speak each line as it appears (strip leading "> ")
+        speak(line.replace(/^>\s*/, "")).catch(() => {});
+        i++;
       } else {
-        clearInterval(interval)
-        setTimeout(() => setFading(true), 800)
-        setTimeout(() => onComplete(), 1600)
+        clearInterval(interval);
+        setTimeout(() => setFading(true), 800);
+        setTimeout(() => onComplete(), 1600);
       }
-    }, 1200)
-    return () => clearInterval(interval)
-  }, [])
+    }, 1200);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <div style={{
@@ -280,20 +286,34 @@ function HUDOverlay({ onNucleusClick }: { onNucleusClick: () => void }) {
   )
 }
 
-function ChatPanel({ onClose }: { onClose: () => void }) {
+function ChatPanel({ onClose, speak }: { onClose: () => void; speak: (text: string) => Promise<void> }) {
   const [messages, setMessages] = useState([
     { role: 'nexus', text: 'Você chegou ao núcleo do metaverso. Sua jornada começa aqui.' }
   ])
   const [input, setInput] = useState('')
   const responseIndex = useRef(1)
+  const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  // Speak the first NEXUS message on mount
+  useEffect(() => {
+    speak(messages[0].text).catch(() => {})
+  }, [])
+
+  // Auto-scroll to bottom on new messages
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [messages])
 
   const send = () => {
     if (!input.trim()) return
     const userMsg = { role: 'user', text: input.trim() }
-    const nexusMsg = { role: 'nexus', text: NEXUS_RESPONSES[responseIndex.current % NEXUS_RESPONSES.length] }
+    const nexusText = NEXUS_RESPONSES[responseIndex.current % NEXUS_RESPONSES.length]
     responseIndex.current++
+    const nexusMsg = { role: 'nexus', text: nexusText }
     setMessages(prev => [...prev, userMsg, nexusMsg])
     setInput('')
+    // Speak the NEXUS response aloud
+    speak(nexusText).catch(() => {})
   }
 
   return (
@@ -361,7 +381,9 @@ function ChatPanel({ onClose }: { onClose: () => void }) {
 export default function NexusCosmos({ onNucleusClick: _externalClick = () => {} }: { onNucleusClick?: () => void }) {
   const [introComplete, setIntroComplete] = useState(false)
   const [chatOpen, setChatOpen] = useState(false)
-  const droneRef = useRef<any>(null)
+  const droneRef = useRef<NexusDroneHandle | null>(null)
+  const nexusVoiceId = getAgentVoiceId('nexus')
+  const { speak } = useTts(nexusVoiceId)
 
   useEffect(() => {
     if (!introComplete) return
@@ -380,7 +402,7 @@ export default function NexusCosmos({ onNucleusClick: _externalClick = () => {} 
 
   return (
     <div style={{ position: 'relative', width: '100%', height: '100vh', backgroundColor: '#000000' }}>
-      {!introComplete && <CinematicIntro onComplete={() => setIntroComplete(true)} />}
+      {!introComplete && <CinematicIntro onComplete={() => setIntroComplete(true)} speak={speak} />}
       <Canvas camera={{ position: [0, 0, 12], fov: 60 }} dpr={[1, 2]} gl={{ antialias: true }}>
         <color attach="background" args={['#000000']} />
         <Scene onNucleusClick={() => setChatOpen(true)} />
@@ -389,7 +411,7 @@ export default function NexusCosmos({ onNucleusClick: _externalClick = () => {} 
         </EffectComposer>
       </Canvas>
       {introComplete && <HUDOverlay onNucleusClick={() => setChatOpen(true)} />}
-      {chatOpen && <ChatPanel onClose={() => setChatOpen(false)} />}
+      {chatOpen && <ChatPanel onClose={() => setChatOpen(false)} speak={speak} />}
     </div>
   )
 }
