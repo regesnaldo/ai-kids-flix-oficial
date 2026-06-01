@@ -280,6 +280,8 @@ describe("Experience Layer — Contract Type Validation", () => {
       cognitiveProfile: {
         userLevel: "beginner",
         emotionalScore: 0.5,
+        intellectualScore: 0,
+        moralScore: 0,
         archetype: "explorer",
         recentInsights: [],
       },
