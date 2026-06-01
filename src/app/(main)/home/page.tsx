@@ -59,6 +59,140 @@ function FooterHud() {
   );
 }
 
+function AvatarDropdown({ username, onLogout }: { username: string; onLogout: () => void }) {
+  const [open, setOpen] = useState(false)
+  const initials = username.slice(0, 2).toUpperCase()
+
+  return (
+    <div style={{ position: "relative" }}>
+      <button
+        onClick={() => setOpen(!open)}
+        onBlur={() => setTimeout(() => setOpen(false), 200)}
+        style={{
+          width: "36px", height: "36px", borderRadius: "50%",
+          border: "1.5px solid rgba(0,255,255,0.5)",
+          background: "rgba(0,255,255,0.1)",
+          color: "#00FFFF", fontFamily: "monospace", fontSize: "14px",
+          fontWeight: 700, cursor: "pointer",
+          transition: "all 0.2s ease",
+          boxShadow: open ? "0 0 16px rgba(0,255,255,0.4)" : "none",
+          display: "flex", alignItems: "center", justifyContent: "center",
+        }}
+        onMouseEnter={e => {
+          e.currentTarget.style.borderColor = "rgba(0,255,255,0.9)"
+        }}
+        onMouseLeave={e => {
+          e.currentTarget.style.borderColor = "rgba(0,255,255,0.5)"
+        }}
+        aria-label="Menu do usuário"
+      >
+        {initials}
+      </button>
+
+      {open && (
+        <div style={{
+          position: "absolute", top: "44px", right: 0,
+          minWidth: "180px", background: "rgba(0,0,0,0.95)",
+          border: "1px solid rgba(0,255,255,0.2)", borderRadius: "6px",
+          zIndex: 300, overflow: "hidden",
+          boxShadow: "0 8px 32px rgba(0,0,0,0.6), 0 0 16px rgba(0,255,255,0.1)",
+          animation: "fadeIn 0.15s ease",
+        }}>
+          <div style={{
+            padding: "12px 16px", borderBottom: "1px solid rgba(0,255,255,0.1)",
+            fontFamily: "monospace", fontSize: "12px", color: "#00FFFF",
+          }}>
+            {username}
+          </div>
+          <a href="/perfil" style={{
+            display: "block", padding: "10px 16px", color: "#CCC",
+            fontFamily: "monospace", fontSize: "12px", textDecoration: "none",
+            transition: "background 0.15s ease",
+          }}
+            onMouseEnter={e => e.currentTarget.style.background = "rgba(0,255,255,0.06)"}
+            onMouseLeave={e => e.currentTarget.style.background = "transparent"}
+          >
+            PERFIL
+          </a>
+          <button onClick={onLogout} style={{
+            width: "100%", textAlign: "left", padding: "10px 16px",
+            background: "transparent", border: "none",
+            color: "#FF6B6B", fontFamily: "monospace", fontSize: "12px",
+            cursor: "pointer",
+            transition: "background 0.15s ease",
+          }}
+            onMouseEnter={e => e.currentTarget.style.background = "rgba(255,107,107,0.1)"}
+            onMouseLeave={e => e.currentTarget.style.background = "transparent"}
+          >
+            SAIR
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function StatsPanel({ completedCount }: { completedCount: number }) {
+  const [stats, setStats] = useState<{ episodes: number; decisions: number; favorites: number; totalXP: number } | null>(null)
+
+  useEffect(() => {
+    fetch("/api/dashboard/stats")
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (data?.stats) {
+          setStats({
+            episodes: data.stats.episodesCompleted ?? 0,
+            decisions: data.stats.decisionsMade ?? 0,
+            favorites: data.stats.favorites ?? 0,
+            totalXP: (data.stats.episodesCompleted ?? 0) * 10 + (data.stats.decisionsMade ?? 0) * 5,
+          })
+        }
+      })
+      .catch(() => {})
+  }, [])
+
+  const items = [
+    { label: "MUNDOS", value: `${completedCount}/12`, accent: "#00FFFF" },
+    { label: "MÓDULOS", value: `${stats?.episodes ?? "..."}`, accent: "#00FF88" },
+    { label: "DECISÕES", value: `${stats?.decisions ?? "..."}`, accent: "#FFB347" },
+    { label: "XP", value: stats ? stats.totalXP.toLocaleString("pt-BR") : "...", accent: "#C084FC" },
+  ]
+
+  return (
+    <div style={{
+      display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "0.75rem",
+      marginBottom: "1.5rem",
+    }}>
+      {items.map(item => (
+        <div key={item.label} style={{
+          textAlign: "center", padding: "12px 8px",
+          background: "rgba(255,255,255,0.03)",
+          border: "1px solid rgba(255,255,255,0.06)", borderRadius: "6px",
+          transition: "all 0.3s ease",
+        }}
+          onMouseEnter={e => {
+            e.currentTarget.style.borderColor = item.accent
+            e.currentTarget.style.boxShadow = `0 0 12px ${item.accent}22`
+            e.currentTarget.style.transform = "scale(1.03)"
+          }}
+          onMouseLeave={e => {
+            e.currentTarget.style.borderColor = "rgba(255,255,255,0.06)"
+            e.currentTarget.style.boxShadow = "none"
+            e.currentTarget.style.transform = "scale(1)"
+          }}
+        >
+          <div style={{ fontFamily: "monospace", fontSize: "1.4rem", fontWeight: 700, color: item.accent, textShadow: `0 0 8px ${item.accent}44` }}>
+            {item.value}
+          </div>
+          <div style={{ fontFamily: "monospace", fontSize: "9px", color: "#888", marginTop: "4px", letterSpacing: "0.1em", textTransform: "uppercase" }}>
+            {item.label}
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
 export default function HomePage() {
   const router = useRouter();
   const { cognitiveProfile, progressionSnapshot, healthStatus } = useOasis();
@@ -87,6 +221,13 @@ export default function HomePage() {
   // ── Emotion Palette ────────────────────────────────────────────
   useEffect(() => {
     createEmotionStyleElement()
+    // Inject cyberpunk keyframes
+    if (typeof document !== "undefined" && !document.getElementById("cyberpunk-keyframes")) {
+      const style = document.createElement("style")
+      style.id = "cyberpunk-keyframes"
+      style.innerHTML = `@keyframes fadeIn { from { opacity: 0; transform: translateY(-4px) } to { opacity: 1; transform: translateY(0) } } @keyframes pulse { 0%,100% { box-shadow: 0 0 8px rgba(0,255,255,0.15) } 50% { box-shadow: 0 0 20px rgba(0,255,255,0.35) } } @keyframes scanline { 0% { background-position: 0 0 } 100% { background-position: 0 100% } }`
+      document.head.appendChild(style)
+    }
   }, [])
 
   const palette = useMemo(() => {
@@ -122,7 +263,8 @@ export default function HomePage() {
         borderBottom: "1px solid rgba(0,255,255,0.1)",
       }}>
         <Link href="/" style={{ textDecoration: "none" }}>
-          <span style={{ fontSize: "1.6rem", fontWeight: 900, letterSpacing: "-0.02em" }}>
+          <span style={{ fontSize: "1.6rem", fontWeight: 900, letterSpacing: "-0.02em", display: "inline-flex", alignItems: "baseline", gap: "0.4rem" }}>
+            <span style={{ color: "#00FFFF", fontFamily: "monospace", fontSize: "0.65rem", letterSpacing: "0.2em", opacity: 0.85, textShadow: "0 0 12px rgba(0,255,255,0.4)" }}>NEXUS PRIME</span>
             <span style={{ color: "#ffffff" }}>MENTE</span>
             <span style={{ color: "#E50914" }}>.AI</span>
           </span>
@@ -131,18 +273,11 @@ export default function HomePage() {
           <span style={{
             fontFamily: "monospace", fontSize: "10px",
             color: isOnline ? "#00FF88" : "#ff4444",
+            textShadow: isOnline ? "0 0 8px rgba(0,255,136,0.3)" : "none",
           }}>
             ● METAVERSE {isOnline ? "ONLINE" : "OFFLINE"}
           </span>
-          <button onClick={handleLogout} style={{
-            background: "transparent",
-            border: "1px solid rgba(0,255,255,0.3)",
-            color: "#00FFFF", fontFamily: "monospace",
-            fontSize: "11px", padding: "6px 16px",
-            cursor: "pointer", letterSpacing: "0.05em",
-          }}>
-            SAIR
-          </button>
+          <AvatarDropdown username={username} onLogout={handleLogout} />
         </div>
       </header>
 
@@ -151,13 +286,16 @@ export default function HomePage() {
 
         {/* GREETING */}
         <div style={{ marginBottom: "2rem" }}>
-          <h1 style={{ fontSize: "2rem", fontWeight: 700, color: "#ffffff", margin: 0 }}>
+          <h1 style={{ fontSize: "2rem", fontWeight: 700, color: "#ffffff", margin: 0, textShadow: "0 0 20px rgba(0,255,255,0.15)" }}>
             Bem-vindo, {username}
           </h1>
-          <p style={{ fontFamily: "monospace", fontSize: "1rem", color: "#00FFFF", margin: "0.5rem 0 0" }}>
+          <p style={{ fontFamily: "monospace", fontSize: "1rem", color: "#00FFFF", margin: "0.5rem 0 0", textShadow: "0 0 10px rgba(0,255,255,0.2)" }}>
             Seu universo aguarda.
           </p>
         </div>
+
+        {/* STATS ROW */}
+        <StatsPanel completedCount={completedCount} />
 
         {/* PROGRESSION BAR */}
         <div style={{ marginBottom: "2.5rem" }}>
