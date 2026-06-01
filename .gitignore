@@ -1,1 +1,37 @@
+# Dependencies
+node_modules/
+
+# Next.js build
+.next/
+out/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# TypeScript
+tsconfig.tsbuildinfo
+*.tsbuildinfo
+
+# Generated files
+GUIA-OPENCODE-CLAUDE.pdf
+
+# Vercel
 .vercel
+
+# Audit logs (local only)
+build-log.txt
+ts-errors.txt
+lint-errors.txt

@@ -149,56 +149,7 @@ function Scene({ onNucleusClick = () => {} }: { onNucleusClick?: () => void }) {
 
 // ─── AUDIO ENGINE — NEXUS SOUND DESIGN ───────────────────────
 // Direction: Damien Chazelle — sound as narrative, silence as impact
-
-let toneStarted = false
-
-async function createAmbientDrone() {
-  const { Synth, Reverb, Volume, start } = await import('tone')
-  if (!toneStarted) { await start(); toneStarted = true }
-  const vol = new Volume(-20).toDestination()
-  const reverb = new Reverb({ decay: 8, wet: 0.8 }).connect(vol)
-  const drone1 = new Synth({
-    oscillator: { type: 'sine' },
-    envelope: { attack: 4, decay: 0, sustain: 1, release: 6 },
-  }).connect(reverb)
-
-  const drone2 = new Synth({
-    oscillator: { type: 'sine' },
-    envelope: { attack: 6, decay: 0, sustain: 1, release: 8 },
-  }).connect(reverb)
-
-  drone1.triggerAttack('C1')
-  setTimeout(() => drone2.triggerAttack('G1'), 2000)
-
-  return { drone1, drone2, vol }
-}
-
-async function playNucleusHover() {
-  const { Synth, Reverb, start } = await import('tone')
-  if (!toneStarted) { await start(); toneStarted = true }
-  const reverb = new Reverb({ decay: 2, wet: 0.5 }).toDestination()
-  const synth = new Synth({
-    oscillator: { type: 'sine' },
-    envelope: { attack: 0.1, decay: 0.3, sustain: 0.2, release: 1 },
-    volume: -25,
-  }).connect(reverb)
-  synth.triggerAttackRelease('G2', '0.3')
-}
-
-async function playNucleusClick() {
-  const { MetalSynth, Reverb, start } = await import('tone')
-  if (!toneStarted) { await start(); toneStarted = true }
-  const reverb = new Reverb({ decay: 6, wet: 0.9 }).toDestination()
-  const metal = new MetalSynth({
-    envelope: { attack: 0.001, decay: 0.4, release: 4 },
-    harmonicity: 5.1,
-    modulationIndex: 32,
-    resonance: 4000,
-    octaves: 1.5,
-    volume: -18,
-  }).connect(reverb)
-  metal.triggerAttackRelease('G3', '32n')
-}
+// Functions imported from @/lib/audio/nexus-audio at top of file
 // ──────────────────────────────────────────────────────────────
 
 function CinematicIntro({ onComplete, speak }: { onComplete: () => void; speak: (text: string) => Promise<void> }) {
@@ -393,10 +344,7 @@ export default function NexusCosmos({ onNucleusClick: _externalClick = () => {} 
     }
     startDrone().catch(console.error)
     return () => {
-      if (droneRef.current) {
-        droneRef.current.drone1.triggerRelease()
-        droneRef.current.drone2.triggerRelease()
-      }
+      stopAmbientDrone(droneRef.current, 2000).catch(console.error)
     }
   }, [introComplete])
 
