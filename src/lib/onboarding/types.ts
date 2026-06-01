@@ -54,7 +54,12 @@ export function savePreferences(prefs: Partial<UserPreferences>): void {
 }
 
 export function shouldShowOnboarding(): boolean {
-  const prefs = getPreferences();
-  return !prefs?.onboardingCompleted;
+  try {
+    const completed = localStorage.getItem('mente_ai_onboarding_complete')
+    if (completed === 'true') return false
+    return false // TEMP: disable onboarding loop until fix is validated
+  } catch {
+    return false
+  }
 }
 
