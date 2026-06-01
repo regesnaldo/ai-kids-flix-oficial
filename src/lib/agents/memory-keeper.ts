@@ -39,6 +39,10 @@ export interface UserCognitiveProfile {
   userId: number;
   /** Emotional clustering: 0.0 (negative) → 1.0 (positive) */
   emotionalScore: number;
+  /** Intellectual score: 0.0-1.0 */
+  intellectualScore: number;
+  /** Moral score: 0.0-1.0 */
+  moralScore: number;
   /** Cognitive archetype classification */
   archetype: string;
   /** Detected user level (beginner, intermediate, advanced) */
@@ -62,6 +66,8 @@ export interface UserCognitiveProfile {
 /** Default empty profile — used when no profile exists yet. */
 export const DEFAULT_COGNITIVE_PROFILE: Omit<UserCognitiveProfile, "userId"> = {
   emotionalScore: 0.5,
+  intellectualScore: 0,
+  moralScore: 0,
   archetype: "explorer",
   userLevel: "beginner",
   preferences: {},

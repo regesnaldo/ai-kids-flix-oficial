@@ -125,6 +125,8 @@ class ExperienceLayer implements IExperienceLayer {
       return {
         userLevel: "beginner",
         emotionalScore: 0.5,
+        intellectualScore: 0,
+        moralScore: 0,
         archetype: "explorer",
         recentInsights: [],
       };
@@ -134,6 +136,8 @@ class ExperienceLayer implements IExperienceLayer {
     return {
       userLevel: profile.userLevel,
       emotionalScore: profile.emotionalScore,
+      intellectualScore: profile.intellectualScore ?? 0,
+      moralScore: profile.moralScore ?? 0,
       archetype: profile.archetype,
       recentInsights: profile.insights.slice(0, 3),
     };
@@ -442,47 +446,12 @@ class ExperienceLayer implements IExperienceLayer {
    * Browser-only — no-op on the server.
    */
   connectToRuntimeSync(): void {
-    if (typeof window === "undefined") return;
-    if (this.syncConnected) return;
-
-    try {
-      this.eventSource = new EventSource("/api/ws/runtime-sync");
-
-      this.eventSource.onmessage = (event) => {
-        try {
-          const data = JSON.parse(event.data);
-          if (data.type === "STATE_UPDATED" || data.type === "KEEPALIVE") {
-            // State updates are handled by nexusBus subscriptions
-            // Keepalive events maintain connection health
-            this.syncConnected = true;
-          }
-        } catch {
-          // Malformed event — ignore
-        }
-      };
-
-      this.eventSource.onerror = () => {
-        this.syncConnected = false;
-        // EventSource auto-reconnects — no manual intervention needed
-      };
-
-      this.eventSource.onopen = () => {
-        this.syncConnected = true;
-      };
-
-      this.syncConnected = true;
-    } catch {
-      // SSE not available — fall back to REST polling
-      this.syncConnected = false;
-    }
+    // No-op: SSE replaced by REST polling (see OasisProvider pollInterval)
+    // to eliminate Vercel Serverless timeout errors.
   }
 
   disconnectFromRuntimeSync(): void {
-    if (this.eventSource) {
-      this.eventSource.close();
-      this.eventSource = null;
-    }
-    this.syncConnected = false;
+    // No-op: SSE replaced by REST polling.
   }
 
   // ═══════════════════════════════════════════════════════════════════════════

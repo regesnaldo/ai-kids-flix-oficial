@@ -85,6 +85,12 @@ export interface CognitiveProfileSummary {
   /** Emotional score 0.0-1.0 */
   emotionalScore: number;
 
+  /** Intellectual score 0.0-1.0 */
+  intellectualScore: number;
+
+  /** Moral score 0.0-1.0 */
+  moralScore: number;
+
   /** Archetype label */
   archetype: string;
 

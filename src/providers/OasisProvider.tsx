@@ -146,15 +146,10 @@ let connected = false;
 /** CinematicEvent subscribers from useOasis hooks */
 let eventSubscribers: Set<(event: CinematicEvent) => void> = new Set();
 
-/** Reconnection backoff (milliseconds) */
-let reconnectDelay = 1_000;
-const MAX_RECONNECT_DELAY = 30_000;
-let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
-
 /** Whether the store has been initialized */
 let initialized = false;
 
-/** Polling interval for REST fallback */
+/** Polling interval */
 let pollInterval: ReturnType<typeof setInterval> | null = null;
 
 function notifySubscribers(): void {
@@ -176,7 +171,7 @@ function getSnapshot(): ExperienceSnapshot | null {
 
 /**
  * Initialize the Oasis runtime — called once when OasisProvider mounts.
- * Connects to SSE endpoint and sets up reconnection logic.
+ * Sets up event subscriptions and REST polling (no SSE to avoid Vercel timeout).
  */
 function initializeOasisRuntime(): void {
   if (initialized) return;
@@ -185,7 +180,6 @@ function initializeOasisRuntime(): void {
   // Dynamically import the experience layer (browser-safe)
   import("@/lib/experience/experience-layer").then(
     ({ experienceLayer }) => {
-      // Initial snapshot
       const snapshot = experienceLayer.getExperienceSnapshot();
       currentSnapshot = snapshot;
       notifySubscribers();
@@ -211,27 +205,7 @@ function initializeOasisRuntime(): void {
         }
       });
 
-      // Connect to SSE
-      connectSSE();
-    }
-  ).catch((err) => {
-    console.error("[OasisProvider] Failed to load experience layer:", err);
-    // TODO: [MENTE.AI] adicionar feedback visual ao usuário
-  });
-}
-
-/** Connect to the SSE endpoint with reconnection logic. */
-function connectSSE(): void {
-  if (typeof window === "undefined") return;
-
-  import("@/lib/experience/experience-layer").then(
-    ({ experienceLayer }) => {
-      experienceLayer.connectToRuntimeSync();
-      connected = true;
-      reconnectDelay = 1_000; // Reset backoff
-      notifySubscribers();
-
-      // Start polling fallback (runs in background even with SSE active)
+      // REST polling every 10s (replaces SSE to avoid Vercel timeout)
       if (!pollInterval) {
         pollInterval = setInterval(() => {
           const snapshot = experienceLayer.getExperienceSnapshot();
@@ -244,28 +218,13 @@ function connectSSE(): void {
             currentSnapshot = snapshot;
             notifySubscribers();
           }
-        }, 10_000); // Every 10s as safety net
+        }, 10_000);
       }
     }
-  ).catch(() => {
-    // SSE failed — schedule reconnection with backoff
-    connected = false;
-    notifySubscribers();
-    scheduleReconnect();
+  ).catch((err) => {
+    console.error("[OasisProvider] Failed to load experience layer:", err);
+    // TODO: [MENTE.AI] adicionar feedback visual ao usuário
   });
-}
-
-/** Schedule SSE reconnection with exponential backoff. */
-function scheduleReconnect(): void {
-  if (reconnectTimer) return;
-
-  reconnectTimer = setTimeout(() => {
-    reconnectTimer = null;
-    connectSSE();
-  }, reconnectDelay);
-
-  // Exponential backoff: 1s → 2s → 4s → 8s → ... → max 30s
-  reconnectDelay = Math.min(reconnectDelay * 2, MAX_RECONNECT_DELAY);
 }
 
 /** Cleanup runtime resources. */
@@ -275,15 +234,6 @@ function shutdownOasisRuntime(): void {
     clearInterval(pollInterval);
     pollInterval = null;
   }
-  if (reconnectTimer) {
-    clearTimeout(reconnectTimer);
-    reconnectTimer = null;
-  }
-  import("@/lib/experience/experience-layer").then(
-    ({ experienceLayer }) => {
-      experienceLayer.disconnectFromRuntimeSync();
-    }
-  ).catch(() => {});
   connected = false;
 }
 
