@@ -16,6 +16,7 @@
 
 import { nexusRuntime } from "@/lib/nexus/NexusRuntime";
 import type { NexusCanonicalState } from "@/lib/nexus/nexus.types";
+import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -25,16 +26,21 @@ export const dynamic = "force-dynamic";
  * Instant response, no streaming. Compatible with Vercel Serverless.
  */
 export async function GET() {
-  // Ensure Nexus is initialized
-  if (!nexusRuntime.isInitialized) {
-    nexusRuntime.init();
+  try {
+    // Ensure Nexus is initialized
+    if (!nexusRuntime.isInitialized) {
+      nexusRuntime.init();
+    }
+
+    const state = nexusRuntime.getSnapshot() as NexusCanonicalState;
+
+    return Response.json({
+      type: "STATE_UPDATED",
+      state,
+      timestamp: Date.now(),
+    });
+  } catch (error) {
+    console.error("Erro em GET /api/ws/runtime-sync:", error);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
-
-  const state = nexusRuntime.getSnapshot() as NexusCanonicalState;
-
-  return Response.json({
-    type: "STATE_UPDATED",
-    state,
-    timestamp: Date.now(),
-  });
 }
