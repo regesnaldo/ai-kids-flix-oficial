@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useOasis } from "@/providers/OasisProvider";
 import { useSession } from "@/providers/SessionProvider";
 import { createEmotionStyleElement, getPaletteFromEmotionalState, emotionPaletteToStyle } from "@/design-system/colorEngine";
+import JourneyMap from "@/components/home/JourneyMap";
 
 const AGENTS = [
   { id: "nexus", name: "NEXUS", faction: "INTELIGÊNCIA" },
@@ -313,6 +314,14 @@ export default function HomePage() {
             PRÓXIMO: {nextAgent.name}
           </p>
         </div>
+
+        {/* JOURNEY MAP */}
+        <JourneyMap
+          completedCount={completedCount}
+          emotionalScore={cognitiveProfile.emotionalScore ?? 0}
+          intellectualScore={cognitiveProfile.intellectualScore ?? 0}
+          moralScore={cognitiveProfile.moralScore ?? 0}
+        />
 
         {/* AGENT CARDS GRID */}
         <div style={{

@@ -64,6 +64,8 @@ export interface OasisContext {
   cognitiveProfile: {
     userLevel: "beginner" | "intermediate" | "advanced";
     emotionalScore: number;
+    intellectualScore: number;
+    moralScore: number;
     archetype: string;
     recentInsights: string[];
   };
@@ -110,7 +112,9 @@ const DEFAULT_OASIS: OasisContext = {
   transitionState: { phase: "idle" },
   cognitiveProfile: {
     userLevel: "beginner",
-    emotionalScore: 0.5,
+      emotionalScore: 0.5,
+    intellectualScore: 0,
+    moralScore: 0,
     archetype: "explorer",
     recentInsights: [],
   },
