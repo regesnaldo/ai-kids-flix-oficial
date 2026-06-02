@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyToken } from '@/lib/auth'
 
-export async function proxy(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const tokenValue = request.cookies.get('mente_ai_token')?.value ?? null
   const { pathname } = request.nextUrl
 
