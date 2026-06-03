@@ -102,7 +102,7 @@ export async function suggestNarrative(
       title: archetypeNarrative.title,
       description: archetypeNarrative.description,
       targetAgent: availableAgents[0],
-      transition: findTransition(request.currentAgent, request.context || ""),
+      transition: findTransition(request.currentAgent as AgentId, request.context || ""),
       confidence: 0.9,
       isRecovery: false,
       tags: ["archetype", archetype, ...archetypeNarrative.tags],
