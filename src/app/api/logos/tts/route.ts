@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getAuthCookieFromRequest, verifyToken } from "@/lib/auth";
 
 export const runtime = "nodejs";
 
@@ -15,6 +16,11 @@ const LOGOS_VOICE_ID = "IKne3AIqSdRkR1w3O6dJ";
 
 export async function POST(request: NextRequest) {
   try {
+    const token = getAuthCookieFromRequest(request);
+    if (!token) return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
+
+    const payload = await verifyToken(token);
+    if (!payload) return NextResponse.json({ error: "Token inválido" }, { status: 401 });
     const { type } = await request.json();
 
     if (!type || !LOGOS_PHRASES[type]) {
