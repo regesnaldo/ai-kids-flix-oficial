@@ -1,9 +1,24 @@
 import { db } from "@/lib/db";
 import { interactiveDecisions } from "@/lib/db/schema";
+import { userProfile } from "@/lib/db/schema-narrative";
+import { eq } from "drizzle-orm";
 
-// NOTE (Phase 0): userProfiles table is planned for Era 1 / Phase 2
-// (Motor de Narrativa Adaptativa). The silent profiler logic is preserved
-// but DB persistence for user dimensions is disabled until that migration runs.
+const VALID_ARCHETYPES = [
+  "analytical", "rebel", "paralyzed", "empathetic", "strategic", "creative", "explorer",
+];
+
+function archetypeFromScores(emotional: number, intellectual: number, moral: number): string {
+  if (intellectual > 0.6) return "analytical";
+  if (emotional > 0.6) return "empathetic";
+  if (moral > 0.6) return "strategic";
+  if (emotional < 0.3 && intellectual < 0.3) return "paralyzed";
+  if (emotional > 0.4 && intellectual > 0.4) return "creative";
+  return "explorer";
+}
+
+function scoreToDimension(score: number): string {
+  return String(Math.max(0, Math.min(1, Number(score.toFixed(2)))));
+}
 
 export type EmotionalSignal = "curiosity" | "fear" | "rebellion" | "conformity";
 export type IntellectualSignal = "logical" | "intuitive";
@@ -180,12 +195,36 @@ export async function getUserProfile(userId: number): Promise<{
   }>;
   lastUpdated: number;
 } | null> {
-  // First try localStorage (works without login)
+  // Try DB first (persistent across sessions)
+  try {
+    const rows = await db
+      .select()
+      .from(userProfile)
+      .where(eq(userProfile.userId, userId))
+      .limit(1);
+    if (rows.length > 0) {
+      const row = rows[0];
+      const profile: StoredProfile = {
+        emotionalScore: Number(row.emotionalDim),
+        intellectualScore: Number(row.intellectualDim),
+        moralScore: Number(row.moralDim),
+        archetype: row.archetypeLabel || "explorer",
+        currentAgent: row.lastAgentId || "nexus",
+        decisionHistory: [],
+        lastUpdated: row.updatedAt ? new Date(row.updatedAt).getTime() : Date.now(),
+      };
+      // Sync to localStorage for offline/guest fallback
+      setStoredProfile(profile);
+      return profile;
+    }
+  } catch {
+    // DB unavailable — fall through to localStorage
+  }
+
+  // Fallback: localStorage (works without login or offline)
   const local = getStoredProfile();
   if (local) return local;
-  
-  // TODO: When user_profiles table is migrated, fetch from DB here
-  // For now, initialize new profile
+
   return null;
 }
 
@@ -205,8 +244,42 @@ export async function updateUserProfile(
   
   const updated = { ...current, ...updates, lastUpdated: Date.now() };
   setStoredProfile(updated);
-  
-  // TODO: When user_profiles table is migrated, sync to DB here
+
+  // Sync to DB (fire-and-forget — não bloqueia o fluxo do usuário)
+  try {
+    const emotionalScore = updated.emotionalScore ?? 0;
+    const intellectualScore = updated.intellectualScore ?? 0;
+    const moralScore = updated.moralScore ?? 0;
+    const archetype = updated.archetype ?? archetypeFromScores(emotionalScore, intellectualScore, moralScore);
+    const currentAgent = updated.currentAgent ?? "nexus";
+
+    const profileData = {
+      userId,
+      emotionalDim: scoreToDimension(emotionalScore),
+      intellectualDim: scoreToDimension(intellectualScore),
+      moralDim: scoreToDimension(moralScore),
+      archetypeLabel: archetype,
+      lastAgentId: currentAgent,
+    };
+
+    const existing = await db
+      .select()
+      .from(userProfile)
+      .where(eq(userProfile.userId, userId))
+      .limit(1);
+
+    if (existing.length > 0) {
+      await db
+        .update(userProfile)
+        .set(profileData)
+        .where(eq(userProfile.userId, userId));
+    } else {
+      await db.insert(userProfile).values(profileData);
+    }
+  } catch {
+    // DB sync failure não interrompe o fluxo — localStorage está salvo
+    console.warn("[PROFILER] Falha ao sincronizar perfil com DB");
+  }
 }
 
 export function getLocalProfile(): StoredProfile | null {

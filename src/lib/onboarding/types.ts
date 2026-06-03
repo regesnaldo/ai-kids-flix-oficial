@@ -53,13 +53,33 @@ export function savePreferences(prefs: Partial<UserPreferences>): void {
   try { window.localStorage.setItem(STORAGE_KEY, JSON.stringify(merged)); } catch (error) { console.error('[MENTE.AI] Error in onboarding/types.ts:', error); }
 }
 
+/**
+ * Determina se o onboarding deve ser exibido para o usuário atual.
+ *
+ * Regras:
+ *   - Usuários com `onboardingCompleted === true` → NÃO exibir
+ *   - Usuários sem preferências salvas (primeiro acesso) → EXIBIR
+ *   - Usuários que pularam explicitamente via skip → NÃO exibir
+ *   - Fallback seguro: se localStorage falhar, NÃO exibir (evita loop)
+ */
 export function shouldShowOnboarding(): boolean {
   try {
-    const completed = localStorage.getItem('mente_ai_onboarding_complete')
-    if (completed === 'true') return false
-    return false // TEMP: disable onboarding loop until fix is validated
+    const prefs = getPreferences();
+    if (!prefs) return true;
+    if (prefs.onboardingCompleted) return false;
+    // Se o usuário já tem preferências mas não completou o onboarding
+    // (ex: pulou), não insistir — respeita o skip explícito
+    return false;
   } catch {
-    return false
+    return false;
   }
+}
+
+/**
+ * Marca o onboarding como completo e salva no localStorage.
+ * Usado pelo OnboardingPage ao final da calibração.
+ */
+export function completeOnboarding(): void {
+  savePreferences({ onboardingCompleted: true });
 }
 
