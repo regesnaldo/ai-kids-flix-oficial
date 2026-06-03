@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useOasis } from "@/providers/OasisProvider";
 import { useSession } from "@/providers/SessionProvider";
 import { createEmotionStyleElement, getPaletteFromEmotionalState, emotionPaletteToStyle } from "@/design-system/colorEngine";
-import JourneyMap from "@/components/home/JourneyMap";
+import JourneyHub from "@/components/journey/JourneyHub";
 import HomeErrorBoundary from "@/components/home/HomeErrorBoundary";
 
 const AGENTS = [
@@ -317,13 +317,8 @@ export default function HomePage() {
           </p>
         </div>
 
-        {/* JOURNEY MAP */}
-        <JourneyMap
-          completedCount={completedCount}
-          emotionalScore={cognitiveProfile.emotionalScore ?? 0}
-          intellectualScore={cognitiveProfile.intellectualScore ?? 0}
-          moralScore={cognitiveProfile.moralScore ?? 0}
-        />
+        {/* JOURNEY HUB — jornada cognitiva completa */}
+        <JourneyHub />
 
         {/* AGENT CARDS GRID */}
         <div style={{
