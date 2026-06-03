@@ -3,6 +3,7 @@ import { routeAdaptiveNarrative } from "@/engine/router";
 import { updateSilentProfile, type InteractionContext } from "@/engine/profiler";
 import { ALL_AGENTS } from "@/canon/agents/all-agents";
 import { anthropicCompletionText } from "@/lib/anthropic";
+import { AGENTS, type AgentId } from "@/canon/agents/canon";
 
 export const runtime = "nodejs";
 
@@ -50,12 +51,20 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Agente não encontrado" }, { status: 404 });
     }
 
-    const systemPrompt = [
-      `Você é ${agent.name} — ${agent.dimension}.`,
-      `Facção: ${agent.faction}. Tom: ${agent.personality.tone}.`,
-      agent.personality.approach,
-      "Responda em português, mantendo a personalidade do agente.",
-    ].join("\n");
+    const canonAgent = AGENTS[selectedAgent as AgentId]
+    const systemPrompt = canonAgent?.cognition?.systemPrompt
+      ? [
+          canonAgent.cognition.systemPrompt,
+          `Tom: ${canonAgent.cognition.tone}.`,
+          `Estilo: ${canonAgent.cognition.communicationStyle}.`,
+          "Responda em português, mantendo sua personalidade e lembrando do histórico da conversa.",
+        ].join("\n\n")
+      : [
+          `Você é ${agent.name} — ${agent.dimension}.`,
+          `Facção: ${agent.faction}. Tom: ${agent.personality.tone}.`,
+          agent.personality.approach,
+          "Responda em português, mantendo a personalidade do agente e lembrando do histórico da conversa.",
+        ].join("\n");
 
     const messages = [
       ...(history?.slice(-10) || []),

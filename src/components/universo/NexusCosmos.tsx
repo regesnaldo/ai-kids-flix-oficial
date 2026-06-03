@@ -271,7 +271,7 @@ function ChatPanel({ onClose, speak }: { onClose: () => void; speak: (text: stri
     { role: 'nexus', text: 'Você chegou ao núcleo do metaverso. Sua jornada começa aqui.' }
   ])
   const [input, setInput] = useState('')
-  const responseIndex = useRef(1)
+  const [loading, setLoading] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   // Speak the first NEXUS message on mount
@@ -284,16 +284,50 @@ function ChatPanel({ onClose, speak }: { onClose: () => void; speak: (text: stri
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
-  const send = () => {
-    if (!input.trim()) return
-    const userMsg = { role: 'user', text: input.trim() }
-    const nexusText = NEXUS_RESPONSES[responseIndex.current % NEXUS_RESPONSES.length]
-    responseIndex.current++
-    const nexusMsg = { role: 'nexus', text: nexusText }
-    setMessages(prev => [...prev, userMsg, nexusMsg])
+  // Build conversation history for the API
+  const buildHistory = () => {
+    // Skip the first message (it's the initial NEXUS greeting, not user-triggered)
+    return messages.slice(1).map(m => ({
+      role: m.role === 'nexus' ? 'assistant' as const : 'user' as const,
+      content: m.text,
+    }))
+  }
+
+  const send = async () => {
+    if (!input.trim() || loading) return
+    const userText = input.trim()
+    const userMsg = { role: 'user' as const, text: userText }
+    setMessages(prev => [...prev, userMsg])
     setInput('')
-    // Speak the NEXUS response aloud
-    speak(nexusText).catch(() => {})
+    setLoading(true)
+
+    try {
+      const history = buildHistory()
+      const res = await fetch('/api/universo/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: userText,
+          history,
+          agentOverride: 'nexus',
+        }),
+      })
+
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+
+      const data = await res.json()
+      const nexusText: string = data.message || 'Silêncio também é resposta.'
+      const nexusMsg = { role: 'nexus' as const, text: nexusText }
+      setMessages(prev => [...prev, nexusMsg])
+      // Speak the NEXUS response aloud
+      speak(nexusText).catch(() => {})
+    } catch (err) {
+      console.error('[ChatPanel] Erro:', err)
+      const fallbackMsg = { role: 'nexus' as const, text: 'A conexão com o NEXUS foi temporariamente interrompida. Tente novamente.' }
+      setMessages(prev => [...prev, fallbackMsg])
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -335,23 +369,26 @@ function ChatPanel({ onClose, speak }: { onClose: () => void; speak: (text: stri
         <input
           value={input}
           onChange={e => setInput(e.target.value)}
-          onKeyDown={e => e.key === 'Enter' && send()}
-          placeholder="Transmitir mensagem..."
+          onKeyDown={e => e.key === 'Enter' && !loading && send()}
+          placeholder={loading ? 'NEXUS está pensando...' : 'Transmitir mensagem...'}
+          disabled={loading}
           style={{
             flex: 1, backgroundColor: 'rgba(0,255,255,0.05)',
             border: '1px solid rgba(0,255,255,0.2)', borderRadius: '4px',
             color: '#ffffff', fontFamily: 'monospace', fontSize: '12px',
-            padding: '8px 12px', outline: 'none',
+            padding: '8px 12px', outline: 'none', opacity: loading ? 0.5 : 1,
           }}
         />
-        <button onClick={send} style={{
-          backgroundColor: 'rgba(0,255,255,0.1)',
-          border: '1px solid rgba(0,255,255,0.3)',
-          color: '#00FFFF', fontFamily: 'monospace', fontSize: '11px',
-          padding: '8px 12px', cursor: 'pointer', borderRadius: '4px',
-          letterSpacing: '0.05em',
+        <button onClick={send} disabled={loading || !input.trim()} style={{
+          backgroundColor: loading ? 'rgba(0,255,255,0.03)' : 'rgba(0,255,255,0.1)',
+          border: `1px solid ${loading ? 'rgba(0,255,255,0.1)' : 'rgba(0,255,255,0.3)'}`,
+          color: loading ? 'rgba(0,255,255,0.3)' : '#00FFFF',
+          fontFamily: 'monospace', fontSize: '11px',
+          padding: '8px 12px', cursor: loading ? 'wait' : 'pointer',
+          borderRadius: '4px', letterSpacing: '0.05em',
+          transition: 'all 0.2s ease',
         }}>
-          TRANSMITIR
+          {loading ? '✦' : 'TRANSMITIR'}
         </button>
       </div>
     </div>
