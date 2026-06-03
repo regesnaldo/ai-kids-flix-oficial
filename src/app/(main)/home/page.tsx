@@ -6,6 +6,7 @@ import { useOasis } from "@/providers/OasisProvider";
 import { useSession } from "@/providers/SessionProvider";
 import { createEmotionStyleElement, getPaletteFromEmotionalState, emotionPaletteToStyle } from "@/design-system/colorEngine";
 import JourneyMap from "@/components/home/JourneyMap";
+import HomeErrorBoundary from "@/components/home/HomeErrorBoundary";
 
 const AGENTS = [
   { id: "nexus", name: "NEXUS", faction: "INTELIGÊNCIA" },
@@ -251,6 +252,7 @@ export default function HomePage() {
   }, [completedCount, isOnline])
 
   return (
+    <HomeErrorBoundary>
     <div className="emotion-aware" style={{ minHeight: "100vh", color: "#ffffff", ...palette }}>
       <UtcClock />
       <FooterHud />
@@ -433,5 +435,6 @@ export default function HomePage() {
 
       </main>
     </div>
+    </HomeErrorBoundary>
   );
 }
