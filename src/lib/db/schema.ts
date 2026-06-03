@@ -1,4 +1,5 @@
 import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, boolean, decimal, json, uniqueIndex, primaryKey, index } from "drizzle-orm/mysql-core";
+import { sql } from "drizzle-orm";
 
 export const users = mysqlTable("users", {
   id: int("id").autoincrement().primaryKey(),
@@ -525,3 +526,23 @@ export const universeProgression = mysqlTable(
 
 export type UniverseProgression    = typeof universeProgression.$inferSelect;
 export type NewUniverseProgression = typeof universeProgression.$inferInsert;
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// LOGOS — Guardião do Conhecimento
+// ═══════════════════════════════════════════════════════════════════════════════
+
+export const logosAttempts = mysqlTable("logos_attempts", {
+  id: varchar("id", { length: 36 }).primaryKey().default(sql`(UUID())`),
+  userId: varchar("user_id", { length: 36 }).notNull(),
+  episodeId: varchar("episode_id", { length: 36 }).notNull(),
+  agentId: varchar("agent_id", { length: 50 }).notNull(),
+  questions: json("questions").notNull(),
+  answers: json("answers").notNull(),
+  score: int("score").notNull().default(0),
+  passed: boolean("passed").notNull().default(false),
+  attemptNumber: int("attempt_number").notNull().default(1),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export type LogosAttempt = typeof logosAttempts.$inferSelect;
+export type InsertLogosAttempt = typeof logosAttempts.$inferInsert;
