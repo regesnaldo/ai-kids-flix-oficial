@@ -1,11 +1,23 @@
-export interface AgentRaw {
+export interface Agent {
+  id: string;
   name: string;
-  tag: string;
+  color: string;
   description: string;
+  expertise: string;
+}
+
+export type AgentId = "nexus" | "cipher" | "kaos" | "aurora" | "volt" | "ethos";
+
+// ─── Legacy agent types (used by agentMapper) ───────────────────────────
+
+export interface AgentRaw {
   id?: string;
+  name: string;
   role?: string;
+  tag?: string;
   color?: string;
   desc?: string;
+  description?: string;
 }
 
 export interface AgentFull {
@@ -16,8 +28,6 @@ export interface AgentFull {
   desc: string;
   tag: string;
 }
-
-export type AgentUI = AgentFull;
 
 export interface Category {
   title: string;
