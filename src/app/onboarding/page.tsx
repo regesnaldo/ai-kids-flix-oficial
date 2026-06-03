@@ -16,6 +16,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { completeOnboarding } from "@/lib/onboarding/types";
 import { ScannerRing } from "@/components/hud/ScannerRing";
 import { SignalBars } from "@/components/hud/SignalBars";
 import { GridOverlay } from "@/components/hud/GridOverlay";
@@ -81,9 +82,10 @@ export default function OnboardingPage() {
       timers.push(setTimeout(() => setRevealed(i + 1), ms));
     });
 
-    // Auto-redirect
+    // Auto-redirect + persiste onboarding completo
     timers.push(
       setTimeout(() => {
+        completeOnboarding();
         router.push("/lab");
       }, REDIRECT_MS)
     );

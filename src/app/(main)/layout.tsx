@@ -3,10 +3,12 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
 import Link from "next/link";
 import Navigation from "@/components/Navigation";
+import CognitiveGPS from "@/components/journey/CognitiveGPS";
 import LogosOracle from "@/components/logos/LogosOracle";
 import { shouldShowOnboarding } from "@/lib/onboarding/types";
 import { OasisProvider } from "@/providers/OasisProvider";
 import { SessionProvider } from "@/providers/SessionProvider";
+import { JourneyProvider } from "@/providers/JourneyProvider";
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -29,6 +31,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
   return (
     <SessionProvider>
       <OasisProvider>
+        <JourneyProvider>
         <div style={{ backgroundColor: "#0a0e27", minHeight: "100vh", margin: 0 }}>
       <header
         style={{
@@ -53,9 +56,11 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
         </Link>
         <Navigation />
       </header>
+      <CognitiveGPS />
       <main style={{ paddingTop: "70px" }}>{children}</main>
-      <LogosOracle />
+      {pathname !== "/logos" && <LogosOracle />}
     </div>
+    </JourneyProvider>
     </OasisProvider>
     </SessionProvider>
   );

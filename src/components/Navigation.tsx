@@ -33,6 +33,7 @@ export default function Navigation() {
     { label: 'Blog', href: '/blog' },
     { label: 'Explorar', href: '/explorar' },
     { label: 'Lab', href: '/lab' },
+    { label: 'LOGOS', href: '/logos' },
   ] as const;
 
   useEffect(() => {
