@@ -8,6 +8,8 @@ import * as THREE from 'three'
 import { createAmbientDrone, playNucleusHover, playNucleusClick, stopAmbientDrone, type NexusDroneHandle } from '@/lib/audio/nexus-audio'
 import { useTts } from '@/hooks/useTts'
 import { getAgentVoiceId } from '@/lib/audio/voices'
+import NarrativeSuggestionCard from './NarrativeSuggestionCard'
+import type { NarrativeSuggestion } from '@/engine/adaptive-router'
 
 const PARTICLE_COUNT = 500
 const SPHERE_RADIUS = 8
@@ -332,6 +334,8 @@ function ChatPanel({ onClose, speak }: { onClose: () => void; speak: (text: stri
 export default function NexusCosmos({ onNucleusClick: _externalClick = () => {} }: { onNucleusClick?: () => void }) {
   const [introComplete, setIntroComplete] = useState(false)
   const [chatOpen, setChatOpen] = useState(false)
+  const [suggestions, setSuggestions] = useState<NarrativeSuggestion[]>([])
+  const [suggestionsOpen, setSuggestionsOpen] = useState(false)
   const droneRef = useRef<NexusDroneHandle | null>(null)
   const nexusVoiceId = getAgentVoiceId('nexus')
   const { speak } = useTts(nexusVoiceId)
@@ -343,6 +347,24 @@ export default function NexusCosmos({ onNucleusClick: _externalClick = () => {} 
       droneRef.current = drone
     }
     startDrone().catch(console.error)
+
+    // Fetch narrative suggestions from adaptive director
+    fetch('/api/narrative/suggest', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        currentAgent: 'nexus',
+        context: 'O jogador entrou no NEXUS Cosmos.',
+      }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.suggestion) {
+          setSuggestions([data.suggestion])
+        }
+      })
+      .catch(() => {})
+
     return () => {
       stopAmbientDrone(droneRef.current, 2000).catch(console.error)
     }
@@ -360,6 +382,60 @@ export default function NexusCosmos({ onNucleusClick: _externalClick = () => {} 
       </Canvas>
       {introComplete && <HUDOverlay onNucleusClick={() => setChatOpen(true)} />}
       {chatOpen && <ChatPanel onClose={() => setChatOpen(false)} speak={speak} />}
+
+      {/* Narrative Suggestion Panel */}
+      {introComplete && suggestions.length > 0 && (
+        <>
+          <button
+            className="narrative-suggestion-toggle"
+            onClick={() => setSuggestionsOpen(!suggestionsOpen)}
+            style={{
+              position: 'absolute',
+              bottom: '80px',
+              right: '16px',
+              zIndex: 15,
+              background: 'rgba(0,240,255,0.08)',
+              border: '1px solid rgba(0,240,255,0.2)',
+              borderRadius: '6px',
+              color: 'var(--neon-cyan)',
+              fontFamily: 'var(--font-mono)',
+              fontSize: '10px',
+              padding: '8px 12px',
+              cursor: 'pointer',
+              letterSpacing: '0.08em',
+              textTransform: 'uppercase',
+            }}
+          >
+            {suggestionsOpen ? '× Fechar Sugestões' : '📡 Sugestão Narrativa'}
+          </button>
+
+          {suggestionsOpen && (
+            <div
+              style={{
+                position: 'absolute',
+                bottom: '120px',
+                right: '16px',
+                width: '320px',
+                maxHeight: 'calc(100vh - 200px)',
+                overflowY: 'auto',
+                zIndex: 15,
+              }}
+            >
+              {suggestions.map((s, i) => (
+                <NarrativeSuggestionCard
+                  key={`sug-${s.targetAgent}-${i}`}
+                  suggestion={s}
+                  index={i}
+                  onSelect={(targetAgent) => {
+                    setSuggestionsOpen(false)
+                    window.location.href = `/universo/${targetAgent}`
+                  }}
+                />
+              ))}
+            </div>
+          )}
+        </>
+      )}
     </div>
   )
 }
