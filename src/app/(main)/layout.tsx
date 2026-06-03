@@ -3,7 +3,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
 import Link from "next/link";
 import Navigation from "@/components/Navigation";
-import { LogosOverlay } from "@/components/logos/LogosOverlay";
+import LogosOracle from "@/components/logos/LogosOracle";
 import { shouldShowOnboarding } from "@/lib/onboarding/types";
 import { OasisProvider } from "@/providers/OasisProvider";
 import { SessionProvider } from "@/providers/SessionProvider";
@@ -54,7 +54,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
         <Navigation />
       </header>
       <main style={{ paddingTop: "70px" }}>{children}</main>
-      <LogosOverlay />
+      <LogosOracle />
     </div>
     </OasisProvider>
     </SessionProvider>
