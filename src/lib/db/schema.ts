@@ -525,3 +525,23 @@ export const universeProgression = mysqlTable(
 
 export type UniverseProgression    = typeof universeProgression.$inferSelect;
 export type NewUniverseProgression = typeof universeProgression.$inferInsert;
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// LOGOS — Knowledge Validation
+// ═══════════════════════════════════════════════════════════════════════════════
+
+export const logosAttempts = mysqlTable("logos_attempts", {
+  id: varchar("id", { length: 36 }).primaryKey(),
+  userId: varchar("user_id", { length: 36 }).notNull(),
+  episodeId: varchar("episode_id", { length: 36 }).notNull(),
+  agentId: varchar("agent_id", { length: 50 }).notNull(),
+  questions: json("questions").notNull(),
+  answers: json("answers").notNull(),
+  score: int("score").notNull().default(0),
+  passed: boolean("passed").notNull().default(false),
+  attemptNumber: int("attempt_number").notNull().default(1),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export type LogosAttempt = typeof logosAttempts.$inferSelect;
+export type NewLogosAttempt = typeof logosAttempts.$inferInsert;
