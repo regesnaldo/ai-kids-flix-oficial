@@ -9,6 +9,7 @@ import { createAmbientDrone, playNucleusHover, playNucleusClick, stopAmbientDron
 import { useTts } from '@/hooks/useTts'
 import { getAgentVoiceId } from '@/lib/audio/voices'
 import NarrativeSuggestionCard from './NarrativeSuggestionCard'
+import AdaptiveProfileModal from './AdaptiveProfileModal'
 import type { NarrativeSuggestion } from '@/engine/adaptive-router'
 
 const PARTICLE_COUNT = 500
@@ -197,7 +198,7 @@ function CinematicIntro({ onComplete, speak }: { onComplete: () => void; speak: 
   )
 }
 
-function HUDOverlay({ onNucleusClick }: { onNucleusClick: () => void }) {
+function HUDOverlay({ onNucleusClick, onProfileClick }: { onNucleusClick: () => void; onProfileClick: () => void }) {
   const [time, setTime] = useState('')
   const [blink, setBlink] = useState(true)
 
@@ -234,6 +235,32 @@ function HUDOverlay({ onNucleusClick }: { onNucleusClick: () => void }) {
         cursor: 'pointer', letterSpacing: '0.1em',
       }} onClick={onNucleusClick}>
         [ CLIQUE NO NÚCLEO PARA INICIAR CONTATO ]
+      </div>
+      {/* Botão Diário de Bordo */}
+      <div style={{
+        position: 'absolute', bottom: '32px', right: '24px',
+        fontFamily: 'monospace', fontSize: '10px',
+        color: '#C084FC', opacity: blink ? 0.6 : 0.3,
+        transition: 'opacity 0.5s ease, color 0.2s', pointerEvents: 'auto',
+        cursor: 'pointer', letterSpacing: '0.08em',
+        display: 'flex', alignItems: 'center', gap: '6px',
+        padding: '6px 12px', border: '1px solid rgba(192,132,252,0.2)', borderRadius: '4px',
+        background: 'rgba(192,132,252,0.05)',
+      }}
+        onClick={onProfileClick}
+        onMouseEnter={e => {
+          (e.currentTarget as HTMLDivElement).style.color = '#C084FC'
+          ;(e.currentTarget as HTMLDivElement).style.borderColor = 'rgba(192,132,252,0.5)'
+          ;(e.currentTarget as HTMLDivElement).style.background = 'rgba(192,132,252,0.1)'
+        }}
+        onMouseLeave={e => {
+          (e.currentTarget as HTMLDivElement).style.color = blink ? 'rgba(192,132,252,0.6)' : 'rgba(192,132,252,0.3)'
+          ;(e.currentTarget as HTMLDivElement).style.borderColor = 'rgba(192,132,252,0.2)'
+          ;(e.currentTarget as HTMLDivElement).style.background = 'rgba(192,132,252,0.05)'
+        }}
+      >
+        <span>🔮</span>
+        <span>DIÁRIO DE BORDO</span>
       </div>
     </div>
   )
@@ -336,6 +363,7 @@ export default function NexusCosmos({ onNucleusClick: _externalClick = () => {} 
   const [chatOpen, setChatOpen] = useState(false)
   const [suggestions, setSuggestions] = useState<NarrativeSuggestion[]>([])
   const [suggestionsOpen, setSuggestionsOpen] = useState(false)
+  const [profileOpen, setProfileOpen] = useState(false)
   const droneRef = useRef<NexusDroneHandle | null>(null)
   const nexusVoiceId = getAgentVoiceId('nexus')
   const { speak } = useTts(nexusVoiceId)
@@ -380,8 +408,9 @@ export default function NexusCosmos({ onNucleusClick: _externalClick = () => {} 
           <Bloom luminanceThreshold={0} luminanceSmoothing={0.9} height={300} intensity={0.8} />
         </EffectComposer>
       </Canvas>
-      {introComplete && <HUDOverlay onNucleusClick={() => setChatOpen(true)} />}
+      {introComplete && <HUDOverlay onNucleusClick={() => setChatOpen(true)} onProfileClick={() => setProfileOpen(true)} />}
       {chatOpen && <ChatPanel onClose={() => setChatOpen(false)} speak={speak} />}
+      <AdaptiveProfileModal isOpen={profileOpen} onClose={() => setProfileOpen(false)} />
 
       {/* Narrative Suggestion Panel */}
       {introComplete && suggestions.length > 0 && (
