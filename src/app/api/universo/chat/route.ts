@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { routeAdaptiveNarrative } from "@/engine/router";
-import { getUserProfile, updateUserProfile } from "@/engine/profiler";
+import { updateSilentProfile, type InteractionContext } from "@/engine/profiler";
 import { ALL_AGENTS } from "@/canon/agents/all-agents";
 import { anthropicCompletionText } from "@/lib/anthropic";
 
@@ -14,8 +14,6 @@ export async function POST(request: NextRequest) {
     if (!message || typeof message !== "string") {
       return NextResponse.json({ error: "Message é obrigatório" }, { status: 400 });
     }
-
-    const userProfile = await getUserProfile(userId);
 
     // Se agentOverride existe, usa esse agente diretamente (universo específico)
     // Caso contrário, usa o roteamento LangChain
@@ -33,15 +31,15 @@ export async function POST(request: NextRequest) {
       selectedAgent = routeDecision.langchainDecision?.nextAgent ?? "nexus"
     }
 
-    if (userProfile && routeDecision?.langchainDecision) {
-      await updateUserProfile(userId, {
-        emotionalScore: routeDecision.langchainDecision.confidence > 0.8 
-          ? (userProfile.emotionalScore || 0) + 0.5 
-          : userProfile.emotionalScore || 0,
-        archetype: routeDecision.archetype,
-        currentAgent: routeDecision.langchainDecision.nextAgent,
-      });
-    }
+    // Fire-and-forget: silent profile tracking não bloqueia a resposta
+    const profileContext: InteractionContext = {
+      userId: Number(userId) || 0,
+      choiceLabel: message.slice(0, 255),
+      agentId: agentOverride || selectedAgent,
+    };
+    // Neon wire — executa em background, falha silenciosa
+    updateSilentProfile(profileContext).catch(() => {});
+
     const agent = ALL_AGENTS.find((a) => a.id === selectedAgent);
 
     if (routeDecision) {
