@@ -92,10 +92,14 @@ function useLogosTts() {
     try {
       const res = await fetch('/api/logos/tts', {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ type }),
       })
-      if (!res.ok) throw new Error('TTS failed')
+      if (!res.ok) {
+        console.error(`[LOGOS/TTS] HTTP ${res.status}: ${res.statusText}`)
+        throw new Error(`TTS failed (${res.status})`)
+      }
       const blob = await res.blob()
       const url = URL.createObjectURL(blob)
       const audio = new Audio(url)
@@ -425,6 +429,7 @@ export default function LogosOracle() {
     try {
       const res = await fetch('/api/logos/generate', {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           episodeContent: logosEpisodeContext,
@@ -516,6 +521,7 @@ export default function LogosOracle() {
         try {
           const res = await fetch('/api/logos/validate', {
             method: 'POST',
+            credentials: 'include',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               episodeId: crypto.randomUUID(),
