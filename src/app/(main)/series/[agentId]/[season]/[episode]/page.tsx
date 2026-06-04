@@ -76,7 +76,9 @@ export default function ScreenplayPlayerPage() {
 
   const agent = allAgents.find((a) => a.id === agentId);
   const { generate, loading: genLoading } = useDeepSeek();
-  const { play: speakTTS, state: ttsState } = useTTS();
+  const { play: speakTTS, stop: stopTTS, state: ttsState } = useTTS();
+
+
   const setLogosActive = useAppStore((s) => s.setLogosActive);
   const { setPlaybackActive } = useGamification();
 
@@ -93,6 +95,11 @@ export default function ScreenplayPlayerPage() {
     setPlaybackActive(true);
     return () => setPlaybackActive(false);
   }, [setPlaybackActive]);
+
+  // Para o TTS ao mudar de cena/phase (evita áudio fantasma)
+  useEffect(() => {
+    stopTTS();
+  }, [phase, stopTTS]);
 
   // Award XP when episode completes
   useEffect(() => {
