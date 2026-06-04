@@ -6,7 +6,7 @@ import { OrbitControls } from '@react-three/drei'
 import { EffectComposer, Bloom } from '@react-three/postprocessing'
 import * as THREE from 'three'
 import { createAmbientDrone, playNucleusHover, playNucleusClick, stopAmbientDrone, type NexusDroneHandle } from '@/lib/audio/nexus-audio'
-import { useTts } from '@/hooks/useTts'
+import { useTTS } from '@/hooks/useTTS'
 import { getAgentVoiceId } from '@/lib/audio/voices'
 import NarrativeSuggestionCard from './NarrativeSuggestionCard'
 import AdaptiveProfileModal from './AdaptiveProfileModal'
@@ -403,7 +403,8 @@ export default function NexusCosmos({ onNucleusClick: _externalClick = () => {} 
   const [profileOpen, setProfileOpen] = useState(false)
   const droneRef = useRef<NexusDroneHandle | null>(null)
   const nexusVoiceId = getAgentVoiceId('nexus')
-  const { speak } = useTts(nexusVoiceId)
+  const { play } = useTTS();
+  const speak = (text: string) => play(text, 'nexus');
 
   useEffect(() => {
     if (!introComplete) return
