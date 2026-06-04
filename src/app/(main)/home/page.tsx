@@ -135,29 +135,12 @@ function AvatarDropdown({ username, onLogout }: { username: string; onLogout: ()
 }
 
 function StatsPanel({ completedCount }: { completedCount: number }) {
-  const [stats, setStats] = useState<{ episodes: number; decisions: number; favorites: number; totalXP: number } | null>(null)
-
-  useEffect(() => {
-    fetch("/api/dashboard/stats")
-      .then(r => r.ok ? r.json() : null)
-      .then(data => {
-        if (data?.stats) {
-          setStats({
-            episodes: data.stats.episodesCompleted ?? 0,
-            decisions: data.stats.decisionsMade ?? 0,
-            favorites: data.stats.favorites ?? 0,
-            totalXP: (data.stats.episodesCompleted ?? 0) * 10 + (data.stats.decisionsMade ?? 0) * 5,
-          })
-        }
-      })
-      .catch(() => {})
-  }, [])
 
   const items = [
     { label: "MUNDOS", value: `${completedCount}/12`, accent: "#00FFFF" },
-    { label: "MÓDULOS", value: `${stats?.episodes ?? "..."}`, accent: "#00FF88" },
-    { label: "DECISÕES", value: `${stats?.decisions ?? "..."}`, accent: "#FFB347" },
-    { label: "XP", value: stats ? stats.totalXP.toLocaleString("pt-BR") : "...", accent: "#C084FC" },
+    { label: "MÓDULOS", value: "...", accent: "#00FF88" },
+    { label: "DECISÕES", value: "...", accent: "#FFB347" },
+    { label: "XP", value: "...", accent: "#C084FC" },
   ]
 
   return (
