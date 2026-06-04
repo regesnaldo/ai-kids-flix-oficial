@@ -51,7 +51,7 @@ Responda APENAS com JSON válido neste formato exato:
         Authorization: `Bearer ${process.env.DEEPSEEK_API_KEY}`,
       },
       body: JSON.stringify({
-        model: "deepseek-chat",
+        model: "deepseek-v4-pro",
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: `Conteúdo do episódio:\n\n${episodeContent}` },

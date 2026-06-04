@@ -4,9 +4,11 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, ChevronLeft, ChevronRight, Loader2, Play, Sparkles, Zap } from "lucide-react";
+import { ArrowLeft, ChevronLeft, ChevronRight, Loader2, Play, Sparkles, Zap, Volume2 } from "lucide-react";
 import { allAgents } from "@/data/agents";
 import { useDeepSeek } from "@/hooks/useDeepSeek";
+import { useTTS } from "@/hooks/useTTS";
+import { useAppStore } from "@/store/useAppStore";
 import { queueConquest } from "@/components/gamification/ConquestNotification";
 import { useGamification } from "@/components/gamification/GamificationProvider";
 
@@ -23,9 +25,10 @@ interface Screenplay {
   narrativa: string;
   pausas: Choice[];
   encerramento: string;
+  videoUrl?: string;
 }
 
-/* ─── Typewriter Hook ────────────────────────────────────────────────── */
+type Phase = "loading" | "abertura" | "video" | "narrativa" | "pausa" | "continuacao" | "encerramento" | "fim";
 
 function useTypewriter(text: string, speed: number = 28) {
   const [displayed, setDisplayed] = useState("");
@@ -60,8 +63,6 @@ function useTypewriter(text: string, speed: number = 28) {
 
 /* ─── Main Page ──────────────────────────────────────────────────────── */
 
-type Phase = "loading" | "abertura" | "narrativa" | "pausa" | "continuacao" | "encerramento" | "fim";
-
 export default function ScreenplayPlayerPage() {
   const params = useParams<{
     agentId: string;
@@ -75,6 +76,8 @@ export default function ScreenplayPlayerPage() {
 
   const agent = allAgents.find((a) => a.id === agentId);
   const { generate, loading: genLoading } = useDeepSeek();
+  const { play: speakTTS, state: ttsState } = useTTS();
+  const setLogosActive = useAppStore((s) => s.setLogosActive);
   const { setPlaybackActive } = useGamification();
 
   const [screenplay, setScreenplay] = useState<Screenplay | null>(null);
@@ -94,6 +97,10 @@ export default function ScreenplayPlayerPage() {
   // Award XP when episode completes
   useEffect(() => {
     if (phase !== "fim" || xpAwarded > 0) return;
+    // Trigger LOGOS gate every 3 episodes
+    if (episode % 3 === 0) {
+      setLogosActive(true, `Temporada ${season}, Episódio ${episode}`, agentId, `s${season}e${episode}`);
+    }
     (async () => {
       try {
         const res = await fetch("/api/xp/award", {
@@ -148,7 +155,8 @@ export default function ScreenplayPlayerPage() {
   // Phase transitions
   useEffect(() => {
     if (phase === "abertura" && aberturaDone && screenplay) {
-      const timer = setTimeout(() => setPhase("narrativa"), 800);
+      const nextPhase = screenplay.videoUrl ? "video" : "narrativa";
+      const timer = setTimeout(() => setPhase(nextPhase), 800);
       return () => clearTimeout(timer);
     }
     if (phase === "narrativa" && narrativaDone && screenplay) {
@@ -400,6 +408,44 @@ Seja cinematográfico, imersivo, inspirador.`,
             </motion.div>
           )}
 
+          {/* Video Player */}
+          {phase === "video" && screenplay?.videoUrl && (
+            <motion.div
+              key="video"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0 }}
+              className="relative w-full aspect-video rounded-xl overflow-hidden shadow-2xl bg-black mb-6"
+            >
+              {screenplay.videoUrl.includes("youtube") || screenplay.videoUrl.includes("youtu.be") ? (
+                <iframe
+                  src={screenplay.videoUrl.replace("watch?v=", "embed/").replace("youtu.be/", "youtube.com/embed/") + "?autoplay=1"}
+                  className="w-full h-full"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              ) : (
+                <video
+                  src={screenplay.videoUrl}
+                  autoPlay
+                  controls
+                  playsInline
+                  preload="metadata"
+                  onEnded={() => setPhase("narrativa")}
+                  className="w-full h-full object-cover"
+                >
+                  Seu navegador não suporta vídeo HTML5.
+                </video>
+              )}
+              <button
+                onClick={() => setPhase("narrativa")}
+                className="absolute bottom-4 right-4 px-4 py-2 text-sm font-bold rounded-lg bg-black/70 text-white hover:bg-black/90 transition"
+              >
+                Pular vídeo →
+              </button>
+            </motion.div>
+          )}
+
           {/* Narrative / Continuation */}
           {(phase === "narrativa" || phase === "continuacao") && (
             <motion.div
@@ -427,6 +473,16 @@ Seja cinematográfico, imersivo, inspirador.`,
                 >
                   {agent.name}
                 </span>
+                <button
+                  onClick={() => speakTTS(displayedNarrativa || screenplay?.narrativa || "", agent.id)}
+                  disabled={ttsState === "loading"}
+                  className="ml-auto w-8 h-8 rounded-full flex items-center justify-center transition hover:bg-white/5"
+                  style={{ color: agent.color }}
+                  title="Ouvir narração"
+                  aria-label="Ouvir narração"
+                >
+                  <Volume2 size={16} className={ttsState === "playing" ? "animate-pulse" : ""} />
+                </button>
                 {phase === "continuacao" && selectedChoice !== null && (
                   <span className="text-xs text-gray-500 ml-2">
                     Resposta à sua escolha

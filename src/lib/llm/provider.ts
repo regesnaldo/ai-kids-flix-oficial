@@ -23,7 +23,7 @@ const PROVIDER_URLS = {
 // ─── Default models ─────────────────────────────────────────────────────
 
 const DEFAULT_MODELS = {
-  deepseek: "deepseek-chat",
+  deepseek: "deepseek-v4-pro",
   groq: "llama-3.3-70b-versatile",
 } as const;
 
