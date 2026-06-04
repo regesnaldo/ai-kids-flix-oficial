@@ -2,12 +2,11 @@
 
 "use client";
 
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState, useCallback } from "react";
 import { ArrowRight, X } from "lucide-react";
 import type { ChatMessage } from "@/types/chat";
 import type { Agent } from "@/types/agent";
-
-/* ─── Props ──────────────────────────────────────────────────────────────── */
+import type { LabMode } from "@/types/lab";
 
 interface ConversationAreaProps {
   messages: ChatMessage[];
@@ -16,6 +15,7 @@ interface ConversationAreaProps {
   error: string | null;
   onSend: (content: string) => void;
   onClear: () => void;
+  mode: LabMode;
 }
 
 /* ─── Message Bubble ─────────────────────────────────────────────────────── */
@@ -109,7 +109,7 @@ export function ConversationArea({ messages, activeAgent, isLoading, error, onSe
               <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: agentColor }} />
               <span className="text-sm font-medium text-white">{activeAgent?.name ?? "Conversa"}</span>
             </div>
-            <button onClick={onClear} className="text-xs text-slate-500 hover:text-slate-300 transition" title="Limpar conversa">
+            <button onClick={onClear} className="text-xs text-slate-500 hover:text-slate-300 transition" title="Limpar conversa" aria-label="Limpar conversa">
               <X size={16} />
             </button>
           </div>
@@ -137,6 +137,7 @@ export function ConversationArea({ messages, activeAgent, isLoading, error, onSe
             <button
               type="submit"
               disabled={!input.trim() || isLoading}
+              aria-label="Enviar mensagem"
               className="w-10 h-10 rounded-xl flex items-center justify-center transition-all flex-shrink-0"
               style={{
                 backgroundColor: input.trim() ? `${agentColor}20` : "rgba(148,163,184,0.05)",

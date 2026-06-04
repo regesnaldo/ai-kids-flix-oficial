@@ -148,6 +148,7 @@ export function LabPageClient({ agents, topics }: LabPageClientProps) {
             error={error}
             onSend={handleSend}
             onClear={handleClear}
+            mode={mode}
           />
         </div>
       </div>
