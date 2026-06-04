@@ -6,7 +6,7 @@
 
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import type { Agent } from "@/types/agent";
 import type { Topic } from "@/types/topic";
 import { useAgent } from "@/hooks/useAgent";
@@ -44,6 +44,19 @@ export function LabPageClient({ agents, topics }: LabPageClientProps) {
     setHasStarted(false);
   };
 
+  // Generate particles only on client to avoid hydration mismatch
+  const [particles, setParticles] = useState<{ left: string; bottom: string; duration: string; delay: string; width: string; height: string }[]>([]);
+  useEffect(() => {
+    setParticles(Array.from({ length: 30 }).map(() => ({
+      left: `${Math.random() * 100}%`,
+      bottom: `-${Math.random() * 20}px`,
+      duration: `${15 + Math.random() * 25}s`,
+      delay: `${Math.random() * 15}s`,
+      width: `${1 + Math.random() * 2}px`,
+      height: `${1 + Math.random() * 2}px`,
+    })));
+  }, []);
+
   const agentColor = activeAgent?.color ?? "#7C3AED";
 
   return (
@@ -67,17 +80,17 @@ export function LabPageClient({ agents, topics }: LabPageClientProps) {
             animation: particle-drift linear infinite;
           }
         `}</style>
-        {Array.from({ length: 30 }).map((_, i) => (
+        {particles.map((p, i) => (
           <div
             key={i}
             className="lab-particle"
             style={{
-              left: `${Math.random() * 100}%`,
-              bottom: `-${Math.random() * 20}px`,
-              animationDuration: `${15 + Math.random() * 25}s`,
-              animationDelay: `${Math.random() * 15}s`,
-              width: `${1 + Math.random() * 2}px`,
-              height: `${1 + Math.random() * 2}px`,
+              left: p.left,
+              bottom: p.bottom,
+              animationDuration: p.duration,
+              animationDelay: p.delay,
+              width: p.width,
+              height: p.height,
             }}
           />
         ))}
