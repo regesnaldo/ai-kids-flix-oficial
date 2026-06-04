@@ -86,8 +86,9 @@ export function getFilterConfig(): FilterConfig {
 
 export function getFeaturedAgents(count = 3): FeaturedAgent[] {
   const pool = allAgents.filter((a) => a.level === "Avançado" || a.level === "Expert");
-  const shuffled = [...pool].sort(() => 0.5 - Math.random()).slice(0, count);
-  return shuffled.map((agent) => ({
+  // Sort deterministically by name to avoid hydration mismatch
+  const selected = [...pool].sort((a, b) => a.name.localeCompare(b.name)).slice(0, count);
+  return selected.map((agent) => ({
     agent,
     reason: agent.category === "Fundamentos"
       ? "Essencial para começar"
