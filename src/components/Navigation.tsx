@@ -33,7 +33,6 @@ export default function Navigation() {
     { label: 'Blog', href: '/blog' },
     { label: 'Explorar', href: '/explorar' },
     { label: 'Lab', href: '/lab' },
-    { label: 'LOGOS', href: '/logos' },
   ] as const;
 
   useEffect(() => {
@@ -182,6 +181,16 @@ export default function Navigation() {
                     className="w-full text-left px-4 py-3 text-sm text-zinc-200 hover:bg-white/5 transition"
                   >
                     Minha Conta
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setAccountOpen(false);
+                      router.push('/logos');
+                    }}
+                    className="w-full text-left px-4 py-3 text-sm text-zinc-200 hover:bg-white/5 transition"
+                  >
+                    LOGOS
                   </button>
                   <button
                     type="button"
