@@ -1,10 +1,6 @@
-// ─── src/hooks/useTTS.ts ──────────────────────────────────────────────────
-
 "use client";
 
-import { useState, useCallback, useRef } from "react";
-
-/* ─── Types ─────────────────────────────────────────────────────────────── */
+import { useState, useCallback, useRef, useEffect } from "react";
 
 type TTSState = "idle" | "loading" | "playing" | "error";
 
@@ -13,8 +9,6 @@ interface UseTTSReturn {
   play: (text: string, agentId: string) => Promise<void>;
   stop: () => void;
 }
-
-/* ─── Agent voice IDs ───────────────────────────────────────────────────── */
 
 const VOICE_MAP: Record<string, string> = {
   nexus: "pNInz6obpgDQGcFmaJgB",
@@ -25,21 +19,36 @@ const VOICE_MAP: Record<string, string> = {
   ethos: "pNInz6obpgDQGcFmaJgB",
 };
 
-/* ─── Hook ──────────────────────────────────────────────────────────────── */
-
 export function useTTS(): UseTTSReturn {
   const [state, setState] = useState<TTSState>("idle");
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const generationRef = useRef(0);
+
+  // Cleanup crítico: para o áudio quando o componente desmonta
+  useEffect(() => {
+    return () => {
+      generationRef.current++;
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.src = "";
+        audioRef.current = null;
+      }
+      setState("idle");
+    };
+  }, []);
 
   const stop = useCallback(() => {
+    generationRef.current++;
     if (audioRef.current) {
       audioRef.current.pause();
+      audioRef.current.src = "";
       audioRef.current = null;
       setState("idle");
     }
   }, []);
 
   const play = useCallback(async (text: string, agentId: string) => {
+    const gen = ++generationRef.current;
     stop();
 
     const voiceId = VOICE_MAP[agentId] || VOICE_MAP["nexus"];
@@ -56,18 +65,33 @@ export function useTTS(): UseTTSReturn {
 
       if (!res.ok) throw new Error(`TTS ${res.status}`);
 
+      // Se stop() foi chamado durante o fetch, aborta — evita race condition
+      if (gen !== generationRef.current) return;
+
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
+
+      if (gen !== generationRef.current) {
+        URL.revokeObjectURL(url);
+        return;
+      }
+
       const audio = new Audio(url);
       audioRef.current = audio;
 
       audio.onended = () => {
         URL.revokeObjectURL(url);
+        if (audioRef.current === audio) {
+          audioRef.current = null;
+        }
         setState("idle");
       };
 
       audio.onerror = () => {
         URL.revokeObjectURL(url);
+        if (audioRef.current === audio) {
+          audioRef.current = null;
+        }
         setState("error");
       };
 
