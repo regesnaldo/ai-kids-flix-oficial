@@ -1,17 +1,6 @@
-/**
- * ─── LLM PROVIDER ABSTRACTION ──────────────────────────────────────────
- *
- * Single entry point for ALL LLM calls in MENTE.AI.
- * No engine or route should instantiate ChatOpenAI, ChatGroq, or
- * call api.groq.com / api.deepseek.com directly.
- *
- * Usage:
- *   import { createLLM } from '@/lib/llm/provider'
- *   const llm = createLLM({ provider: 'deepseek', temperature: 0.7 })
- *   const response = await llm.invoke(messages)
- */
-
 import { ChatOpenAI } from "@langchain/openai";
+import { deepseekProvider } from "./deepseek";
+import { groqProvider } from "./groq";
 
 // ─── Provider URLs ──────────────────────────────────────────────────────
 
@@ -33,23 +22,19 @@ export type LLMProvider = "deepseek" | "groq";
 export type LLMProviderMode = LLMProvider | "auto";
 
 export interface LLMOptions {
-  /** Specific provider. 'auto' tries DeepSeek first, falls back to Groq. */
   provider?: LLMProviderMode;
-  /** Override default model for the chosen provider. */
   model?: string;
-  /** Temperature (0-2). Default: 0.7 */
   temperature?: number;
-  /** Max tokens. Default: 4096 */
   maxTokens?: number;
 }
-
-// ─── Provider resolution ────────────────────────────────────────────────
 
 interface ResolvedProvider {
   baseURL: string;
   apiKey: string;
   model: string;
 }
+
+// ─── Sync resolve (legado — sem fallback em execução) ───────────────────
 
 function resolveProvider(options: LLMOptions): ResolvedProvider {
   const mode = options.provider ?? "auto";
@@ -76,7 +61,6 @@ function resolveProvider(options: LLMOptions): ResolvedProvider {
     }
   }
 
-  // Both unavailable — throw with clear message
   const tried = mode === "auto"
     ? "DeepSeek (DEEPSEEK_API_KEY) e Groq (GROQ_API_KEY)"
     : mode === "deepseek"
@@ -89,19 +73,8 @@ function resolveProvider(options: LLMOptions): ResolvedProvider {
   );
 }
 
-// ─── Factory ────────────────────────────────────────────────────────────
+// ─── Legacy factory (ChatOpenAI / LangChain) ─────────────────────────────
 
-/**
- * Cria uma instância de ChatOpenAI apontando para o provedor resolvido.
- *
- * DeepSeek e Groq são compatíveis com a API OpenAI — usamos ChatOpenAI
- * com baseURL customizado. NÃO importamos @langchain/deepseek.
- *
- * Modo 'auto' (padrão):
- *   1. Tenta DEEPSEEK_API_KEY → https://api.deepseek.com/v1
- *   2. Fallback GROQ_API_KEY    → https://api.groq.com/openai/v1
- *   3. Nenhum → lança erro
- */
 export function createLLM(options: LLMOptions = {}): ChatOpenAI {
   const resolved = resolveProvider(options);
 
@@ -116,12 +89,53 @@ export function createLLM(options: LLMOptions = {}): ChatOpenAI {
   });
 }
 
-// ─── Convenience — replaces old createAgentLLM() ────────────────────────
-
-/**
- * @deprecated Use createLLM() instead.
- * Mantido para compatibilidade durante transição.
- */
+/** @deprecated Use createLLM() instead. */
 export function createAgentLLM(): ChatOpenAI {
   return createLLM({ provider: "auto" });
+}
+
+// ─── Async fallback resolver (ping DeepSeek antes, cai no Groq se falhar) ―
+
+export interface ProviderInstance {
+  chat: (messages: any[]) => Promise<{ content: string; provider: string }>;
+}
+
+export async function resolveProviderWithFallback(preferred?: string): Promise<{
+  provider: ProviderInstance;
+  name: string;
+}> {
+  // 1. Se usuário prefere Groq explicitamente, usa direto
+  if (preferred === "groq") {
+    console.log("[LLM] Using Groq (explicit preference)");
+    return { provider: groqProvider(), name: "groq" };
+  }
+
+  // 2. Se não tem chave DeepSeek, vai direto pro Groq
+  if (!process.env.DEEPSEEK_API_KEY) {
+    console.log("[LLM] DeepSeek key missing, using Groq fallback");
+    return { provider: groqProvider(), name: "groq" };
+  }
+
+  // 3. Tenta DeepSeek primeiro — ping de validação
+  try {
+    const testResponse = await fetch("https://api.deepseek.com/v1/models", {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${process.env.DEEPSEEK_API_KEY}`,
+      },
+    });
+
+    if (testResponse.ok) {
+      console.log("[LLM] DeepSeek validated, using deepseek-v4-pro");
+      return { provider: deepseekProvider(), name: "deepseek" };
+    }
+
+    // 401, 403, etc. = chave inválida
+    console.warn(`[LLM] DeepSeek auth failed (${testResponse.status}), falling back to Groq`);
+    return { provider: groqProvider(), name: "groq" };
+  } catch (error) {
+    // Network error, timeout, etc.
+    console.warn("[LLM] DeepSeek unreachable, falling back to Groq:", error);
+    return { provider: groqProvider(), name: "groq" };
+  }
 }

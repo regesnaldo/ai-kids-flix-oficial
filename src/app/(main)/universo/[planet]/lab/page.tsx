@@ -30,6 +30,7 @@ import { ActionNode } from "@/components/hud/ActionNode";
 import { tokens } from "@/design-system/tokens";
 import { typography, toStyle } from "@/design-system/typography";
 import { useOasis } from "@/providers/OasisProvider";
+import { useAppStore } from "@/store/useAppStore";
 
 // ─── RUNTIME PROGRESSION (Phase 2: live Nexus state) ──────────────────────────
 
@@ -81,6 +82,7 @@ function PlanetLab({
   const [messages, setMessages] = useState<MessageStub[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const setLogosActive = useAppStore((s) => s.setLogosActive);
 
   // Build progression from oasis snapshot (SSE-driven, no polling)
   const progression: PlayerProgression = useMemo(
@@ -152,10 +154,20 @@ function PlanetLab({
       const assistantContent =
         data.content || data.message || "Resposta não disponível.";
 
-      setMessages((prev) => [
-        ...prev,
-        { role: "assistant", content: assistantContent },
-      ]);
+      setMessages((prev) => {
+        const nextMessages = [
+          ...prev,
+          { role: "assistant" as const, content: assistantContent },
+        ];
+
+        // Trigger Logos oracle every 5 user messages as a checkpoint
+        const userMessageCount = nextMessages.filter((m) => m.role === "user").length;
+        if (userMessageCount > 0 && userMessageCount % 5 === 0) {
+          setLogosActive(true, `Planeta ${planet.name} — reflexão do conhecimento`, planetId, `${planetId}_turn_${userMessageCount}`);
+        }
+
+        return nextMessages;
+      });
 
       // Response received — progression will sync via SSE
     } catch (err) {

@@ -1,15 +1,5 @@
-/**
- * ─── POST /api/llm/chat ────────────────────────────────────────────────
- *
- * Unified LLM chat endpoint. Replaces the misnamed /api/deepseek route.
- *
- * Accepts { provider?, model?, temperature?, system, prompt }.
- * Uses the provider abstraction (createLLM) — never calls raw fetch.
- */
-
 import { NextRequest, NextResponse } from "next/server";
-import { createLLM, type LLMProviderMode } from "@/lib/llm/provider";
-import { HumanMessage, SystemMessage } from "@langchain/core/messages";
+import { resolveProviderWithFallback } from "@/lib/llm/provider";
 
 export const runtime = "nodejs";
 
@@ -18,48 +8,36 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
 
     if (!body.system || !body.prompt) {
-      return NextResponse.json(
-        { error: "system e prompt são obrigatórios" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "system e prompt são obrigatórios" }, { status: 400 });
     }
 
-    const provider = (body.provider as LLMProviderMode) ?? "auto";
+    const preferredProvider = (body.provider as string) ?? "auto";
 
-    const llm = createLLM({
-      provider,
-      model: body.model,
-      temperature: body.temperature ?? 0.8,
-      maxTokens: body.maxTokens ?? 2048,
-    });
+    // 1. Resolve provider com fallback automático (ping DeepSeek → Groq se falhar)
+    const { provider, name } = await resolveProviderWithFallback(preferredProvider);
+    console.log(`[LLM] Using provider: ${name}`);
 
-    const response = await llm.invoke([
-      new SystemMessage(body.system),
-      new HumanMessage(body.prompt),
-    ]);
+    // 2. Monta mensagens e chama o provider
+    const messages = [
+      { role: "system" as const, content: body.system },
+      { role: "user" as const, content: body.prompt },
+    ];
 
-    const content =
-      typeof response.content === "string"
-        ? response.content
-        : JSON.stringify(response.content);
+    const result = await provider.chat(messages);
 
-    return NextResponse.json({ content });
+    return NextResponse.json({ content: result.content, provider: result.provider });
+  } catch (err: any) {
+    console.error("[LLM] Fatal error:", err);
 
-  } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
 
-    // Specific provider errors
-    if (message.includes("DEEPSEEK_API_KEY") || message.includes("GROQ_API_KEY")) {
-      return NextResponse.json(
-        { error: message },
-        { status: 503 }
-      );
-    }
-
-    console.error("[llm/chat] error:", message);
     return NextResponse.json(
-      { error: `Erro interno: ${message.slice(0, 500)}` },
-      { status: 500 }
+      {
+        error: "LLM_UNAVAILABLE",
+        message: "Nenhum provedor de IA disponível no momento. Tente novamente em alguns segundos.",
+        details: process.env.NODE_ENV === "development" ? message : undefined,
+      },
+      { status: 503 },
     );
   }
 }

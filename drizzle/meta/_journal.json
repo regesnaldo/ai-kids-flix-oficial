@@ -22,6 +22,15 @@
       "when": 1779603868405,
       "tag": "0002_next_dracula",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1779685200000,
+      "tag": "0003_thick_mentor",
+      "breakpoints": true
     }
+  ]
+}
   ]
 }

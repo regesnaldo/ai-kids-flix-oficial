@@ -33,7 +33,14 @@
     "commit": "powershell -ExecutionPolicy Bypass -File ./scripts/commit-all.ps1",
     "commit:quick": "powershell -ExecutionPolicy Bypass -File ./scripts/quick-commit.ps1",
     "demo:record": "playwright test --grep \"Gravar demo\"",
-    "precommit": "npm run arch:validate && npm run test"
+    "precommit": "npm run arch:validate && npm run test",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio",
+    "db:drop": "drizzle-kit drop",
+    "db:check": "drizzle-kit check",
+    "db:up": "drizzle-kit up"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.95.1",
