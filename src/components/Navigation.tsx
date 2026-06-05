@@ -2,8 +2,9 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Bell, Menu, Search, X } from 'lucide-react';
+import { Bell, Menu, Search, X, Sparkles } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { mockAllAgents } from '@/data/mockAgents';
 
 type SessionUser = {
   id: number;
@@ -24,6 +25,8 @@ export default function Navigation() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [hoveredNav, setHoveredNav] = useState<string | null>(null);
+  const hoverTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
 
@@ -123,6 +126,19 @@ export default function Navigation() {
 
   const emailInitial = (session.user?.email?.trim()?.[0] ?? '?').toUpperCase();
 
+  // Featured agents for nav popovers
+  const featuredAgent = mockAllAgents.find(a => a.id === 'nexus')!;
+  const seriesAgent = mockAllAgents.find(a => a.id === 'kairos')!;
+
+  const handleNavHover = (label: string) => {
+    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+    setHoveredNav(label);
+  };
+
+  const handleNavLeave = () => {
+    hoverTimeoutRef.current = setTimeout(() => setHoveredNav(null), 150);
+  };
+
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-zinc-950/95 backdrop-blur-md h-16 px-8">
       <div ref={containerRef} className="h-full flex items-center justify-between">
@@ -132,16 +148,83 @@ export default function Navigation() {
           </Link>
 
           <nav className="hidden md:flex items-center gap-6">
-            {navItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="text-sm text-zinc-300 hover:text-white transition"
-                aria-current={pathname === item.href ? 'page' : undefined}
-              >
-                {item.label}
-              </Link>
-            ))}
+            {navItems.map((item) => {
+              const hasPopover = item.label === 'Explorar' || item.label === 'Séries';
+              const agent = item.label === 'Explorar' ? featuredAgent : seriesAgent;
+
+              return (
+                <div
+                  key={item.href}
+                  className="relative"
+                  onMouseEnter={() => hasPopover && handleNavHover(item.label)}
+                  onMouseLeave={handleNavLeave}
+                >
+                  <Link
+                    href={item.href}
+                    className="text-sm text-zinc-300 hover:text-white transition"
+                    aria-current={pathname === item.href ? 'page' : undefined}
+                  >
+                    {item.label}
+                  </Link>
+
+                  {/* Popover */}
+                  {hasPopover && hoveredNav === item.label && (
+                    <div
+                      className="absolute top-full left-1/2 -translate-x-1/2 pt-3"
+                      onMouseEnter={() => handleNavHover(item.label)}
+                      onMouseLeave={handleNavLeave}
+                    >
+                      <div
+                        className="w-56 bg-zinc-900 border border-zinc-700/60 rounded-xl shadow-2xl shadow-black/40 overflow-hidden
+                                   animate-in fade-in slide-in-from-top-2 duration-200"
+                        style={{ backdropFilter: 'blur(20px)' }}
+                      >
+                        {/* Agent preview card */}
+                        <div className="relative overflow-hidden">
+                          {/* Top gradient accent */}
+                          <div
+                            className="h-1 w-full"
+                            style={{ background: `linear-gradient(90deg, ${agent.color}, ${agent.color}88)` }}
+                          />
+                          {/* Image area */}
+                          <div className="h-24 bg-zinc-800 relative overflow-hidden">
+                            <img
+                              src={agent.image}
+                              alt={agent.name}
+                              className="w-full h-full object-cover opacity-70"
+                              onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/images/placeholder.svg'; }}
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-zinc-900 via-zinc-900/20 to-transparent" />
+                            {/* Agent name overlay */}
+                            <div className="absolute bottom-2 left-3 flex items-center gap-2">
+                              <span className="text-sm font-bold text-white">{agent.name}</span>
+                              <span
+                                className="text-[9px] font-bold px-1.5 py-0.5 rounded"
+                                style={{ background: `${agent.color}30`, color: agent.color }}
+                              >
+                                {agent.level}
+                              </span>
+                            </div>
+                          </div>
+                          {/* Info */}
+                          <div className="p-3">
+                            <p className="text-xs text-zinc-400 leading-relaxed line-clamp-2">
+                              {agent.description}
+                            </p>
+                            <div className="flex items-center gap-1 mt-2 text-[10px]">
+                              <Sparkles size={10} style={{ color: agent.color }} />
+                              <span style={{ color: agent.color }} className="font-medium">
+                                {agent.category}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
 
           </nav>
         </div>
