@@ -4,7 +4,7 @@
 
 import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { allAgents } from "@/data/agents";
+import { mockAllAgents } from "@/data/mockAgents";
 import { getFilterConfig, getFeaturedAgents } from "@/services/explorar.service";
 import { useExplorarFilters } from "@/hooks/useExplorarFilters";
 import ExplorarHero from "@/components/explorar/ExplorarHero";
@@ -29,7 +29,7 @@ function ExplorarInner() {
     clearFilters,
     filteredAgents,
     activeFilterCount,
-  } = useExplorarFilters(allAgents, config);
+  } = useExplorarFilters(mockAllAgents, config);
 
   return (
     <div

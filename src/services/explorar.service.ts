@@ -1,6 +1,6 @@
 // ─── src/services/explorar.service.ts ──────────────────────────────────────
 
-import { allAgents, type HomeAgent } from "@/data/agents";
+import { mockAllAgents, type HomeAgent } from "@/data/mockAgents";
 
 /* ─── Types ─────────────────────────────────────────────────────────────── */
 
@@ -85,7 +85,7 @@ export function getFilterConfig(): FilterConfig {
 }
 
 export function getFeaturedAgents(count = 3): FeaturedAgent[] {
-  const pool = allAgents.filter((a) => a.level === "Avançado" || a.level === "Expert");
+  const pool = mockAllAgents.filter((a) => a.level === "Avançado" || a.level === "Expert");
   // Sort deterministically by name to avoid hydration mismatch
   const selected = [...pool].sort((a, b) => a.name.localeCompare(b.name)).slice(0, count);
   return selected.map((agent) => ({
@@ -108,7 +108,7 @@ export function filterAgents(
 ): HomeAgent[] {
   let result = agents;
 
-  // Theme filter
+  // Theme filter — uses agent ID mapping + category fallback
   if (filters.themes.size > 0) {
     const allowed = new Set<string>();
     filters.themes.forEach((slug) => {
@@ -116,6 +116,32 @@ export function filterAgents(
     });
     if (allowed.size > 0) {
       result = result.filter((a) => allowed.has(a.id));
+    }
+    // Fallback: also match by category for agents not in the ID map
+    const categoryMap: Record<string, string> = {
+      fundamentos: "Fundamentos",
+      "machine-learning": "Fundamentos",
+      "redes-neurais": "Fundamentos",
+      "deep-learning": "Análise",
+      "computer-vision": "Análise",
+      nlp: "Inovação",
+      "ia-generativa": "Inovação",
+      "etica-ia": "Ética",
+      "ia-criatividade": "Inovação",
+      robotica: "Estratégia",
+      "ia-criancas": "Negócios",
+      "ia-negocios": "Negócios",
+      seguranca: "Ética",
+      "futuro-ia": "Inovação",
+      projetos: "Estratégia",
+    };
+    const allowedCategories = new Set<string>();
+    filters.themes.forEach((slug) => {
+      const cat = categoryMap[slug];
+      if (cat) allowedCategories.add(cat);
+    });
+    if (allowedCategories.size > 0) {
+      result = result.filter((a) => allowed.has(a.id) || allowedCategories.has(a.category));
     }
   }
 

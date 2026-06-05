@@ -4,7 +4,7 @@
 
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import type { HomeAgent } from "@/data/agents";
+import type { HomeAgent } from "@/data/mockAgents";
 
 /* ─── Props ──────────────────────────────────────────────────────────────── */
 

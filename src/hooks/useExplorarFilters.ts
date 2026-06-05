@@ -5,7 +5,7 @@
 import { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { filterAgents, type FilterConfig } from "@/services/explorar.service";
-import type { HomeAgent } from "@/data/agents";
+import type { HomeAgent } from "@/data/mockAgents";
 
 /* ─── Types ─────────────────────────────────────────────────────────────── */
 
