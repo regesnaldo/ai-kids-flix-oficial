@@ -15,6 +15,7 @@ type OraclePhase =
   | 'wrong'        // shake + toast vermelho
   | 'narration'    // olho de neon + TTS
   | 'complete'     // arquétipo revelado
+  | 'error'        // erro no fetch — mensagem + retry
 
 interface Question {
   id: string
@@ -437,7 +438,11 @@ export default function LogosOracle() {
           episodeId: crypto.randomUUID(),
         }),
       })
-      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      if (!res.ok) {
+        const errText = await res.text()
+        console.error('[LOGOS] Erro no Logos Generate:', res.status, errText)
+        throw new Error(`HTTP ${res.status}`)
+      }
       const data: LogosGenerateResponse = await res.json()
       if (data.questions && data.questions.length > 0) {
         setQuestions(data.questions)
@@ -447,22 +452,7 @@ export default function LogosOracle() {
       }
     } catch (err) {
       console.error('[LOGOS] Failed to fetch questions:', err)
-      // Fallback: generate locally if backend fails
-      const fallbackQuestions: Question[] = [
-        {
-          id: 'q1',
-          text: 'O que você aprendeu com este episódio?',
-          options: [
-            { id: 'a', text: 'O conhecimento é a chave para evoluir' },
-            { id: 'b', text: 'A força bruta vence tudo' },
-            { id: 'c', text: 'Ignorar é mais fácil' },
-          ],
-          correctId: 'a',
-          explanation: 'O conhecimento é fundamental para o crescimento.',
-        },
-      ]
-      setQuestions(fallbackQuestions)
-      setPhase('intro')
+      setPhase('error')
     }
   }, [logosEpisodeContext])
 
@@ -616,6 +606,33 @@ export default function LogosOracle() {
         {/* ─── LOADING ──────────────────────────────────────────────────────── */}
         {phase === 'loading' && (
           <NeonSpinner text="O LOGOS está consultando os pergaminhos..." />
+        )}
+
+        {/* ─── ERROR ──────────────────────────────────────────────────────────── */}
+        {phase === 'error' && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="flex flex-col items-center gap-6 text-center max-w-md mx-auto"
+          >
+            <div className="w-16 h-16 rounded-full bg-amber-500/10 flex items-center justify-center">
+              <span className="text-2xl">⚡</span>
+            </div>
+            <div>
+              <h3 className="text-amber-300 font-serif text-lg mb-2">
+                O Oráculo está meditando...
+              </h3>
+              <p className="text-amber-200/60 text-sm leading-relaxed">
+                As energias estão instáveis. Tente novamente em instantes.
+              </p>
+            </div>
+            <button
+              onClick={fetchQuestions}
+              className="px-6 py-2.5 rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-300 font-mono text-sm hover:bg-amber-500/20 hover:border-amber-500/50 transition-all duration-300"
+            >
+              Tentar Novamente
+            </button>
+          </motion.div>
         )}
 
         {/* ─── INTRO (TTS playing) ──────────────────────────────────────────── */}

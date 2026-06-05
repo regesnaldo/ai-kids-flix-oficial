@@ -44,6 +44,14 @@ Responda APENAS com JSON válido neste formato exato:
   ]
 }`;
 
+    const apiKey = process.env.DEEPSEEK_API_KEY;
+    if (!apiKey) {
+      return NextResponse.json(
+        { error: "Configuração de IA ausente" },
+        { status: 503 }
+      );
+    }
+
     const response = await fetch("https://api.deepseek.com/v1/chat/completions", {
       method: "POST",
       headers: {
