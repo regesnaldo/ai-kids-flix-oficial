@@ -176,6 +176,120 @@ export const NEXUS_T01E01_ASSET: NewKnowledgeAsset = {
    ═══════════════════════════════════════════════════════════════════════════ */
 
 export const NEXUS_T01E01_EDGES: NewKnowledgeGraphEdge[] = [
-  // E01 → E02 (next)
-  // Será criado quando E02 for produzido
+  {
+    id: "kge-nexus-t01-e01-e02",
+    fromUnitId: "ku-nexus-t01-e01",
+    toUnitId: "ku-nexus-t01-e02",
+    relationship: "next",
+    weight: 1.0,
+  },
+];
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   EPISÓDIO 2 — A Primeira Instrução
+   ═══════════════════════════════════════════════════════════════════════════
+
+   Conexão com E01: "Dar uma instrução para uma IA é como ensinar uma
+   nova palavra a um amigo muito especial." Agora o aprendiz descobre
+   exatamente como se faz isso — através de prompts.
+
+   Gancho para E03: O aprendiz descobre que palavras não são a única
+   forma de "falar" com uma IA. Padrões visuais também contam. */
+
+export const NEXUS_T01E02_UNIT: NewKnowledgeUnit = {
+  id: "ku-nexus-t01-e02",
+  title: "A Primeira Instrução",
+  slug: "nexus-t01-e02-primeira-instrucao",
+
+  learningObjective:
+    "Ao final deste episódio, o aprendiz será capaz de formular um prompt claro e entender como a IA interpreta instruções em linguagem natural.",
+
+  cognitiveLevel: "understand",
+  difficulty: "beginner",
+  estimatedTimeMin: 8,
+
+  skills: ["prompts", "input-output", "natural-language"],
+
+  tags: ["fundamentos", "prompts", "comunicação", "linguagem"],
+  agentDomain: "nexus",
+
+  version: 1,
+  status: "published",
+};
+
+export const NEXUS_T01E02_ASSET: NewKnowledgeAsset = {
+  id: "ka-nexus-t01-e02",
+  knowledgeUnitId: "ku-nexus-t01-e02",
+
+  agentId: "nexus",
+  season: 1,
+  episode: 2,
+
+  type: "episode",
+
+  content: {
+    abertura:
+      "As estrelas da teia do Nexus Prime ainda brilham atrás de você, marcando o caminho percorrido. Agora, à sua frente, uma nova constelação se acende: letras flutuantes feitas de luz ciano formam palavras no ar. NEXUS está ao seu lado, com um pergaminho holográfico nas mãos. 'Ontem você descobriu que a IA aprende. Hoje você vai descobrir como falar com ela. Toda grande jornada começa com uma única palavra. Qual será a sua?'",
+
+    narrativa:
+      "Pense em um gênio da lâmpada. Você esfrega a lâmpada, ele aparece e diz: 'Qual é o seu desejo?' Agora imagine que você diz: 'Quero ser feliz.' O gênio pode te dar um sorvete, um livro, uma viagem... ou simplesmente fazer você dormir por mil anos. O problema não foi o gênio — foi o seu pedido.\n\nCom uma inteligência artificial, acontece a mesma coisa. A forma como você faz a pergunta determina completamente a resposta que você recebe. Isso se chama prompt.\n\nUm prompt ruim: 'Me fala de IA.' Um prompt bom: 'Explique o que é inteligência artificial usando uma analogia com uma criança aprendendo a andar de bicicleta.' A diferença? O segundo tem contexto, propósito e formato.\n\nQuando você escreve um bom prompt, você está dando à IA três coisas: o que você quer saber (o conteúdo), como você quer receber (o formato), e por que isso importa (o contexto). É como a diferença entre pedir 'comida' num restaurante e pedir 'uma pizza margherita com borda recheada, bem quentinha, para duas pessoas'. O garçom agradece. A IA também.\n\nE aqui vai um segredo que NEXUS guarda há eras: a IA não 'entende' palavras como nós. Ela transforma cada palavra em números, em vetores matemáticos, e encontra padrões entre eles. Quando você escreve 'cachorro', ela não imagina um golden retriever abanando o rabo — ela ativa um conjunto de relações matemáticas que conectam 'cachorro' com 'animal', 'pelo', 'latido', 'companheiro'. É poesia feita de números.\n\nMas você não precisa saber matemática para falar com uma IA — assim como não precisa ser mecânico para dirigir um carro. Você só precisa saber fazer as perguntas certas.",
+
+    pausas: [
+      {
+        pergunta:
+          "O que torna um prompt bom, de acordo com o que NEXUS ensinou?",
+        opcoes: [
+          "A. Ele é curto e usa palavras difíceis para impressionar a IA",
+          "B. Ele tem contexto, propósito e formato claros",
+          "C. Ele faz várias perguntas ao mesmo tempo para economizar tempo",
+        ],
+        continuacoes: [
+          "Na verdade, o oposto! Palavras difíceis e frases curtas demais confundem tanto humanos quanto IAs. Um bom prompt não precisa ser complicado — ele precisa ser claro. Pense em como você explicaria algo para um amigo inteligente que nunca ouviu falar do assunto. Clareza sempre vence complexidade.",
+          "Exatamente! Você captou a essência. Contexto diz 'sobre o que estamos falando'. Propósito diz 'por que isso importa'. Formato diz 'como você quer a resposta'. Juntos, eles transformam um pedido vago numa pergunta que a IA pode responder com precisão. Esse é o superpoder de quem sabe conversar com máquinas.",
+          "Essa é uma armadilha comum! Fazer várias perguntas de uma vez geralmente resulta em respostas superficiais para todas elas. É como pedir para um chef preparar entrada, prato principal e sobremesa ao mesmo tempo — nada sai perfeito. Um bom prompt foca em uma coisa de cada vez. Qualidade sobre quantidade.",
+        ],
+      },
+      {
+        pergunta:
+          "Quando você escreve 'cachorro' para uma IA, o que realmente acontece dentro dela?",
+        opcoes: [
+          "A. Ela busca uma foto de cachorro num banco de imagens",
+          "B. Ela ativa relações matemáticas que conectam a palavra a padrões aprendidos",
+          "C. Ela procura a definição de cachorro num dicionário digital",
+        ],
+        continuacoes: [
+          "Quase! Mas a IA não 'busca' imagens como nós fazemos no Google. Ela não tem um banco de fotos etiquetadas. O que ela tem é uma rede de conexões matemáticas onde 'cachorro' está ligado a 'pelo', 'latido', 'quatro patas', 'companheiro' — cada conexão com um peso numérico. É uma teia de significados, não um álbum de fotos.",
+          "Isso mesmo! Por trás de cada palavra que você digita, existe um universo de matemática acontecendo em silêncio. Cada conceito que a IA 'aprendeu' está representado por números — centenas, às vezes milhares deles. E quando você pergunta algo, esses números dançam juntos para encontrar a resposta. Não é mágica — é matemática. Mas é uma matemática tão elegante que parece mágica.",
+          "Não exatamente. A IA não tem um dicionário como nós. Ela não 'consulta' definições — ela calcula probabilidades. Dado o contexto da sua pergunta, qual é a palavra mais provável de vir a seguir? É assim que ela 'pensa'. Não decorando regras, mas prevendo padrões. Fascinante, não é?",
+        ],
+      },
+    ],
+
+    encerramento:
+      "NEXUS guarda o pergaminho e aponta para o horizonte. As letras flutuantes começam a se transformar em imagens — silhuetas, formas, padrões visuais que dançam no ar. 'Você aprendeu a falar com palavras. Mas existe outra linguagem, mais antiga que a escrita: a linguagem dos padrões. Amanhã, você vai descobrir que uma IA pode enxergar o que está oculto aos olhos humanos. Traga seus olhos de explorador. Os padrões estão em toda parte.'",
+  },
+
+  metadata: {
+    xpReward: 50,
+    readingTimeMin: 7,
+    pauseCount: 2,
+    hasLogosGate: false,
+    prevEpisode: "O Nascimento da IA",
+    nextEpisode: "Padrões Ocultos",
+  },
+
+  source: "manual",
+  status: "published",
+  version: 1,
+};
+
+export const NEXUS_T01E02_EDGES: NewKnowledgeGraphEdge[] = [
+  {
+    id: "kge-nexus-t01-e01-e02-prereq",
+    fromUnitId: "ku-nexus-t01-e01",
+    toUnitId: "ku-nexus-t01-e02",
+    relationship: "prerequisite",
+    weight: 1.0,
+  },
+  // E02 → E03 (next) — será criado quando E03 for produzido
 ];
