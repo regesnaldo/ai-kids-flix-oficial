@@ -107,8 +107,8 @@ export default function CognitiveGPS() {
       )}
 
       {!archetype && (
-        <span style={{ color: "rgba(255,255,255,0.3)", fontSize: "9px" }}>
-          Complete a calibração inicial
+        <span style={{ color: "rgba(255,255,255,0.15)", fontSize: "9px" }}>
+          —
         </span>
       )}
     </div>

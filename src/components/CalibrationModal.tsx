@@ -24,7 +24,7 @@ export default function CalibrationModal({ isOpen, onClose }: CalibrationModalPr
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.2 }}
-          className="fixed inset-0 z-50 flex items-center justify-center px-4"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
           style={{ background: 'rgba(0,0,0,0.8)' }}
           onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
         >
@@ -33,7 +33,7 @@ export default function CalibrationModal({ isOpen, onClose }: CalibrationModalPr
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ duration: 0.25, ease: 'easeOut' }}
-            className="relative w-full max-w-lg mx-auto bg-[#0a0e27] border border-cyan-500/30 rounded-2xl p-8 shadow-2xl"
+            className="relative w-full max-w-lg mx-auto bg-[#0a0e27] border border-cyan-500/30 rounded-2xl p-8 shadow-2xl overflow-y-auto max-h-[90vh]"
           >
             {/* Close button */}
             <button
