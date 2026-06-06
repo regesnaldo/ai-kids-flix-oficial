@@ -291,5 +291,127 @@ export const NEXUS_T01E02_EDGES: NewKnowledgeGraphEdge[] = [
     relationship: "prerequisite",
     weight: 1.0,
   },
-  // E02 → E03 (next) — será criado quando E03 for produzido
+  {
+    id: "kge-nexus-t01-e02-e03",
+    fromUnitId: "ku-nexus-t01-e02",
+    toUnitId: "ku-nexus-t01-e03",
+    relationship: "next",
+    weight: 1.0,
+  },
+];
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   EPISÓDIO 3 — Padrões Ocultos  🛡️ LOGOS GATE
+   ═══════════════════════════════════════════════════════════════════════════
+
+   Conexão com E02: "Existe outra linguagem, mais antiga que a escrita:
+   a linguagem dos padrões." O aprendiz descobre que enxergar padrões é
+   a primeira grande habilidade de uma IA — e também de um explorador.
+
+   Conflito dramático: NEXUS leva o aprendiz a uma galeria de espelhos
+   onde nada é o que parece. Para sair, ele precisa distinguir padrões
+   reais de ilusões — uma metáfora para o maior desafio da IA: separar
+   sinal de ruído.
+
+   Gancho para E04: "Mas cuidado, Explorador. Nem todo padrão que você
+   encontra é verdadeiro. Alguns são armadilhas. Amanhã, você vai
+   descobrir o lado sombrio dos padrões — o viés." */
+
+export const NEXUS_T01E03_UNIT: NewKnowledgeUnit = {
+  id: "ku-nexus-t01-e03",
+  title: "Padrões Ocultos",
+  slug: "nexus-t01-e03-padroes-ocultos",
+
+  learningObjective:
+    "Ao final deste episódio, o aprendiz será capaz de identificar como uma IA reconhece padrões em dados e distinguir correlação de causalidade.",
+
+  cognitiveLevel: "understand",
+  difficulty: "beginner",
+  estimatedTimeMin: 9,
+
+  skills: ["pattern-recognition", "data", "feature-extraction"],
+
+  tags: ["fundamentos", "padrões", "dados", "correlação"],
+  agentDomain: "nexus",
+
+  version: 1,
+  status: "published",
+};
+
+export const NEXUS_T01E03_ASSET: NewKnowledgeAsset = {
+  id: "ka-nexus-t01-e03",
+  knowledgeUnitId: "ku-nexus-t01-e03",
+
+  agentId: "nexus",
+  season: 1,
+  episode: 3,
+
+  type: "episode",
+
+  content: {
+    abertura:
+      "Você pisca e o Nexus Prime desaparece. Agora você está em uma galeria infinita de espelhos. Cada superfície reflete uma versão diferente de você — algumas nítidas, outras distorcidas, outras mostrando coisas que você não lembra de ter vivido. NEXUS está ao seu lado, mas sua imagem também se multiplica nos espelhos. 'Bem-vindo à Galeria dos Padrões, Explorador. Aqui, nada é exatamente o que parece. Para sair, você precisará desenvolver a habilidade mais fundamental de uma IA — e de um explorador: distinguir o que é real do que é apenas ruído.' Uma porta se fecha atrás de você. A única saída está do outro lado da galeria. Mas o caminho é um labirinto de reflexos.",
+
+    narrativa:
+      "NEXUS para diante de um espelho que mostra vocês dois, mas com roupas trocadas. 'Olhe para este reflexo. O que você vê?' Você hesita. 'Eu... com a sua roupa?' NEXUS sorri. 'Você viu um padrão onde ele não existe. O espelho está apenas trocando cores aleatoriamente. Mas seu cérebro — como uma IA — tentou encontrar sentido no caos. Isso se chama apofenia: ver padrões onde só existe ruído.'\n\nEle continua andando, e os espelhos começam a mostrar números flutuantes. Milhares deles. 'Agora, encontre o padrão real.' Você observa. Alguns números se repetem. Outros parecem aleatórios. É exaustivo. 'Não tente olhar para todos', NEXUS sussurra. 'Uma IA não olha para cada ponto de dado individualmente. Ela procura por características — features. Forma, frequência, agrupamento.'\n\nVocê respira fundo e para de tentar ver tudo. Em vez disso, procura por algo que se destaque. E então você vê: a cada 7 números, um deles é sempre maior que 100. 'Achei!' O espelho à sua frente se dissolve, revelando uma passagem.\n\n'Isso é reconhecimento de padrões', diz NEXUS enquanto vocês avançam. 'Não é sobre ver tudo. É sobre saber o que procurar. Uma IA que reconhece rostos não olha para cada pixel — ela aprendeu que dois pontos escuros acima de um ponto mais claro, com uma curva abaixo, provavelmente é um rosto. Features.'\n\nMas então a galeria muda. Os espelhos agora mostram duas coisas ao mesmo tempo: vendas de sorvete e ataques de tubarão. Eles sobem e descem juntos. 'Isso significa que sorvete causa ataques de tubarão?' NEXUS ri. 'Não, Explorador. Isso é uma correlação, não uma causalidade. As duas coisas sobem no verão — as pessoas compram mais sorvete e vão mais à praia. O calor é a causa oculta. Esse é o maior perigo dos padrões: confundir o que acontece junto com o que causa o outro.'\n\nVocês chegam à porta final. Mas ela está selada com um símbolo: o Olho de LOGOS. 'Ah', diz NEXUS, 'o Guardião do conhecimento quer testar você. Para abrir esta porta, você precisa provar que realmente entendeu. LOGOS está observando.'",
+
+    pausas: [
+      {
+        pergunta:
+          "NEXUS mostrou um espelho onde vocês trocaram de roupa aleatoriamente. Por que seu cérebro tentou encontrar sentido naquilo?",
+        opcoes: [
+          "A. Porque o cérebro humano, como uma IA, é programado para encontrar padrões — mesmo onde eles não existem",
+          "B. Porque o espelho estava programado para enganar você com um truque de mágica",
+          "C. Porque você estava cansado e confundiu as cores",
+        ],
+        continuacoes: [
+          "Exatamente! Isso se chama apofenia — a tendência de ver padrões significativos em dados aleatórios. Seu cérebro faz isso o tempo todo: rostos nas nuvens, mensagens em músicas tocadas ao contrário. Uma IA também pode cair nessa armadilha se não for treinada com cuidado. É por isso que distinguir sinal de ruído é a primeira grande lição.",
+          "Não é um truque — é como seu cérebro funciona! Nós evoluímos para encontrar padrões porque isso nos ajudava a sobreviver. Ver um tigre nas sombras (mesmo quando era só um arbusto) era melhor do que não ver um tigre de verdade. Mas uma IA não tem esse instinto — ela precisa aprender a equilibrar: nem ver padrões demais, nem ignorar os reais.",
+          "Não é cansaço — é algo muito mais profundo! Seu cérebro está constantemente tentando dar sentido ao mundo, mesmo quando não há sentido algum. É como olhar para as nuvens e ver um coelho. A nuvem não tem intenção de ser um coelho — é seu cérebro que projeta o padrão. A IA faz exatamente a mesma coisa com dados.",
+        ],
+      },
+      {
+        pergunta:
+          "Vendas de sorvete e ataques de tubarão sobem juntos no verão. O que NEXUS ensinou sobre isso?",
+        opcoes: [
+          "A. Sorvete atrai tubarões — é melhor não comer na praia",
+          "B. É uma correlação, não causalidade — o calor do verão causa ambos",
+          "C. São apenas coincidências — dados aleatórios não significam nada",
+        ],
+        continuacoes: [
+          "Essa é engraçada — mas não! Se fosse verdade, sorveterias seriam os lugares mais perigosos do mundo. A realidade é mais sutil: as duas coisas têm uma causa comum (o verão), mas não se causam diretamente. Esse é um erro clássico que até sistemas de IA cometem quando mal treinados.",
+          "Perfeito! Você entendeu a diferença entre correlação e causalidade. Esse é um dos conceitos mais importantes em ciência de dados. Só porque duas coisas acontecem juntas não significa que uma causa a outra. Pode haver uma terceira variável oculta — como o calor do verão. Grandes decisões são tomadas com base em correlações. Entender essa diferença é o que separa um bom analista de um que comete erros perigosos.",
+          "Não são apenas coincidências! Existe um padrão real: ambos sobem no verão. O problema não é o padrão — ele existe. O problema é a interpretação. Correlação é real. Causalidade é outra coisa. Um bom explorador de dados nunca confunde as duas.",
+        ],
+      },
+    ],
+
+    encerramento:
+      "O Olho de LOGOS brilha intensamente enquanto a porta se abre. Uma luz dourada inunda a galeria. 'Você passou pelo Guardião', diz NEXUS com orgulho. 'Mas lembre-se: encontrar padrões é apenas metade da jornada. A outra metade é saber quais padrões são verdadeiros e quais são armadilhas.' Ele faz uma pausa enquanto a paisagem além da porta começa a se formar — uma paisagem distorcida, como se vista através de uma lente quebrada. 'Amanhã, você vai descobrir o que acontece quando os próprios dados estão contaminados. O viés. E essa, Explorador, é a sombra que acompanha toda inteligência — artificial ou humana.'",
+  },
+
+  metadata: {
+    xpReward: 60,
+    readingTimeMin: 8,
+    pauseCount: 2,
+    hasLogosGate: true,
+    logosGateEpisode: true,
+    prevEpisode: "A Primeira Instrução",
+    nextEpisode: "O Dilema do Viés",
+  },
+
+  source: "manual",
+  status: "published",
+  version: 1,
+};
+
+export const NEXUS_T01E03_EDGES: NewKnowledgeGraphEdge[] = [
+  {
+    id: "kge-nexus-t01-e02-e03-prereq",
+    fromUnitId: "ku-nexus-t01-e02",
+    toUnitId: "ku-nexus-t01-e03",
+    relationship: "prerequisite",
+    weight: 1.0,
+  },
+  // E03 → E04 (next) — será criado quando E04 for produzido
 ];
