@@ -1,4 +1,4 @@
-import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, boolean, decimal, json, uniqueIndex, primaryKey, index } from "drizzle-orm/mysql-core";
+import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, boolean, decimal, json, uniqueIndex, primaryKey, index, float, real } from "drizzle-orm/mysql-core";
 import { sql } from "drizzle-orm";
 
 export const users = mysqlTable("users", {
@@ -545,4 +545,172 @@ export const logosAttempts = mysqlTable("logos_attempts", {
 });
 
 export type LogosAttempt = typeof logosAttempts.$inferSelect;
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// KNOWLEDGE MODEL — Content Persistence Layer
+// ═══════════════════════════════════════════════════════════════════════════════
+
+export const COGNITIVE_LEVELS = [
+  "remember",
+  "understand",
+  "apply",
+  "analyze",
+  "evaluate",
+  "create",
+] as const;
+export type CognitiveLevel = (typeof COGNITIVE_LEVELS)[number];
+
+export const ASSET_TYPES = [
+  "episode",
+  "quiz",
+  "video",
+  "audio",
+  "mission",
+  "image",
+] as const;
+export type AssetType = (typeof ASSET_TYPES)[number];
+
+export const EDITORIAL_STATUS = [
+  "draft",
+  "review",
+  "approved",
+  "published",
+] as const;
+export type EditorialStatus = (typeof EDITORIAL_STATUS)[number];
+
+export const CONTENT_SOURCE = ["manual", "deepseek", "hybrid"] as const;
+export type ContentSource = (typeof CONTENT_SOURCE)[number];
+
+// ─── knowledge_unit — O ÁTOMO DE CONHECIMENTO ────────────────────────────────
+//
+// O QUE o usuário aprende. Independente de formato.
+// Um conceito pode ser entregue como episódio, vídeo, quiz ou missão.
+// Separação: conhecimento ≠ forma de apresentação.
+
+export const knowledgeUnit = mysqlTable(
+  "knowledge_unit",
+  {
+    id: varchar("id", { length: 36 }).primaryKey(),
+
+    // Identidade
+    title: varchar("title", { length: 256 }).notNull(),
+    slug: varchar("slug", { length: 256 }).notNull().unique(),
+
+    // Pedagogia
+    learningObjective: text("learning_objective").notNull(),
+    cognitiveLevel: mysqlEnum("cognitive_level", COGNITIVE_LEVELS)
+      .notNull()
+      .default("understand"),
+    difficulty: varchar("difficulty", { length: 16 }).default("beginner"),
+    estimatedTimeMin: int("estimated_time_min"),
+    skills: json("skills").$type<string[]>().$defaultFn(() => []),
+
+    // Curadoria
+    tags: json("tags").$type<string[]>().$defaultFn(() => []),
+    agentDomain: varchar("agent_domain", { length: 32 }),
+
+    // Metadados
+    version: int("version").default(1),
+    status: mysqlEnum("status", EDITORIAL_STATUS).default("draft"),
+
+    createdAt: timestamp("created_at").defaultNow(),
+    updatedAt: timestamp("updated_at").defaultNow().onUpdateNow(),
+  },
+  (t) => ({
+    idxCognitive: index("idx_ku_cognitive").on(t.cognitiveLevel, t.difficulty),
+    idxAgent: index("idx_ku_agent").on(t.agentDomain),
+    idxStatus: index("idx_ku_status").on(t.status),
+  }),
+);
+
+export type KnowledgeUnit = typeof knowledgeUnit.$inferSelect;
+export type NewKnowledgeUnit = typeof knowledgeUnit.$inferInsert;
+
+// ─── knowledge_asset — A FORMA DE APRESENTAÇÃO ───────────────────────────────
+//
+// COMO o conhecimento é entregue. Um knowledge_unit pode ter N assets.
+// Conteúdo polimórfico por type (episode, quiz, video, audio, mission, image).
+
+export const knowledgeAsset = mysqlTable(
+  "knowledge_asset",
+  {
+    id: varchar("id", { length: 36 }).primaryKey(),
+    knowledgeUnitId: varchar("knowledge_unit_id", { length: 36 }).notNull(),
+
+    // Posicionamento na série
+    agentId: varchar("agent_id", { length: 32 }),
+    season: int("season"),
+    episode: int("episode"),
+
+    // Tipo de mídia
+    type: mysqlEnum("type", ASSET_TYPES).notNull(),
+
+    // Conteúdo polimórfico por type
+    content: json("content").notNull(),
+    metadata: json("metadata").$type<Record<string, unknown>>().$defaultFn(() => ({})),
+
+    // Provenance
+    source: mysqlEnum("source", CONTENT_SOURCE).default("manual"),
+    generatedBy: varchar("generated_by", { length: 64 }),
+    generatedAt: timestamp("generated_at"),
+
+    // Editorial
+    version: int("version").default(1),
+    status: mysqlEnum("status", EDITORIAL_STATUS).default("draft"),
+
+    // Cache
+    cacheKey: varchar("cache_key", { length: 64 }),
+
+    createdAt: timestamp("created_at").defaultNow(),
+    updatedAt: timestamp("updated_at").defaultNow().onUpdateNow(),
+  },
+  (t) => ({
+    idxUnit: index("idx_ka_unit").on(t.knowledgeUnitId),
+    idxSeries: index("idx_ka_series").on(t.agentId, t.season, t.episode),
+    idxTypeStatus: index("idx_ka_type_status").on(t.type, t.status),
+    idxCache: index("idx_ka_cache").on(t.cacheKey),
+  }),
+);
+
+export type KnowledgeAsset = typeof knowledgeAsset.$inferSelect;
+export type NewKnowledgeAsset = typeof knowledgeAsset.$inferInsert;
+
+// ─── knowledge_graph_edge — A TEIA DE DEPENDÊNCIAS ───────────────────────────
+//
+// Grafo direcionado entre knowledge_units.
+// Suporta: prerequisite, next, related, reinforces, expands.
+
+export const GRAPH_RELATIONSHIPS = [
+  "prerequisite",
+  "next",
+  "related",
+  "reinforces",
+  "expands",
+] as const;
+export type GraphRelationship = (typeof GRAPH_RELATIONSHIPS)[number];
+
+export const knowledgeGraphEdge = mysqlTable(
+  "knowledge_graph_edge",
+  {
+    id: varchar("id", { length: 36 }).primaryKey(),
+    fromUnitId: varchar("from_unit_id", { length: 36 }).notNull(),
+    toUnitId: varchar("to_unit_id", { length: 36 }).notNull(),
+    relationship: mysqlEnum("relationship", GRAPH_RELATIONSHIPS).notNull(),
+    weight: real("weight").default(1.0),
+
+    createdAt: timestamp("created_at").defaultNow(),
+  },
+  (t) => ({
+    uniqueEdge: uniqueIndex("uq_kge_edge").on(
+      t.fromUnitId,
+      t.toUnitId,
+      t.relationship,
+    ),
+    idxFrom: index("idx_kge_from").on(t.fromUnitId),
+    idxTo: index("idx_kge_to").on(t.toUnitId),
+  }),
+);
+
+export type KnowledgeGraphEdge = typeof knowledgeGraphEdge.$inferSelect;
+export type NewKnowledgeGraphEdge = typeof knowledgeGraphEdge.$inferInsert;
 export type NewLogosAttempt = typeof logosAttempts.$inferInsert;
