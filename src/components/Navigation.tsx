@@ -155,11 +155,8 @@ export default function Navigation() {
           >
             <Compass className="w-4 h-4 text-cyan-400" />
             <div className="text-left">
-              <p className="text-cyan-400 text-[10px] font-mono font-semibold tracking-wider leading-tight">
-                PERFIL EM FORMAÇÃO
-              </p>
               <p className="text-white text-xs leading-tight">
-                Complete a calibração inicial
+                Área do explorador
               </p>
             </div>
           </button>
