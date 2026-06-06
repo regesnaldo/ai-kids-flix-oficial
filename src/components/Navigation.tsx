@@ -2,7 +2,8 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Bell, Menu, Search, X } from 'lucide-react';
+import { Bell, Compass, Menu, Search, X } from 'lucide-react';
+import CalibrationModal from '@/components/CalibrationModal';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 type SessionUser = {
@@ -24,6 +25,7 @@ export default function Navigation() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isCalibrationOpen, setIsCalibrationOpen] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
 
@@ -144,6 +146,23 @@ export default function Navigation() {
             ))}
 
           </nav>
+
+          {/* Status Bar — clicável para abrir Calibração */}
+          <button
+            type="button"
+            onClick={() => setIsCalibrationOpen(true)}
+            className="hidden md:flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800/50 hover:bg-slate-700/50 transition-colors"
+          >
+            <Compass className="w-4 h-4 text-cyan-400" />
+            <div className="text-left">
+              <p className="text-cyan-400 text-[10px] font-mono font-semibold tracking-wider leading-tight">
+                PERFIL EM FORMAÇÃO
+              </p>
+              <p className="text-white text-xs leading-tight">
+                Complete a calibração inicial
+              </p>
+            </div>
+          </button>
         </div>
 
         <div className="flex items-center gap-4">
@@ -317,6 +336,10 @@ export default function Navigation() {
           </div>
         </div>
       )}
+      <CalibrationModal
+        isOpen={isCalibrationOpen}
+        onClose={() => setIsCalibrationOpen(false)}
+      />
     </header>
   );
 }
