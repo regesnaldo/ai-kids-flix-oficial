@@ -12,6 +12,7 @@
  */
 
 import { ChatOpenAI } from "@langchain/openai";
+import { initLangSmith } from "@/lib/langsmith";
 
 // ─── Provider URLs ──────────────────────────────────────────────────────
 
