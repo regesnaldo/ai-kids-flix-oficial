@@ -57,7 +57,7 @@ async function seed() {
 
   // Insert edges
   for (const edge of edges) {
-    await db.insert(schema.knowledgeGraphEdge).values(edge).onConflictDoNothing();
+    await db.insert(schema.knowledgeGraphEdge).values(edge).ignore();
   }
   console.log(`  ✅ ${edges.length} edges`);
 
