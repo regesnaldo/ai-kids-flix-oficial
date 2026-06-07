@@ -522,5 +522,11 @@ export const NEXUS_T01E04_EDGES: NewKnowledgeGraphEdge[] = [
     relationship: "prerequisite",
     weight: 1.0,
   },
-  // E04 → E05 (next) — será criado quando E05 for produzido
+  {
+    id: "kge-nexus-t01-e04-e05",
+    fromUnitId: "ku-nexus-t01-e04",
+    toUnitId: "ku-nexus-t01-e05",
+    relationship: "next",
+    weight: 1.0,
+  },
 ];
