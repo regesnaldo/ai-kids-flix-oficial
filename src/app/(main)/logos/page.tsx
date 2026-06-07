@@ -1,5 +1,10 @@
 'use client';
 
+// ⚠️ DEBUG ONLY — LOGOS is a validation gate, NOT a canonical agent.
+// This page exists for testing the LogosOracle in isolation.
+// Users access LOGOS exclusively via the automatic gate (every 3 episodes).
+// Do NOT add this to navigation.
+
 import { useEffect } from 'react';
 import LogosOracle from '@/components/logos/LogosOracle';
 import { useAppStore } from '@/store/useAppStore';

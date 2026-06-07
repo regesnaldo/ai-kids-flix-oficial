@@ -14,7 +14,6 @@ const PLANET_NAMES: Record<string, string> = {
   nexus: 'NEXUS', volt: 'VOLT', aurora: 'AURORA', ethos: 'ETHOS',
   kaos: 'KAOS', cipher: 'CIPHER', lyra: 'LYRA', axiom: 'AXIOM',
   stratos: 'STRATOS', terra: 'TERRA', prism: 'PRISM', janus: 'JANUS',
-  logos: 'LOGOS',
 }
 
 export default function UniverseFallbackPage() {
@@ -34,23 +33,6 @@ export default function UniverseFallbackPage() {
       window.location.href = `/universo/${planet}`
     }
   }, [planet])
-
-  // LOGOS — render the oracle overlay
-  if (planet === 'logos') {
-    return (
-      <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black">
-        <div className="text-center">
-          <div className="relative w-16 h-16 mx-auto mb-6">
-            <div className="absolute inset-0 rounded-full border-2 border-amber-500/20 animate-ping" />
-            <div className="absolute inset-2 rounded-full border-t-2 border-amber-400 animate-spin" />
-          </div>
-          <p className="font-mono text-xs text-amber-400/60 tracking-[0.2em] uppercase animate-pulse">
-            Redirecionando para o LOGOS...
-          </p>
-        </div>
-      </div>
-    )
-  }
 
   return (
     <motion.div
