@@ -285,13 +285,6 @@ export const NEXUS_T01E02_ASSET: NewKnowledgeAsset = {
 
 export const NEXUS_T01E02_EDGES: NewKnowledgeGraphEdge[] = [
   {
-    id: "kge-nexus-t01-e01-e02-prereq",
-    fromUnitId: "ku-nexus-t01-e01",
-    toUnitId: "ku-nexus-t01-e02",
-    relationship: "prerequisite",
-    weight: 1.0,
-  },
-  {
     id: "kge-nexus-t01-e02-e03",
     fromUnitId: "ku-nexus-t01-e02",
     toUnitId: "ku-nexus-t01-e03",
