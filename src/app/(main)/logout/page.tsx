@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { getAgentImage } from '@/lib/getAgentImage';
+import { toastError } from '@/lib/toast';
 
 export default function LogoutPage() {
   const router = useRouter();
@@ -11,7 +12,7 @@ export default function LogoutPage() {
   const intervalRef = useRef<ReturnType<typeof globalThis.setInterval> | null>(null);
 
   useEffect(() => {
-    void fetch('/api/auth/logout', { method: 'POST' }).catch((error) => console.error('[Logout] fetch error:', error));
+    void fetch('/api/auth/logout', { method: 'POST' }).catch((error) => { console.error('[Logout] fetch error:', error); toastError('Erro ao encerrar sessão.'); });
     // TODO: [MENTE.AI] adicionar feedback visual ao usuário
 
     intervalRef.current = globalThis.setInterval(() => {

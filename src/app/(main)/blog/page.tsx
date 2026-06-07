@@ -5,6 +5,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { BookOpen } from "lucide-react";
 import { PostCard, PostCardHero } from "@/components/blog/PostCard";
+import { toastError } from "@/lib/toast";
 
 interface Post {
   id: string;
@@ -32,7 +33,7 @@ export default function BlogPage() {
         const res = await fetch("/api/blog/generate");
         const data = await res.json();
         if (Array.isArray(data)) setPosts(data);
-      } catch (error) { console.error('[MENTE.AI] Error in blog/page.tsx:', error); /* TODO: [MENTE.AI] adicionar feedback visual ao usuário */ } finally { setLoading(false); }
+      } catch (error) { console.error('[MENTE.AI] Error in blog/page.tsx:', error); toastError('Falha ao carregar posts. Tente novamente.'); } finally { setLoading(false); }
     })();
   }, []);
 
