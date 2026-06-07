@@ -13,6 +13,7 @@ import { useExperimentEngine } from "@/hooks/useExperimentEngine";
 import type { AgentNodeStatus } from "@/components/lab/AgentNode";
 import { saveToLocalCache } from "@/lib/client-cache";
 import { useCognitiveStore } from "@/store/useCognitiveStore";
+import { toastError } from "@/lib/toast";
 import dynamic from "next/dynamic";
 
 const LabCanvas = dynamic(() => import("@/components/lab/LabCanvas"), { ssr: false });
@@ -117,8 +118,7 @@ export default function ExperimentPage({
           },
         })
       );
-    } catch (error) { console.error('[MENTE.AI] Error in lab/experiment/[experimentId]/page.tsx:', error); }
-    // TODO: [MENTE.AI] adicionar feedback visual ao usuário
+    } catch (error) { console.error('[MENTE.AI] Error in lab/experiment:', error); toastError('Erro ao conceder XP. O experimento foi salvo.'); }
   }, [rollbackUsed]);
 
   useEffect(() => {
@@ -146,8 +146,7 @@ export default function ExperimentPage({
             localStorage.setItem("lab_experiments", JSON.stringify(exps));
           }
         }
-      } catch (error) { console.error('[MENTE.AI] Error in lab/experiment/[experimentId]/page.tsx:', error); }
-      // TODO: [MENTE.AI] adicionar feedback visual ao usuário
+      } catch (error) { console.error('[MENTE.AI] Error in lab/experiment:', error); toastError('Erro ao conceder XP. O experimento foi salvo.'); }
     }
   }, [phase, experimentId, awardXp]);
 
