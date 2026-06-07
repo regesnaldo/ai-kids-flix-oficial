@@ -407,11 +407,120 @@ export const NEXUS_T01E03_ASSET: NewKnowledgeAsset = {
 
 export const NEXUS_T01E03_EDGES: NewKnowledgeGraphEdge[] = [
   {
-    id: "kge-nexus-t01-e02-e03-prereq",
-    fromUnitId: "ku-nexus-t01-e02",
-    toUnitId: "ku-nexus-t01-e03",
+    id: "kge-nexus-t01-e03-e04",
+    fromUnitId: "ku-nexus-t01-e03",
+    toUnitId: "ku-nexus-t01-e04",
+    relationship: "next",
+    weight: 1.0,
+  },
+];
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   EPISÓDIO 4 — O Dilema do Viés
+   ═══════════════════════════════════════════════════════════════════════════
+
+   Conexão com E03: "Amanhã você vai descobrir o que acontece quando os
+   próprios dados estão contaminados. O viés."
+
+   Conflito dramático: NEXUS leva o aprendiz ao Arquivo dos Dados, onde
+   descobre que nem toda informação é neutra. Uma IA treinada com dados
+   enviesados reproduz — e amplifica — preconceitos.
+
+   Gancho para E05: "Mas existe uma forma de ensinar uma IA através de
+   tentativa e erro — como treinar um cachorro com petiscos." */
+
+export const NEXUS_T01E04_UNIT: NewKnowledgeUnit = {
+  id: "ku-nexus-t01-e04",
+  title: "O Dilema do Viés",
+  slug: "nexus-t01-e04-dilema-do-vies",
+
+  learningObjective:
+    "Ao final deste episódio, o aprendiz será capaz de identificar como vieses em dados de treinamento afetam o comportamento de uma IA.",
+
+  cognitiveLevel: "apply",
+  difficulty: "beginner",
+  estimatedTimeMin: 9,
+
+  skills: ["bias", "data-quality", "fairness"],
+
+  tags: ["fundamentos", "viés", "ética", "dados"],
+  agentDomain: "nexus",
+
+  version: 1,
+  status: "published",
+};
+
+export const NEXUS_T01E04_ASSET: NewKnowledgeAsset = {
+  id: "ka-nexus-t01-e04",
+  knowledgeUnitId: "ku-nexus-t01-e04",
+
+  agentId: "nexus",
+  season: 1,
+  episode: 4,
+
+  type: "episode",
+
+  content: {
+    abertura:
+      "A paisagem distorcida que você viu ao sair da Galeria dos Espelhos agora tem nome: o Arquivo dos Dados. Prateleiras infinitas flutuam no vazio, cada uma carregando milhões de pastas etiquetadas. Mas algo está errado. Algumas pastas estão manchadas. Outras têm etiquetas trocadas. NEXUS apanha uma pasta manchada e a abre. De dentro, saem não números, mas rostos — todos iguais. 'Bem-vindo ao Arquivo, Explorador. Aqui você vai descobrir que o maior perigo para uma IA não é a falta de dados. É a qualidade do que ela recebe.'",
+
+    narrativa:
+      "Em 2015, o Google Fotos cometeu um erro que entrou para a história. O algoritmo de reconhecimento de imagem classificou fotos de pessoas negras como 'gorilas'. Não foi maldade. Foi viés nos dados de treinamento.\n\nImagine que você quer ensinar uma IA a reconhecer médicos. Você mostra 1000 fotos. Mas 900 são de homens brancos, 80 de mulheres brancas, 15 de homens negros e 5 de mulheres negras. A IA vai 'aprender' que médico = homem branco. Não porque ela seja preconceituosa — mas porque os dados que você deu são.\n\nIsso se chama viés algorítmico. E é um dos problemas mais sérios da inteligência artificial moderna. A IA não cria preconceitos do nada. Ela os herda. Como uma criança que aprende observando adultos — se os adultos têm preconceitos, a criança também terá.\n\nNEXUS fecha a pasta com cuidado. 'O viés não está no algoritmo. Está no mundo. Nós, humanos, produzimos dados cheios de desigualdades históricas. Quando treinamos uma IA com esses dados, ela aprende a reproduzir essas desigualdades. E pior: ela as amplifica, porque não tem o senso crítico que nós temos.'\n\nMas há esperança. Equipes de IA ética em todo o mundo trabalham para auditar conjuntos de dados, equilibrar amostras e criar algoritmos que detectam e corrigem vieses automaticamente. Não é uma batalha fácil — mas é uma batalha que vale a pena.",
+
+    pausas: [
+      {
+        pergunta: "Por que o Google Fotos classificou pessoas negras como 'gorilas' em 2015?",
+        opcoes: [
+          "A. Foi um erro de programação — um bug no código",
+          "B. Os dados de treinamento tinham poucas imagens de pessoas negras, criando um viés",
+          "C. O algoritmo era mal-intencionado desde o início",
+        ],
+        continuacoes: [
+          "Não foi bug. O código funcionou exatamente como programado. O problema estava nos dados — a IA aprendeu com um conjunto de imagens que representava mal a diversidade humana. Isso é viés de representação: quando certos grupos estão subrepresentados nos dados, a IA simplesmente não 'aprende' a reconhecê-los corretamente.",
+          "Exatamente. Não foi o algoritmo que falhou — foram os dados que o alimentaram. Esse caso se tornou um marco na história da IA ética. Desde então, empresas como Google, Microsoft e OpenAI investem pesadamente em equipes de auditoria de dados. Porque uma IA só é tão justa quanto os dados que a treinaram.",
+          "Não foi intencional. Nenhum engenheiro do Google programou 'classifique pessoas negras como gorilas'. O algoritmo simplesmente aprendeu padrões errados porque os dados de treinamento não eram representativos. É um lembrete poderoso: a IA não tem más intenções — mas pode causar danos reais se não for treinada com cuidado.",
+        ],
+      },
+      {
+        pergunta: "Se você fosse treinar uma IA para reconhecer cientistas, como evitaria o viés?",
+        opcoes: [
+          "A. Usaria apenas fotos de cientistas famosos — eles são os melhores exemplos",
+          "B. Garantiria que o conjunto de dados tivesse diversidade de gênero, etnia e idade",
+          "C. Programaria manualmente a IA para reconhecer jalecos brancos",
+        ],
+        continuacoes: [
+          "Cuidado! Cientistas famosos são majoritariamente de um perfil específico — isso reforçaria o viés. Diversidade nos dados não é um 'detalhe' — é o fator mais importante. Cada grupo subrepresentado é uma falha que a IA vai aprender e reproduzir.",
+          "Perfeito! Diversidade nos dados de treinamento é a primeira linha de defesa contra o viés. Mas não basta apenas incluir mais fotos — é preciso também auditar os resultados. Pergunte-se sempre: 'Esta IA funciona igualmente bem para todas as pessoas?' Se a resposta for não, os dados precisam ser corrigidos.",
+          "Programar regras manuais ('jaleco = cientista') ignora a diversidade real de como cientistas se vestem e trabalham. A beleza da IA está em aprender com exemplos, não com regras. Mas os exemplos precisam representar o mundo real em toda a sua diversidade. Caso contrário, a IA aprende um mundo que não existe.",
+        ],
+      },
+    ],
+
+    encerramento:
+      "NEXUS devolve a pasta à prateleira, mas seu olhar permanece fixo em você. 'Você entendeu o perigo. Mas entender não basta — é preciso agir. Amanhã, você vai descobrir que existe uma forma de ensinar uma IA que parece brincadeira: através de recompensas. Como um cachorro que ganha petisco quando acerta. É o aprendizado por reforço — e ele vai mudar sua forma de ver a inteligência.' O Arquivo começa a se reorganizar, as pastas manchadas sendo substituídas por novas, limpas e diversas.",
+  },
+
+  metadata: {
+    xpReward: 50,
+    readingTimeMin: 8,
+    pauseCount: 2,
+    hasLogosGate: false,
+    prevEpisode: "Padrões Ocultos",
+    nextEpisode: "Reforço e Recompensa",
+  },
+
+  source: "manual",
+  status: "published",
+  version: 1,
+};
+
+export const NEXUS_T01E04_EDGES: NewKnowledgeGraphEdge[] = [
+  {
+    id: "kge-nexus-t01-e03-e04-prereq",
+    fromUnitId: "ku-nexus-t01-e03",
+    toUnitId: "ku-nexus-t01-e04",
     relationship: "prerequisite",
     weight: 1.0,
   },
-  // E03 → E04 (next) — será criado quando E04 for produzido
+  // E04 → E05 (next) — será criado quando E05 for produzido
 ];
