@@ -1,5 +1,9 @@
 "use client"
 
+// ⚠️ INTERNAL DEV TOOL — Sentinela Dashboard
+// Monitora bots, universos, SEO e build em tempo real.
+// Não é rota de usuário final. Acesso: /sentinel
+
 import { useEffect, useState } from "react"
 
 interface Bot {
