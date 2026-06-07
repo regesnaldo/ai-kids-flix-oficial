@@ -55,11 +55,19 @@ async function seed() {
     console.log(`  ✅ asset: ${asset.id}`);
   }
 
-  // Insert edges
+  // Insert edges — try/catch to ignore duplicates (MySQL error 1062)
   for (const edge of edges) {
-    await db.insert(schema.knowledgeGraphEdge).values(edge).ignore();
+    try {
+      await db.insert(schema.knowledgeGraphEdge).values(edge);
+      console.log(`  ✅ edge: ${edge.fromUnitId} → ${edge.toUnitId}`);
+    } catch (err: any) {
+      if (err?.code === 'ER_DUP_ENTRY' || err?.errno === 1062) {
+        console.log(`  ⏭ edge já existe: ${edge.fromUnitId} → ${edge.toUnitId}`);
+      } else {
+        throw err;
+      }
+    }
   }
-  console.log(`  ✅ ${edges.length} edges`);
 
   console.log(`\n🎉 Seed concluído: ${units.length} units, ${assets.length} assets, ${edges.length} edges`);
   process.exit(0);
