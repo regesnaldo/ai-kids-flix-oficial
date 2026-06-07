@@ -530,3 +530,35 @@ export const NEXUS_T01E04_EDGES: NewKnowledgeGraphEdge[] = [
     weight: 1.0,
   },
 ];
+
+/* ═══════ EPISÓDIO 5 — Reforço e Recompensa ═══════ */
+
+export const NEXUS_T01E05_UNIT: NewKnowledgeUnit = {
+  id: "ku-nexus-t01-e05", title: "Reforço e Recompensa",
+  slug: "nexus-t01-e05-reforco-e-recompensa",
+  learningObjective: "Ao final, o aprendiz será capaz de explicar como o aprendizado por reforço permite que uma IA aprenda através de tentativa e erro.",
+  cognitiveLevel: "understand", difficulty: "beginner", estimatedTimeMin: 8,
+  skills: ["reinforcement-learning", "rewards", "trial-and-error"],
+  tags: ["fundamentos", "reforço", "aprendizado"], agentDomain: "nexus",
+  version: 1, status: "published",
+};
+
+export const NEXUS_T01E05_ASSET: NewKnowledgeAsset = {
+  id: "ka-nexus-t01-e05", knowledgeUnitId: "ku-nexus-t01-e05",
+  agentId: "nexus", season: 1, episode: 5, type: "episode",
+  content: {
+    abertura: "O Arquivo desaparece. Você está numa arena circular com obstáculos. Um robô-cachorro — Dexter — tenta pular, cai, levanta, tenta de novo. Cada acerto acende uma luz verde. NEXUS sorri: 'Ele não foi programado para pular. Ele aprendeu sozinho — através de recompensas.'",
+    narrativa: "Ensine um truque para um cachorro. Mostre um petisco. Ele tenta algo. Se acertar, ganha o petisco. Em minutos, aprendeu. Isso é aprendizado por reforço — e é como a AlphaGo da DeepMind derrotou o campeão mundial de Go em 2016. O jogo de Go tem mais combinações que átomos no universo. Impossível programar regras. A AlphaGo jogou milhões de partidas contra si mesma. Vitória = recompensa. Derrota = penalidade. Depois de milhões de jogos, tornou-se imbatível. NEXUS aponta para Dexter: 'Ele não sabe o que é um obstáculo. Mas sabe que pular = recompensa. E isso basta.'",
+    pausas: [
+      { pergunta: "Como Dexter aprendeu a pular obstáculos?", opcoes: ["A. Alguém programou cada movimento exato", "B. Ele recebeu recompensas quando acertava e aprendeu por tentativa e erro", "C. Ele copiou movimentos de um cachorro real"], continuacoes: ["Não! A mágica do reforço é que ninguém programou ângulos ou forças. Ele tentou, ganhou recompensa, repetiu o que funcionou.", "Exato! Tentativa e erro com recompensa produz comportamentos complexos. É como aprender a andar de bicicleta.", "Dexter nunca viu um cachorro real. Ele inventou suas próprias soluções. A criatividade emerge da recompensa."] },
+      { pergunta: "Por que a AlphaGo jogou milhões de partidas contra si mesma?", opcoes: ["A. Programadores não sabiam jogar Go", "B. O Go tem mais combinações que átomos — impossível programar regras manuais", "C. Era mais barato que contratar jogadores humanos"], continuacoes: ["Ninguém sabe programar 'jogue Go como um campeão'. Alguns problemas só se resolvem deixando a IA explorar, errar e aprender sozinha.", "Exato! Quando o espaço de possibilidades é astronômico, regras manuais falham. O reforço resolve deixando a IA jogar contra si mesma milhões de vezes.", "Não é custo. Jogar contra si mesma permite explorar estratégias que nenhum humano tentaria. Ela descobriu sozinha o que levou milênios para humanos desenvolverem."] },
+    ],
+    encerramento: "Dexter completa o circuito e late feliz. 'Reforço é sobre paciência. Mas Dexter pode fazer milhares de tentativas por segundo. Amanhã você vai descobrir como as IAs processam tantas coisas ao mesmo tempo — o segredo do paralelismo.' A arena se expande, revelando centenas de Dexters aprendendo simultaneamente.",
+  },
+  metadata: { xpReward: 50, readingTimeMin: 8, pauseCount: 2, hasLogosGate: false, prevEpisode: "O Dilema do Viés", nextEpisode: "Processamento Paralelo" },
+  source: "manual", status: "published", version: 1,
+};
+
+export const NEXUS_T01E05_EDGES: NewKnowledgeGraphEdge[] = [
+  { id: "kge-nexus-t01-e04-e05-prereq", fromUnitId: "ku-nexus-t01-e04", toUnitId: "ku-nexus-t01-e05", relationship: "prerequisite", weight: 1.0 },
+];
