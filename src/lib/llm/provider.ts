@@ -103,6 +103,7 @@ function resolveProvider(options: LLMOptions): ResolvedProvider {
  *   3. Nenhum → lança erro
  */
 export function createLLM(options: LLMOptions = {}): ChatOpenAI {
+  initLangSmith();
   const resolved = resolveProvider(options);
 
   return new ChatOpenAI({
