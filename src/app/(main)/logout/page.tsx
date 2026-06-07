@@ -11,7 +11,7 @@ export default function LogoutPage() {
   const intervalRef = useRef<ReturnType<typeof globalThis.setInterval> | null>(null);
 
   useEffect(() => {
-    void fetch('/api/auth/logout', { method: 'POST' }).catch((error) => console.error('[Logout] fetch error:', error));
+    void fetch('/api/auth/logout', { method: 'POST' }).catch((error) => { console.error('[Logout] fetch error:', error); toastError('Erro ao encerrar sessão.'); });
     // TODO: [MENTE.AI] adicionar feedback visual ao usuário
 
     intervalRef.current = globalThis.setInterval(() => {
