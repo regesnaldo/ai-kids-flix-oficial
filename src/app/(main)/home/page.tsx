@@ -8,8 +8,17 @@ import { createEmotionStyleElement, getPaletteFromEmotionalState, emotionPalette
 import JourneyHub from "@/components/journey/JourneyHub";
 import HomeErrorBoundary from "@/components/home/HomeErrorBoundary";
 import NarrativeSuggestionCard from "@/components/universo/NarrativeSuggestionCard";
-import { suggestNarrative } from "@/engine/adaptive-router";
-import type { NarrativeSuggestion } from "@/engine/adaptive-router";
+import type { NarrativeTransition } from "@/engine/narrative-transitions";
+
+type NarrativeSuggestion = {
+  title: string;
+  description: string;
+  targetAgent: string;
+  confidence: number;
+  isRecovery: boolean;
+  tags: string[];
+  transition: NarrativeTransition | null;
+};
 
 const AGENTS = [
   { id: "nexus", name: "NEXUS", faction: "INTELIGÊNCIA" },
@@ -189,8 +198,9 @@ export default function HomePage() {
   const [narrativeSuggestions, setNarrativeSuggestions] = useState<NarrativeSuggestion[]>([]);
   useEffect(() => {
     if (!user?.id) return;
-    suggestNarrative({ userId: user.id, currentAgent: "nexus" })
-      .then(setNarrativeSuggestions)
+    fetch(`/api/narrative/suggestions?userId=${user.id}`)
+      .then(res => res.json())
+      .then(data => setNarrativeSuggestions(data.suggestions ?? []))
       .catch(() => setNarrativeSuggestions([]));
   }, [user?.id]);
 
