@@ -202,7 +202,7 @@ export default function Navigation() {
                     type="button"
                     onClick={() => {
                       setAccountOpen(false);
-                      handleLogout();
+                      router.push('/logout');
                     }}
                     className="w-full text-left px-4 py-3 text-sm text-zinc-200 hover:bg-white/5 transition"
                   >
