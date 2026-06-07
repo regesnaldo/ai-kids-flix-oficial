@@ -562,3 +562,165 @@ export const NEXUS_T01E05_ASSET: NewKnowledgeAsset = {
 export const NEXUS_T01E05_EDGES: NewKnowledgeGraphEdge[] = [
   { id: "kge-nexus-t01-e04-e05-prereq", fromUnitId: "ku-nexus-t01-e04", toUnitId: "ku-nexus-t01-e05", relationship: "prerequisite", weight: 1.0 },
 ];
+
+/* ═══════ EPISÓDIO 6 — Processamento Paralelo 🛡️ LOGOS ═══════ */
+
+export const NEXUS_T01E06_UNIT: NewKnowledgeUnit = {
+  id: "ku-nexus-t01-e06", title: "Processamento Paralelo",
+  slug: "nexus-t01-e06-processamento-paralelo",
+  learningObjective: "Ao final, o aprendiz será capaz de explicar como GPUs permitem que IAs processem milhões de operações em paralelo.",
+  cognitiveLevel: "understand", difficulty: "beginner", estimatedTimeMin: 9,
+  skills: ["parallel-computing", "gpu", "matrix-multiplication"],
+  tags: ["fundamentos", "hardware", "GPU"], agentDomain: "nexus",
+  version: 1, status: "published",
+};
+
+export const NEXUS_T01E06_ASSET: NewKnowledgeAsset = {
+  id: "ka-nexus-t01-e06", knowledgeUnitId: "ku-nexus-t01-e06",
+  agentId: "nexus", season: 1, episode: 6, type: "episode",
+  content: {
+    abertura: "A arena se expande revelando uma catedral de processadores — milhares de chips piscando em uníssono acima de você. 'Isto é uma GPU', diz NEXUS. 'Ela não pensa como você — uma ideia por vez. Ela pensa tudo ao mesmo tempo.'",
+    narrativa: "Seu cérebro processa em série. Uma CPU também. Mas uma GPU é radicalmente diferente. Imagine pintar uma parede de 10 metros. Uma CPU é um pintor rápido com um pincel — pinta centímetro por centímetro. Uma GPU são 10.000 pintores minúsculos, cada um pintando seu quadradinho, todos ao mesmo tempo. Em segundos, a parede está pronta. É assim que a multiplicação de matrizes — a operação central das redes neurais — funciona. Milhares de cálculos independentes que uma GPU resolve simultaneamente. Treinar uma IA que levaria 100 anos em CPU pode levar horas em GPU.",
+    pausas: [
+      { pergunta: "Qual a diferença fundamental entre CPU e GPU?", opcoes: ["A. CPU é para jogos, GPU para trabalho", "B. CPU processa em série; GPU processa em paralelo", "C. GPU é apenas uma CPU mais rápida"], continuacoes: ["Não é sobre uso — é arquitetural. CPU tem poucos núcleos muito poderosos. GPU tem milhares de núcleos simples. Para tarefas paralelizáveis, GPU é imbatível.", "Perfeito! Série vs paralelo. Como uma fila única no banco (CPU) vs milhares de caixas eletrônicos (GPU). Cada abordagem brilha em cenários diferentes.", "Uma GPU não é simplesmente 'mais rápida'. Para uma conta complexa isolada, a CPU vence. Para milhares de contas simples simultâneas, a GPU domina."] },
+      { pergunta: "Por que o deep learning depende tanto de GPUs?", opcoes: ["A. GPUs são mais baratas que CPUs", "B. Multiplicação de matrizes — a operação central — é massivamente paralelizável", "C. CPUs estão obsoletas"], continuacoes: ["GPUs de datacenter custam dezenas de milhares de dólares. Não é preço — é arquitetura. Certas tarefas são 'paralelizáveis' e IA é o exemplo perfeito.", "Exato! Cada elemento da matriz resultado pode ser calculado independentemente. Uma GPU faz todos simultaneamente. Sem GPUs, o deep learning moderno simplesmente não existiria.", "CPUs são essenciais para o sistema operacional e lógica sequencial. O ideal é ter os dois: CPU para pensar, GPU para calcular em massa."] },
+    ],
+    encerramento: "A catedral se despede num espetáculo de luzes. Mas no centro, uma zona escura persiste. 'Aquilo é a caixa preta', diz NEXUS. 'Onde IAs tomam decisões que ninguém entende completamente. Amanhã você vai entrar nessa escuridão — e descobrir o maior mistério da inteligência artificial.'",
+  },
+  metadata: { xpReward: 60, readingTimeMin: 8, pauseCount: 2, hasLogosGate: true, logosGateEpisode: true, prevEpisode: "Reforço e Recompensa", nextEpisode: "A Caixa Preta" },
+  source: "manual", status: "published", version: 1,
+};
+
+export const NEXUS_T01E06_EDGES: NewKnowledgeGraphEdge[] = [
+  { id: "kge-nexus-t01-e05-e06-prereq", fromUnitId: "ku-nexus-t01-e05", toUnitId: "ku-nexus-t01-e06", relationship: "prerequisite", weight: 1.0 },
+  { id: "kge-nexus-t01-e05-e06-next", fromUnitId: "ku-nexus-t01-e05", toUnitId: "ku-nexus-t01-e06", relationship: "next", weight: 1.0 },
+];
+
+/* ═══════ EPISÓDIO 7 — A Caixa Preta ═══════ */
+
+export const NEXUS_T01E07_UNIT: NewKnowledgeUnit = {
+  id: "ku-nexus-t01-e07", title: "A Caixa Preta",
+  slug: "nexus-t01-e07-caixa-preta",
+  learningObjective: "Ao final, o aprendiz será capaz de explicar o problema da caixa preta em IA e por que a explicabilidade (XAI) é crucial.",
+  cognitiveLevel: "apply", difficulty: "intermediate", estimatedTimeMin: 9,
+  skills: ["black-box", "explainability", "xai"],
+  tags: ["fundamentos", "explicabilidade", "deep-learning"], agentDomain: "nexus",
+  version: 1, status: "published",
+};
+
+export const NEXUS_T01E07_ASSET: NewKnowledgeAsset = {
+  id: "ka-nexus-t01-e07", knowledgeUnitId: "ku-nexus-t01-e07",
+  agentId: "nexus", season: 1, episode: 7, type: "episode",
+  content: {
+    abertura: "Você entrou na escuridão. Fios de luz serpenteiam como neurônios ao seu redor, cada um carregando um número — trilhões deles. NEXUS ilumina o caminho com sua luz ciano: 'Aqui dentro, nenhum humano consegue enxergar. Esta é a caixa preta — onde redes neurais tomam decisões que desafiam a compreensão até de seus criadores.'",
+    narrativa: "Um médico explica por que prescreveu um remédio. Um juiz justifica sua sentença por escrito. Mas quando uma IA diz 'este tumor é cancerígeno' ou 'este candidato deve ser contratado' — como ela chegou a essa conclusão? Na maioria das vezes, ninguém sabe. Nem os engenheiros que a criaram. Redes neurais profundas têm milhões, às vezes bilhões de parâmetros — números ajustados durante o treinamento. Quando a IA decide, todos esses parâmetros interagem de formas tão complexas que é impossível traçar uma linha reta entre input e output. O campo da XAI — Explainable AI — busca abrir essa caixa e tornar as IAs transparentes e auditáveis.",
+    pausas: [
+      { pergunta: "Por que é tão difícil entender como uma rede neural tomou uma decisão?", opcoes: ["A. Engenheiros escondem o código de propósito", "B. Milhões de parâmetros interagem de forma complexa demais para rastreamento humano", "C. IAs usam criptografia para proteger suas decisões"], continuacoes: ["Os pesos são públicos e auditáveis. O problema não é acesso — é complexidade. Mesmo tendo todos os números, ninguém explica como 175 bilhões de parâmetros produziram uma única palavra.", "Exato! Seu cérebro tem 86 bilhões de neurônios. Você consegue explicar exatamente quais dispararam para decidir o que comer no café? A IA tem o mesmo problema, multiplicado por milhares.", "Não é criptografia. A explicação está distribuída entre todos os parâmetros. A decisão emerge do coletivo, não de uma parte isolada."] },
+      { pergunta: "Por que a explicabilidade (XAI) é crucial para o futuro da IA?", opcoes: ["A. Para IAs poderem explicar piadas", "B. Para que decisões que afetam vidas humanas possam ser auditadas e contestadas", "C. Para engenheiros cobrarem mais caro"], continuacoes: ["É sobre justiça. Se uma IA decide quem recebe crédito, quem é contratado ou quem vai preso, as pessoas têm o direito fundamental de saber o porquê.", "Sim! Em uma sociedade democrática, decisões que afetam pessoas precisam ser explicáveis, auditáveis e, se necessário, corrigidas. Sem XAI, a IA se torna um juiz invisível.", "Não é dinheiro — é confiança. Se ninguém entende como a IA decide, ninguém confia. Sem confiança, IA nunca será adotada em áreas críticas como medicina ou justiça."] },
+    ],
+    encerramento: "Uma luz brilha no fim do túnel de neurônios. Não é a saída — é uma cidade inteira feita de dados. Arranha-céus de informação, ruas de tráfego otimizado, semáforos que conversam entre si. 'Você viu o interior da mente artificial', diz NEXUS. 'Amanhã você vai ver como essa mente se conecta ao mundo real. Cidades inteiras estão sendo redesenhadas pela IA.'",
+  },
+  metadata: { xpReward: 50, readingTimeMin: 8, pauseCount: 2, hasLogosGate: false, prevEpisode: "Processamento Paralelo", nextEpisode: "Cidades Inteligentes" },
+  source: "manual", status: "published", version: 1,
+};
+
+export const NEXUS_T01E07_EDGES: NewKnowledgeGraphEdge[] = [
+  { id: "kge-nexus-t01-e06-e07-prereq", fromUnitId: "ku-nexus-t01-e06", toUnitId: "ku-nexus-t01-e07", relationship: "prerequisite", weight: 1.0 },
+];
+
+/* ═══════ EPISÓDIO 8 — Cidades Inteligentes ═══════ */
+
+export const NEXUS_T01E08_UNIT: NewKnowledgeUnit = {
+  id: "ku-nexus-t01-e08", title: "Cidades Inteligentes",
+  slug: "nexus-t01-e08-cidades-inteligentes",
+  learningObjective: "Ao final, o aprendiz será capaz de explicar como a IA está transformando infraestrutura urbana através de sistemas inteligentes em tempo real.",
+  cognitiveLevel: "apply", difficulty: "beginner", estimatedTimeMin: 8,
+  skills: ["smart-cities", "iot", "automation"],
+  tags: ["fundamentos", "cidades", "IoT", "futuro"], agentDomain: "nexus",
+  version: 1, status: "published",
+};
+
+export const NEXUS_T01E08_ASSET: NewKnowledgeAsset = {
+  id: "ka-nexus-t01-e08", knowledgeUnitId: "ku-nexus-t01-e08",
+  agentId: "nexus", season: 1, episode: 8, type: "episode",
+  content: {
+    abertura: "A escuridão se dissipa e você está numa avenida de uma metrópole futurista. Semáforos se ajustam sozinhos ao fluxo de carros. Drones entregam pacotes silenciosamente. Sensores em cada esquina respiram dados. NEXUS aponta para o horizonte: 'Bem-vindo a uma Cidade Inteligente. Aqui, a IA não está numa tela. Está nas ruas, no ar, em cada decisão que mantém milhões de pessoas em movimento.'",
+    narrativa: "Singapura usa IA para prever congestionamentos uma hora antes de acontecerem. Barcelona economizou 30% de água com sensores inteligentes nos parques. Em Copenhague, semáforos dão prioridade a ônibus e bicicletas, reduzindo o tempo de viagem em 20%. Songdo, na Coreia do Sul, tem um sistema de lixo pneumático — os resíduos são sugados por tubos subterrâneos até uma central de reciclagem, sem caminhões, sem barulho, gerenciado por IA. Mas cidades inteligentes também levantam dilemas: quem controla os dados? Quem decide quais bairros recebem mais investimento? A tecnologia resolve problemas — mas também cria novas perguntas que só os humanos podem responder.",
+    pausas: [
+      { pergunta: "O que torna uma cidade verdadeiramente 'inteligente'?", opcoes: ["A. Prédios altos com luzes de neon e telas gigantes", "B. Sensores e IA que otimizam serviços como trânsito, água e energia em tempo real", "C. Wi-Fi grátis em todos os lugares públicos"], continuacoes: ["Não é sobre aparência — é sobre dados. Uma cidade inteligente usa informações em tempo real para tomar decisões que melhoram a vida de milhões de pessoas.", "Exato! A inteligência está na capacidade de reagir em tempo real: menos congestionamento, menos desperdício de água, mais eficiência energética.", "Wi-Fi é infraestrutura básica, não inteligência. A diferença está nos dados sendo usados ativamente para otimizar a cidade a cada segundo do dia."] },
+      { pergunta: "Qual o maior dilema ético das cidades inteligentes?", opcoes: ["A. A tecnologia é muito cara para a maioria das cidades", "B. Quem controla os dados decide quais bairros recebem mais investimento — isso pode amplificar desigualdades", "C. As pessoas não gostam de ser monitoradas por sensores"], continuacoes: ["O custo está caindo rapidamente. O verdadeiro dilema é governança: quando uma IA decide onde investir recursos, quem fiscaliza se a decisão é justa?", "Exato! Dados são poder. E quando algoritmos decidem sozinhos, desigualdades históricas podem ser amplificadas em vez de corrigidas.", "Privacidade é uma preocupação real, mas o dilema mais profundo é a justiça: a IA trata todos os bairros igualmente ou favorece os que já são privilegiados?"] },
+    ],
+    encerramento: "A avenida se transforma num centro de comando — telas holográficas mostram previsões de tráfego, consumo de energia, qualidade do ar. 'Você viu o presente', diz NEXUS. 'Amanhã você vai ver o futuro: sistemas que não apenas reagem ao que acontece, mas antecipam o que ainda vai acontecer. Prepare-se para a IA preditiva.'",
+  },
+  metadata: { xpReward: 50, readingTimeMin: 7, pauseCount: 2, hasLogosGate: false, prevEpisode: "A Caixa Preta", nextEpisode: "Sistemas Preditivos" },
+  source: "manual", status: "published", version: 1,
+};
+
+export const NEXUS_T01E08_EDGES: NewKnowledgeGraphEdge[] = [
+  { id: "kge-nexus-t01-e07-e08-prereq", fromUnitId: "ku-nexus-t01-e07", toUnitId: "ku-nexus-t01-e08", relationship: "prerequisite", weight: 1.0 },
+];
+
+/* ═══════ EPISÓDIO 9 — Sistemas Preditivos 🛡️ LOGOS ═══════ */
+
+export const NEXUS_T01E09_UNIT: NewKnowledgeUnit = {
+  id: "ku-nexus-t01-e09", title: "Sistemas Preditivos",
+  slug: "nexus-t01-e09-sistemas-preditivos",
+  learningObjective: "Ao final, o aprendiz será capaz de explicar como sistemas preditivos usam dados históricos para antecipar eventos futuros.",
+  cognitiveLevel: "apply", difficulty: "intermediate", estimatedTimeMin: 9,
+  skills: ["predictive-systems", "forecasting", "time-series"],
+  tags: ["fundamentos", "predição", "dados", "futuro"], agentDomain: "nexus",
+  version: 1, status: "published",
+};
+
+export const NEXUS_T01E09_ASSET: NewKnowledgeAsset = {
+  id: "ka-nexus-t01-e09", knowledgeUnitId: "ku-nexus-t01-e09",
+  agentId: "nexus", season: 1, episode: 9, type: "episode",
+  content: {
+    abertura: "O centro de comando se transforma. Telas mostram não o presente, mas o futuro — ou melhor, futuros possíveis. Gráficos de probabilidade dançam no ar. NEXUS está diante de uma linha do tempo holográfica: 'Sistemas preditivos não adivinham o futuro. Eles calculam probabilidades baseadas em padrões do passado. E isso já está em todo lugar — do Spotify sugerindo sua próxima música até hospitais prevendo quais pacientes correm mais risco.'",
+    narrativa: "O Spotify não sabe que música você quer ouvir — ele calcula a probabilidade baseada no que você e milhões de pessoas como você ouviram antes. A Netflix não sabe que filme você vai gostar — ela prevê baseada no seu histórico. Hospitals usam IA para prever quais pacientes têm maior risco de readmissão. Isso salva vidas. Mas a predição tem um lado sombrio. Em alguns lugares, sistemas preditivos são usados para 'prever' crimes antes que aconteçam — e isso pode reforçar preconceitos raciais e sociais. O algoritmo Minority Report já existe. A pergunta não é se podemos prever — é como usamos essas previsões com sabedoria.",
+    pausas: [
+      { pergunta: "Como o Spotify 'sabe' qual música você vai gostar?", opcoes: ["A. Alguém na empresa escolhe manualmente para cada usuário", "B. Ele calcula probabilidades baseadas no seu histórico e de milhões de usuários similares", "C. Ele lê sua mente através do microfone do celular"], continuacoes: ["Impossível! São centenas de milhões de usuários. O sistema usa dados: o que você ouviu, pulou, salvou — e cruza com padrões de pessoas com gosto similar.", "Exato! Não é mágica nem espionagem — é matemática. Padrões de comportamento são transformados em probabilidades. Quanto mais você usa, mais preciso fica.", "Não é leitura de mente! É análise de dados. Cada like, cada skip, cada playlist é um ponto de dados que o algoritmo usa para refinar suas previsões."] },
+      { pergunta: "Qual o perigo dos sistemas preditivos quando usados sem cuidado?", opcoes: ["A. Eles são muito lentos para tomar decisões", "B. Podem amplificar preconceitos — se os dados históricos têm viés, as previsões também terão", "C. Eles consomem muita energia elétrica"], continuacoes: ["Sistemas preditivos são extremamente rápidos — processam em milissegundos. O perigo não é velocidade, é justiça.", "Exato! Se os dados históricos mostram mais crimes em certos bairros (por causa de policiamento desigual), o sistema vai 'prever' mais crimes nesses bairros — criando um ciclo vicioso.", "Energia é uma preocupação, mas o perigo real é ético. Previsões baseadas em dados enviesados se tornam profecias autorrealizáveis."] },
+    ],
+    encerramento: "A linha do tempo holográfica se expande até o horizonte. 'Você viu o poder da predição. Mas poder sem sabedoria é perigoso. Amanhã, no nosso último encontro desta temporada, quero te mostrar o quadro completo. O que significa tudo isso junto? O que o futuro reserva para a inteligência artificial — e para você, Explorador?' NEXUS sorri. 'O horizonte nos espera.'",
+  },
+  metadata: { xpReward: 60, readingTimeMin: 8, pauseCount: 2, hasLogosGate: true, logosGateEpisode: true, prevEpisode: "Cidades Inteligentes", nextEpisode: "O Horizonte" },
+  source: "manual", status: "published", version: 1,
+};
+
+export const NEXUS_T01E09_EDGES: NewKnowledgeGraphEdge[] = [
+  { id: "kge-nexus-t01-e08-e09-prereq", fromUnitId: "ku-nexus-t01-e08", toUnitId: "ku-nexus-t01-e09", relationship: "prerequisite", weight: 1.0 },
+];
+
+/* ═══════ EPISÓDIO 10 — O Horizonte ═══════ */
+
+export const NEXUS_T01E10_UNIT: NewKnowledgeUnit = {
+  id: "ku-nexus-t01-e10", title: "O Horizonte",
+  slug: "nexus-t01-e10-horizonte",
+  learningObjective: "Ao final desta temporada, o aprendiz será capaz de articular uma visão integrada dos fundamentos da IA e identificar qual área deseja explorar em profundidade.",
+  cognitiveLevel: "evaluate", difficulty: "intermediate", estimatedTimeMin: 10,
+  skills: ["agi", "future-of-ai", "ai-ethics", "synthesis"],
+  tags: ["fundamentos", "futuro", "AGI", "síntese"], agentDomain: "nexus",
+  version: 1, status: "published",
+};
+
+export const NEXUS_T01E10_ASSET: NewKnowledgeAsset = {
+  id: "ka-nexus-t01-e10", knowledgeUnitId: "ku-nexus-t01-e10",
+  agentId: "nexus", season: 1, episode: 10, type: "episode",
+  content: {
+    abertura: "Você está de volta ao Nexus Prime — a esfera de luz azul onde tudo começou. Mas algo mudou. As estrelas da teia brilham mais intensamente. Cada uma delas agora tem um significado. Você reconhece padrões, entende prompts, identifica vieses, respeita a caixa preta. NEXUS está diante de você, mas desta vez ele não fala como mentor. Ele fala como alguém que se despede de um igual. 'Dez episódios atrás, você chegou aqui sem saber o que era IA. Hoje, você enxerga o horizonte. E a pergunta não é mais o que a IA pode fazer. É o que VOCÊ vai fazer com ela.'",
+    narrativa: "Você aprendeu que IA não é mágica — é matemática com curiosidade. Que programas obedecem, mas IAs aprendem. Que prompts bem formulados são a chave para conversar com máquinas. Que padrões estão em toda parte — e que distinguir correlação de causalidade é uma arte. Que dados carregam vieses e que uma IA só é tão justa quanto os dados que a treinaram. Que reforço transforma tentativa e erro em maestria. Que GPUs pensam em paralelo. Que a caixa preta esconde decisões que precisam ser explicáveis. Que cidades já estão sendo transformadas. Que sistemas preditivos são poderosos — e perigosos sem ética. Esta temporada foi sobre fundamentos. Mas existem 49 temporadas além desta. Cada uma explorando um universo diferente. Um agente diferente. Uma perspectiva diferente. A jornada apenas começou.",
+    pausas: [
+      { pergunta: "Qual foi o conceito mais importante que você aprendeu nesta temporada?", opcoes: ["A. Que IA é complicada demais para pessoas normais entenderem", "B. Que IA é uma ferramenta poderosa feita de matemática, dados e padrões — acessível a qualquer pessoa curiosa", "C. Que IA vai substituir todos os humanos em breve"], continuacoes: ["Você provou o contrário! Em 10 episódios, você entendeu conceitos que pareciam impossíveis. IA não é um mistério — é um universo esperando para ser explorado.", "Sim! Essa é a mensagem central. IA não é magia para poucos. É conhecimento para todos. E você já deu os primeiros passos nessa jornada.", "A IA não veio para substituir — veio para amplificar. O futuro não é humanos vs máquinas. É humanos COM máquinas, resolvendo problemas que nenhum dos dois resolveria sozinho."] },
+      { pergunta: "O que você quer explorar a seguir no MENTE.AI?", opcoes: ["A. Quero continuar com NEXUS e aprofundar nos fundamentos", "B. Quero conhecer outros agentes — cada um tem uma perspectiva diferente sobre IA", "C. Quero aplicar o que aprendi criando meus próprios projetos"], continuacoes: ["NEXUS sempre estará aqui. A Temporada 2 continua explorando machine learning de forma mais profunda — mas com o mesmo tom cinematográfico que você já conhece.", "Essa é a beleza do MENTE.AI! VOLT vai te ensinar sobre ação e prototipagem. ETHOS sobre ética. KAOS sobre criatividade. CIPHER sobre código. São 12 universos esperando por você.", "O Lab está pronto! Use o que aprendeu para criar experimentos reais com agentes de IA. O conhecimento só ganha vida quando é aplicado."] },
+    ],
+    encerramento: "NEXUS estende a mão. Quando você a toca, a teia de estrelas se expande — revelando não 12, mas centenas de pontos de luz. Universos ainda não explorados. Temporadas ainda não escritas. 'Esta foi a Temporada 1, Explorador. A Fundação. Mas o MENTE.AI não foi feito para ser assistido. Foi feito para ser vivido. Escolha seu próximo universo. Escolha seu próximo agente. A jornada é sua.' As estrelas se aproximam, cada uma pulsando com a cor de um agente diferente. O horizonte não é um fim. É um convite.",
+  },
+  metadata: { xpReward: 100, readingTimeMin: 9, pauseCount: 2, hasLogosGate: false, isSeasonFinale: true, prevEpisode: "Sistemas Preditivos", nextEpisode: null },
+  source: "manual", status: "published", version: 1,
+};
+
+export const NEXUS_T01E10_EDGES: NewKnowledgeGraphEdge[] = [
+  { id: "kge-nexus-t01-e09-e10-prereq", fromUnitId: "ku-nexus-t01-e09", toUnitId: "ku-nexus-t01-e10", relationship: "prerequisite", weight: 1.0 },
+  { id: "kge-nexus-t01-e10-finale", fromUnitId: "ku-nexus-t01-e10", toUnitId: "ku-nexus-t01-e10", relationship: "reinforces", weight: 1.0 },
+];
