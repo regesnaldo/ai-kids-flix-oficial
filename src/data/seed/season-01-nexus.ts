@@ -509,13 +509,6 @@ export const NEXUS_T01E04_ASSET: NewKnowledgeAsset = {
 
 export const NEXUS_T01E04_EDGES: NewKnowledgeGraphEdge[] = [
   {
-    id: "kge-nexus-t01-e03-e04-prereq",
-    fromUnitId: "ku-nexus-t01-e03",
-    toUnitId: "ku-nexus-t01-e04",
-    relationship: "prerequisite",
-    weight: 1.0,
-  },
-  {
     id: "kge-nexus-t01-e04-e05",
     fromUnitId: "ku-nexus-t01-e04",
     toUnitId: "ku-nexus-t01-e05",
@@ -552,9 +545,7 @@ export const NEXUS_T01E05_ASSET: NewKnowledgeAsset = {
   source: "manual", status: "published", version: 1,
 };
 
-export const NEXUS_T01E05_EDGES: NewKnowledgeGraphEdge[] = [
-  { id: "kge-nexus-t01-e04-e05-prereq", fromUnitId: "ku-nexus-t01-e04", toUnitId: "ku-nexus-t01-e05", relationship: "prerequisite", weight: 1.0 },
-];
+export const NEXUS_T01E05_EDGES: NewKnowledgeGraphEdge[] = [];
 
 /* ═══════ EPISÓDIO 6 — Processamento Paralelo 🛡️ LOGOS ═══════ */
 
