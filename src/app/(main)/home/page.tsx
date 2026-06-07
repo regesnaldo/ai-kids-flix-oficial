@@ -7,6 +7,18 @@ import { useSession } from "@/providers/SessionProvider";
 import { createEmotionStyleElement, getPaletteFromEmotionalState, emotionPaletteToStyle } from "@/design-system/colorEngine";
 import JourneyHub from "@/components/journey/JourneyHub";
 import HomeErrorBoundary from "@/components/home/HomeErrorBoundary";
+import NarrativeSuggestionCard from "@/components/universo/NarrativeSuggestionCard";
+import type { NarrativeTransition } from "@/engine/narrative-transitions";
+
+type NarrativeSuggestion = {
+  title: string;
+  description: string;
+  targetAgent: string;
+  confidence: number;
+  isRecovery: boolean;
+  tags: string[];
+  transition: NarrativeTransition | null;
+};
 
 const AGENTS = [
   { id: "nexus", name: "NEXUS", faction: "INTELIGÊNCIA" },
@@ -183,6 +195,15 @@ export default function HomePage() {
   const { cognitiveProfile, progressionSnapshot, healthStatus } = useOasis();
   const { user, isLoading: sessionLoading } = useSession();
 
+  const [narrativeSuggestions, setNarrativeSuggestions] = useState<NarrativeSuggestion[]>([]);
+  useEffect(() => {
+    if (!user?.id) return;
+    fetch(`/api/narrative/suggestions?userId=${user.id}`)
+      .then(res => res.json())
+      .then(data => setNarrativeSuggestions(data.suggestions ?? []))
+      .catch(() => setNarrativeSuggestions([]));
+  }, [user?.id]);
+
   const completedCount = useMemo(
     () => progressionSnapshot.totalCompleted ?? 0,
     [progressionSnapshot.totalCompleted]
@@ -302,6 +323,20 @@ export default function HomePage() {
 
         {/* JOURNEY HUB — jornada cognitiva completa */}
         <JourneyHub />
+
+        {/* NARRATIVE SUGGESTIONS */}
+        {narrativeSuggestions.length > 0 && (
+          <section style={{ marginBottom: "2rem" }}>
+            {narrativeSuggestions.map((suggestion, index) => (
+              <NarrativeSuggestionCard
+                key={`${suggestion.targetAgent}-${index}`}
+                suggestion={suggestion}
+                index={index}
+                onSelect={(targetAgent) => router.push(`/universo/${targetAgent}`)}
+              />
+            ))}
+          </section>
+        )}
 
         {/* AGENT CARDS GRID */}
         <div style={{
