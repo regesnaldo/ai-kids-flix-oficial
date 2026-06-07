@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { getAgentImage } from '@/lib/getAgentImage';
+import { toastError } from '@/lib/toast';
 
 export default function LogoutPage() {
   const router = useRouter();
