@@ -7,15 +7,36 @@
 // Flow:
 //   1. Check knowledge_asset table (TiDB) for published content
 //   2. If found → return cached content with X-Content-Source: cached
-//   3. If not found → generate via DeepSeek V4, save as draft, return
+//   3. If not found → check for draft → return draft with X-Content-Source: draft
+//   4. If nothing exists → resolveProviderWithFallback() → DeepSeek → Groq
+//   5. Generate screenplay, save to knowledge_unit + knowledge_asset, return
 //      with X-Content-Source: generated
 
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { knowledgeAsset, knowledgeUnit } from "@/lib/db/schema";
 import { eq, and } from "drizzle-orm";
+import { resolveProviderWithFallback, chat } from "@/lib/llm/provider";
+import crypto from "crypto";
 
 export const runtime = "nodejs";
+
+const SCREENPLAY_SYSTEM_PROMPT = `Você é um roteirista de séries educativas do MENTE.AI.
+Gere um roteiro cinematográfico interativo em português brasileiro.
+Responda APENAS com JSON válido neste formato:
+{
+  "abertura": "cena de abertura (150-300 caracteres)",
+  "narrativa": "conteúdo educacional (400-800 caracteres)",
+  "pausas": [
+    { "pergunta": "...", "opcoes": ["A", "B", "C"], "continuacoes": ["...", "...", "..."] },
+    { "pergunta": "...", "opcoes": ["A", "B", "C"], "continuacoes": ["...", "...", "..."] }
+  ],
+  "encerramento": "gancho para próximo episódio (150-250 caracteres)"
+}`;
+
+function uuid() {
+  return crypto.randomUUID();
+}
 
 export async function GET(request: NextRequest) {
   try {
@@ -41,7 +62,8 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // 1. Query knowledge_asset for published episode content
+    // ─── Step 1: Check cache ──────────────────────────────────────────
+
     const assets = await db
       .select()
       .from(knowledgeAsset)
@@ -58,7 +80,8 @@ export async function GET(request: NextRequest) {
     const published = assets.find((a) => a.status === "published");
 
     if (published) {
-      // Query the associated knowledge unit for pedagogical metadata
+      console.log("[SERIES/CONTENT] CACHE HIT —", agentId, seasonNum, episodeNum);
+
       const units = await db
         .select()
         .from(knowledgeUnit)
@@ -80,11 +103,14 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // 2. No published content found — generate via DeepSeek as fallback
+    console.log("[SERIES/CONTENT] CACHE MISS —", agentId, seasonNum, episodeNum);
+
+    // ─── Step 2: Check draft ──────────────────────────────────────────
+
     const latestDraft = assets[assets.length - 1];
 
     if (latestDraft) {
-      // Return existing draft while generation happens
+      console.log("[SERIES/CONTENT] DRAFT HIT — returning existing draft");
       return NextResponse.json(
         {
           unit: null,
@@ -98,76 +124,100 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // 3. Nothing at all — trigger generation
-    const apiKey = process.env.DEEPSEEK_API_KEY;
-    if (!apiKey) {
-      return NextResponse.json(
-        { error: "Configuração de IA ausente" },
-        { status: 503 },
-      );
+    console.log("[SERIES/CONTENT] DRAFT MISS — triggering generation");
+
+    // ─── Step 3: Generate via resolveProviderWithFallback() ───────────
+
+    const resolved = await resolveProviderWithFallback();
+
+    if (resolved.provider === "deepseek") {
+      console.log("[SERIES/CONTENT] GENERATING VIA DEEPSEEK");
+    } else {
+      console.log("[SERIES/CONTENT] GENERATING VIA GROQ (fallback)");
     }
 
-    const deepseekResponse = await fetch(
-      "https://api.deepseek.com/v1/chat/completions",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${apiKey}`,
-        },
-        body: JSON.stringify({
-          model: "deepseek-v4-pro",
-          messages: [
-            {
-              role: "system",
-              content: `Você é um roteirista de séries educativas do MENTE.AI.
-Gere um roteiro cinematográfico interativo em português brasileiro.
-Responda APENAS com JSON válido neste formato:
-{
-  "abertura": "cena de abertura (150-300 caracteres)",
-  "narrativa": "conteúdo educacional (400-800 caracteres)",
-  "pausas": [
-    { "pergunta": "...", "opcoes": ["A", "B", "C"], "continuacoes": ["...", "...", "..."] },
-    { "pergunta": "...", "opcoes": ["A", "B", "C"], "continuacoes": ["...", "...", "..."] }
-  ],
-  "encerramento": "gancho para próximo episódio (150-250 caracteres)"
-}`,
-            },
-            {
-              role: "user",
-              content: `Agente: ${agentId}. Temporada ${seasonNum}, Episódio ${episodeNum}. Gere o roteiro.`,
-            },
-          ],
-          max_tokens: 2000,
-          temperature: 0.9,
-        }),
-      },
+    const userPrompt = `Agente: ${agentId}. Temporada ${seasonNum}, Episódio ${episodeNum}. Gere o roteiro.`;
+
+    const rawText = await chat(
+      resolved,
+      [
+        { role: "system", content: SCREENPLAY_SYSTEM_PROMPT },
+        { role: "user", content: userPrompt },
+      ],
+      { maxTokens: 2000, temperature: 0.9 },
     );
 
-    if (!deepseekResponse.ok) {
-      return NextResponse.json(
-        { error: "Falha ao gerar conteúdo com IA" },
-        { status: 502 },
-      );
-    }
-
-    const raw = await deepseekResponse.json();
-    const text = raw.choices[0].message.content;
-    const clean = text.replace(/```json|```/g, "").trim();
+    const clean = rawText.replace(/```json|```/g, "").trim();
     const screenplay = JSON.parse(clean);
+
+    // ─── Step 4: Save to cache ────────────────────────────────────────
+
+    const unitId = uuid();
+    const assetId = uuid();
+    const slug = `${agentId}-s${String(seasonNum).padStart(2, "0")}e${String(episodeNum).padStart(2, "0")}`;
+    const cacheKey = `${slug}-v1`;
+
+    await db.insert(knowledgeUnit).values({
+      id: unitId,
+      title: `${agentId.toUpperCase()} — Episódio ${episodeNum}`,
+      slug,
+      learningObjective: `Compreender os conceitos apresentados no episódio ${episodeNum} de ${agentId}.`,
+      cognitiveLevel: "understand",
+      difficulty: "beginner",
+      tags: [agentId],
+      agentDomain: agentId,
+      version: 1,
+      status: "published",
+    });
+
+    await db.insert(knowledgeAsset).values({
+      id: assetId,
+      knowledgeUnitId: unitId,
+      agentId,
+      season: seasonNum,
+      episode: episodeNum,
+      type: "episode",
+      content: screenplay,
+      source: resolved.provider,
+      generatedBy: `api/series/content (${resolved.provider})`,
+      generatedAt: new Date(),
+      version: 1,
+      status: "published",
+      cacheKey,
+    });
+
+    console.log(
+      `[SERIES/CONTENT] SAVED TO CACHE — asset ${assetId}, unit ${unitId}, provider ${resolved.provider}`,
+    );
 
     return NextResponse.json(
       {
-        unit: null,
+        unit: {
+          id: unitId,
+          slug,
+          title: `${agentId.toUpperCase()} — Episódio ${episodeNum}`,
+          learningObjective: `Compreender os conceitos apresentados no episódio ${episodeNum} de ${agentId}.`,
+          cognitiveLevel: "understand",
+          difficulty: "beginner",
+          tags: [agentId],
+          agentDomain: agentId,
+          version: 1,
+          status: "published",
+        },
         asset: {
+          id: assetId,
+          knowledgeUnitId: unitId,
           type: "episode",
           content: screenplay,
-          source: "deepseek",
+          source: resolved.provider,
           agentId,
           season: seasonNum,
           episode: episodeNum,
+          version: 1,
+          status: "published",
+          cacheKey,
         },
-        source: "deepseek",
+        source: resolved.provider,
       },
       {
         status: 200,
@@ -175,7 +225,19 @@ Responda APENAS com JSON válido neste formato:
       },
     );
   } catch (error) {
-    console.error("[SERIES/CONTENT]", error);
+    const message = error instanceof Error ? error.message : String(error);
+
+    if (message.includes("Nenhum provedor")) {
+      console.log("[SERIES/CONTENT] DEEPSEEK FAILED");
+      console.log("[SERIES/CONTENT] FALLBACK TO GROQ — também falhou");
+      console.log("[SERIES/CONTENT] GROQ FAILED");
+      return NextResponse.json(
+        { error: "Nenhum provedor LLM disponível no momento" },
+        { status: 503 },
+      );
+    }
+
+    console.error("[SERIES/CONTENT] error:", message);
     return NextResponse.json(
       { error: "Erro interno ao resolver conteúdo" },
       { status: 500 },

@@ -125,3 +125,98 @@ export function createLLM(options: LLMOptions = {}): ChatOpenAI {
 export function createAgentLLM(): ChatOpenAI {
   return createLLM({ provider: "auto" });
 }
+
+// ─── Provider fallback with connectivity check ──────────────────────────
+
+export interface ResolvedProviderWithFallback {
+  baseURL: string;
+  apiKey: string;
+  model: string;
+  provider: LLMProvider;
+}
+
+/**
+ * Tenta DeepSeek primeiro (ping /v1/models). Se falhar, cai no Groq.
+ * Se ambos falharem, lança erro.
+ */
+export async function resolveProviderWithFallback(): Promise<ResolvedProviderWithFallback> {
+  const deepseekKey = process.env.DEEPSEEK_API_KEY;
+  if (deepseekKey && deepseekKey.length > 20) {
+    try {
+      const ping = await fetch(`${PROVIDER_URLS.deepseek}/models`, {
+        headers: { Authorization: `Bearer ${deepseekKey}` },
+        signal: AbortSignal.timeout(5000),
+      });
+      if (ping.ok) {
+        console.log("[PROVIDER] DEEPSEEK OK");
+        return {
+          baseURL: PROVIDER_URLS.deepseek,
+          apiKey: deepseekKey,
+          model: DEFAULT_MODELS.deepseek,
+          provider: "deepseek",
+        };
+      }
+      console.log("[PROVIDER] DEEPSEEK FAILED — status", ping.status);
+    } catch {
+      console.log("[PROVIDER] DEEPSEEK FAILED — network error");
+    }
+  }
+
+  const groqKey = process.env.GROQ_API_KEY;
+  if (groqKey && groqKey.length > 20) {
+    try {
+      const ping = await fetch(`${PROVIDER_URLS.groq}/models`, {
+        headers: { Authorization: `Bearer ${groqKey}` },
+        signal: AbortSignal.timeout(5000),
+      });
+      if (ping.ok) {
+        console.log("[PROVIDER] FALLBACK TO GROQ");
+        return {
+          baseURL: PROVIDER_URLS.groq,
+          apiKey: groqKey,
+          model: DEFAULT_MODELS.groq,
+          provider: "groq",
+        };
+      }
+      console.log("[PROVIDER] GROQ FAILED — status", ping.status);
+    } catch {
+      console.log("[PROVIDER] GROQ FAILED — network error");
+    }
+  }
+
+  throw new Error(
+    "Nenhum provedor LLM disponível. DeepSeek e Groq falharam no ping de conectividade."
+  );
+}
+
+// ─── Raw fetch chat completion ──────────────────────────────────────────
+
+export async function chat(
+  provider: ResolvedProviderWithFallback,
+  messages: { role: string; content: string }[],
+  options?: { maxTokens?: number; temperature?: number },
+): Promise<string> {
+  const response = await fetch(`${provider.baseURL}/chat/completions`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${provider.apiKey}`,
+    },
+    body: JSON.stringify({
+      model: provider.model,
+      messages,
+      max_tokens: options?.maxTokens ?? 2000,
+      temperature: options?.temperature ?? 0.9,
+    }),
+  });
+
+  if (!response.ok) {
+    const text = await response.text().catch(() => "");
+    throw new Error(
+      `[${provider.provider}] HTTP ${response.status}: ${text.slice(0, 200)}`,
+    );
+  }
+
+  const data = await response.json();
+  return data.choices[0].message.content;
+}

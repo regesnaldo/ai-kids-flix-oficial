@@ -578,7 +578,7 @@ export const EDITORIAL_STATUS = [
 ] as const;
 export type EditorialStatus = (typeof EDITORIAL_STATUS)[number];
 
-export const CONTENT_SOURCE = ["manual", "deepseek", "hybrid"] as const;
+export const CONTENT_SOURCE = ["manual", "deepseek", "groq", "hybrid"] as const;
 export type ContentSource = (typeof CONTENT_SOURCE)[number];
 
 // ─── knowledge_unit — O ÁTOMO DE CONHECIMENTO ────────────────────────────────
