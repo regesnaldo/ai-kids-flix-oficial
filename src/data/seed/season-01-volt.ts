@@ -71,7 +71,9 @@ export const VOLT_T01E02_ASSET: NewKnowledgeAsset = {
   source: "manual", status: "published", version: 1,
 };
 
-export const VOLT_T01E02_EDGES: NewKnowledgeGraphEdge[] = [];
+export const VOLT_T01E02_EDGES: NewKnowledgeGraphEdge[] = [
+  { id: "kge-volt-t01-e02-e03", fromUnitId: "ku-volt-t01-e02", toUnitId: "ku-volt-t01-e03", relationship: "next", weight: 1.0 },
+];
 
 /* ═══════ EPISÓDIO 3 — Testando no Mundo Real 🛡️ LOGOS ═══════ */
 
@@ -101,7 +103,9 @@ export const VOLT_T01E03_ASSET: NewKnowledgeAsset = {
   source: "manual", status: "published", version: 1,
 };
 
-export const VOLT_T01E03_EDGES: NewKnowledgeGraphEdge[] = [];
+export const VOLT_T01E03_EDGES: NewKnowledgeGraphEdge[] = [
+  { id: "kge-volt-t01-e03-e04", fromUnitId: "ku-volt-t01-e03", toUnitId: "ku-volt-t01-e04", relationship: "next", weight: 1.0 },
+];
 
 /* ═══════ EPISÓDIO 4 — Iteração Acelerada ═══════ */
 
@@ -131,7 +135,9 @@ export const VOLT_T01E04_ASSET: NewKnowledgeAsset = {
   source: "manual", status: "published", version: 1,
 };
 
-export const VOLT_T01E04_EDGES: NewKnowledgeGraphEdge[] = [];
+export const VOLT_T01E04_EDGES: NewKnowledgeGraphEdge[] = [
+  { id: "kge-volt-t01-e04-e05", fromUnitId: "ku-volt-t01-e04", toUnitId: "ku-volt-t01-e05", relationship: "next", weight: 1.0 },
+];
 
 /* ═══════ EPISÓDIO 5 — O Poder da Colaboração ═══════ */
 
@@ -161,6 +167,10 @@ export const VOLT_T01E05_ASSET: NewKnowledgeAsset = {
   source: "manual", status: "published", version: 1,
 };
 
+export const VOLT_T01E05_EDGES: NewKnowledgeGraphEdge[] = [
+  { id: "kge-volt-t01-e05-e06", fromUnitId: "ku-volt-t01-e05", toUnitId: "ku-volt-t01-e06", relationship: "next", weight: 1.0 },
+];
+
 /* ═══════ EPISÓDIO 6 — Escalando a Solução 🛡️ LOGOS ═══════ */
 
 export const VOLT_T01E06_UNIT: NewKnowledgeUnit = {
@@ -188,6 +198,10 @@ export const VOLT_T01E06_ASSET: NewKnowledgeAsset = {
   metadata: { xpReward: 60, readingTimeMin: 8, pauseCount: 2, hasLogosGate: true, logosGateEpisode: true, prevEpisode: "O Poder da Colaboração", nextEpisode: "Métricas que Importam" },
   source: "manual", status: "published", version: 1,
 };
+
+export const VOLT_T01E06_EDGES: NewKnowledgeGraphEdge[] = [
+  { id: "kge-volt-t01-e06-e07", fromUnitId: "ku-volt-t01-e06", toUnitId: "ku-volt-t01-e07", relationship: "next", weight: 1.0 },
+];
 
 /* ═══════ EPISÓDIO 7 — Métricas que Importam ═══════ */
 
@@ -217,6 +231,10 @@ export const VOLT_T01E07_ASSET: NewKnowledgeAsset = {
   source: "manual", status: "published", version: 1,
 };
 
+export const VOLT_T01E07_EDGES: NewKnowledgeGraphEdge[] = [
+  { id: "kge-volt-t01-e07-e08", fromUnitId: "ku-volt-t01-e07", toUnitId: "ku-volt-t01-e08", relationship: "next", weight: 1.0 },
+];
+
 /* ═══════ EPISÓDIO 8 — Pivotando com Propósito ═══════ */
 
 export const VOLT_T01E08_UNIT: NewKnowledgeUnit = {
@@ -245,6 +263,10 @@ export const VOLT_T01E08_ASSET: NewKnowledgeAsset = {
   source: "manual", status: "published", version: 1,
 };
 
+export const VOLT_T01E08_EDGES: NewKnowledgeGraphEdge[] = [
+  { id: "kge-volt-t01-e08-e09", fromUnitId: "ku-volt-t01-e08", toUnitId: "ku-volt-t01-e09", relationship: "next", weight: 1.0 },
+];
+
 /* ═══════ EPISÓDIO 9 — Lançamento 🛡️ LOGOS ═══════ */
 
 export const VOLT_T01E09_UNIT: NewKnowledgeUnit = {
@@ -272,6 +294,10 @@ export const VOLT_T01E09_ASSET: NewKnowledgeAsset = {
   metadata: { xpReward: 60, readingTimeMin: 8, pauseCount: 2, hasLogosGate: true, logosGateEpisode: true, prevEpisode: "Pivotando com Propósito", nextEpisode: "A Energia Continua" },
   source: "manual", status: "published", version: 1,
 };
+
+export const VOLT_T01E09_EDGES: NewKnowledgeGraphEdge[] = [
+  { id: "kge-volt-t01-e09-e10", fromUnitId: "ku-volt-t01-e09", toUnitId: "ku-volt-t01-e10", relationship: "next", weight: 1.0 },
+];
 
 /* ═══════ EPISÓDIO 10 — A Energia Continua ═══════ */
 
