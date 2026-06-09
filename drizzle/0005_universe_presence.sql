@@ -1,0 +1,8 @@
+-- drizzle/0005_universe_presence.sql
+CREATE TABLE IF NOT EXISTS `universe_presence` (
+  `id` VARCHAR(36) PRIMARY KEY,
+  `user_id` VARCHAR(36) NOT NULL,
+  `agent_id` VARCHAR(50) NOT NULL,
+  `last_seen` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

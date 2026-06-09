@@ -8,6 +8,7 @@ import { createEmotionStyleElement, getPaletteFromEmotionalState, emotionPalette
 import JourneyHub from "@/components/journey/JourneyHub";
 import HomeErrorBoundary from "@/components/home/HomeErrorBoundary";
 import NarrativeSuggestionCard from "@/components/universo/NarrativeSuggestionCard";
+import { PresenceIndicator } from "@/components/PresenceIndicator";
 import type { NarrativeTransition } from "@/engine/narrative-transitions";
 
 type NarrativeSuggestion = {
@@ -196,6 +197,7 @@ export default function HomePage() {
   const { user, isLoading: sessionLoading } = useSession();
 
   const [narrativeSuggestions, setNarrativeSuggestions] = useState<NarrativeSuggestion[]>([]);
+  const [presenceCounts, setPresenceCounts] = useState<Record<string, number>>({});
   useEffect(() => {
     if (!user?.id) return;
     fetch(`/api/narrative/suggestions?userId=${user.id}`)
@@ -203,6 +205,18 @@ export default function HomePage() {
       .then(data => setNarrativeSuggestions(data.suggestions ?? []))
       .catch(() => setNarrativeSuggestions([]));
   }, [user?.id]);
+
+  // Fetch presence counts
+  useEffect(() => {
+    fetch("/api/presence")
+      .then(res => res.json())
+      .then(data => setPresenceCounts(data))
+      .catch(() => {});
+    const int = setInterval(() => {
+      fetch("/api/presence").then(r => r.json()).then(d => setPresenceCounts(d)).catch(() => {});
+    }, 30000);
+    return () => clearInterval(int);
+  }, []);
 
   const completedCount = useMemo(
     () => progressionSnapshot.totalCompleted ?? 0,
@@ -397,6 +411,7 @@ export default function HomePage() {
                     <p style={{ fontFamily: "monospace", fontSize: "10px", color: "#9ca3af", margin: 0 }}>
                       {agent.faction}
                     </p>
+                    <PresenceIndicator agentId={agent.id} count={presenceCounts[agent.id] || 0} color={agent.color} />
                   </div>
                 </div>
               </Link>
