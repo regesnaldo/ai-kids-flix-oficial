@@ -159,13 +159,19 @@ function StatsPanel({ completedCount }: { completedCount: number }) {
     <div style={{
       display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "0.75rem",
       marginBottom: "1.5rem",
+      backgroundImage: 'url(/images/storyboard/dashboard.jpg)',
+      backgroundSize: 'cover', backgroundPosition: 'center',
+      position: 'relative', borderRadius: '8px', overflow: 'hidden',
+      padding: '1rem',
     }}>
+      {/* Overlay escuro */}
+      <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.7)', borderRadius: '8px' }} />
       {items.map(item => (
         <div key={item.label} style={{
           textAlign: "center", padding: "12px 8px",
           background: "rgba(255,255,255,0.03)",
           border: "1px solid rgba(255,255,255,0.06)", borderRadius: "6px",
-          transition: "all 0.3s ease",
+          transition: "all 0.3s ease", position: 'relative', zIndex: 1,
         }}
           onMouseEnter={e => {
             e.currentTarget.style.borderColor = item.accent
@@ -260,6 +266,20 @@ export default function HomePage() {
     <div className="emotion-aware" style={{ minHeight: "100vh", color: "#ffffff", ...palette }}>
       <UtcClock />
       <FooterHud />
+
+      {/* HERO — Storyboard Cena 1 */}
+      <section style={{
+        backgroundImage: 'url(/images/storyboard/landing-hero.jpg)',
+        backgroundSize: 'cover', backgroundPosition: 'center',
+        minHeight: '400px', display: 'flex', alignItems: 'center',
+        justifyContent: 'center', position: 'relative',
+      }}>
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.8))' }} />
+        <div style={{ position: 'relative', textAlign: 'center', color: 'white' }}>
+          <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', fontFamily: 'monospace', color: '#00FFFF' }}>MENTE.AI</h1>
+          <p style={{ color: '#94a3b8', marginTop: '8px' }}>O metaverso educacional de inteligência artificial</p>
+        </div>
+      </section>
 
       {/* HEADER */}
       <header style={{
@@ -442,10 +462,17 @@ export default function HomePage() {
           </div>
         )}
 
-        {/* NEXUS PORTAL */}
-        <div style={{ display: "flex", justifyContent: "center", padding: "2rem 0" }}>
+        {/* NEXUS PORTAL — Storyboard Cena 3 */}
+        <section style={{
+          backgroundImage: 'url(/images/storyboard/universe-entry.jpg)',
+          backgroundSize: 'cover', backgroundPosition: 'center',
+          minHeight: '200px', display: 'flex', alignItems: 'center',
+          justifyContent: 'center', position: 'relative',
+          borderRadius: '12px', overflow: 'hidden', marginTop: '2rem',
+        }}>
+          <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.6)' }} />
           <Link href="/universo/nexus" style={{
-            display: "inline-flex", alignItems: "center", gap: "0.75rem",
+            position: 'relative', display: "inline-flex", alignItems: "center", gap: "0.75rem",
             padding: "1rem 2.5rem",
             border: "1px solid rgba(0,255,255,0.3)", borderRadius: "8px",
             background: "rgba(0,255,255,0.05)", color: "#00FFFF",
@@ -455,7 +482,7 @@ export default function HomePage() {
           }}>
             ✦ ENTRAR NO UNIVERSO NEXUS
           </Link>
-        </div>
+        </section>
 
       </main>
     </div>
