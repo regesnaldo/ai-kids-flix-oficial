@@ -21,18 +21,18 @@ type NarrativeSuggestion = {
 };
 
 const AGENTS = [
-  { id: "nexus", name: "NEXUS", faction: "INTELIGÊNCIA" },
-  { id: "volt", name: "VOLT", faction: "ENERGIA" },
-  { id: "aurora", name: "AURORA", faction: "INOVAÇÃO" },
-  { id: "ethos", name: "ETHOS", faction: "ÉTICA" },
-  { id: "kaos", name: "KAOS", faction: "CAOS" },
-  { id: "cipher", name: "CIPHER", faction: "CRIPTOGRAFIA" },
-  { id: "lyra", name: "LYRA", faction: "CRIATIVIDADE" },
-  { id: "axiom", name: "AXIOM", faction: "ANÁLISE" },
-  { id: "stratos", name: "STRATOS", faction: "ESTRATÉGIA" },
-  { id: "terra", name: "TERRA", faction: "EMPATIA" },
-  { id: "prism", name: "PRISM", faction: "FILOSOFIA" },
-  { id: "janus", name: "JANUS", faction: "CONEXÃO" },
+  { id: "nexus", name: "NEXUS", faction: "INTELIGÊNCIA", color: "#00f5ff", image: "/images/agents/nexus.jpg" },
+  { id: "volt", name: "VOLT", faction: "ENERGIA", color: "#F59E0B", image: "/images/agents/volt.jpg" },
+  { id: "aurora", name: "AURORA", faction: "INOVAÇÃO", color: "#a78bfa", image: "/images/agents/aurora.jpg" },
+  { id: "ethos", name: "ETHOS", faction: "ÉTICA", color: "#ffa500", image: "/images/agents/ethos.jpg" },
+  { id: "kaos", name: "KAOS", faction: "CAOS", color: "#ff6b35", image: "/images/agents/kaos.jpg" },
+  { id: "cipher", name: "CIPHER", faction: "CRIPTOGRAFIA", color: "#00ff88", image: "/images/agents/cipher.jpg" },
+  { id: "lyra", name: "LYRA", faction: "CRIATIVIDADE", color: "#f472b6", image: "/images/agents/lyra.jpg" },
+  { id: "axiom", name: "AXIOM", faction: "CIÊNCIA", color: "#3b82f6", image: "/images/agents/axiom.jpg" },
+  { id: "stratos", name: "STRATOS", faction: "ESTRATÉGIA", color: "#94a3b8", image: "/images/agents/stratos.jpg" },
+  { id: "terra", name: "TERRA", faction: "NATUREZA", color: "#22c55e", image: "/images/agents/terra.jpg" },
+  { id: "prism", name: "PRISM", faction: "FILOSOFIA", color: "#e879f9", image: "/images/agents/prism.jpg" },
+  { id: "janus", name: "JANUS", faction: "DUALIDADE", color: "#f59e0b", image: "/images/agents/janus.jpg" },
 ];
 
 function UtcClock() {
@@ -350,29 +350,40 @@ export default function HomePage() {
             return (
               <Link key={agent.id} href={`/universo/${agent.id}`} style={{ textDecoration: "none" }}>
                 <div style={{
-                  background: unlocked ? "rgba(0,255,255,0.05)" : "rgba(0,255,255,0.02)",
-                  border: `1px solid ${unlocked ? "rgba(0,255,255,0.3)" : "rgba(0,255,255,0.1)"}`,
-                  borderRadius: "4px", padding: "20px", cursor: "pointer",
-                  transition: "all 0.2s ease",
+                  height: "220px",
+                  backgroundImage: `url(${agent.image})`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center top',
+                  border: `1px solid ${unlocked ? agent.color : "rgba(255,255,255,0.1)"}`,
+                  borderRadius: "8px",
+                  cursor: "pointer",
+                  position: "relative",
+                  overflow: "hidden",
+                  transition: "all 0.3s ease",
                 }}
                   onMouseEnter={e => {
-                    (e.currentTarget as HTMLDivElement).style.background = "rgba(0,255,255,0.08)";
-                    (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(0,255,255,0.5)";
+                    (e.currentTarget as HTMLDivElement).style.boxShadow = `0 0 16px ${agent.color}40`;
+                    (e.currentTarget as HTMLDivElement).style.transform = "scale(1.03)";
                   }}
                   onMouseLeave={e => {
-                    (e.currentTarget as HTMLDivElement).style.background = unlocked ? "rgba(0,255,255,0.05)" : "rgba(0,255,255,0.02)";
-                    (e.currentTarget as HTMLDivElement).style.borderColor = unlocked ? "rgba(0,255,255,0.3)" : "rgba(0,255,255,0.1)";
+                    (e.currentTarget as HTMLDivElement).style.boxShadow = "none";
+                    (e.currentTarget as HTMLDivElement).style.transform = "scale(1)";
                   }}
                 >
-                  <p style={{ fontFamily: "monospace", fontSize: "14px", color: "#00FFFF", letterSpacing: "0.1em", margin: "0 0 0.25rem", textTransform: "uppercase" }}>
-                    {agent.name}
-                  </p>
-                  <p style={{ fontFamily: "monospace", fontSize: "10px", color: "#00FF88", margin: "0 0 0.5rem" }}>
-                    {agent.faction}
-                  </p>
-                  <p style={{ fontFamily: "monospace", fontSize: "10px", color: unlocked ? "#00FF88" : "rgba(255,255,255,0.3)", margin: 0 }}>
-                    {unlocked ? "ONLINE" : "LOCKED"}
-                  </p>
+                  {/* Overlay escuro */}
+                  <div style={{
+                    position: "absolute", inset: 0,
+                    background: "linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.1) 100%)",
+                  }} />
+                  {/* Info no canto inferior */}
+                  <div style={{ position: "absolute", bottom: "12px", left: "12px", right: "12px" }}>
+                    <p style={{ fontFamily: "monospace", fontSize: "13px", color: agent.color, letterSpacing: "0.1em", margin: "0 0 2px", textTransform: "uppercase", textShadow: `0 0 8px ${agent.color}80` }}>
+                      {agent.name}
+                    </p>
+                    <p style={{ fontFamily: "monospace", fontSize: "10px", color: "#9ca3af", margin: 0 }}>
+                      {agent.faction}
+                    </p>
+                  </div>
                 </div>
               </Link>
             );
