@@ -255,6 +255,10 @@ export const ETHOS_T01E09_ASSET: NewKnowledgeAsset = {
   source: "manual", status: "published", version: 1,
 };
 
+export const ETHOS_T01E09_EDGES: NewKnowledgeGraphEdge[] = [
+  { id: "kge-ethos-t01-e09-e10", fromUnitId: "ku-ethos-t01-e09", toUnitId: "ku-ethos-t01-e10", relationship: "next", weight: 1.0 },
+];
+
 /* ═══════ EPISÓDIO 10 — Sabedoria ═══════ */
 
 export const ETHOS_T01E10_UNIT: NewKnowledgeUnit = {
