@@ -159,19 +159,13 @@ function StatsPanel({ completedCount }: { completedCount: number }) {
     <div style={{
       display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "0.75rem",
       marginBottom: "1.5rem",
-      backgroundImage: 'url(/images/storyboard/dashboard.jpg)',
-      backgroundSize: 'cover', backgroundPosition: 'center',
-      position: 'relative', borderRadius: '8px', overflow: 'hidden',
-      padding: '1rem',
     }}>
-      {/* Overlay escuro */}
-      <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.7)', borderRadius: '8px' }} />
       {items.map(item => (
         <div key={item.label} style={{
           textAlign: "center", padding: "12px 8px",
           background: "rgba(255,255,255,0.03)",
           border: "1px solid rgba(255,255,255,0.06)", borderRadius: "6px",
-          transition: "all 0.3s ease", position: 'relative', zIndex: 1,
+          transition: "all 0.3s ease",
         }}
           onMouseEnter={e => {
             e.currentTarget.style.borderColor = item.accent
