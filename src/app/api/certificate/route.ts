@@ -27,7 +27,7 @@ export async function GET(req: NextRequest) {
       .select({ count: sql<number>`count(*)`.mapWith(Number) })
       .from(schema.explorerProgress)
       .where(
-        sql`${schema.explorerProgress.explorerId} = ${explorerId} AND ${schema.explorerProgress.completed} = true`
+        sql`${schema.explorerProgress.explorerId} = ${explorerId} AND ${schema.explorerProgress.completedAt} IS NOT NULL`
       );
 
     const completed = progress[0]?.count ?? 0;
