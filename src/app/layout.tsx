@@ -44,6 +44,9 @@ export const metadata: Metadata = {
   authors: [{ name: "MENTE.AI" }],
   creator: "MENTE.AI",
   publisher: "MENTE.AI",
+  verification: {
+    google: "78d84bad73e7cc4",
+  },
   formatDetection: { telephone: false },
   robots: {
     index: true,
