@@ -1,10 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { drizzle } from "drizzle-orm/mysql2";
 import { v4 as uuid } from "uuid";
-import * as schema from "@/lib/db/schema";
+import { db } from "@/lib/db";
+import { universePresence } from "@/lib/db/schema";
 import { sql } from "drizzle-orm";
-
-const db = drizzle(process.env.DATABASE_URL!, { schema, mode: "default" });
 
 // GET /api/presence — contagem de participantes por universo (últimos 5 min)
 export async function GET() {
@@ -12,12 +10,12 @@ export async function GET() {
     const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
     const rows = await db
       .select({
-        agentId: schema.universePresence.agentId,
+        agentId: universePresence.agentId,
         count: sql<number>`count(*)`.mapWith(Number),
       })
-      .from(schema.universePresence)
-      .where(sql`${schema.universePresence.lastSeen} >= ${fiveMinutesAgo}`)
-      .groupBy(schema.universePresence.agentId);
+      .from(universePresence)
+      .where(sql`${universePresence.lastSeen} >= ${fiveMinutesAgo}`)
+      .groupBy(universePresence.agentId);
 
     const result: Record<string, number> = {};
     for (const row of rows) {
@@ -42,7 +40,7 @@ export async function POST(req: NextRequest) {
     const userId = token ? atob(token) : "anon";
 
     await db
-      .insert(schema.universePresence)
+      .insert(universePresence)
       .values({
         id: uuid(),
         userId,
