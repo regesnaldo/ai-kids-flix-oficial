@@ -277,7 +277,7 @@ export default function HomePage() {
 
       {/* HERO — Storyboard Cena 1 */}
       <section style={{
-        backgroundImage: 'url(/images/storyboard/landing-hero.jpg)',
+        backgroundImage: 'url(/images/storyboard/episode-circle-v2.jpg)',
         backgroundSize: 'cover', backgroundPosition: 'center',
         minHeight: '400px', display: 'flex', alignItems: 'center',
         justifyContent: 'center', position: 'relative',
@@ -328,6 +328,23 @@ export default function HomePage() {
             Seu universo aguarda.
           </p>
         </div>
+
+        {/* AGENTS GRID — Storyboard */}
+        <section style={{
+          backgroundImage: 'url(/images/storyboard/agents-grid.jpg)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          minHeight: '300px',
+          position: 'relative',
+          marginBottom: '2rem',
+          borderRadius: '12px',
+          overflow: 'hidden',
+        }}>
+          <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.6)' }} />
+          <div style={{ position: 'relative', textAlign: 'center', padding: '60px 20px', color: 'white' }}>
+            <p style={{ fontFamily: 'monospace', color: '#00FFFF', fontSize: '0.8rem', letterSpacing: '4px' }}>12 UNIVERSOS — 120 EPISÓDIOS</p>
+          </div>
+        </section>
 
         {/* STATS ROW */}
         <StatsPanel completedCount={completedCount} />
