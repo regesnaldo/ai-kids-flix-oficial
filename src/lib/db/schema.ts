@@ -714,3 +714,15 @@ export const knowledgeGraphEdge = mysqlTable(
 export type KnowledgeGraphEdge = typeof knowledgeGraphEdge.$inferSelect;
 export type NewKnowledgeGraphEdge = typeof knowledgeGraphEdge.$inferInsert;
 export type NewLogosAttempt = typeof logosAttempts.$inferInsert;
+
+// ─── universe_presence — INDICADOR DE PRESENÇA POR UNIVERSO ──────────────────
+export const universePresence = mysqlTable("universe_presence", {
+  id: varchar("id", { length: 36 }).primaryKey(),
+  userId: varchar("user_id", { length: 36 }).notNull(),
+  agentId: varchar("agent_id", { length: 50 }).notNull(),
+  lastSeen: timestamp("last_seen").defaultNow().onUpdateNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export type UniversePresence = typeof universePresence.$inferSelect;
+export type NewUniversePresence = typeof universePresence.$inferInsert;
