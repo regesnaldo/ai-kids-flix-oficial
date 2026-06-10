@@ -277,7 +277,7 @@ export default function HomePage() {
 
       {/* HERO — Storyboard Cena 1 */}
       <section style={{
-        backgroundImage: 'url(/images/storyboard/episode-circle-v2.jpg)',
+        backgroundImage: 'url(/images/storyboard/landing-hero.jpg)',
         backgroundSize: 'cover', backgroundPosition: 'center',
         minHeight: '400px', display: 'flex', alignItems: 'center',
         justifyContent: 'center', position: 'relative',
@@ -342,7 +342,11 @@ export default function HomePage() {
         }}>
           <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.6)' }} />
           <div style={{ position: 'relative', textAlign: 'center', padding: '60px 20px', color: 'white' }}>
-            <p style={{ fontFamily: 'monospace', color: '#00FFFF', fontSize: '0.8rem', letterSpacing: '4px' }}>12 UNIVERSOS — 120 EPISÓDIOS</p>
+            <h2 style={{ fontFamily: 'monospace', color: '#00FFFF', fontSize: '1.5rem', letterSpacing: '4px', marginBottom: '8px' }}>12 UNIVERSOS DE IA</h2>
+            <p style={{ color: '#94a3b8', fontSize: '0.9rem', marginBottom: '24px' }}>Escolha seu agente e comece sua jornada</p>
+            <a href="/explorar" style={{ background: 'transparent', border: '1px solid #00FFFF', color: '#00FFFF', padding: '12px 32px', fontFamily: 'monospace', fontSize: '0.8rem', letterSpacing: '2px', cursor: 'pointer', textDecoration: 'none' }}>
+              EXPLORAR UNIVERSOS →
+            </a>
           </div>
         </section>
 
