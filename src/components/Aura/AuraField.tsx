@@ -27,7 +27,12 @@ export const AuraField = memo(function AuraField({
 }: AuraFieldProps) {
   if (intensity === 0) return null;
 
-  const patternClass = styles[pattern] ?? styles.sereno;
+  const patternClass =
+    pattern === "sereno" ? styles.sereno :
+    pattern === "eletrico" ? styles.eletrico :
+    pattern === "caotico" ? styles.caotico :
+    pattern === "etereo" ? styles.etereo :
+    styles.sereno;
 
   return (
     <div
