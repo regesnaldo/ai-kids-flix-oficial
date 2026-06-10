@@ -10,6 +10,9 @@ import HomeErrorBoundary from "@/components/home/HomeErrorBoundary";
 import NarrativeSuggestionCard from "@/components/universo/NarrativeSuggestionCard";
 import { PresenceIndicator } from "@/components/PresenceIndicator";
 import type { NarrativeTransition } from "@/engine/narrative-transitions";
+import { HeroCTA } from "@/components/Home/HeroCTA";
+import { SubHero } from "@/components/Home/SubHero";
+import { ContinueCard } from "@/components/Home/ContinueCard";
 
 type NarrativeSuggestion = {
   title: string;
@@ -286,8 +289,11 @@ export default function HomePage() {
         <div style={{ position: 'relative', textAlign: 'center', color: 'white' }}>
           <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', fontFamily: 'monospace', color: '#00FFFF' }}>MENTE.AI</h1>
           <p style={{ color: '#94a3b8', marginTop: '8px' }}>O metaverso educacional de inteligência artificial</p>
+          <HeroCTA isNew={completedCount === 0} />
         </div>
       </section>
+
+      <SubHero />
 
       {/* HEADER */}
       <header style={{
@@ -328,6 +334,8 @@ export default function HomePage() {
             Seu universo aguarda.
           </p>
         </div>
+
+        <ContinueCard completedCount={completedCount} isNew={completedCount === 0} />
 
         {/* AGENTS GRID — Storyboard */}
         <section style={{
