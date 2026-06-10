@@ -44,7 +44,7 @@ export async function GET(
     }
 
     // Apenas o próprio usuário pode ver sua aura
-    if (authPayload.userId !== requestedUserId) {
+    if (String(authPayload.userId) !== userId) {
       return NextResponse.json({ error: "Acesso negado" }, { status: 403 });
     }
 
