@@ -24,6 +24,11 @@ export default function CertificadoPage() {
         <div style={{ position: "absolute", top: "-2px", left: "-2px", right: "-2px", bottom: "-2px", borderRadius: "16px", background: "linear-gradient(135deg, rgba(0,255,255,0.1), rgba(139,92,246,0.1))", zIndex: 0 }} />
 
         <div style={{ position: "relative", zIndex: 1 }}>
+          <img 
+            src="/images/storyboard/trophy.jpg" 
+            alt="Certificado MENTE.AI"
+            style={{ width: '100%', maxWidth: '300px', margin: '0 auto 24px', display: 'block', borderRadius: '12px' }}
+          />
           <p style={{ color: "#00FFFF", fontSize: "12px", letterSpacing: "0.3em", textTransform: "uppercase", margin: 0 }}>
             MENTE.AI — FASE 1 NARRATIVA
           </p>
