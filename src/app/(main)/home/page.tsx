@@ -10,9 +10,9 @@ import HomeErrorBoundary from "@/components/home/HomeErrorBoundary";
 import NarrativeSuggestionCard from "@/components/universo/NarrativeSuggestionCard";
 import { PresenceIndicator } from "@/components/PresenceIndicator";
 import type { NarrativeTransition } from "@/engine/narrative-transitions";
-import { HeroCTA } from "@/components/Home/HeroCTA";
-import { SubHero } from "@/components/Home/SubHero";
-import { ContinueCard } from "@/components/Home/ContinueCard";
+import { HeroCTA } from "@/components/home/HeroCTA";
+import { SubHero } from "@/components/home/SubHero";
+import { ContinueCard } from "@/components/home/ContinueCard";
 
 type NarrativeSuggestion = {
   title: string;
