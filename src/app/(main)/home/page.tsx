@@ -277,7 +277,7 @@ export default function HomePage() {
 
       {/* HERO — Storyboard Cena 1 */}
       <section style={{
-        backgroundImage: 'url(/images/storyboard/landing-hero.jpg)',
+        backgroundImage: 'url(/images/storyboard/episode-circle-v1.jpg)',
         backgroundSize: 'cover', backgroundPosition: 'center',
         minHeight: '400px', display: 'flex', alignItems: 'center',
         justifyContent: 'center', position: 'relative',

@@ -9,10 +9,10 @@ const spaceGrotesk = Space_Grotesk({
   display: "swap",
 });
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://ai-kids-flix.vercel.app";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://mente-ai.vercel.app";
 const SITE_NAME = "MENTE.AI";
 const SITE_DESCRIPTION =
-  "Atravesse universos habitados por agentes conscientes com personalidade, memória, conflitos internos e objetivos próprios.";
+  "MENTE.AI — O metaverso educacional de inteligência artificial. 12 universos, 120 episódios, aprendizado gamificado.";
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -23,7 +23,7 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: `${SITE_NAME} — Metaverso Narrativo Vivo de Inteligência Artificial`,
+    default: `${SITE_NAME} — Metaverso Educacional de IA`,
     template: `%s | ${SITE_NAME}`,
   },
   description: SITE_DESCRIPTION,
@@ -38,6 +38,8 @@ export const metadata: Metadata = {
     "deep learning",
     "redes neurais",
     "aulas de IA",
+    "metaverso educacional",
+    "aprendizado gamificado",
   ],
   authors: [{ name: "MENTE.AI" }],
   creator: "MENTE.AI",
@@ -57,30 +59,34 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     siteName: SITE_NAME,
-    title: `${SITE_NAME} — Metaverso Narrativo Vivo de Inteligência Artificial`,
-    description: SITE_DESCRIPTION,
+    title: `${SITE_NAME} — Metaverso Educacional de IA`,
+    description: "Aprenda inteligência artificial com 12 agentes únicos em um metaverso gamificado. 120 episódios, LOGOS gate, certificado de conclusão.",
     url: SITE_URL,
     locale: "pt_BR",
     images: [
       {
-        url: `${SITE_URL}/og-image.png`,
+        url: `${SITE_URL}/images/storyboard/landing-hero.jpg`,
         width: 1200,
         height: 630,
-        alt: "MENTE.AI — Metaverso Narrativo Vivo",
+        alt: "MENTE.AI — Metaverso Educacional de IA",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: `${SITE_NAME} — Metaverso Narrativo Vivo de IA`,
-    description: SITE_DESCRIPTION,
-    images: [`${SITE_URL}/og-image.png`],
+    title: `${SITE_NAME} — Metaverso Educacional de IA`,
+    description: "12 universos de IA, 120 episódios gamificados. Comece sua jornada agora.",
+    images: [`${SITE_URL}/images/storyboard/landing-hero.jpg`],
     creator: "@mente_ai",
   },
   icons: {
     icon: "/favicon.ico",
     shortcut: "/favicon.ico",
     apple: "/apple-icon.png",
+  },
+  other: {
+    "og:image": `${SITE_URL}/images/storyboard/landing-hero.jpg`,
+    "og:url": SITE_URL,
   },
 };
 
