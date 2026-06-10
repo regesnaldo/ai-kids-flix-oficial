@@ -33,7 +33,6 @@ export const AuraField = memo(function AuraField({
     <div
       className={`${styles.aura} ${patternClass} ${className ?? ""}`}
       style={{
-        // @ts-expect-error CSS custom properties
         "--aura-color": color,
         "--aura-size": `${size}px`,
         "--aura-intensity": intensity,
