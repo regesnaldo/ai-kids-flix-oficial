@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
     const explorers = await db
       .select({ id: schema.explorers.id })
       .from(schema.explorers)
-      .where(eq(schema.explorers.userId, parseInt(userId)))
+      .where(eq(schema.explorers.id, parseInt(userId)))
       .limit(1);
 
     const explorerId = explorers[0]?.id;
