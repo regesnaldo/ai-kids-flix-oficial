@@ -400,3 +400,20 @@
 @media (max-width: 768px) {
   .aura-field::before { opacity: calc(var(--aura-intensity, 1) * 0.1); }
 }
+
+/* ═══════ COSMIC BRUTAL — GALAXY SPIN ═══════ */
+@keyframes galaxySpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.animate-galaxy-spin {
+  animation: galaxySpin 120s linear infinite;
+  transform-origin: center center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-galaxy-spin {
+    animation: none;
+  }
+}
