@@ -69,6 +69,7 @@ export const SECTION_DISPLAY_NAMES: Record<PlatformSection, string> = {
   blog: "Arquivos",
   explore: "Cartografia",
   lab: "Quântico",
+  universo: "Universo",
 };
 
 /**
@@ -176,3 +177,25 @@ export const PULSE_SIGNAL_CLASSES = {
     animation: "animate-pulse-fast",
   },
 } as const;
+
+// ─── PRESENCE → BEACON ────────────────────────────────────────────────────────
+
+/**
+ * Converts a presence count for a universe into a BeaconUIObject.
+ * Used by the HUD to signal "N mentes aqui agora" for each agent universe.
+ */
+export function presenceToBeacon(universoId: string, count: number): BeaconUIObject {
+  const intensity = count >= 10 ? "urgent" : count >= 3 ? "moderate" : "subtle";
+  return {
+    id: `presence_${universoId}_${Date.now()}`,
+    section: "universo" as PlatformSection,
+    label: `${count} ${count === 1 ? "mente" : "mentes"} aqui agora`,
+    subtitle: `Universo ${universoId.toUpperCase()} — ${count} explorador${count === 1 ? "" : "es"}`,
+    priority: Math.min(count / 10, 1),
+    unlockType: "discovery",
+    pulseIntensity: intensity,
+    route: `/universo/${universoId}`,
+    expiresAt: null,
+    dismissed: false,
+  };
+}
