@@ -5,6 +5,9 @@ import Link from 'next/link';
 import { User, Star, BookOpen, Trophy, Settings, ChevronRight, Zap, Award, Eye, Pencil } from 'lucide-react';
 import { CATALOG } from '@/constants/catalog';
 import { getWatchMap } from "@/lib/watch-progress";
+import { useAura } from "@/hooks/useAura";
+import { AuraField } from "@/components/Aura/AuraField";
+import { useSession } from "@/providers/SessionProvider";
 
 interface WatchState {
   watchedPct: number;
@@ -49,6 +52,9 @@ export default function PerfilPage() {
       }
     } catch { void 0; }
   }, []);
+
+  const { user } = useSession();
+  const { aura } = useAura(user?.id);
 
   const allEpisodes = useMemo(() =>
     CATALOG.flatMap((p) => (p.seasons ?? []).flatMap((s) => s.episodes ?? [])),
@@ -121,17 +127,29 @@ export default function PerfilPage() {
         {/* Profile card */}
         <div className="mb-8 p-6 rounded-2xl border border-white/10 bg-gradient-to-r from-white/[0.03] to-transparent">
           <div className="flex items-center gap-6">
-            {/* Avatar */}
-            <div
-              className="w-20 h-20 rounded-2xl flex items-center justify-center flex-shrink-0"
-              style={{ background: 'linear-gradient(135deg, #00D9FF, #8B5CF6)' }}
+            {/* Avatar com Aura */}
+            <AuraField
+              color={aura?.colorHex ?? "#3DC0C0"}
+              intensity={aura?.intensity ?? 1}
+              pattern={aura?.pattern ?? "sereno"}
+              size={140}
             >
-              <span className="text-2xl font-black text-white">{initials}</span>
-            </div>
+              <div
+                className="w-20 h-20 rounded-2xl flex items-center justify-center flex-shrink-0"
+                style={{ background: 'linear-gradient(135deg, #00D9FF, #8B5CF6)' }}
+              >
+                <span className="text-2xl font-black text-white">{initials}</span>
+              </div>
+            </AuraField>
 
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
                 <h2 className="text-xl font-bold">{profileName || 'Participante'}</h2>
+                {aura && (
+                  <span className="text-xs font-mono text-zinc-500">
+                    Fase {aura.phase} · {aura.pattern} · Score: {aura.score}
+                  </span>
+                )}
                 <Link href="/conta/perfis" className="p-1 hover:bg-white/10 rounded transition">
                   <Pencil className="w-3.5 h-3.5 text-zinc-400" />
                 </Link>

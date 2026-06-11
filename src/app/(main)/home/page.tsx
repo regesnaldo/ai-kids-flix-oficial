@@ -10,6 +10,10 @@ import HomeErrorBoundary from "@/components/home/HomeErrorBoundary";
 import NarrativeSuggestionCard from "@/components/universo/NarrativeSuggestionCard";
 import { PresenceIndicator } from "@/components/PresenceIndicator";
 import type { NarrativeTransition } from "@/engine/narrative-transitions";
+import { HeroCTA } from "@/components/home/HeroCTA";
+import { SubHero } from "@/components/home/SubHero";
+import { ContinueCard } from "@/components/home/ContinueCard";
+import { CosmicHero } from "@/components/home/CosmicHero";
 
 type NarrativeSuggestion = {
   title: string;
@@ -275,19 +279,10 @@ export default function HomePage() {
       <UtcClock />
       <FooterHud />
 
-      {/* HERO — Storyboard Cena 1 */}
-      <section style={{
-        backgroundImage: 'url(/images/storyboard/episode-circle-v1.jpg)',
-        backgroundSize: 'cover', backgroundPosition: 'center',
-        minHeight: '400px', display: 'flex', alignItems: 'center',
-        justifyContent: 'center', position: 'relative',
-      }}>
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.8))' }} />
-        <div style={{ position: 'relative', textAlign: 'center', color: 'white' }}>
-          <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', fontFamily: 'monospace', color: '#00FFFF' }}>MENTE.AI</h1>
-          <p style={{ color: '#94a3b8', marginTop: '8px' }}>O metaverso educacional de inteligência artificial</p>
-        </div>
-      </section>
+      {/* HERO — Cosmic Brutal */}
+      <CosmicHero isNewUser={completedCount === 0} />
+
+      <SubHero />
 
       {/* HEADER */}
       <header style={{
@@ -328,6 +323,8 @@ export default function HomePage() {
             Seu universo aguarda.
           </p>
         </div>
+
+        <ContinueCard completedCount={completedCount} isNew={completedCount === 0} />
 
         {/* AGENTS GRID — Storyboard */}
         <section style={{
