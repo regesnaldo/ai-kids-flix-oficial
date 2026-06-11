@@ -30,8 +30,6 @@ export const AuraField = memo(function AuraField({
     el.style.setProperty("--aura-intensity", String(intensity));
   }, [color, size, intensity]);
 
-  if (intensity === 0) return null;
-
   return (
     <div
       ref={ref}
