@@ -24,6 +24,7 @@ export const SECTION_ROUTES: Record<PlatformSection, string> = {
   blog: "/blog",
   explore: "/explore",
   lab: "/lab",
+  universo: "/universo",
 };
 
 export const SECTION_LABELS: Record<PlatformSection, string> = {
@@ -32,6 +33,7 @@ export const SECTION_LABELS: Record<PlatformSection, string> = {
   blog: "Arquivos",
   explore: "Cartografia",
   lab: "Núcleo Quântico",
+  universo: "Universos dos Agentes",
 };
 
 // ─── PRIORITY THRESHOLD RULES ─────────────────────────────────────────────────
@@ -115,6 +117,12 @@ const CONNECTIVITY_MATRIX: Record<
       basePriority: 0.8,
       enabled: true,
     },
+    universo: {
+      reasonTemplate: "Explore os 12 universos",
+      unlockType: "discovery",
+      basePriority: 0.85,
+      enabled: true,
+    },
   },
   series: {
     home: {
@@ -139,6 +147,12 @@ const CONNECTIVITY_MATRIX: Record<
       reasonTemplate: "Experimento prático baseado neste módulo",
       unlockType: "experiment",
       basePriority: 0.85,
+      enabled: true,
+    },
+    universo: {
+      reasonTemplate: "Conheça o agente da missão",
+      unlockType: "discovery",
+      basePriority: 0.70,
       enabled: true,
     },
   },
@@ -194,6 +208,14 @@ const CONNECTIVITY_MATRIX: Record<
       enabled: true,
     },
   },
+  universo: {
+    lab: {
+      reasonTemplate: "Aplique no laboratório",
+      unlockType: "discovery",
+      basePriority: 0.80,
+      enabled: true,
+    },
+  },
   lab: {
     home: {
       reasonTemplate: "Retornar ao Núcleo do Sistema",
@@ -217,6 +239,12 @@ const CONNECTIVITY_MATRIX: Record<
       reasonTemplate: "Territórios conectados à sua descoberta",
       unlockType: "territory",
       basePriority: 0.65,
+      enabled: true,
+    },
+    universo: {
+      reasonTemplate: "Aprofunde no universo do agente",
+      unlockType: "discovery",
+      basePriority: 0.75,
       enabled: true,
     },
   },

@@ -104,6 +104,7 @@ function buildContinuationMessage(
     blog: "Arquivos",
     explore: "Cartografia",
     lab: "Núcleo Quântico",
+    universo: "Universos",
   };
 
   const destinationLabels: Record<PlatformSection, string> = {
@@ -112,6 +113,7 @@ function buildContinuationMessage(
     blog: "Arquivos",
     explore: "Cartografia",
     lab: "Núcleo Quântico",
+    universo: "Universos dos Agentes",
   };
 
   if (context.lastDiscoveryTag) {

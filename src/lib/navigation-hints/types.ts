@@ -21,6 +21,7 @@ export const PLATFORM_SECTIONS = [
   "blog",
   "explore",
   "lab",
+  "universo",
 ] as const;
 
 export type PlatformSection = (typeof PLATFORM_SECTIONS)[number];

@@ -90,6 +90,7 @@ export {
   UNLOCK_ACTION_TEXT,
   INTENSITY_STATUS_TEXT,
   PULSE_SIGNAL_CLASSES,
+  presenceToBeacon,
 } from "./beacon-factory";
 
 // ── LAB State Machine ─────────────────────────────────────────────────────────

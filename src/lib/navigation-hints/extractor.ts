@@ -26,6 +26,7 @@ const SECTION_ROUTES: Record<PlatformSection, string> = {
   blog: "/blog",
   explore: "/explore",
   lab: "/lab",
+  universo: "/universo",
 };
 
 // ─── NAV TAG PARSER ───────────────────────────────────────────────────────────
@@ -170,6 +171,7 @@ function buildNaturalReason(section: PlatformSection): string {
     blog: "Análise detalhada nos arquivos",
     explore: "Territórios conectados a esta descoberta",
     lab: "Conceito pronto para experimentação",
+    universo: "Explore os 12 universos dos agentes",
   };
   return reasons[section];
 }
@@ -181,6 +183,7 @@ function sectionToUnlockType(section: PlatformSection): UnlockType {
     blog: "archive",
     explore: "territory",
     lab: "experiment",
+    universo: "discovery",
   };
   return map[section];
 }
@@ -356,6 +359,7 @@ export function getSectionLabel(section: PlatformSection): string {
     blog: "Arquivos",
     explore: "Cartografia",
     lab: "Núcleo Quântico",
+    universo: "Universos dos Agentes",
   };
   return labels[section];
 }
