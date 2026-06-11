@@ -10,6 +10,7 @@ import HomeErrorBoundary from "@/components/home/HomeErrorBoundary";
 import NarrativeSuggestionCard from "@/components/universo/NarrativeSuggestionCard";
 import { PresenceIndicator } from "@/components/PresenceIndicator";
 import type { NarrativeTransition } from "@/engine/narrative-transitions";
+import { CosmicHero } from "@/components/home/CosmicHero";
 
 type NarrativeSuggestion = {
   title: string;
@@ -275,19 +276,12 @@ export default function HomePage() {
       <UtcClock />
       <FooterHud />
 
-      {/* HERO — Storyboard Cena 1 */}
-      <section style={{
-        backgroundImage: 'url(/images/storyboard/episode-circle-v1.jpg)',
-        backgroundSize: 'cover', backgroundPosition: 'center',
-        minHeight: '400px', display: 'flex', alignItems: 'center',
-        justifyContent: 'center', position: 'relative',
-      }}>
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.8))' }} />
-        <div style={{ position: 'relative', textAlign: 'center', color: 'white' }}>
-          <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', fontFamily: 'monospace', color: '#00FFFF' }}>MENTE.AI</h1>
-          <p style={{ color: '#94a3b8', marginTop: '8px' }}>O metaverso educacional de inteligência artificial</p>
-        </div>
-      </section>
+      {/* HERO — Cosmic Brutal */}
+      <CosmicHero
+        isNewUser={!user}
+        episodeLeft={{ episodeNumber: 1, title: "O NASCIMENTO DA IA", accentColor: "cyan" }}
+        episodeRight={{ episodeNumber: 5, title: "REFORCO E RECOMPENSA", accentColor: "magenta" }}
+      />
 
       {/* HEADER */}
       <header style={{
