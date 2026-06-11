@@ -6,6 +6,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import type { AuraState } from "@/lib/aura/types";
+import { useAuraSync } from "@/lib/aura/apply-css";
 
 interface UseAuraResult {
   aura: AuraState | null;
@@ -18,6 +19,9 @@ export function useAura(userId: number | string | null | undefined): UseAuraResu
   const [aura, setAura] = useState<AuraState | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Sincroniza aura com o DOM automaticamente
+  useAuraSync(aura);
 
   const fetchAura = useCallback(() => {
     if (!userId) {

@@ -9,6 +9,8 @@ import JourneyHub from "@/components/journey/JourneyHub";
 import HomeErrorBoundary from "@/components/home/HomeErrorBoundary";
 import NarrativeSuggestionCard from "@/components/universo/NarrativeSuggestionCard";
 import { PresenceIndicator } from "@/components/PresenceIndicator";
+import { presenceToBeacon } from "@/lib/navigation-hints/beacon-factory";
+import { useNavigationStore } from "@/store/useNavigationStore";
 import type { NarrativeTransition } from "@/engine/narrative-transitions";
 import { CosmicHero } from "@/components/home/CosmicHero";
 
@@ -207,15 +209,21 @@ export default function HomePage() {
       .catch(() => setNarrativeSuggestions([]));
   }, [user?.id]);
 
-  // Fetch presence counts
+  // Fetch presence counts + dispatch beacons
   useEffect(() => {
-    fetch("/api/presence")
-      .then(res => res.json())
-      .then(data => setPresenceCounts(data))
-      .catch(() => {});
-    const int = setInterval(() => {
-      fetch("/api/presence").then(r => r.json()).then(d => setPresenceCounts(d)).catch(() => {});
-    }, 30000);
+    const fetchPresence = () => {
+      fetch("/api/presence")
+        .then(res => res.json())
+        .then(data => {
+          setPresenceCounts(data);
+          Object.entries(data as Record<string, number>).forEach(([id, count]) => {
+            useNavigationStore.getState().addBeacon(presenceToBeacon(id, count));
+          });
+        })
+        .catch(() => {});
+    };
+    fetchPresence();
+    const int = setInterval(fetchPresence, 30000);
     return () => clearInterval(int);
   }, []);
 
@@ -390,6 +398,8 @@ export default function HomePage() {
         }}>
           {AGENTS.map((agent, i) => {
             const unlocked = i < completedCount;
+            const count = presenceCounts[agent.id] || 0;
+            const intensity = count >= 10 ? "urgent" : count >= 3 ? "moderate" : "subtle";
             return (
               <Link key={agent.id} href={`/universo/${agent.id}`} style={{ textDecoration: "none" }}>
                 <div style={{
@@ -426,7 +436,7 @@ export default function HomePage() {
                     <p style={{ fontFamily: "monospace", fontSize: "10px", color: "#9ca3af", margin: 0 }}>
                       {agent.faction}
                     </p>
-                    <PresenceIndicator agentId={agent.id} count={presenceCounts[agent.id] || 0} color={agent.color} />
+                    <PresenceIndicator agentId={agent.id} count={count} color={agent.color} pulseIntensity={intensity} />
                   </div>
                 </div>
               </Link>
