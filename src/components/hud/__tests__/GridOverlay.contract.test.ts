@@ -4,9 +4,11 @@
 
 import {
   GridOverlayState,
+  GridOverlayProps,
   GRID_OVERLAY_TRANSITIONS,
   GRID_OVERLAY_OPACITY,
   isValidTransition,
+  validateProps,
 } from "../_contracts";
 
 describe("GridOverlay — Contract", () => {
@@ -47,21 +49,18 @@ describe("GridOverlay — Contract", () => {
   });
 
   test("valid props pass", () => {
-    const { validateProps, GridOverlayProps } = require("../_contracts");
     expect(() =>
       validateProps(GridOverlayProps, { state: "active" })
     ).not.toThrow();
   });
 
   test("invalid state rejected", () => {
-    const { validateProps, GridOverlayProps } = require("../_contracts");
     expect(() =>
       validateProps(GridOverlayProps, { state: "off" })
     ).toThrow();
   });
 
   test("pointerEvents defaults to false", () => {
-    const { GridOverlayProps } = require("../_contracts");
     const parsed = GridOverlayProps.parse({ state: "idle" });
     expect(parsed.pointerEvents).toBe(false);
   });

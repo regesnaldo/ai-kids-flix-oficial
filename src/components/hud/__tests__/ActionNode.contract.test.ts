@@ -4,10 +4,12 @@
 
 import {
   ActionNodeState,
+  ActionNodeProps,
   ACTION_NODE_TRANSITIONS,
   ACTION_NODE_COLORS,
   ACTION_NODE_LOCKED_LABEL,
   isValidTransition,
+  validateProps,
 } from "../_contracts";
 
 describe("ActionNode — Contract", () => {
@@ -89,28 +91,24 @@ describe("ActionNode — Contract", () => {
   // ═══ PROP VALIDATION ════════════════════════════════════════════════════════
 
   test("valid props pass", () => {
-    const { validateProps, ActionNodeProps } = require("../_contracts");
     expect(() =>
       validateProps(ActionNodeProps, { state: "unlocked", label: "EXECUTAR" })
     ).not.toThrow();
   });
 
   test("empty label rejected", () => {
-    const { validateProps, ActionNodeProps } = require("../_contracts");
     expect(() =>
       validateProps(ActionNodeProps, { state: "unlocked", label: "" })
     ).toThrow();
   });
 
   test("label > 40 chars rejected", () => {
-    const { validateProps, ActionNodeProps } = require("../_contracts");
     expect(() =>
       validateProps(ActionNodeProps, { state: "unlocked", label: "A".repeat(41) })
     ).toThrow();
   });
 
   test("invalid state rejected", () => {
-    const { validateProps, ActionNodeProps } = require("../_contracts");
     expect(() =>
       validateProps(ActionNodeProps, { state: "disabled", label: "TESTE" })
     ).toThrow();
