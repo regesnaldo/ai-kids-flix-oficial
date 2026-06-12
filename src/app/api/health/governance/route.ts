@@ -44,7 +44,7 @@ function countAdrs(): { total: number; withAllSections: number; violations: stri
     if (!f.startsWith("ADR-") || !f.endsWith(".md")) continue;
     total++;
     const text = readFileSync(join(dir, f), "utf-8");
-    const missing = required.filter((s) => !text.includes(s.replace("\?", "?")));
+    const missing = required.filter((s) => !text.includes(s.replace("?", "?")));
     if (missing.length === 0) {
       withAllSections++;
     } else {
