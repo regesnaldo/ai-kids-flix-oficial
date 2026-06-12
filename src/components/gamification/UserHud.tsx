@@ -378,7 +378,7 @@ export function UserHud({
                 className="text-xs font-bold uppercase tracking-wider mb-2"
                 style={{ color: "var(--accent-cyan)" }}
               >
-                // COMO FUNCIONA
+                {/* COMO FUNCIONA */}
               </p>
               <div className="space-y-1.5 text-white/60">
                 <p>🎬 Assista episódios → +10 XP</p>

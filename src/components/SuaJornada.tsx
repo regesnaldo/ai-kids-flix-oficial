@@ -66,7 +66,7 @@ export function SuaJornada({ episodios, totalEpisodios, xp, arquetipo, progresso
         <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 24 }}>
           <div style={{ width: 8, height: 8, borderRadius: "50%", background: cor, boxShadow: `0 0 8px ${cor}, 0 0 16px ${cor}`, animation: "pulse 1.5s infinite" }} />
           <span style={{ fontFamily: "monospace", fontSize: "0.75rem", color: cor, letterSpacing: "0.2em", textTransform: "uppercase" }}>
-            // SUA JORNADA — SISTEMA ATIVO
+            {/* SUA JORNADA — SISTEMA ATIVO */}
           </span>
         </div>
 

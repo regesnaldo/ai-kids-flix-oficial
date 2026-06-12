@@ -219,7 +219,7 @@ export default function RecompensasPage() {
             className="text-3xl md:text-5xl lg:text-6xl font-black tracking-tight text-white leading-[1.05]"
             style={{ fontFamily: "var(--font-display)" }}
           >
-            // COMO FUNCIONA O SISTEMA
+            {/* COMO FUNCIONA O SISTEMA */}
             <br />
             <span className="text-[var(--accent-cyan)]">DE RECOMPENSAS</span>
           </h1>

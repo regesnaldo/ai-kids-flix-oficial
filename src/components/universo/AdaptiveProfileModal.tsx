@@ -264,7 +264,7 @@ export default function AdaptiveProfileModal({ isOpen, onClose }: AdaptiveProfil
                   className="space-y-5 mb-8"
                 >
                   <p className="font-mono text-[10px] text-white/30 tracking-[0.2em] uppercase mb-4">
-                    // 3 Dimensões da Mente
+                    {/* 3 Dimensões da Mente */}
                   </p>
                   {(Object.keys(dims) as Array<keyof typeof dims>).map((key) => (
                     <DimensionBar
@@ -280,7 +280,7 @@ export default function AdaptiveProfileModal({ isOpen, onClose }: AdaptiveProfil
                 <div>
                   <div className="flex items-center justify-between mb-4">
                     <p className="font-mono text-[10px] text-white/30 tracking-[0.2em] uppercase">
-                      // Conquistas
+                      {/* Conquistas */}
                     </p>
                     <div className="flex gap-1">
                       <button
