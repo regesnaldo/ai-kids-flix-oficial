@@ -23,6 +23,7 @@ import {
 } from "@/lib/universe/progression-engine";
 import { audioManager } from "@/lib/universe/audio-manager";
 import { MissionOrbit } from "@/components/universe/MissionOrbit";
+import { MemoryGalaxy } from "@/components/universe/MemoryGalaxy";
 import { UniverseHUD } from "@/components/universe/UniverseHUD";
 import { tokens } from "@/design-system/tokens";
 import { typography, toStyle } from "@/design-system/typography";
@@ -243,73 +244,9 @@ export default function UniversoPage() {
         ← TORRE CENTRAL
       </button>
 
-      {/* ── Solar System ── */}
-      <div style={styles.solarSystem}>
+      {/* ── MemoryGalaxy: D3 force simulation ── */}
+      <MemoryGalaxy />
 
-        {/* ── MissionOrbit: SVG connection lines ── */}
-        <MissionOrbit
-          connections={orbitConnections}
-          progression={progression}
-          positions={orbitPositions}
-          width={viewport.w}
-          height={viewport.h}
-        />
-
-        {/* ── Orbital rings ── */}
-        {ALL_PLANET_IDS.filter((id) => id !== "nexus").map((id) => {
-          const config = ORBIT_CONFIG[id];
-          const state = getState(id);
-          const isDiscovered = state !== "undiscovered";
-          return (
-            <div
-              key={`orbit-${id}`}
-              style={{
-                position: "absolute",
-                top: "50%",
-                left: "50%",
-                transform: "translate(-50%, -50%)",
-                width: config.radius * 2,
-                height: config.radius * 2,
-                borderRadius: "50%",
-                border: "1px dashed",
-                borderColor: isDiscovered
-                  ? "rgba(0, 245, 255, 0.12)"
-                  : "rgba(255, 255, 255, 0.04)",
-                pointerEvents: "none",
-              }}
-            />
-          );
-        })}
-
-        {/* ── NEXUS (center) ── */}
-        <PlanetOrb
-          planetId="nexus"
-          state={getState("nexus")}
-          isHovered={hoveredPlanet === "nexus"}
-          onHover={setHoveredPlanet}
-          onClick={handlePlanetClick}
-          isCenter
-        />
-
-        {/* ── Orbiting planets ── */}
-        {ALL_PLANET_IDS.filter((id) => id !== "nexus").map((id) => {
-          const config = ORBIT_CONFIG[id];
-          const state = getState(id);
-          return (
-            <PlanetOrb
-              key={id}
-              planetId={id}
-              state={state}
-              radius={config.radius}
-              angle={config.angle}
-              isHovered={hoveredPlanet === id}
-              onHover={setHoveredPlanet}
-              onClick={handlePlanetClick}
-            />
-          );
-        })}
-
-      </div>
 
       {/* Flash overlay on planet entry */}
       {flashActive && <div style={styles.flashOverlay} />}
