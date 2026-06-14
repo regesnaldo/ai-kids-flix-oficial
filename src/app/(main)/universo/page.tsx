@@ -22,8 +22,8 @@ import {
   type PlayerProgression,
 } from "@/lib/universe/progression-engine";
 import { audioManager } from "@/lib/universe/audio-manager";
-import { MissionOrbit } from "@/components/universe/MissionOrbit";
-import { MemoryGalaxy } from "@/components/universe/MemoryGalaxy";
+
+import MemoryGalaxy from "@/components/universe/MemoryGalaxy";
 import { UniverseHUD } from "@/components/universe/UniverseHUD";
 import { tokens } from "@/design-system/tokens";
 import { typography, toStyle } from "@/design-system/typography";
