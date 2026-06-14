@@ -31,6 +31,7 @@ export default function Navigation() {
 
   const navItems = [
     { label: 'Início', href: '/home' },
+    { label: 'Universos', href: '/universo' },
     { label: 'Séries', href: '/series' },
     { label: 'Blog', href: '/blog' },
     { label: 'Explorar', href: '/explorar' },
@@ -150,7 +151,7 @@ export default function Navigation() {
           {/* Status Bar — clicável para abrir Calibração */}
           <button
             type="button"
-            onClick={() => setIsCalibrationOpen(true)}
+            onClick={() => router.push('/universo')}
             className="hidden md:flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800/50 hover:bg-slate-700/50 transition-colors"
           >
             <Compass className="w-4 h-4 text-cyan-400" />
@@ -171,7 +172,12 @@ export default function Navigation() {
           >
             <Search className="w-5 h-5" />
           </button>
-          <button type="button" className="hidden md:inline-flex text-zinc-300 hover:text-white transition" aria-label="Notificações">
+          <button
+            type="button"
+            onClick={() => router.push('/notificacoes')}
+            className="hidden md:inline-flex text-zinc-300 hover:text-white transition"
+            aria-label="Notificações"
+          >
             <Bell className="w-5 h-5" />
           </button>
 
@@ -188,6 +194,16 @@ export default function Navigation() {
 
               {accountOpen ? (
                 <div className="absolute right-0 top-full mt-3 w-44 bg-zinc-950 border border-zinc-700 shadow-2xl rounded-lg overflow-hidden">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setAccountOpen(false);
+                      router.push('/perfil');
+                    }}
+                    className="w-full text-left px-4 py-3 text-sm text-zinc-200 hover:bg-white/5 transition"
+                  >
+                    Meu Perfil
+                  </button>
                   <button
                     type="button"
                     onClick={() => {
@@ -244,14 +260,6 @@ export default function Navigation() {
                 {item.label}
               </Link>
             ))}
-
-            <Link
-              href="/lab"
-              className="block text-sm text-zinc-300 hover:text-white transition"
-              onClick={() => setMobileOpen(false)}
-            >
-              Lab
-            </Link>
 
             <div className="pt-2 border-t border-zinc-800" />
 
