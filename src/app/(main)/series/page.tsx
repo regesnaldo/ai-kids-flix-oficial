@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { Play, Star } from "lucide-react";
 import { allAgents } from "@/data/agents";
@@ -76,10 +77,11 @@ export default function SeriesPage() {
                 }}
               >
                 {/* Image */}
-                <img
+                <Image
                   src={agent.image}
                   alt={agent.name}
-                  className="absolute inset-0 w-full h-full object-cover opacity-70 group-hover:opacity-95 group-hover:scale-105 transition-all duration-700"
+                  fill
+                  className="object-cover opacity-70 group-hover:opacity-95 group-hover:scale-105 transition-all duration-700"
                   loading="lazy"
                   onError={(e) => {
                     (e.currentTarget as HTMLImageElement).src =

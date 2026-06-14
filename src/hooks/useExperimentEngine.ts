@@ -108,8 +108,8 @@ export function useExperimentEngine(experimentId: string | null) {
       }
 
       return result;
-    } catch (err: any) {
-      const msg = err?.message || "Erro desconhecido";
+    } catch (err: unknown) {
+      const msg = (err as Error)?.message || "Erro desconhecido";
       setError(msg);
       addEvent("agent_error", `❌ ${agent.toUpperCase()} falhou: ${msg}`, agent);
       return null;
@@ -212,7 +212,7 @@ export function useExperimentEngine(experimentId: string | null) {
   }, []);
 
   // ── Load from cached result (zero API calls) ─────────────────────
-  const loadCachedResult = useCallback((cached: any) => {
+  const loadCachedResult = useCallback((cached: Record<string, unknown>) => {
     const { nexus, cipher, kaos, aurora, board: facts } = cached;
     const outputs: Record<string, AgentResult> = {};
 
@@ -229,13 +229,13 @@ export function useExperimentEngine(experimentId: string | null) {
           facts: [],
           nextAgent: "",
           isComplete: agent === "aurora",
-          boardFacts: facts || [],
+          boardFacts: (facts as string[]) || [],
         };
       }
     }
 
     setAgentOutputs(outputs);
-    if (facts) setBoardFacts(facts);
+    if (facts) setBoardFacts(facts as string[]);
     setPhase("complete");
     addEvent("experiment_complete", "📦 Resultado carregado do cache (zero API calls)");
   }, [addEvent]);

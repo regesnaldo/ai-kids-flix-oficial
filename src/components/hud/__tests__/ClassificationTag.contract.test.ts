@@ -4,10 +4,12 @@
 
 import {
   ClassificationTagState,
+  ClassificationTagProps,
   CLASSIFICATION_TAG_TRANSITIONS,
   CLASSIFICATION_TAG_CLEARANCE_COLORS,
   CLASSIFICATION_TAG_CLEARANCE_LABELS,
   isValidTransition,
+  validateProps,
 } from "../_contracts";
 
 describe("ClassificationTag — Contract", () => {
@@ -64,7 +66,6 @@ describe("ClassificationTag — Contract", () => {
   });
 
   test("valid props pass validation", () => {
-    const { validateProps, ClassificationTagProps } = require("../_contracts");
     expect(() =>
       validateProps(ClassificationTagProps, {
         state: "default",
@@ -75,7 +76,6 @@ describe("ClassificationTag — Contract", () => {
   });
 
   test("invalid clearance rejected", () => {
-    const { validateProps, ClassificationTagProps } = require("../_contracts");
     expect(() =>
       validateProps(ClassificationTagProps, {
         state: "default",
@@ -86,7 +86,6 @@ describe("ClassificationTag — Contract", () => {
   });
 
   test("empty label rejected", () => {
-    const { validateProps, ClassificationTagProps } = require("../_contracts");
     expect(() =>
       validateProps(ClassificationTagProps, {
         state: "default",

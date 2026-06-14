@@ -69,6 +69,13 @@ jest.mock("@/lib/db/schema", () => ({
   universeProgression: { __table: "universe_progression" },
 }));
 
+// Mock do Nexus Runtime para aceitar todas as propostas
+jest.mock("@/lib/nexus", () => ({
+  nexusRuntime: {
+    submitProposal: jest.fn().mockReturnValue({ accepted: true }),
+  },
+}));
+
 // ═══════════════════════════════════════════════════════════════════════════════
 // HELPERS
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -106,13 +113,14 @@ function makeDbRow(overrides: Record<string, unknown> = {}) {
 function mockDbHasRow(rowOverrides: Record<string, unknown> = {}) {
   mockDbLimit.mockResolvedValue([makeDbRow(rowOverrides)]);
   mockDbValues.mockResolvedValue(undefined);
-  mockDbWhere.mockResolvedValue(undefined);
+  mockDbSet.mockReturnValue({ where: mockDbWhere });
 }
 
 /** Simula DB vazio (usuário novo) */
 function mockDbEmpty() {
   mockDbLimit.mockResolvedValue([]);
   mockDbValues.mockResolvedValue(undefined);
+  mockDbSet.mockReturnValue({ where: mockDbWhere });
 }
 
 beforeEach(() => {

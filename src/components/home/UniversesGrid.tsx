@@ -2,6 +2,7 @@
 
 import { memo } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { allAgents, type HomeAgent } from "@/data/agents";
 import { getAgentImage, AGENT_IMAGE_FALLBACK } from "@/lib/getAgentImage";
@@ -34,13 +35,13 @@ const UniverseCard = memo(function UniverseCard({ agent }: { agent: HomeAgent })
       >
         {/* Agent image background */}
         <div className="absolute inset-0">
-          <img
+          <Image
             src={getAgentImage(agent.id)}
             alt={agent.name}
+            fill
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
             onError={(e) => { e.currentTarget.src = AGENT_IMAGE_FALLBACK; }}
-            className="w-full h-full object-cover brightness-[0.55] group-hover:brightness-[0.8] transition-all duration-400"
-            loading="lazy"
-            decoding="async"
+            className="object-cover brightness-[0.55] group-hover:brightness-[0.8] transition-all duration-400"
           />
         </div>
 
@@ -87,7 +88,7 @@ export default function UniversesGrid() {
     <section className="w-full py-8">
       <div className="mb-4 px-4 md:px-16">
         <p className="font-mono text-[11px] text-cyan-400/60 tracking-wider uppercase">
-          // 12 UNIVERSOS
+          {/* 12 UNIVERSOS */}
         </p>
         <div className="h-px mt-1 bg-cyan-400/20" />
       </div>

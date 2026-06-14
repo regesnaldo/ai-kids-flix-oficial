@@ -54,7 +54,7 @@ function buildInitialState(): CognitiveState {
 }
 
 export const useCognitiveStore = create<CognitiveState & CognitiveActions>(
-  (set, get) => ({
+  (set, _get) => ({
     ...buildInitialState(),
 
     setUserMood: (userMood) => set({ userMood }),

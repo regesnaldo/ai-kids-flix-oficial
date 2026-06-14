@@ -4,7 +4,7 @@
 
 import { useRef, useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight, ChevronDown } from "lucide-react";
-import type { FilterConfig, ThemeCategory } from "@/services/explorar.service";
+import type { FilterConfig } from "@/services/explorar.service";
 
 /* ─── Props ──────────────────────────────────────────────────────────────── */
 
@@ -26,7 +26,7 @@ function ThemeTabs({
   activeTheme,
   onThemeChange,
 }: {
-  themes: ThemeCategory[];
+  themes: FilterConfig['themes'];
   activeTheme: string | null;
   onThemeChange: (slug: string | null) => void;
 }) {

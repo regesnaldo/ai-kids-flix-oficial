@@ -4,11 +4,13 @@
 
 import {
   PulseBeaconState,
+  PulseBeaconProps,
   PULSE_BEACON_TRANSITIONS,
   PULSE_BEACON_COLORS,
   PULSE_BEACON_ANIMATION,
   PULSE_BEACON_PREFIXES,
   isValidTransition,
+  validateProps,
 } from "../_contracts";
 
 describe("PulseBeacon — Contract", () => {
@@ -69,7 +71,6 @@ describe("PulseBeacon — Contract", () => {
   });
 
   test("valid props pass", () => {
-    const { validateProps, PulseBeaconProps } = require("../_contracts");
     expect(() =>
       validateProps(PulseBeaconProps, {
         state: "moderate",
@@ -80,14 +81,12 @@ describe("PulseBeacon — Contract", () => {
   });
 
   test("optional onNavigate and subtitle are accepted", () => {
-    const { PulseBeaconProps } = require("../_contracts");
     const parsed = PulseBeaconProps.parse({ state: "subtle", label: "Teste" });
     expect(parsed.onNavigate).toBeUndefined();
     expect(parsed.subtitle).toBeUndefined();
   });
 
   test("empty label rejected", () => {
-    const { validateProps, PulseBeaconProps } = require("../_contracts");
     expect(() =>
       validateProps(PulseBeaconProps, { state: "subtle", label: "" })
     ).toThrow();

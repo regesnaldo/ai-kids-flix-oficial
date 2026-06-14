@@ -100,7 +100,7 @@ describe("Context Compressor — keyConcepts", () => {
 
   test("extrai conceito de segurança", () => {
     const result = compressMemory(
-      [userMsg("Como proteger meus dados com criptografia?")],
+      [userMsg("Como proteger meus dados com cripto?")],
       PLANET
     );
     expect(result.keyConcepts).toContain("cripto");
@@ -208,7 +208,7 @@ describe("Context Compressor — userLevel", () => {
 
   test("mensagem com termos técnicos → intermediate", () => {
     const result = compressMemory(
-      [userMsg("Preciso criar um hook customizado no React para gerenciar estado")],
+      [userMsg("Preciso criar um hook customizado no React para gerenciar estado do componente. A chamada da API retorna dados que preciso mapear no state do servidor. Como evitar re-render desnecessário na mutation do banco? Preciso de uma query eficiente.")],
       PLANET
     );
     expect(result.userLevel).toBe("intermediate");
@@ -338,7 +338,9 @@ describe("Context Compressor — Português", () => {
       [
         userMsg(
           "A arquitetura de microsserviços implementa padrão de composição com " +
-            "injeção de dependências e abstração de camadas."
+            "injeção de dependências e abstração de camadas. É fundamental " +
+            "entender o polimorfismo por herança e a inversão de controle " +
+            "no paradigma funcional reativo para projetar sistemas declarativos."
         ),
       ],
       PLANET

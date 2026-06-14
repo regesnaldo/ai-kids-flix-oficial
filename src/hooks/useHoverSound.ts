@@ -5,7 +5,8 @@ export function useHoverSound(enabled: boolean = false) {
   const lastPlayTime = useRef(0);
   useEffect(() => {
     if (!enabled) return;
-    audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const AC = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+    audioContextRef.current = new AC();
     return () => { audioContextRef.current?.close(); };
   }, [enabled]);
   const playHoverSound = () => {

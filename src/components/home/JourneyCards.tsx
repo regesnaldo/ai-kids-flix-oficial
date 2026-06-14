@@ -2,6 +2,7 @@
 
 import { memo } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { getAgentImage, AGENT_IMAGE_FALLBACK } from "@/lib/getAgentImage";
 
@@ -80,13 +81,13 @@ const JourneyCard = memo(function JourneyCard({ journey }: { journey: Journey })
       >
         {/* Agent background image */}
         <div className="absolute inset-0">
-          <img
+          <Image
             src={getAgentImage(journey.agentId)}
             alt={journey.agent}
+            fill
+            sizes="280px"
             onError={(e) => { e.currentTarget.src = AGENT_IMAGE_FALLBACK; }}
-            className="w-full h-full object-cover brightness-[0.3] scale-110 group-hover:brightness-[0.45] transition-all duration-500"
-            loading="lazy"
-            decoding="async"
+            className="object-cover brightness-[0.3] scale-110 group-hover:brightness-[0.45] transition-all duration-500"
           />
         </div>
 
@@ -134,7 +135,7 @@ export default function JourneyCards() {
     <section className="w-full py-8">
       <div className="mb-4 px-4 md:px-16">
         <p className="font-mono text-[11px] text-cyan-400/60 tracking-wider uppercase">
-          // JORNADAS DE APRENDIZADO
+          {/* JORNADAS DE APRENDIZADO */}
         </p>
         <div className="h-px mt-1 bg-cyan-400/20" />
       </div>

@@ -27,14 +27,14 @@ export function findInLocalCache(question: string) {
   }
 }
 
-export function saveToLocalCache(question: string, answer: any) {
+export function saveToLocalCache(question: string, answer: unknown) {
   try {
     const normalized = normalizeQuestion(question);
     const raw = localStorage.getItem(`${CACHE_KEY}_${CACHE_VERSION}`) || "{}";
     const localCache = JSON.parse(raw);
 
     localCache[normalized] = {
-      ...answer,
+      ...(answer as Record<string, unknown>),
       source: "learned",
       savedAt: Date.now(),
     };

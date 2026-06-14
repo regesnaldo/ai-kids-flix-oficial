@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { GamificationProvider } from "@/components/gamification/GamificationProvider";
+import { useAura } from "@/hooks/useAura";
 
 interface SessionUser {
   id: number;
@@ -15,6 +16,9 @@ interface SessionUser {
  */
 export default function GamificationWrapper({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<SessionUser | null>(null);
+
+  // Sincroniza a aura do usuário com o DOM (CSS custom properties)
+  useAura(session?.id);
 
   useEffect(() => {
     (async () => {
