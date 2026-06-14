@@ -342,7 +342,7 @@ function ChatPanel({ onClose, speak }: { onClose: () => void; speak: (text: stri
         display: 'flex', justifyContent: 'space-between', alignItems: 'center',
       }}>
         <span style={{ fontFamily: 'monospace', color: '#00FF88', fontSize: '13px' }}>
-          // NEXUS PRIME
+          {/* NEXUS PRIME */}
         </span>
         <button onClick={onClose} style={{
           background: 'none', border: 'none', color: '#00FFFF',

@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, ChevronLeft, ChevronRight, Play, RotateCcw, ImageOff } from 'lucide-react'
+import NextImage from "next/image"
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -31,25 +32,25 @@ interface VisualStoryPlayerProps {
 // ─── Mood colors ────────────────────────────────────────────────────────────
 
 const MOOD_COLORS: Record<string, string> = {
-  wonder: 'text-neon-cyan border-neon-cyan/50',
-  tension: 'text-red-400 border-red-500/50',
-  calm: 'text-neon-green border-green-500/50',
-  power: 'text-neon-orange border-orange-500/50',
-  mystery: 'text-neon-purple border-purple-500/50',
-  hope: 'text-yellow-400 border-yellow-500/50',
-  awe: 'text-neon-pink border-pink-500/50',
-  curiosity: 'text-neon-blue border-blue-500/50',
+  wonder: '#00f0ff',
+  tension: '#f87171',
+  calm: '#4ade80',
+  power: '#fb923c',
+  mystery: '#a855f7',
+  hope: '#facc15',
+  awe: '#f472b6',
+  curiosity: '#60a5fa',
 }
 
 const MOOD_GRADIENT: Record<string, string> = {
-  wonder: 'from-cyan-900 via-cyan-800 to-indigo-900',
-  tension: 'from-red-900 via-orange-800 to-yellow-900',
-  calm: 'from-green-900 via-teal-800 to-emerald-900',
-  power: 'from-orange-900 via-amber-800 to-yellow-900',
-  mystery: 'from-purple-900 via-violet-800 to-fuchsia-900',
-  hope: 'from-yellow-900 via-amber-800 to-orange-900',
-  awe: 'from-pink-900 via-rose-800 to-fuchsia-900',
-  curiosity: 'from-blue-900 via-cyan-800 to-sky-900',
+  wonder: 'linear-gradient(to bottom right, #164e63, #155e75, #312e81)',
+  tension: 'linear-gradient(to bottom right, #7f1d1d, #9a3412, #713f12)',
+  calm: 'linear-gradient(to bottom right, #14532d, #115e59, #064e3b)',
+  power: 'linear-gradient(to bottom right, #7f1d1d, #92400e, #713f12)',
+  mystery: 'linear-gradient(to bottom right, #581c87, #5b21b6, #701a75)',
+  hope: 'linear-gradient(to bottom right, #713f12, #92400e, #7f1d1d)',
+  awe: 'linear-gradient(to bottom right, #831843, #9f1239, #701a75)',
+  curiosity: 'linear-gradient(to bottom right, #1e3a5f, #155e75, #0c4a6e)',
 }
 
 // ─── Sub-components ─────────────────────────────────────────────────────────
@@ -75,7 +76,8 @@ function ImageWithFallback({
         </div>
       )}
       {errored ? (
-        <div className={`absolute inset-0 flex flex-col items-center justify-center gap-4 bg-gradient-to-br ${gradient}`}>
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-4"
+             style={{ backgroundImage: gradient }}>
           <ImageOff className="w-12 h-12 text-white/40" />
           {sceneTitle && (
             <span className="text-white/80 font-display text-lg text-center px-6">{sceneTitle}</span>
@@ -83,13 +85,14 @@ function ImageWithFallback({
           <span className="text-white/40 text-xs font-mono">ilustração em criação...</span>
         </div>
       ) : (
-        <img
+        <NextImage
           src={src}
           alt={alt}
-          loading="lazy"
+          fill
+          sizes="(max-width: 800px) 100vw, 800px"
           onLoad={() => { setLoaded(true); onLoad?.() }}
           onError={() => setErrored(true)}
-          style={{ width: '100%', height: '450px', objectFit: 'cover' }}
+          style={{ objectFit: 'cover' }}
           className={`transition-opacity duration-700 ${loaded ? 'opacity-100' : 'opacity-0'}`}
         />
       )}
@@ -222,7 +225,7 @@ export function VisualStoryPlayer({ story, onClose, onReplay }: VisualStoryPlaye
         <div className="flex items-center justify-between px-6 py-4 border-b border-cyber-border bg-cyber-panel/50">
           <div>
             <h2 className="text-lg font-display text-white tracking-wide">{story.title}</h2>
-            <span className={`text-xs font-mono ${moodColor.split(' ')[0]}`}>
+            <span className="text-xs font-mono" style={{ color: moodColor }}>
               Cena {current + 1} de {story.total_frames} · {scene?.mood}
             </span>
           </div>

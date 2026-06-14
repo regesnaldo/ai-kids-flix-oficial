@@ -295,13 +295,13 @@ export class MemoryKeeper {
    * When an agent emits MEMORY_SYNC (e.g., an insight was stored),
    * Memory Keeper updates its runtime cache and emits a confirmation.
    */
-  private handleMemorySync(event: any): void {
+  private handleMemorySync(event: Record<string, unknown>): void {
     switch (event.subtype) {
       case "INSIGHT_STORED": {
         const { userId, insight } = event;
-        const profile = this.profiles.get(userId);
+        const profile = this.profiles.get(userId as number);
         if (profile) {
-          profile.insights = [insight, ...profile.insights].slice(0, 20);
+          profile.insights = [insight as string, ...profile.insights].slice(0, 20);
           profile.lastSyncedAt = Date.now();
         }
         break;
@@ -321,7 +321,7 @@ export class MemoryKeeper {
       case "MEMORY_HEALTH_CHECK": {
         console.log(
           `[MemoryKeeper] Health check — ${event.totalEntries} entries, ` +
-          `${event.estimatedTokens} tokens across ${event.activeDomains.join(", ")}`
+          `${event.estimatedTokens} tokens across ${(event.activeDomains as string[]).join(", ")}`
         );
         break;
       }

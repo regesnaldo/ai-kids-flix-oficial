@@ -2,6 +2,7 @@
 import { useEffect, useMemo, useRef, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { Check, ChevronLeft, ChevronRight, Play, X, Star, Zap } from "lucide-react";
 import { getEpisodeById, getSeasonById } from "@/constants/catalog";
 
@@ -167,8 +168,9 @@ function PlayerContent() {
         {/* Episode Header */}
         <div className="flex items-start gap-6 mb-6">
           <div className="flex-shrink-0 w-28 h-28 rounded-md overflow-hidden bg-[#1A1A1A]">
-            <img src={getAgentImage(agentId)} alt={agentId} className="h-full w-full object-cover"
-              onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/images/placeholder.svg"; }} />
+            <Image src={getAgentImage(agentId)} alt={agentId} width={112} height={112} className="object-cover"
+              style={{ width: '112px', height: '112px' }}
+              onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/images/placeholder.svg"; }} unoptimized />
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-3 text-xs text-gray-400 mb-1">

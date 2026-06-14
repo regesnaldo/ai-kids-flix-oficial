@@ -4,11 +4,13 @@
 
 import {
   SignalBarsState,
+  SignalBarsProps,
   SIGNAL_BARS_TRANSITIONS,
   SIGNAL_BARS_COLORS,
   SIGNAL_BARS_FILLED,
   SIGNAL_BARS_LABELS,
   isValidTransition,
+  validateProps,
 } from "../_contracts";
 
 describe("SignalBars — Contract", () => {
@@ -70,14 +72,12 @@ describe("SignalBars — Contract", () => {
   });
 
   test("valid props pass", () => {
-    const { validateProps, SignalBarsProps } = require("../_contracts");
     expect(() =>
       validateProps(SignalBarsProps, { state: "strong" })
     ).not.toThrow();
   });
 
   test("invalid state rejected", () => {
-    const { validateProps, SignalBarsProps } = require("../_contracts");
     expect(() =>
       validateProps(SignalBarsProps, { state: "medium" })
     ).toThrow();

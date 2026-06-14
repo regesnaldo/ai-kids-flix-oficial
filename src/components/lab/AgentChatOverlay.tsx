@@ -153,7 +153,7 @@ export default function AgentChatOverlay() {
               alignSelf: 'flex-start',
               padding: '8px 12px',
               borderRadius: '8px',
-              background: `${AGENT_TABS.find((a) => a.id === activeAgent)?.color}10` || 'rgba(0,245,255,0.05)',
+              background: `${AGENT_TABS.find((a) => a.id === activeAgent)?.color ?? 'rgba(0,245,255,0.05)'}10`,
               border: '1px solid rgba(255,255,255,0.04)',
               fontSize: '20px',
               lineHeight: '1',

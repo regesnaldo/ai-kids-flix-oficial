@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { ArrowLeft, Loader2, Play, Star } from "lucide-react";
@@ -99,11 +100,12 @@ Exemplo: { "titulo": "Os Fundamentos da Atenção", "tema": "Mecanismos de Aten�
         animate={{ opacity: 1, y: 0 }}
         className="flex items-start gap-6 mb-12"
       >
-        <div className="flex-shrink-0 w-32 h-32 rounded-lg overflow-hidden border border-white/10">
-          <img
+        <div className="flex-shrink-0 w-32 h-32 rounded-lg overflow-hidden border border-white/10 relative">
+          <Image
             src={agent.image}
             alt={agent.name}
-            className="w-full h-full object-cover"
+            fill
+            className="object-cover"
             onError={(e) => {
               (e.currentTarget as HTMLImageElement).src =
                 "/images/placeholder.svg";

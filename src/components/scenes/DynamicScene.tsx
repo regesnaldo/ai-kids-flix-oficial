@@ -80,22 +80,26 @@ function SceneLoadingFallback() {
   );
 }
 
+// Pré-cria os componentes lazy no nível do módulo para evitar
+// criar componentes durante o render (react-hooks/static-components)
+const LAZY_SCENES = Object.fromEntries(
+  Object.entries(SCENE_MAP).map(([key, loader]) => [
+    key,
+    dynamic(loader, { ssr: false, loading: () => <SceneLoadingFallback /> }),
+  ])
+);
+
 interface DynamicSceneProps {
   scene: keyof typeof SCENE_MAP;
   className?: string;
 }
 
 export function DynamicScene({ scene, className }: DynamicSceneProps) {
-  const loader = SCENE_MAP[scene];
-  if (!loader) {
+  const LazyScene = LAZY_SCENES[scene];
+  if (!LazyScene) {
     console.warn(`[DynamicScene] Cena "${scene}" não encontrada no mapa.`);
     return null;
   }
-
-  const LazyScene = dynamic(loader, {
-    ssr: false,
-    loading: () => <SceneLoadingFallback />,
-  });
 
   return (
     <div className={className}>

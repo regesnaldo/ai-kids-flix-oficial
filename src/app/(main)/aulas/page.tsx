@@ -2,6 +2,7 @@
 
 import { useMemo, useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Play, Info, ChevronLeft, ChevronRight, Clock, Zap, Star } from 'lucide-react';
 import { CATALOG } from '@/constants/catalog';
@@ -44,12 +45,13 @@ function EpisodeCard({ episode }: { episode: Episode }) {
             boxShadow: hovered ? '0 8px 32px rgba(0,0,0,0.6)' : '0 2px 8px rgba(0,0,0,0.3)',
           }}
         >
-          <img
+          <Image
             src={getEpisodeThumb(episode.agentId)}
             alt={episode.title}
-            className="h-full w-full object-cover"
-            loading="lazy"
+            fill
+            sizes="200px"
             onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/images/placeholder.svg'; }}
+            className="object-cover"
           />
           <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.6), transparent)' }} />
 
@@ -169,13 +171,15 @@ function HeroBanner() {
   return (
     <div className="relative h-[75vh] min-h-[400px] max-h-[600px] mb-8 overflow-hidden">
       <div className="absolute inset-0">
-        <img
+        <Image
           src={getEpisodeThumb(nextEpisode.agentId)}
           alt=""
-          className="h-full w-full object-cover"
+          fill
+          sizes="100vw"
           onError={(e) => {
             (e.currentTarget as HTMLImageElement).style.display = 'none';
           }}
+          className="object-cover"
         />
       </div>
 

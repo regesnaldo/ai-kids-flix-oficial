@@ -378,7 +378,7 @@ function SummaryCard({ summary, title }: { summary: string; title: string }) {
           </div>
           
           <p className="text-2xl text-white/95 leading-relaxed font-light mb-6">
-            "{summary}"
+            {'\u201C'}{summary}{'\u201D'}
           </p>
           
           {/* Animated separator */}
@@ -507,7 +507,7 @@ function useVoiceNarration() {
       
       // Find best matching voice
       const langRoot = lang.split("-")[0];
-      let selectedVoice = 
+      const selectedVoice = 
         voicesRef.current.find(v => v.lang === lang) ||
         voicesRef.current.find(v => v.lang.startsWith(langRoot)) ||
         voicesRef.current.find(v => v.lang.includes('pt')) ||

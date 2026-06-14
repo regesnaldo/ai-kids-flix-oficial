@@ -76,9 +76,11 @@ class AudioManager {
   async suspend(): Promise<void> {
     if (this.state === "active") {
       // Access underlying AudioContext directly — Tone.BaseContext may not expose suspend
-      const ctx = (Tone.getContext() as any).rawContext?.context ?? Tone.getContext();
-      if (typeof (ctx as any).suspend === "function") {
-        await (ctx as any).suspend();
+      const ctx = (
+        Tone.getContext() as unknown as { rawContext?: { context?: AudioContext } }
+      ).rawContext?.context ?? Tone.getContext();
+      if (typeof (ctx as unknown as { suspend?: () => Promise<void> }).suspend === "function") {
+        await (ctx as unknown as { suspend: () => Promise<void> }).suspend();
       }
       this.state = "suspended";
     }
@@ -261,6 +263,7 @@ class AudioManager {
       frequency: 1.5,
       min: -30,
       max: -8,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     }).connect(osc.volume as any);
     lfo.start();
 
@@ -458,6 +461,7 @@ class AudioManager {
       frequency: 0.2,
       min: -35,
       max: -20,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     }).connect(noiseVol.volume as any);
     crackleLfo.start();
 
@@ -500,6 +504,7 @@ class AudioManager {
         frequency: 0.06 + Math.random() * 0.04,
         min: -28,
         max: -18,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       }).connect(osc.volume as any);
       ampLfo.start();
       lfos.push(ampLfo);
@@ -636,6 +641,7 @@ class AudioManager {
       frequency: 0.06,
       min: -35,
       max: -22,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     }).connect(noiseVol.volume as any);
     swellLfo.start();
 

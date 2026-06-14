@@ -7,10 +7,12 @@
 
 import {
   ScannerRingState,
+  ScannerRingProps,
   SCANNER_RING_TRANSITIONS,
   SCANNER_RING_COLORS,
   SCANNER_RING_LABELS,
   isValidTransition,
+  validateProps,
 } from "../_contracts";
 
 describe("ScannerRing — Contract", () => {
@@ -109,24 +111,19 @@ describe("ScannerRing — Contract", () => {
 
   test("valid props pass validation", () => {
     const props = { state: "scanning", size: 64 };
-    // If this throws, the test fails — validation should pass
     expect(() => {
-      const { validateProps } = require("../_contracts");
-      const { ScannerRingProps } = require("../_contracts");
       validateProps(ScannerRingProps, props);
     }).not.toThrow();
   });
 
   test("invalid state string is rejected", () => {
     expect(() => {
-      const { validateProps, ScannerRingProps } = require("../_contracts");
       validateProps(ScannerRingProps, { state: "exploding" });
     }).toThrow();
   });
 
   test("size below minimum is rejected", () => {
     expect(() => {
-      const { validateProps, ScannerRingProps } = require("../_contracts");
       validateProps(ScannerRingProps, { state: "idle", size: 10 });
     }).toThrow();
   });

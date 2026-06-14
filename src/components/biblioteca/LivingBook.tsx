@@ -130,7 +130,8 @@ export default function LivingBook({
         } preserve-3d`}
       >
         <div
-          className={`pointer-events-none absolute -right-8 -top-8 h-20 w-20 rounded-full blur-2xl ${accentClass}`}
+          className="pointer-events-none absolute -right-8 -top-8 h-20 w-20 rounded-full blur-2xl"
+          style={{ backgroundColor: `${cfg.glow}4D` }}
           aria-hidden
         />
 

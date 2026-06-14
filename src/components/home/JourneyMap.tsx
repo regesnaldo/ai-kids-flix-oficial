@@ -51,7 +51,7 @@ export default function JourneyMap({
       {/* Header */}
       <div style={{ marginBottom: '1.5rem' }}>
         <p style={{ fontFamily: 'monospace', fontSize: '11px', color: '#00FF88', margin: '0 0 0.25rem', letterSpacing: '0.1em' }}>
-          // TRILHA PERCORRIDA
+          {/* TRILHA PERCORRIDA */}
         </p>
         <p style={{ fontFamily: 'monospace', fontSize: '10px', color: '#0088FF', margin: 0 }}>
           {completedCount}/12 UNIVERSOS VISITADOS — {progressPct}% DA JORNADA
@@ -140,7 +140,7 @@ export default function JourneyMap({
       {/* 3 Dimensions */}
       <div>
         <p style={{ fontFamily: 'monospace', fontSize: '10px', color: '#00FF88', margin: '0 0 0.75rem', letterSpacing: '0.1em' }}>
-          // PERFIL COGNITIVO INVISÍVEL
+          {/* PERFIL COGNITIVO INVISÍVEL */}
         </p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           {dimensions.map(dim => (

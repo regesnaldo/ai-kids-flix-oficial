@@ -52,18 +52,18 @@ interface AnimatedVisualizerProps {
 const DEFAULT_UNIVERSE: UniverseId = "NEXUS";
 
 const universeDescriptors: Record<UniverseId, { title: string; tint: string }> = {
-  NEXUS: { title: "Cosmic data particles", tint: "from-blue-500/30 to-violet-500/20" },
-  VOLT: { title: "Electric arena", tint: "from-amber-400/30 to-orange-500/20" },
-  STRATOS: { title: "Infinite chess tower", tint: "from-emerald-400/25 to-sky-500/20" },
-  KAOS: { title: "Collapsing fragmented space", tint: "from-rose-500/25 to-fuchsia-500/20" },
-  ETHOS: { title: "Infinite floating library", tint: "from-cyan-500/25 to-indigo-500/20" },
-  LYRA: { title: "Synesthesia color flow", tint: "from-pink-500/25 to-purple-500/20" },
-  AURORA: { title: "Perpetual horizon skybox", tint: "from-sky-400/25 to-teal-500/20" },
-  TERRA: { title: "Organic growing forest", tint: "from-lime-400/25 to-green-500/20" },
-  AXIOM: { title: "Holographic data lab", tint: "from-cyan-400/25 to-blue-500/20" },
-  CIPHER: { title: "Procedural code maze", tint: "from-indigo-400/25 to-violet-500/20" },
-  JANUS: { title: "Situational humor visuals", tint: "from-yellow-300/25 to-pink-500/20" },
-  PRISM: { title: "Multi-viewport reality split", tint: "from-violet-500/25 to-cyan-500/20" },
+  NEXUS: { title: "Cosmic data particles", tint: "linear-gradient(to bottom right, rgba(59,130,246,0.3), rgba(139,92,246,0.2))" },
+  VOLT: { title: "Electric arena", tint: "linear-gradient(to bottom right, rgba(251,191,36,0.3), rgba(249,115,22,0.2))" },
+  STRATOS: { title: "Infinite chess tower", tint: "linear-gradient(to bottom right, rgba(52,211,153,0.25), rgba(14,165,233,0.2))" },
+  KAOS: { title: "Collapsing fragmented space", tint: "linear-gradient(to bottom right, rgba(244,63,94,0.25), rgba(217,70,239,0.2))" },
+  ETHOS: { title: "Infinite floating library", tint: "linear-gradient(to bottom right, rgba(6,182,212,0.25), rgba(99,102,241,0.2))" },
+  LYRA: { title: "Synesthesia color flow", tint: "linear-gradient(to bottom right, rgba(236,72,153,0.25), rgba(168,85,247,0.2))" },
+  AURORA: { title: "Perpetual horizon skybox", tint: "linear-gradient(to bottom right, rgba(56,189,248,0.25), rgba(20,184,166,0.2))" },
+  TERRA: { title: "Organic growing forest", tint: "linear-gradient(to bottom right, rgba(163,230,53,0.25), rgba(34,197,94,0.2))" },
+  AXIOM: { title: "Holographic data lab", tint: "linear-gradient(to bottom right, rgba(34,211,238,0.25), rgba(59,130,246,0.2))" },
+  CIPHER: { title: "Procedural code maze", tint: "linear-gradient(to bottom right, rgba(129,140,248,0.25), rgba(139,92,246,0.2))" },
+  JANUS: { title: "Situational humor visuals", tint: "linear-gradient(to bottom right, rgba(253,224,71,0.25), rgba(236,72,153,0.2))" },
+  PRISM: { title: "Multi-viewport reality split", tint: "linear-gradient(to bottom right, rgba(139,92,246,0.25), rgba(34,211,238,0.2))" },
 };
 
 function UniverseScene({ universe }: { universe: UniverseId }) {
@@ -172,7 +172,8 @@ export function AnimatedVisualizer({
           className={`relative w-full overflow-hidden bg-transparent ${fillContainer ? "h-full rounded-none border-0" : "h-64 md:h-96 rounded-2xl border border-white/10"}`}
           style={lyraTintStyle}
         >
-          <div className={`absolute inset-0 bg-gradient-to-br ${universeMeta.tint} pointer-events-none z-0`} />
+          <div className="absolute inset-0 pointer-events-none z-0"
+               style={{ backgroundImage: universeMeta.tint }} />
 
           <Canvas
             camera={{ position: [0, 0, 18], fov: 45 }}

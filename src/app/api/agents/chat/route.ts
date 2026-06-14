@@ -37,7 +37,7 @@ const AI_CONCEPT_KEYWORDS = [
 ]
 
 const QUESTION_PATTERNS = [
-  /\\bo\\s+que\\s+[éé]\\b/i, /\\bcomo\\s+funciona\\b/i,
+  /\\bo\\s+que\\s+é\\b/i, /\\bcomo\\s+funciona\\b/i,
   /\\bexplique\\b/i, /\\bexplica\\b/i, /\\bme\\s+explica\\b/i,
   /\\bwhat\\s+is\\b/i, /\\bhow\\s+does\\b/i, /\\bexplain\\b/i,
   /\\bcomo\\s+se\\s+faz\\b/i,

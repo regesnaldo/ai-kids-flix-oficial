@@ -61,6 +61,7 @@ function makeAgentRecord(overrides?: Partial<AgentRuntimeRecord>): AgentRuntimeR
     name: "NEXUS",
     lifecycle: "active",
     scope: {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       planetAccess: ALL_PLANET_IDS as any,
       maxWriteRate: 10,
       canWriteMemory: true,
@@ -365,6 +366,7 @@ describe("Nexus — nexusBus Governance", () => {
 
   test("nexusBus subscriber also receives forwarded universe events", () => {
     const nexusFn = jest.fn();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     nexusBus.subscribe("PLANET_ACTIVATED" as any, nexusFn);
 
     nexusBus.emit({ type: "PLANET_ACTIVATED", planetId: "lyra" });
@@ -564,7 +566,7 @@ describe("Nexus — Guard Validation", () => {
 
       for (const type of alwaysValidTypes) {
         // Build a minimal valid payload for each type
-        let payload: any = {};
+        let payload: Record<string, unknown> = {};
         if (type === "PROGRESSION_INIT") payload = { userId: 0, playerProgression: createInitialProgression() };
         if (type === "MEMORY_UPDATE") payload = { key: "test", value: 1, operation: "set" };
         if (type === "CONTEXT_SYNC") payload = {
@@ -583,6 +585,7 @@ describe("Nexus — Guard Validation", () => {
           payload,
         };
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const result = validateProposal(proposal as any, agent, state);
         expect(result.valid).toBe(true);
       }
@@ -713,6 +716,7 @@ describe("Nexus — Boot Sequence", () => {
     nexusRuntime.init();
 
     // Can't go from active to unregistered
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     expect(nexusRuntime.transitionAgent("nexus", "unregistered" as any, "invalid")).toBe(false);
 
     // Can't go from active to initializing

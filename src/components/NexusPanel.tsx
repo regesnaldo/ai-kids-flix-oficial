@@ -1,4 +1,5 @@
 import { useState } from "react";
+import Image from "next/image";
 import { Zap } from "lucide-react";
 import { getAgentImage, AGENT_IMAGE_FALLBACK } from "@/lib/getAgentImage";
 
@@ -34,7 +35,7 @@ export default function NexusPanel({ onSendMessage, response, loading }: NexusPa
     <div className="w-[360px] h-screen bg-[#0a0a1a] border-l border-[#8B5CF6]/20 fixed right-0 top-0 z-10 flex flex-col">
       <div className="p-5 border-b border-white/10">
         <div className="flex items-center gap-3">
-          <img src={getAgentImage("nexus")} alt="NEXUS" className="w-10 h-10 rounded-full"
+          <Image src={getAgentImage("nexus")} alt="NEXUS" width={40} height={40} className="rounded-full"
           onError={(e) => { e.currentTarget.src = AGENT_IMAGE_FALLBACK }} />
           <div>
             <div className="text-white text-base font-semibold">NEXUS</div>

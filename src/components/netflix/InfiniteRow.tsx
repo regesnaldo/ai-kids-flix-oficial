@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
@@ -35,12 +35,24 @@ export default function InfiniteRow({
   const [hoveredItem, setHoveredItem] = useState<string | number | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [isClient, setIsClient] = useState(false);
+  const [containerWidth, setContainerWidth] = useState(0);
 
   const gap = 8;
   const step = itemWidth * 3;
 
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    setContainerWidth(el.clientWidth);
+    const observer = new ResizeObserver((entries) => {
+      setContainerWidth(entries[0]?.contentRect.width ?? 0);
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
   const canScrollLeft = scrollPos > 0;
-  const canScrollRight = scrollPos < items.length * (itemWidth + gap) - (containerRef.current?.clientWidth ?? 0);
+  const canScrollRight = scrollPos < items.length * (itemWidth + gap) - (containerWidth ?? 0);
 
   const scroll = useCallback((direction: "left" | "right") => {
     const delta = direction === "left" ? -step : step;

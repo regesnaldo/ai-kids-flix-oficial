@@ -45,10 +45,10 @@ export const translations = {
 
 export function t(key: string): string {
   const keys = key.split(".");
-  let value: any = translations;
+  let value: Record<string, unknown> | unknown = translations;
 
   for (const k of keys) {
-    value = value?.[k];
+    value = (value as Record<string, unknown>)?.[k];
     if (!value) return key;
   }
 

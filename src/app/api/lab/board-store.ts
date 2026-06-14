@@ -17,11 +17,11 @@ export interface AgentStep {
 }
 
 const store = new Map<string, { board: KnowledgeBoard; createdAt: number }>();
-const learnedCache = new Map<string, { data: any; createdAt: number }>();
+const learnedCache = new Map<string, { data: unknown; createdAt: number }>();
 const rlCounters = new Map<string, { value: number; expiresAt: number }>();
 
 // ── KV simulation ────────────────────────────────────────────────────
-export function kvGet(key: string): any | null {
+export function kvGet(key: string): unknown | null {
   const entry = learnedCache.get(key);
   if (!entry) return null;
   if (Date.now() - entry.createdAt > 30 * 24 * 60 * 60 * 1000) {
@@ -31,7 +31,7 @@ export function kvGet(key: string): any | null {
   return entry.data;
 }
 
-export function kvSet(key: string, data: any): void {
+export function kvSet(key: string, data: unknown): void {
   learnedCache.set(key, { data, createdAt: Date.now() });
 }
 

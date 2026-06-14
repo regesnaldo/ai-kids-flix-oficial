@@ -66,7 +66,7 @@ export default function JourneyHub() {
         }}
       >
         <p style={{ fontFamily: "monospace", fontSize: "11px", color: "#00FF88", margin: "0 0 0.5rem" }}>
-          // CALIBRANDO SENSORES DE JORNADA
+          {/* CALIBRANDO SENSORES DE JORNADA */}
         </p>
         <p style={{ fontFamily: "monospace", fontSize: "10px", color: "#0088FF", margin: 0 }}>
           Sincronizando dados do metaverso...
@@ -87,7 +87,7 @@ export default function JourneyHub() {
         }}
       >
         <p style={{ fontFamily: "monospace", fontSize: "10px", color: "#FF4444", margin: 0 }}>
-          // ERRO DE TELEMETRIA: {error}
+          {/* ERRO DE TELEMETRIA: */} {error}
         </p>
       </div>
     );
@@ -106,7 +106,7 @@ export default function JourneyHub() {
         }}
       >
         <p style={{ fontFamily: "monospace", fontSize: "11px", color: "#00FF88", margin: "0 0 0.5rem" }}>
-          // PERFIL EM FORMAÇÃO
+          {/* PERFIL EM FORMAÇÃO */}
         </p>
         <p style={{ fontFamily: "monospace", fontSize: "10px", color: "#0088FF", margin: "0 0 1rem" }}>
           Calibrando sensores cognitivos...
@@ -153,7 +153,7 @@ export default function JourneyHub() {
     >
       {/* Header */}
       <p style={{ fontFamily: "monospace", fontSize: "11px", color: "#00FF88", margin: "0 0 0.25rem", letterSpacing: "0.1em" }}>
-        // SISTEMA DE NAVEGAÇÃO COGNITIVA
+        {/* SISTEMA DE NAVEGAÇÃO COGNITIVA */}
       </p>
       <p style={{ fontFamily: "monospace", fontSize: "10px", color: "#0088FF", margin: "0 0 1.25rem" }}>
         {username} · ARQUÉTIPO: {archetypeDisplay}

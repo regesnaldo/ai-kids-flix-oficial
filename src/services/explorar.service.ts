@@ -11,14 +11,10 @@ export interface FilterCategory {
   accentColor: string;
 }
 
-export interface ThemeCategory extends FilterCategory {}
-export interface LevelOption extends FilterCategory {}
-export interface SpecialOption extends FilterCategory {}
-
 export interface FilterConfig {
-  themes: ThemeCategory[];
-  levels: LevelOption[];
-  specials: SpecialOption[];
+  themes: FilterCategory[];
+  levels: FilterCategory[];
+  specials: FilterCategory[];
 }
 
 export interface FeaturedAgent {
@@ -48,7 +44,7 @@ export const themeAgentMap: Record<string, string[]> = {
 
 /* ─── Filter Config ──────────────────────────────────────────────────────── */
 
-const THEMES: ThemeCategory[] = [
+const THEMES: FilterCategory[] = [
   { slug: "fundamentos", label: "Fundamentos de IA", shortLabel: "Fundamentos", accentColor: "#3B82F6" },
   { slug: "machine-learning", label: "Machine Learning", shortLabel: "ML", accentColor: "#10B981" },
   { slug: "redes-neurais", label: "Redes Neurais", shortLabel: "Redes", accentColor: "#8B5CF6" },
@@ -66,13 +62,13 @@ const THEMES: ThemeCategory[] = [
   { slug: "projetos", label: "Projetos Práticos", shortLabel: "Projetos", accentColor: "#22C55E" },
 ];
 
-const LEVELS: LevelOption[] = [
+const LEVELS: FilterCategory[] = [
   { slug: "iniciantes", label: "Para iniciantes", shortLabel: "Iniciante", accentColor: "#3B82F6" },
   { slug: "avancados", label: "Para avançados", shortLabel: "Avançado", accentColor: "#7C3AED" },
   { slug: "criancas", label: "Para crianças", shortLabel: "Crianças", accentColor: "#F59E0B" },
 ];
 
-const SPECIALS: SpecialOption[] = [
+const SPECIALS: FilterCategory[] = [
   { slug: "missoes", label: "Missões especiais", shortLabel: "Missões", accentColor: "#EC4899" },
   { slug: "duplas", label: "Agentes em dupla", shortLabel: "Duplas", accentColor: "#10B981" },
   { slug: "desafios", label: "Desafios", shortLabel: "Desafios", accentColor: "#EF4444" },

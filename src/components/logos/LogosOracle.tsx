@@ -48,25 +48,25 @@ const ARCHETYPE_MAP: Record<string, { title: string; description: string; emoji:
     title: 'O Sábio Integral',
     description: 'Sua mente absorveu cada detalhe. Você não apenas aprende — você compreende.',
     emoji: '🔮',
-    color: 'from-amber-400 via-yellow-300 to-white',
+    color: 'linear-gradient(to right, #fbbf24, #f59e0b, #ffffff)',
   },
   2: {
     title: 'O Guardião do Conhecimento',
     description: 'Você reteve o suficiente para passar. O conhecimento está se consolidando em você.',
     emoji: '📜',
-    color: 'from-cyan-400 via-blue-500 to-purple-600',
+    color: 'linear-gradient(to right, #22d3ee, #3b82f6, #9333ea)',
   },
   1: {
     title: 'O Aprendiz em Jornada',
     description: 'Parte do saber escapou, mas a chama da curiosidade ainda queima. Tente novamente.',
     emoji: '🌱',
-    color: 'from-emerald-400 via-teal-500 to-cyan-600',
+    color: 'linear-gradient(to right, #34d399, #14b8a6, #22d3ee)',
   },
   0: {
     title: 'O Peregrino',
     description: 'O conhecimento é um caminho, não um destino. Reflita e retorne quando estiver pronto.',
     emoji: '🌌',
-    color: 'from-gray-400 via-slate-500 to-zinc-600',
+    color: 'linear-gradient(to right, #9ca3af, #64748b, #52525b)',
   },
 }
 
@@ -365,7 +365,8 @@ function Revelation({ archetype, onFinish }: {
         initial={{ opacity: 0, y: 20 }}
         animate={showText ? { opacity: 1, y: 0 } : {}}
         transition={{ duration: 0.8, ease: 'easeOut' }}
-        className={`text-3xl md:text-4xl font-bold bg-gradient-to-r ${archetype.color} bg-clip-text text-transparent`}
+        className="text-3xl md:text-4xl font-bold bg-clip-text text-transparent"
+        style={{ backgroundImage: archetype.color, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}
       >
         {archetype.title}
       </motion.h2>

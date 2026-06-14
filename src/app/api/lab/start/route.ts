@@ -106,7 +106,7 @@ export async function POST(request: NextRequest) {
     // ═══ CACHE CHECKS (bypass ALL limits) ═══════════════════════════
 
     // STEP 1: Prebuilt exact
-    let cached = findInPrebuilt(topic);
+    const cached = findInPrebuilt(topic);
     if (cached) {
       return NextResponse.json({ ...cached, source: "cache", instant: true });
     }
@@ -114,7 +114,8 @@ export async function POST(request: NextRequest) {
     // STEP 2: Prebuilt fuzzy
     const similar = findSimilar(topic);
     if (similar) {
-      return NextResponse.json({ ...similar.value, source: "cache", instant: true, similarTo: similar.key });
+      const cachedValue = similar.value as Record<string, unknown>;
+      return NextResponse.json({ ...cachedValue, source: "cache", instant: true, similarTo: similar.key });
     }
 
     // STEP 3: Learned answers (KV)
