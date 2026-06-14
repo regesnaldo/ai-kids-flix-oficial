@@ -4,18 +4,18 @@ import { useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
 
 const AGENTS = [
-  { id: 'nexus', name: 'NEXUS', color: '#00f0ff', size: 56, status: 'active', x: 50, y: 50 },
-  { id: 'volt', name: 'VOLT', color: '#f97316', size: 36, status: 'active', x: 30, y: 25 },
-  { id: 'aurora', name: 'AURORA', color: '#a855f7', size: 36, status: 'active', x: 70, y: 22 },
-  { id: 'kaos', name: 'KAOS', color: '#ef4444', size: 32, status: 'locked', x: 82, y: 42 },
-  { id: 'cipher', name: 'CIPHER', color: '#10b981', size: 32, status: 'locked', x: 75, y: 72 },
-  { id: 'ethos', name: 'ETHOS', color: '#3b82f6', size: 32, status: 'locked', x: 50, y: 82 },
-  { id: 'janus', name: 'JANUS', color: '#8b5cf6', size: 30, status: 'locked', x: 25, y: 75 },
-  { id: 'lyra', name: 'LYRA', color: '#ec4899', size: 30, status: 'locked', x: 15, y: 50 },
-  { id: 'prism', name: 'PRISM', color: '#fbbf24', size: 30, status: 'locked', x: 22, y: 28 },
-  { id: 'stratos', name: 'STRATOS', color: '#06b6d4', size: 28, status: 'locked', x: 60, y: 15 },
-  { id: 'terra', name: 'TERRA', color: '#84cc16', size: 28, status: 'locked', x: 85, y: 60 },
-  { id: 'axiom', name: 'AXIOM', color: '#e2e8f0', size: 28, status: 'locked', x: 38, y: 88 },
+  { id: 'nexus', name: 'NEXUS', color: '#00f0ff', size: 56, status: 'active', x: 50, y: 50, floatX: 0, floatY: 0 },
+  { id: 'volt', name: 'VOLT', color: '#f97316', size: 36, status: 'active', x: 30, y: 25, floatX: 12, floatY: 8 },
+  { id: 'aurora', name: 'AURORA', color: '#a855f7', size: 36, status: 'active', x: 70, y: 22, floatX: -10, floatY: 14 },
+  { id: 'kaos', name: 'KAOS', color: '#ef4444', size: 32, status: 'locked', x: 82, y: 42, floatX: 8, floatY: -12 },
+  { id: 'cipher', name: 'CIPHER', color: '#10b981', size: 32, status: 'locked', x: 75, y: 72, floatX: -14, floatY: 6 },
+  { id: 'ethos', name: 'ETHOS', color: '#3b82f6', size: 32, status: 'locked', x: 50, y: 82, floatX: 10, floatY: -10 },
+  { id: 'janus', name: 'JANUS', color: '#8b5cf6', size: 30, status: 'locked', x: 25, y: 75, floatX: -8, floatY: 12 },
+  { id: 'lyra', name: 'LYRA', color: '#ec4899', size: 30, status: 'locked', x: 15, y: 50, floatX: 14, floatY: -6 },
+  { id: 'prism', name: 'PRISM', color: '#fbbf24', size: 30, status: 'locked', x: 22, y: 28, floatX: -12, floatY: -10 },
+  { id: 'stratos', name: 'STRATOS', color: '#06b6d4', size: 28, status: 'locked', x: 60, y: 15, floatX: 6, floatY: 14 },
+  { id: 'terra', name: 'TERRA', color: '#84cc16', size: 28, status: 'locked', x: 85, y: 60, floatX: -10, floatY: -8 },
+  { id: 'axiom', name: 'AXIOM', color: '#e2e8f0', size: 28, status: 'locked', x: 38, y: 88, floatX: 12, floatY: 10 },
 ]
 
 const LINKS = [
@@ -101,6 +101,7 @@ export default function MemoryGalaxy() {
               alignItems: 'center',
               gap: 6,
               zIndex: isHovered ? 10 : 1,
+              animation: `float-${agent.id} ${6 + (AGENTS.indexOf(agent) % 4)}s ease-in-out infinite alternate`,
             }}
           >
             <div style={{
@@ -165,6 +166,21 @@ export default function MemoryGalaxy() {
       }}>
         {'TERRITORIOS: ' + activeCount + '/12 | SINAIS ATIVOS: ' + activeLinks + ' | CAMADA: SUPERFICIE'}
       </div>
+
+      <style>{`
+@keyframes float-nexus  { from { translate: 0px 0px; }   to { translate: 0px 0px; } }
+@keyframes float-volt   { from { translate: 0px 0px; }   to { translate: 12px 8px; } }
+@keyframes float-aurora { from { translate: 0px 0px; }   to { translate: -10px 14px; } }
+@keyframes float-kaos   { from { translate: 0px 0px; }   to { translate: 8px -12px; } }
+@keyframes float-cipher { from { translate: 0px 0px; }   to { translate: -14px 6px; } }
+@keyframes float-ethos  { from { translate: 0px 0px; }   to { translate: 10px -10px; } }
+@keyframes float-janus  { from { translate: 0px 0px; }   to { translate: -8px 12px; } }
+@keyframes float-lyra   { from { translate: 0px 0px; }   to { translate: 14px -6px; } }
+@keyframes float-prism  { from { translate: 0px 0px; }   to { translate: -12px -10px; } }
+@keyframes float-stratos{ from { translate: 0px 0px; }   to { translate: 6px 14px; } }
+@keyframes float-terra  { from { translate: 0px 0px; }   to { translate: -10px -8px; } }
+@keyframes float-axiom  { from { translate: 0px 0px; }   to { translate: 12px 10px; } }
+      `}</style>
     </div>
   )
 }
