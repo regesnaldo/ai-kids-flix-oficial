@@ -79,8 +79,6 @@ export default function MemoryGalaxy() {
   useEffect(() => {
     if (!svgRef.current || !containerRef.current) return;
 
-    const width = containerRef.current.clientWidth;
-    const height = containerRef.current.clientHeight;
     const svg = d3.select(svgRef.current);
     svg.selectAll('*').remove();
 
@@ -172,20 +170,39 @@ export default function MemoryGalaxy() {
       }
     });
 
+    // ── Set initial positions near center ─────────────────────────────────
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+    svg.attr('width', width).attr('height', height);
+
+    nodes.forEach((node) => {
+      node.x = width / 2 + (Math.random() - 0.5) * 200;
+      node.y = height / 2 + (Math.random() - 0.5) * 200;
+    });
+
     // ── Simulation ───────────────────────────────────────────────────────
     const simulation = d3.forceSimulation<AgentNode>(nodes)
       .force('link', d3.forceLink<AgentNode, AgentLink>(links).id((d) => d.id).distance(120))
-      .force('charge', d3.forceManyBody().strength(-300))
-      .force('center', d3.forceCenter(width / 2, height / 2))
+      .force('charge', d3.forceManyBody().strength(-120))
+      .force('center', d3.forceCenter(width / 2, height / 2).strength(0.8))
       .force('collision', d3.forceCollide().radius((d) => d.size + 10))
+      .force('boundary', () => {
+        const padding = 80;
+        nodes.forEach((node) => {
+          if (node.x! < padding) node.x = padding;
+          if (node.x! > width - padding) node.x = width - padding;
+          if (node.y! < padding) node.y = padding;
+          if (node.y! > height - padding) node.y = height - padding;
+        });
+      })
       .alphaDecay(0.02)
       .on('tick', () => {
         linkElements
-          .attr('x1', (d) => (d.source as AgentNode).x!)
-          .attr('y1', (d) => (d.source as AgentNode).y!)
-          .attr('x2', (d) => (d.target as AgentNode).x!)
-          .attr('y2', (d) => (d.target as AgentNode).y!);
-        nodeGroup.attr('transform', (d) => `translate(${d.x},${d.y})`);
+          .attr('x1', (d) => (d.source as AgentNode).x ?? 0)
+          .attr('y1', (d) => (d.source as AgentNode).y ?? 0)
+          .attr('x2', (d) => (d.target as AgentNode).x ?? 0)
+          .attr('y2', (d) => (d.target as AgentNode).y ?? 0);
+        nodeGroup.attr('transform', (d) => `translate(${d.x ?? 0},${d.y ?? 0})`);
       });
 
     // Resize handler
