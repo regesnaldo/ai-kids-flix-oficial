@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Pencil, X, User } from "lucide-react";
+import Image from "next/image";
 
 // ─── Types ──────────────────────────────────────────────
 
@@ -23,12 +24,12 @@ interface ProfileGateProps {
 }
 
 const COLORS = [
-  "from-cyan-400 to-blue-500",
-  "from-purple-400 to-pink-500",
-  "from-orange-400 to-red-500",
-  "from-green-400 to-emerald-500",
-  "from-yellow-400 to-amber-500",
-  "from-indigo-400 to-violet-500",
+  'linear-gradient(to bottom right, #06b6d4, #3b82f6)',
+  'linear-gradient(to bottom right, #c084fc, #ec4899)',
+  'linear-gradient(to bottom right, #fb923c, #ef4444)',
+  'linear-gradient(to bottom right, #34d399, #10b981)',
+  'linear-gradient(to bottom right, #fbbf24, #f59e0b)',
+  'linear-gradient(to bottom right, #818cf8, #7c3aed)',
 ];
 
 const MATURITY_LABELS: Record<string, string> = {
@@ -111,14 +112,17 @@ export default function ProfileGate({
                 }}
               >
                 {profile.avatar ? (
-                  <img
+                  <Image
                     src={profile.avatar}
                     alt={profile.name}
-                    className="w-full h-full object-cover"
+                    fill
+                    sizes="(max-width: 768px) 112px, 144px"
+                    className="object-cover"
                   />
                 ) : (
-                  <div
-                    className={`w-full h-full bg-gradient-to-br ${profile.color} flex items-center justify-center`}
+                    <div
+                      className="w-full h-full flex items-center justify-center"
+                      style={{ backgroundImage: profile.color }}
                   >
                     <span className="text-3xl md:text-5xl font-black text-white">
                       {profile.name.charAt(0).toUpperCase()}

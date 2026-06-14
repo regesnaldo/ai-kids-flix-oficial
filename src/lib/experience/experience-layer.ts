@@ -205,7 +205,7 @@ class ExperienceLayer implements IExperienceLayer {
     if (this.subscribers.size === 1 && !this.unsubscribeFromBus) {
       this.unsubscribeFromBus = nexusBus.subscribe(
         "*",
-        (event: any) => {
+        (event: Record<string, unknown>) => {
           const cinematic = this.translateToCinematicEvent(event);
           if (cinematic) {
             this.emitToSubscribers(cinematic);
@@ -239,7 +239,7 @@ class ExperienceLayer implements IExperienceLayer {
    * Translate a raw nexusBus event into a CinematicEvent.
    * Returns null if the event doesn't have a cinematic translation.
    */
-  private translateToCinematicEvent(raw: any): CinematicEvent | null {
+  private translateToCinematicEvent(raw: Record<string, unknown>): CinematicEvent | null {
     switch (raw.type) {
       case "PLANET_ACTIVATED":
         return {
@@ -306,7 +306,7 @@ class ExperienceLayer implements IExperienceLayer {
       case "RUNTIME_HEALTH":
         if (raw.subtype === "STATE_TRANSITION") {
           const previous = this.healthStatus;
-          const current = this.deriveHealthStatus(raw.newState, raw.trigger);
+          const current = this.deriveHealthStatus(raw.newState as "healthy" | "unhealthy", raw.trigger as string);
           this.healthStatus = current;
           return { type: "HEALTH_CHANGE", previous, current };
         }

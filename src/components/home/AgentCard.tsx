@@ -18,10 +18,10 @@ interface AgentCardProps {
 }
 
 const LEVEL_BADGE: Record<string, { bg: string; text: string }> = {
-  Iniciante:    { bg: 'bg-blue-600',   text: 'Iniciante'    },
-  Intermediário:{ bg: 'bg-green-600',  text: 'Intermediário' },
-  Avançado:     { bg: 'bg-orange-600', text: 'Avançado'     },
-  Mestre:       { bg: 'bg-purple-600', text: 'Mestre'       },
+  Iniciante:     { bg: '#2563eb', text: 'Iniciante'     },
+  Intermediário: { bg: '#16a34a', text: 'Intermediário' },
+  Avançado:      { bg: '#ea580c', text: 'Avançado'      },
+  Mestre:        { bg: '#9333ea', text: 'Mestre'        },
 };
 
 export default function AgentCard({ agent, onClick }: AgentCardProps) {
@@ -137,7 +137,8 @@ export default function AgentCard({ agent, onClick }: AgentCardProps) {
         </div>
 
         {/* Nível badge (sempre visível) */}
-        <div className={`absolute top-2 left-2 px-1.5 py-0.5 ${badge.bg} text-white text-[8px] font-bold rounded-full z-20`}>
+        <div className="absolute top-2 left-2 px-1.5 py-0.5 text-white text-[8px] font-bold rounded-full z-20"
+             style={{ backgroundColor: badge.bg }}>
           {badge.text}
         </div>
       </div>

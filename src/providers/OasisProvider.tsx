@@ -148,7 +148,7 @@ let currentSnapshot: ExperienceSnapshot | null = null;
 let connected = false;
 
 /** CinematicEvent subscribers from useOasis hooks */
-let eventSubscribers: Set<(event: CinematicEvent) => void> = new Set();
+const eventSubscribers: Set<(event: CinematicEvent) => void> = new Set();
 
 /** Whether the store has been initialized */
 let initialized = false;
@@ -260,8 +260,7 @@ export function OasisProvider({ children }: { children: ReactNode }) {
 
   return React.createElement(OasisReactContext.Provider, {
     value: DEFAULT_OASIS, // Placeholder — real values come from useSyncExternalStore
-    children,
-  });
+  }, children);
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════

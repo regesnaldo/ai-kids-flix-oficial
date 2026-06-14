@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { ALL_AGENTS } from "@/canon/agents/all-agents";
 import { getAgentImage, AGENT_IMAGE_FALLBACK } from "@/lib/getAgentImage";
 
@@ -59,11 +60,13 @@ export default function AgentSelector({ onSelect, onSkip }: AgentSelectorProps) 
                 ].join(" ")}
               >
                 <div className="relative h-52 bg-[#0f0f1a]">
-                  <img
+                  <Image
                     src={getAgentImage(agent.id)}
                     alt={agent.name}
+                    fill
+                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                     onError={(e) => { e.currentTarget.src = AGENT_IMAGE_FALLBACK }}
-                    className="w-full h-full object-cover object-top opacity-90 group-hover:opacity-100 transition-opacity duration-300"
+                    className="object-cover object-top opacity-90 group-hover:opacity-100 transition-opacity duration-300"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#07070f] via-[#07070f]/20 to-transparent" />
                   {isSelected && (

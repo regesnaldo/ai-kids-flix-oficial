@@ -127,7 +127,7 @@ export default function AgentChat({
       });
 
       if (!res.ok) {
-        const data: any = await res.json().catch(() => ({}));
+        const data: Record<string, unknown> = await res.json().catch(() => ({}));
         const msg = typeof data?.error === 'string' ? data.error : 'Falha ao enviar mensagem';
         setError(msg);
         setMessages(prev => prev.filter(m => m.id !== tempMsgId));

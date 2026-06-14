@@ -3,6 +3,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import type { HomeAgent } from "@/data/agents";
 
@@ -27,15 +28,16 @@ function AgentCard({ agent }: { agent: HomeAgent }) {
       >
         {/* Image */}
         <div className="aspect-square bg-slate-800 relative overflow-hidden">
-          <img
+          <Image
             src={agent.image}
             alt={agent.name}
-            className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500"
-            loading="lazy"
+            fill
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
             draggable={false}
             onError={(e) => {
               (e.currentTarget as HTMLImageElement).src = "/images/placeholder.svg";
             }}
+            className="object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/30 to-transparent" />
 

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Image from 'next/image';
 import { useSession } from '@/providers/SessionProvider';
 
 export default function CertificadoPage() {
@@ -24,10 +25,12 @@ export default function CertificadoPage() {
         <div style={{ position: "absolute", top: "-2px", left: "-2px", right: "-2px", bottom: "-2px", borderRadius: "16px", background: "linear-gradient(135deg, rgba(0,255,255,0.1), rgba(139,92,246,0.1))", zIndex: 0 }} />
 
         <div style={{ position: "relative", zIndex: 1 }}>
-          <img 
+          <Image 
             src="/images/storyboard/trophy.jpg" 
             alt="Certificado MENTE.AI"
-            style={{ width: '100%', maxWidth: '300px', margin: '0 auto 24px', display: 'block', borderRadius: '12px' }}
+            width={300}
+            height={300}
+            style={{ width: '100%', maxWidth: '300px', margin: '0 auto 24px', display: 'block', borderRadius: '12px', height: 'auto' }}
           />
           <p style={{ color: "#00FFFF", fontSize: "12px", letterSpacing: "0.3em", textTransform: "uppercase", margin: 0 }}>
             MENTE.AI — FASE 1 NARRATIVA
@@ -48,7 +51,7 @@ export default function CertificadoPage() {
                 </p>
               </div>
               <p style={{ color: "#9ca3af", fontSize: "10px", marginTop: "2rem" }}>
-                "O aprendizado é a única coisa que a mente nunca se cansa, nunca tem medo e nunca se arrepende." — Leonardo da Vinci
+                &ldquo;O aprendizado é a única coisa que a mente nunca se cansa, nunca tem medo e nunca se arrepende.&rdquo; — Leonardo da Vinci
               </p>
             </>
           ) : (

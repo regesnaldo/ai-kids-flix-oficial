@@ -35,3 +35,7 @@ GUIA-OPENCODE-CLAUDE.pdf
 build-log.txt
 ts-errors.txt
 lint-errors.txt
+*.log
+
+# Binaries / generated images
+image.png

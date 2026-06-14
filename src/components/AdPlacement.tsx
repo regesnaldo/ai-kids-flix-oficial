@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { X } from "lucide-react";
 import { getAgentImage, AGENT_IMAGE_FALLBACK } from "@/lib/getAgentImage";
 
@@ -37,11 +38,13 @@ export default function AdPlacement({ onClose, seconds = 15, nextEpisodeHref = n
 
         <div className="grid grid-cols-1 md:grid-cols-[40%_60%]">
           <div className="relative border-b border-white/10 md:border-b-0 md:border-r md:border-white/10 p-6">
-            <img
+            <Image
               src={getAgentImage("nexus")}
               alt="NEXUS"
+              fill
+              sizes="(max-width: 768px) 100vw, 40vw"
               onError={(e) => { e.currentTarget.src = AGENT_IMAGE_FALLBACK }}
-              className="h-56 w-full rounded-xl object-cover"
+              className="rounded-xl object-cover"
             />
             <h3 className="mt-4 text-2xl font-extrabold tracking-tight">NEXUS</h3>
             <p className="mt-1 text-sm text-zinc-300">Seu guia no universo MENTE.AI</p>

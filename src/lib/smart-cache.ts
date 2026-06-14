@@ -17,7 +17,7 @@ export function normalizeQuestion(q: string): string {
 /** Exact match in prebuilt cache */
 export function findInPrebuilt(question: string) {
   const normalized = normalizeQuestion(question);
-  const cache = prebuiltCache as Record<string, any>;
+  const cache = prebuiltCache as Record<string, unknown>;
   return cache[normalized] || null;
 }
 
@@ -25,9 +25,9 @@ export function findInPrebuilt(question: string) {
 export function findSimilar(question: string, threshold = 0.5) {
   const normalized = normalizeQuestion(question);
   const words = normalized.split(" ");
-  const cache = prebuiltCache as Record<string, any>;
+  const cache = prebuiltCache as Record<string, unknown>;
 
-  let bestMatch: { key: string; value: any; score: number } | null = null;
+  let bestMatch: { key: string; value: unknown; score: number } | null = null;
   let bestScore = 0;
 
   for (const [key, value] of Object.entries(cache)) {

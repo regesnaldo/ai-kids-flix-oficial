@@ -3,7 +3,9 @@ import mysql from "mysql2/promise";
 import * as schema from "./schema";
 import "server-only";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- Pool type incompatibility between mysql2 and drizzle-orm
 let _pool: any;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- ReturnType<typeof drizzle> has $client type mismatch
 let _db: any;
 
 function getPool(): mysql.Pool {
@@ -48,7 +50,7 @@ export const db: ReturnType<typeof drizzle> = new Proxy(
       const instance = getDbInstance();
       const value = (instance as unknown as Record<string | symbol, unknown>)[prop];
       if (typeof value === "function") {
-        return (value as Function).bind(instance);
+        return (value as (...args: unknown[]) => unknown).bind(instance);
       }
       return value;
     },
@@ -60,7 +62,7 @@ export const pool: mysql.Pool = new Proxy({} as mysql.Pool, {
     const p = getPool();
     const value = (p as unknown as Record<string | symbol, unknown>)[prop];
     if (typeof value === "function") {
-      return (value as Function).bind(p);
+      return (value as (...args: unknown[]) => unknown).bind(p);
     }
     return value;
   },

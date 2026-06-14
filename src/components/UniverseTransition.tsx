@@ -1,6 +1,7 @@
 "use client"
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
+import Image from "next/image"
 import { getAgentImage } from "@/lib/getAgentImage"
 
 interface UniverseTransitionProps {
@@ -75,9 +76,9 @@ export function UniverseTransition({ fromAgent, toAgent, reason, onComplete }: U
       <div className="relative z-10 text-center px-8 max-w-lg">
         {step === 0 && (
           <div style={{ animation: 'pulse-glow 1.5s ease-in-out infinite' }}>
-            <img src={fromAvatar} alt={from.name} className="w-24 h-24 rounded-full mx-auto mb-4 opacity-60"
-              style={{ boxShadow: `0 0 40px ${from.color}44` }}
-              onError={(e) => { e.currentTarget.src = FALLBACK }} />
+            <Image src={fromAvatar} alt={from.name} width={96} height={96} className="rounded-full mx-auto mb-4 opacity-60"
+              style={{ boxShadow: `0 0 40px ${from.color}44`, width: '96px', height: '96px' }}
+              onError={(e) => { e.currentTarget.src = FALLBACK }} unoptimized />
             <p className="text-white/40 text-sm font-mono tracking-widest">{from.name}</p>
           </div>
         )}
@@ -86,13 +87,13 @@ export function UniverseTransition({ fromAgent, toAgent, reason, onComplete }: U
           <div style={{ animation: 'slide-up 0.6s ease-out' }}>
             <div className="text-white/30 text-xs font-mono tracking-widest mb-4">TRANSIÇÃO</div>
             <div className="flex items-center justify-center gap-6 mb-4">
-              <img src={fromAvatar} alt={from.name} className="w-16 h-16 rounded-full opacity-60"
-                style={{ boxShadow: `0 0 30px ${from.color}33` }}
-                onError={(e) => { e.currentTarget.src = FALLBACK }} />
+              <Image src={fromAvatar} alt={from.name} width={64} height={64} className="rounded-full opacity-60"
+                style={{ boxShadow: `0 0 30px ${from.color}33`, width: '64px', height: '64px' }}
+                onError={(e) => { e.currentTarget.src = FALLBACK }} unoptimized />
               <div className="text-white/20 text-2xl">→</div>
-              <img src={toAvatar} alt={to.name} className="w-16 h-16 rounded-full"
-                style={{ boxShadow: `0 0 30px ${to.color}`, animation: 'pulse-glow 2s ease-in-out infinite' }}
-                onError={(e) => { e.currentTarget.src = FALLBACK }} />
+              <Image src={toAvatar} alt={to.name} width={64} height={64} className="rounded-full"
+                style={{ boxShadow: `0 0 30px ${to.color}`, width: '64px', height: '64px', animation: 'pulse-glow 2s ease-in-out infinite' }}
+                onError={(e) => { e.currentTarget.src = FALLBACK }} unoptimized />
             </div>
             <div className="h-px mx-auto mb-4" style={{ background: `linear-gradient(90deg, transparent, ${to.color}, transparent)`, animation: 'expand-line 1.2s ease-out' }} />
             <p className="text-white/50 text-xs font-mono italic max-w-xs mx-auto">{reason}</p>
