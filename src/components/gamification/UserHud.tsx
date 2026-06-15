@@ -158,6 +158,7 @@ export function UserHud({
         process.env.NEXT_PUBLIC_ELEVENLABS_VOICE_ID_DEFAULT || "pNInz6obpgDQGcFmaJgB";
       const res = await fetch("/api/elevenlabs/speak", {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text: TTS_TEXT, voice_id: voiceId }),
       });

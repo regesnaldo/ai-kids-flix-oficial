@@ -67,8 +67,9 @@ export const useAgentSession = create<SessionState>((set, get) => ({
 
     const res = await fetch(`/api/agents/${agentId}/chat`, {
       method: "POST",
+      credentials: "include",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ sessionId, message, userId }),
+      body: JSON.stringify({ sessionId, message }),
     });
 
     if (!res.ok) {

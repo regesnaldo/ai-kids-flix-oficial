@@ -63,6 +63,7 @@ function useIsolatedTTS() {
         
         const response = await fetch('/api/elevenlabs/speak', {
           method: 'POST',
+          credentials: 'include',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             text: encodeURIComponent(text),
