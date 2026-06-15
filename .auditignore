@@ -1,0 +1,7 @@
+# Vulnerabilidades moderadas ignoradas intencionalmente
+# Data: 27/05/2026
+# Motivo: breaking changes que quebrariam o projeto
+
+# postcss via next — downgrade de next@16 para next@9 quebraria tudo
+# esbuild via drizzle-kit — ferramenta dev, não exposta ao usuário
+# uuid via langchain — dependência aninhada, risco de breaking change alto

@@ -1,6 +1,6 @@
 'use client';
-import { useRef } from 'react';
-import { useFrame } from '@react-three/fiber';
+import { useRef, useEffect } from 'react';
+import { useFrame, useThree } from '@react-three/fiber';
 import { Sparkles } from '@react-three/drei';
 import * as THREE from 'three';
 
@@ -49,9 +49,10 @@ const BITS: BitProps[] = Array.from({ length: 20 }, (_, ci) => {
 }).flat();
 
 export function CipherScene() {
+  const { scene } = useThree()
+  useEffect(() => { scene.background = new THREE.Color('#000a02') }, [scene])
   return (
     <>
-      <color attach="background" args={['#000a02']} />
       <ambientLight intensity={0.06} />
       <pointLight position={[0,  8, 0]} intensity={16} color="#4ADE80" />
       <pointLight position={[0, -4, 4]} intensity={8}  color="#10B981" />

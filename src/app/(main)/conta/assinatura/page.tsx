@@ -3,14 +3,14 @@ import { InfoCard } from "../_components/AccountBlocks";
 import { getAccountData } from "../_lib/account-data";
 import StripePortalButtons from "./StripePortalButtons";
 
-function statusBadge(status: "active" | "pending" | "canceled") {
+function statusBadgeStyle(status: "active" | "pending" | "canceled"): React.CSSProperties {
   if (status === "active") {
-    return "bg-emerald-100 text-emerald-700";
+    return { backgroundColor: '#d1fae5', color: '#047857' };
   }
   if (status === "canceled") {
-    return "bg-red-100 text-red-700";
+    return { backgroundColor: '#fee2e2', color: '#b91c1c' };
   }
-  return "bg-amber-100 text-amber-700";
+  return { backgroundColor: '#fef3c7', color: '#b45309' };
 }
 
 function statusLabel(status: "active" | "pending" | "canceled") {
@@ -36,7 +36,8 @@ export default async function ContaAssinaturaPage() {
           <p>Intervalos de anúncios: <span className="font-semibold text-zinc-900">{account.anuncios}</span></p>
           <p>
             Status:{" "}
-            <span className={`rounded-full px-2 py-1 text-xs font-semibold ${statusBadge(account.subscriptionStatusRaw)}`}>
+            <span className="rounded-full px-2 py-1 text-xs font-semibold"
+                  style={statusBadgeStyle(account.subscriptionStatusRaw)}>
               {statusLabel(account.subscriptionStatusRaw)}
             </span>
           </p>

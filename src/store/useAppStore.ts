@@ -92,6 +92,16 @@ interface AppState {
   messages: NexusMessage[];
   addMessage: (message: NexusMessage) => void;
   clearMessages: () => void;
+
+  // ── LOGOS — middleware de validação entre episódios ───────────────────────
+  logosActive: boolean;
+  logosEpisodeContext: string | null;
+  logosAgentId: string | null;
+  logosEpisodeId: string | null;
+  logosAttempts: number;
+  setLogosActive: (active: boolean, context?: string, agentId?: string, episodeId?: string) => void;
+  incrementLogosAttempts: () => void;
+  resetLogos: () => void;
 }
 
 export const useAppStore = create<AppState>()(
@@ -203,6 +213,19 @@ export const useAppStore = create<AppState>()(
       addMessage: (message) =>
         set((state) => ({ messages: [...state.messages, message] })),
       clearMessages: () => set({ messages: [] }),
+
+      // ── LOGOS — middleware de validação entre episódios ───────────────────
+      logosActive: false,
+      logosEpisodeContext: null,
+      logosAgentId: null,
+      logosEpisodeId: null,
+      logosAttempts: 0,
+      setLogosActive: (active, context, agentId, episodeId) =>
+        set({ logosActive: active, logosEpisodeContext: context ?? null, logosAgentId: agentId ?? null, logosEpisodeId: episodeId ?? null }),
+      incrementLogosAttempts: () =>
+        set((state) => ({ logosAttempts: state.logosAttempts + 1 })),
+      resetLogos: () =>
+        set({ logosActive: false, logosEpisodeContext: null, logosAgentId: null, logosEpisodeId: null, logosAttempts: 0 }),
     }),
     {
       name: 'mente-ai-app-storage',

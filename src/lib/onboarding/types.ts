@@ -40,28 +40,46 @@ export function getPreferences(): UserPreferences | null {
 
 export function savePreferences(prefs: Partial<UserPreferences>): void {
   if (typeof window === "undefined") return;
-  const existing = getPreferences();
-  const now = new Date().toISOString();
-
-  const updated: UserPreferences = {
-    userId: existing?.userId || generateUserId(),
-    name: existing?.name || "",
-    selectedGuideAgent: existing?.selectedGuideAgent || null,
-    onboardingCompleted: existing?.onboardingCompleted ?? false,
+  const existing = getPreferences() ?? {
+    userId: generateUserId(),
+    name: "",
+    selectedGuideAgent: null,
+    onboardingCompleted: false,
     onboardingVersion: ONBOARDING_VERSION,
-    createdAt: existing?.createdAt || now,
-    updatedAt: now,
-    ...prefs,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
   };
-
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+  const merged = { ...existing, ...prefs, updatedAt: new Date().toISOString() };
+  try { window.localStorage.setItem(STORAGE_KEY, JSON.stringify(merged)); } catch (error) { console.error('[MENTE.AI] Error in onboarding/types.ts:', error); }
 }
 
+/**
+ * Determina se o onboarding deve ser exibido para o usuário atual.
+ *
+ * Regras:
+ *   - Usuários com `onboardingCompleted === true` → NÃO exibir
+ *   - Usuários sem preferências salvas (primeiro acesso) → EXIBIR
+ *   - Usuários que pularam explicitamente via skip → NÃO exibir
+ *   - Fallback seguro: se localStorage falhar, NÃO exibir (evita loop)
+ */
 export function shouldShowOnboarding(): boolean {
-  const prefs = getPreferences();
-  if (!prefs) return true;
-  if (!prefs.onboardingCompleted) return true;
-  if (prefs.onboardingVersion < ONBOARDING_VERSION) return true;
-  return false;
+  try {
+    const prefs = getPreferences();
+    if (!prefs) return true;
+    if (prefs.onboardingCompleted) return false;
+    // Se o usuário já tem preferências mas não completou o onboarding
+    // (ex: pulou), não insistir — respeita o skip explícito
+    return false;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Marca o onboarding como completo e salva no localStorage.
+ * Usado pelo OnboardingPage ao final da calibração.
+ */
+export function completeOnboarding(): void {
+  savePreferences({ onboardingCompleted: true });
 }
 

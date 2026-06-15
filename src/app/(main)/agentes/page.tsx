@@ -1,15 +1,12 @@
-import AgentHero from "@/components/agents/AgentHero";
+import { redirect } from "next/navigation";
 
-export const metadata = {
-  title: "Agentes — MENTE.AI",
-  description:
-    "Conheça os 12 agentes especializados da plataforma MENTE.AI. Cada agente possui habilidades únicas para potencializar seu aprendizado.",
-};
-
+/**
+ * /agentes — redirect to /explorar (canonical agent gallery).
+ *
+ * Oasis context: available via OasisProvider in (main)/layout.tsx.
+ * Client components on this route can use useOasis() for
+ * currentScene, cognitiveProfile, and progressionSnapshot.
+ */
 export default function AgentesPage() {
-  return (
-    <div style={{ fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}>
-      <AgentHero />
-    </div>
-  );
+  redirect("/explorar");
 }

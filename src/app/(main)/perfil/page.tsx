@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { User, Star, BookOpen, Trophy, Settings, ChevronRight, Zap, Award, Eye, Pencil } from 'lucide-react';
 import { CATALOG } from '@/constants/catalog';
+import { getWatchMap } from "@/lib/watch-progress";
 
 interface WatchState {
   watchedPct: number;
@@ -15,24 +16,11 @@ const WATCH_STORAGE_KEY = 'mente_ai_watch_progress_v1';
 const PROFILE_NAME_KEY = 'profileName';
 const PROFILE_ID_KEY = 'profileId';
 
-function getWatchMap(): Record<string, WatchState> {
-  try {
-    const raw = globalThis.localStorage?.getItem(WATCH_STORAGE_KEY);
-    if (!raw) return {};
-    const parsed = JSON.parse(raw);
-    return parsed && typeof parsed === 'object' ? parsed : {};
-  } catch {
-    return {};
-  }
-}
-
 function getProfileName(): string {
   try {
-    return globalThis.localStorage
-      ? globalThis.localStorage.getItem('mente_ai_profile_name') ??
+    return globalThis.localStorage?.getItem('mente_ai_profile_name') ??
         getCookie(PROFILE_NAME_KEY) ??
-        ''
-      : '';
+        '';
   } catch {
     return '';
   }

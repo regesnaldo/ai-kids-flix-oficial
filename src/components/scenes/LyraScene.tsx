@@ -1,6 +1,6 @@
 'use client';
-import { useRef } from 'react';
-import { useFrame } from '@react-three/fiber';
+import { useRef, useEffect } from 'react';
+import { useFrame, useThree } from '@react-three/fiber';
 import { Sparkles } from '@react-three/drei';
 import * as THREE from 'three';
 
@@ -57,9 +57,10 @@ function WaveNode({ xBase, z, xFrac, freq, speed, amplitude, color }: NodeSpec) 
 }
 
 export function LyraScene() {
+  const { scene } = useThree()
+  useEffect(() => { scene.background = new THREE.Color('#030108') }, [scene])
   return (
     <>
-      <color attach="background" args={['#030108']} />
       <ambientLight intensity={0.08} />
       <pointLight position={[0, 6, 0]} intensity={14} color="#EC4899" />
       <pointLight position={[0, -4, 4]} intensity={8} color="#06B6D4" />

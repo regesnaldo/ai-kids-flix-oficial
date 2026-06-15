@@ -9,6 +9,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ChevronRight, Info, Play, Sparkles, Volume2, VolumeX } from 'lucide-react';
+import { getAgentImage } from '@/lib/getAgentImage';
 
 type HeroAgent = {
   id: string;
@@ -28,7 +29,7 @@ export const HERO_AGENTS: HeroAgent[] = [
     description: 'Orquestra sistemas, conecta decisões e abre rotas seguras para o aprendizado contínuo.',
     accentColor: '#00D9FF',
     episode: 'S01E01',
-    image: '/images/agentes/nexus.png',
+    image: getAgentImage('nexus'),
   },
   {
     id: 'volt',
@@ -37,7 +38,7 @@ export const HERO_AGENTS: HeroAgent[] = [
     description: 'Acelera a execução com precisão. Transforme intenção em progresso mensurável.',
     accentColor: '#FACC15',
     episode: 'S02E01',
-    image: '/images/agentes/volt.png',
+    image: getAgentImage('volt'),
   },
   {
     id: 'kaos',
@@ -46,7 +47,7 @@ export const HERO_AGENTS: HeroAgent[] = [
     description: 'Explora possibilidades extremas e sintetiza padrões para desbloquear novas estratégias.',
     accentColor: '#F97316',
     episode: 'S03E01',
-    image: '/images/agentes/kaos.png',
+    image: getAgentImage('kaos'),
   },
   {
     id: 'ethos',
@@ -55,7 +56,7 @@ export const HERO_AGENTS: HeroAgent[] = [
     description: 'Valida decisões com ética aplicada e mantém o sistema alinhado com princípios.',
     accentColor: '#A78BFA',
     episode: 'S04E01',
-    image: '/images/agentes/ethos.png',
+    image: getAgentImage('ethos'),
   },
   {
     id: 'aurora',
@@ -64,7 +65,7 @@ export const HERO_AGENTS: HeroAgent[] = [
     description: 'Gera cenários, protótipos e narrativas para ampliar visão e construir caminhos.',
     accentColor: '#EC4899',
     episode: 'S05E01',
-    image: '/images/agentes/aurora.png',
+    image: getAgentImage('aurora'),
   },
 ];
 

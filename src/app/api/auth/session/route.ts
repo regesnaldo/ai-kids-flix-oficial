@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
     }
 
     const rows = await db
-      .select({ id: users.id, email: users.email, name: users.name })
+      .select({ id: users.id, email: users.email, name: users.name, plan: users.subscriptionPlan, planStatus: users.subscriptionStatus })
       .from(users)
       .where(eq(users.id, userId))
       .limit(1);
@@ -32,8 +32,10 @@ export async function GET(request: NextRequest) {
       authenticated: true,
       user: {
         id: rows[0].id,
-        email: rows[0].email ?? null,
         name: rows[0].name ?? null,
+        email: rows[0].email ?? null,
+        plan: rows[0].plan,
+        planStatus: rows[0].planStatus,
       },
     });
   } catch {

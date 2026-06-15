@@ -13,59 +13,67 @@ async function getUserId(request: NextRequest): Promise<number | null> {
 }
 
 export async function GET(request: NextRequest) {
-  const userId = await getUserId(request);
-  if (!userId) return NextResponse.json({ error: "Não autorizado." }, { status: 401 });
+  try {
+    const userId = await getUserId(request);
+    if (!userId) return NextResponse.json({ error: "Não autorizado." }, { status: 401 });
 
-  const period = request.nextUrl.searchParams.get("period") ?? "week";
-  const orderBy = period === "all" ? userXp.xpTotal : userXp.xpThisWeek;
+    const period = request.nextUrl.searchParams.get("period") ?? "week";
+    const orderBy = period === "all" ? userXp.xpTotal : userXp.xpThisWeek;
 
-  const top20 = await db
-    .select({
-      userId: userXp.userId,
-      xp: period === "all" ? userXp.xpTotal : userXp.xpThisWeek,
-      streakDays: userXp.streakDays,
-      name: users.name,
-    })
-    .from(userXp)
-    .innerJoin(users, eq(userXp.userId, users.id))
-    .orderBy(desc(orderBy))
-    .limit(20);
+    const top20 = await db
+      .select({
+        userId: userXp.userId,
+        xp: period === "all" ? userXp.xpTotal : userXp.xpThisWeek,
+        streakDays: userXp.streakDays,
+        name: users.name,
+      })
+      .from(userXp)
+      .innerJoin(users, eq(userXp.userId, users.id))
+      .orderBy(desc(orderBy))
+      .limit(20);
 
-  const ranking = top20.map((row, index) => ({
-    position: index + 1,
-    userId: row.userId,
-    name: row.name ?? "Participante",
-    xp: row.xp ?? 0,
-    streakDays: row.streakDays ?? 0,
-    isCurrentUser: row.userId === userId,
-  }));
+    const ranking = top20.map((row, index) => ({
+      position: index + 1,
+      userId: row.userId,
+      name: row.name ?? "Participante",
+      xp: row.xp ?? 0,
+      streakDays: row.streakDays ?? 0,
+      isCurrentUser: row.userId === userId,
+    }));
 
-  const currentUserInTop = ranking.find(r => r.userId === userId);
+    const currentUserInTop = ranking.find(r => r.userId === userId);
 
-  let currentUser = { position: 0, xp: 0, streakDays: 0 };
+    let currentUser = { position: 0, xp: 0, streakDays: 0 };
 
-  if (currentUserInTop) {
-    currentUser = {
-      position: currentUserInTop.position,
-      xp: currentUserInTop.xp,
-      streakDays: currentUserInTop.streakDays,
-    };
-  } else {
-    const myXp = await db.select().from(userXp).where(eq(userXp.userId, userId)).limit(1);
-    if (myXp.length > 0) {
-      const myXpValue = period === "all" ? myXp[0].xpTotal ?? 0 : myXp[0].xpThisWeek ?? 0;
-      const countAbove = await db
-        .select({ userId: userXp.userId })
-        .from(userXp)
-        .orderBy(desc(orderBy));
-      const pos = countAbove.findIndex(r => r.userId === userId);
+    if (currentUserInTop) {
       currentUser = {
-        position: pos === -1 ? 0 : pos + 1,
-        xp: myXpValue,
-        streakDays: myXp[0].streakDays ?? 0,
+        position: currentUserInTop.position,
+        xp: currentUserInTop.xp,
+        streakDays: currentUserInTop.streakDays,
       };
+    } else {
+      const myXp = await db.select().from(userXp).where(eq(userXp.userId, userId)).limit(1);
+      if (myXp.length > 0) {
+        const myXpValue = period === "all" ? myXp[0].xpTotal ?? 0 : myXp[0].xpThisWeek ?? 0;
+        const countAbove = await db
+          .select({ userId: userXp.userId })
+          .from(userXp)
+          .orderBy(desc(orderBy));
+        const pos = countAbove.findIndex(r => r.userId === userId);
+        currentUser = {
+          position: pos === -1 ? 0 : pos + 1,
+          xp: myXpValue,
+          streakDays: myXp[0].streakDays ?? 0,
+        };
+      }
     }
-  }
 
-  return NextResponse.json({ ranking, currentUser });
+    return NextResponse.json({ ranking, currentUser });
+  } catch (error) {
+    console.error('[RANKING] error:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
 }

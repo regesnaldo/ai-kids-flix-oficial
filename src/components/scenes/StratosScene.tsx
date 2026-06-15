@@ -1,6 +1,6 @@
 'use client';
-import { useRef } from 'react';
-import { useFrame } from '@react-three/fiber';
+import { useRef, useEffect } from 'react';
+import { useFrame, useThree } from '@react-three/fiber';
 import { Sparkles } from '@react-three/drei';
 import * as THREE from 'three';
 
@@ -46,9 +46,10 @@ const GRID = [-2, -1, 0, 1, 2] as const;
 const CORNERS: [number, number][] = [[-1, -1], [1, -1], [-1, 1], [1, 1]];
 
 export function StratosScene() {
+  const { scene } = useThree()
+  useEffect(() => { scene.background = new THREE.Color('#010a07') }, [scene])
   return (
     <>
-      <color attach="background" args={['#010a07']} />
       <ambientLight intensity={0.15} />
       <pointLight position={[0, 12, 0]} intensity={8} color="#10B981" />
       <pointLight position={[0, -4, 10]} intensity={4} color="#0EA5E9" />

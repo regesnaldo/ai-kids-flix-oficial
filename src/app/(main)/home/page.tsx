@@ -1,729 +1,498 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
-import Image from "next/image";
-import { sendMessageToNexus } from "@/lib/api";
-import NexusPanel from "@/components/NexusPanel";
-import AgentCard from "@/components/agents/AgentCard";
-import ExplorationRow from "@/components/home/ExplorationRow";
-import JourneyCard from "@/components/home/JourneyCard";
-import CategoryCard from "@/components/home/CategoryCard";
-import AgentPairingCard from "@/components/home/AgentPairingCard";
-import { agentsShowcase } from "@/data/agents-showcase";
-import { allAgents } from "@/data/all-agents";
+import { useOasis } from "@/providers/OasisProvider";
+import { useSession } from "@/providers/SessionProvider";
+import { createEmotionStyleElement, getPaletteFromEmotionalState, emotionPaletteToStyle } from "@/design-system/colorEngine";
+import JourneyHub from "@/components/journey/JourneyHub";
+import HomeErrorBoundary from "@/components/home/HomeErrorBoundary";
+import NarrativeSuggestionCard from "@/components/universo/NarrativeSuggestionCard";
+import { PresenceIndicator } from "@/components/PresenceIndicator";
+import { presenceToBeacon } from "@/lib/navigation-hints/beacon-factory";
+import { useNavigationStore } from "@/store/useNavigationStore";
+import type { NarrativeTransition } from "@/engine/narrative-transitions";
+import { CosmicHero } from "@/components/home/CosmicHero";
 
-const sidebarItems = [
-  { name: "Início", href: "/home" },
-  { name: "Séries", href: "/aulas" },
-  { name: "Explorar", href: "/explorar" },
-  { name: "Temas", href: "/temas" },
-  { name: "Minha Jornada", href: "/perfil" },
-  { name: "Agentes IA", href: "/agentes" },
+type NarrativeSuggestion = {
+  title: string;
+  description: string;
+  targetAgent: string;
+  confidence: number;
+  isRecovery: boolean;
+  tags: string[];
+  transition: NarrativeTransition | null;
+};
+
+const AGENTS = [
+  { id: "nexus", name: "NEXUS", faction: "INTELIGÊNCIA", color: "#00f5ff", image: "/images/agents/nexus.jpg" },
+  { id: "volt", name: "VOLT", faction: "ENERGIA", color: "#F59E0B", image: "/images/agents/volt.jpg" },
+  { id: "aurora", name: "AURORA", faction: "INOVAÇÃO", color: "#a78bfa", image: "/images/agents/aurora.jpg" },
+  { id: "ethos", name: "ETHOS", faction: "ÉTICA", color: "#ffa500", image: "/images/agents/ethos.jpg" },
+  { id: "kaos", name: "KAOS", faction: "CAOS", color: "#ff6b35", image: "/images/agents/kaos.jpg" },
+  { id: "cipher", name: "CIPHER", faction: "CRIPTOGRAFIA", color: "#00ff88", image: "/images/agents/cipher.jpg" },
+  { id: "lyra", name: "LYRA", faction: "CRIATIVIDADE", color: "#f472b6", image: "/images/agents/lyra.jpg" },
+  { id: "axiom", name: "AXIOM", faction: "CIÊNCIA", color: "#3b82f6", image: "/images/agents/axiom.jpg" },
+  { id: "stratos", name: "STRATOS", faction: "ESTRATÉGIA", color: "#94a3b8", image: "/images/agents/stratos.jpg" },
+  { id: "terra", name: "TERRA", faction: "NATUREZA", color: "#22c55e", image: "/images/agents/terra.jpg" },
+  { id: "prism", name: "PRISM", faction: "FILOSOFIA", color: "#e879f9", image: "/images/agents/prism.jpg" },
+  { id: "janus", name: "JANUS", faction: "DUALIDADE", color: "#f59e0b", image: "/images/agents/janus.jpg" },
 ];
 
-function SidebarItem({ item, isActive }: { item: typeof sidebarItems[0]; isActive: boolean }) {
+function UtcClock() {
+  const [clock, setClock] = useState("");
+  useEffect(() => {
+    const tick = () => {
+      const now = new Date();
+      const iso = now.toISOString().replace("T", " // ").slice(0, 22);
+      setClock(`UTC ${iso}`);
+    };
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, []);
+  if (!clock) return null;
   return (
-    <Link href={item.href} style={{ textDecoration: 'none' }}>
-      <div style={{
-        padding: '12px 16px',
-        color: isActive ? '#8B5CF6' : '#fff',
-        backgroundColor: isActive ? 'rgba(139, 92, 246, 0.1)' : 'transparent',
-        cursor: 'pointer',
-        marginBottom: '4px'
-      }}>
-        {item.name}
-      </div>
-    </Link>
+    <div style={{
+      position: "fixed", top: "80px", right: "24px",
+      zIndex: 9999, color: "#0088FF", fontFamily: "monospace",
+      fontSize: "10px", letterSpacing: "0.05em",
+      opacity: 0.7, pointerEvents: "none",
+    }}>
+      {clock}
+    </div>
   );
 }
 
+function FooterHud() {
+  return (
+    <div style={{
+      position: "fixed", bottom: "16px", left: "24px",
+      zIndex: 9999, color: "#00FF88", fontFamily: "monospace",
+      fontSize: "10px", opacity: 0.6, letterSpacing: "0.03em",
+      pointerEvents: "none",
+    }}>
+      NEXUS PRIME // TORRE CENTRAL // SISTEMA OPERACIONAL
+    </div>
+  );
+}
 
+function AvatarDropdown({ username, onLogout }: { username: string; onLogout: () => void }) {
+  const [open, setOpen] = useState(false)
+  const initials = username.slice(0, 2).toUpperCase()
 
+  return (
+    <div style={{ position: "relative" }}>
+      <button
+        onClick={() => setOpen(!open)}
+        onBlur={() => setTimeout(() => setOpen(false), 200)}
+        style={{
+          width: "36px", height: "36px", borderRadius: "50%",
+          border: "1.5px solid rgba(0,255,255,0.5)",
+          background: "rgba(0,255,255,0.1)",
+          color: "#00FFFF", fontFamily: "monospace", fontSize: "14px",
+          fontWeight: 700, cursor: "pointer",
+          transition: "all 0.2s ease",
+          boxShadow: open ? "0 0 16px rgba(0,255,255,0.4)" : "none",
+          display: "flex", alignItems: "center", justifyContent: "center",
+        }}
+        onMouseEnter={e => {
+          e.currentTarget.style.borderColor = "rgba(0,255,255,0.9)"
+        }}
+        onMouseLeave={e => {
+          e.currentTarget.style.borderColor = "rgba(0,255,255,0.5)"
+        }}
+        aria-label="Menu do usuário"
+      >
+        {initials}
+      </button>
 
+      {open && (
+        <div style={{
+          position: "absolute", top: "44px", right: 0,
+          minWidth: "180px", background: "rgba(0,0,0,0.95)",
+          border: "1px solid rgba(0,255,255,0.2)", borderRadius: "6px",
+          zIndex: 300, overflow: "hidden",
+          boxShadow: "0 8px 32px rgba(0,0,0,0.6), 0 0 16px rgba(0,255,255,0.1)",
+          animation: "fadeIn 0.15s ease",
+        }}>
+          <div style={{
+            padding: "12px 16px", borderBottom: "1px solid rgba(0,255,255,0.1)",
+            fontFamily: "monospace", fontSize: "12px", color: "#00FFFF",
+          }}>
+            {username}
+          </div>
+          <a href="/perfil" style={{
+            display: "block", padding: "10px 16px", color: "#CCC",
+            fontFamily: "monospace", fontSize: "12px", textDecoration: "none",
+            transition: "background 0.15s ease",
+          }}
+            onMouseEnter={e => e.currentTarget.style.background = "rgba(0,255,255,0.06)"}
+            onMouseLeave={e => e.currentTarget.style.background = "transparent"}
+          >
+            PERFIL
+          </a>
+          <button onClick={onLogout} style={{
+            width: "100%", textAlign: "left", padding: "10px 16px",
+            background: "transparent", border: "none",
+            color: "#FF6B6B", fontFamily: "monospace", fontSize: "12px",
+            cursor: "pointer",
+            transition: "background 0.15s ease",
+          }}
+            onMouseEnter={e => e.currentTarget.style.background = "rgba(255,107,107,0.1)"}
+            onMouseLeave={e => e.currentTarget.style.background = "transparent"}
+          >
+            SAIR
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}
 
-// Journey definitions
-const journeys = [
-  {
-    id: "fundamentos",
-    title: "Fundamentos de IA",
-    description: "Aprenda os conceitos essenciais que formam a base de toda IA moderna.",
-    level: "Iniciante",
-    color: "#3B82F6",
-  },
-  {
-    id: "criatividade",
-    title: "Criatividade Radical",
-    description: "Desbloqueie seu potencial criativo com agentes especializados em inovação.",
-    level: "Intermediário",
-    color: "#E50914",
-  },
-  {
-    id: "etica",
-    title: "IA Ética e Responsável",
-    description: "Explore os desafios éticos e responsabilidades do desenvolvimento de IA.",
-    level: "Avançado",
-    color: "#8B5CF6",
-  },
-  {
-    id: "estrategia",
-    title: "Estratégia e Planejamento",
-    description: "Domine o pensamento estratégico aplicado a sistemas de IA complexos.",
-    level: "Avançado",
-    color: "#10B981",
-  },
-];
+function StatsPanel({ completedCount }: { completedCount: number }) {
 
-// Agent pairings
-const pairings = [
-  {
-    agent1Id: "nexus",
-    agent2Id: "kaos",
-    title: "Criatividade Estruturada",
-    description: "A combinação perfeita entre conectividade e disrupção. Crie ideias revolucionárias dentro de estruturas sólidas.",
-  },
-  {
-    agent1Id: "aurora",
-    agent2Id: "ethos",
-    title: "Visão Ética",
-    description: "Clareza e responsabilidade caminham juntas. Veja o futuro com consciência moral.",
-  },
-  {
-    agent1Id: "volt",
-    agent2Id: "axiom",
-    title: "Energia Precisa",
-    description: "Motivação aliada à lógica pura. Transforme determinação em resultados exatos.",
-  },
-  {
-    agent1Id: "cipher",
-    agent2Id: "lyra",
-    title: "Análise Harmoniosa",
-    description: "Decodifique padrões complexos com elegância. Faça a análise tão bela quanto é precisa.",
-  },
-];
-
-export default function HomePage() {
-  const router = useRouter();
-  const [nexusInput, setNexusInput] = useState('');
-  const [nexusResponse, setNexusResponse] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-
-  const sendToNexus = async (message: string) => {
-    if (!message.trim()) return;
-    setIsLoading(true);
-    setNexusResponse('');
-    try {
-      const data = await sendMessageToNexus(message);
-      setNexusResponse(data.reply);
-    } catch (error) {
-      setNexusResponse('Error: Please try again.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Group agents by category
-  const agentsByCategory: { [key: string]: typeof allAgents } = {};
-  allAgents.forEach((agent) => {
-    if (!agentsByCategory[agent.category]) {
-      agentsByCategory[agent.category] = [];
-    }
-    agentsByCategory[agent.category].push(agent);
-  });
-
-  // Get top categories
-  const topCategories = [
-    "Fundamentos",
-    "Inovação",
-    "Ética",
-    "Análise",
-    "Estratégia",
-  ].filter((cat) => agentsByCategory[cat]);
-
-  // Get agents for pairings
-  const getPairingAgents = (id: string) =>
-    allAgents.find((a) => a.id === id);
+  const items = [
+    { label: "MUNDOS", value: `${completedCount}/12`, accent: "#00FFFF" },
+    { label: "MÓDULOS", value: "...", accent: "#00FF88" },
+    { label: "DECISÕES", value: "...", accent: "#FFB347" },
+    { label: "XP", value: "...", accent: "#C084FC" },
+  ]
 
   return (
     <div style={{
-      display: 'flex',
-      minHeight: '100vh',
-      background: '#0a0a1a',
-      fontFamily: 'Arial, sans-serif'
+      display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "0.75rem",
+      marginBottom: "1.5rem",
     }}>
-      {/* Sidebar */}
-      <div style={{
-        width: '240px',
-        background: '#1a1a2e',
-        padding: '20px 0',
-        position: 'fixed',
-        height: '100vh'
-      }}>
-        <div style={{ padding: '0 20px 20px', borderBottom: '1px solid #333' }}>
-          <div style={{ color: '#fff', fontSize: '24px', fontWeight: 'bold' }}>
-            MENTE.AI
+      {items.map(item => (
+        <div key={item.label} style={{
+          textAlign: "center", padding: "12px 8px",
+          background: "rgba(255,255,255,0.03)",
+          border: "1px solid rgba(255,255,255,0.06)", borderRadius: "6px",
+          transition: "all 0.3s ease",
+        }}
+          onMouseEnter={e => {
+            e.currentTarget.style.borderColor = item.accent
+            e.currentTarget.style.boxShadow = `0 0 12px ${item.accent}22`
+            e.currentTarget.style.transform = "scale(1.03)"
+          }}
+          onMouseLeave={e => {
+            e.currentTarget.style.borderColor = "rgba(255,255,255,0.06)"
+            e.currentTarget.style.boxShadow = "none"
+            e.currentTarget.style.transform = "scale(1)"
+          }}
+        >
+          <div style={{ fontFamily: "monospace", fontSize: "1.4rem", fontWeight: 700, color: item.accent, textShadow: `0 0 8px ${item.accent}44` }}>
+            {item.value}
+          </div>
+          <div style={{ fontFamily: "monospace", fontSize: "9px", color: "#888", marginTop: "4px", letterSpacing: "0.1em", textTransform: "uppercase" }}>
+            {item.label}
           </div>
         </div>
-        <nav style={{ padding: '20px 0' }}>
-          {sidebarItems.map((item) => (
-            <SidebarItem key={item.name} item={item} isActive={item.name === 'Início'} />
-          ))}
-        </nav>
-      </div>
-
-      {/* Main Content */}
-      <div style={{
-        flex: 1,
-        marginLeft: '240px',
-        padding: '40px'
-      }}>
-        {/* Hero Section - Cinematic */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          style={{
-            minHeight: '60vh',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            textAlign: 'center',
-            position: 'relative',
-            background: 'radial-gradient(circle at center, rgba(59, 130, 246, 0.1) 0%, transparent 70%)',
-            borderRadius: '20px',
-            padding: '120px 40px'
-          }}
-        >
-          {/* NEXUS Image with Glow */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5, delay: 0.2, ease: "easeOut" }}
-            style={{
-              position: 'relative',
-              marginBottom: '40px'
-            }}
-          >
-            <motion.div
-              animate={{ opacity: [0.7, 1, 0.7] }}
-              transition={{ duration: 2.5, repeat: Infinity }}
-              style={{
-                position: 'absolute',
-                inset: '-20px',
-                background: 'radial-gradient(circle, rgba(59, 130, 246, 0.5), transparent)',
-                borderRadius: '50%',
-                filter: 'blur(20px)',
-                zIndex: 0
-              }}
-            />
-            <div style={{
-              position: 'relative',
-              zIndex: 1,
-              width: '300px',
-              height: '300px',
-              borderRadius: '50%',
-              overflow: 'hidden',
-              border: '2px solid rgba(59, 130, 246, 0.5)',
-              boxShadow: '0 0 40px rgba(59, 130, 246, 0.4)'
-            }}>
-              <Image
-                src="/images/agentes/nexus.png"
-                alt="NEXUS - O Conector"
-                width={300}
-                height={300}
-                priority
-                style={{ objectFit: 'cover' }}
-              />
-            </div>
-          </motion.div>
-
-          {/* Hero Text */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.4, ease: "easeOut" }}
-            style={{ maxWidth: '600px' }}
-          >
-            <h1 style={{
-              fontSize: '3.5rem',
-              fontWeight: 'bold',
-              color: '#fff',
-              margin: '0 0 20px',
-              lineHeight: 1.2
-            }}>
-              Onde mentes são formadas, não formatadas
-            </h1>
-            <p style={{
-              fontSize: '1.3rem',
-              color: '#a0aec0',
-              margin: '0 0 40px',
-              lineHeight: 1.6
-            }}>
-              NEXUS conecta você ao conhecimento infinito dos agentes de IA. Cada um uma perspectiva única no universo do aprendizado.
-            </p>
-            <div style={{ display: 'flex', gap: '20px', justifyContent: 'center' }}>
-              <button
-                onClick={() => router.push('/agentes')}
-                style={{
-                  padding: '14px 32px',
-                  background: 'linear-gradient(135deg, #3B82F6, #1d4ed8)',
-                  border: 'none',
-                  borderRadius: '8px',
-                  color: '#fff',
-                  fontSize: '1.1rem',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  boxShadow: '0 0 20px rgba(59, 130, 246, 0.4)',
-                  transition: 'all 0.3s ease'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.boxShadow = '0 0 30px rgba(59, 130, 246, 0.6)';
-                  e.currentTarget.style.transform = 'scale(1.05)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.boxShadow = '0 0 20px rgba(59, 130, 246, 0.4)';
-                  e.currentTarget.style.transform = 'scale(1)';
-                }}
-              >
-                Conhecer os Agentes
-              </button>
-              <button
-                onClick={() => router.push('/perfil')}
-                style={{
-                  padding: '14px 32px',
-                  background: 'transparent',
-                  border: '2px solid rgba(59, 130, 246, 0.6)',
-                  borderRadius: '8px',
-                  color: '#3B82F6',
-                  fontSize: '1.1rem',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  transition: 'all 0.3s ease'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 1)';
-                  e.currentTarget.style.background = 'rgba(59, 130, 246, 0.1)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.6)';
-                  e.currentTarget.style.background = 'transparent';
-                }}
-              >
-                Minha Jornada
-              </button>
-            </div>
-          </motion.div>
-
-          {/* NEXUS Chat Input */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.6, ease: "easeOut" }}
-            style={{
-              width: '100%',
-              maxWidth: '500px',
-              marginTop: '40px',
-            }}
-          >
-            <div style={{ display: 'flex', gap: '10px' }}>
-              <input
-                type="text"
-                value={nexusInput}
-                onChange={(e) => setNexusInput(e.target.value)}
-                placeholder="Pergunte algo ao NEXUS..."
-                disabled={isLoading}
-                style={{
-                  flex: 1,
-                  padding: '12px 16px',
-                  borderRadius: '8px',
-                  border: '1px solid rgba(59, 130, 246, 0.5)',
-                  background: 'rgba(59, 130, 246, 0.05)',
-                  color: '#fff',
-                  fontSize: '14px',
-                  outline: 'none',
-                  transition: 'all 0.3s ease',
-                }}
-                onFocus={(e) => {
-                  e.currentTarget.style.borderColor = '#3B82F6';
-                  e.currentTarget.style.background = 'rgba(59, 130, 246, 0.1)';
-                }}
-                onBlur={(e) => {
-                  e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.5)';
-                  e.currentTarget.style.background = 'rgba(59, 130, 246, 0.05)';
-                }}
-              />
-              <button
-                onClick={() => sendToNexus(nexusInput)}
-                disabled={isLoading || !nexusInput.trim()}
-                style={{
-                  padding: '12px 20px',
-                  background: '#3B82F6',
-                  border: 'none',
-                  borderRadius: '8px',
-                  color: '#fff',
-                  cursor: isLoading ? 'not-allowed' : 'pointer',
-                  opacity: isLoading ? 0.5 : 1,
-                  transition: 'all 0.3s ease',
-                }}
-              >
-                {isLoading ? '...' : 'Enviar'}
-              </button>
-            </div>
-          </motion.div>
-        </motion.div>
-
-        {/* SECTION 2: Featured Agent Council */}
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2, ease: "easeOut" }}
-          style={{ marginTop: '80px' }}
-        >
-          <h2 style={{
-            color: '#fff',
-            fontSize: '24px',
-            marginBottom: '8px',
-            fontWeight: '700'
-          }}>
-            O Conselho de Mentores
-          </h2>
-          <p style={{
-            color: 'rgba(255,255,255,0.5)',
-            fontSize: '14px',
-            marginBottom: '32px'
-          }}>
-            Os 12 arquétipos que moldam o universo MENTE.AI
-          </p>
-
-          <div style={{
-            display: 'flex',
-            overflowX: 'auto',
-            gap: '24px',
-            paddingRight: '24px',
-            scrollPaddingRight: '24px',
-            paddingBottom: '20px',
-            scrollBehavior: 'smooth',
-            scrollSnapType: 'x mandatory'
-          }}>
-          <AnimatePresence>
-            {agentsShowcase.slice(0, 12).map((agent, index) => (
-              <motion.div
-                key={agent.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: 0.1 * index }}
-              >
-                <AgentCard agent={agent} />
-              </motion.div>
-            ))}
-          </AnimatePresence>
-          </div>
-        </motion.div>
-
-        {/* SECTION 3: Journey Pathways */}
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.4, ease: "easeOut" }}
-          style={{ marginTop: '80px' }}
-        >
-          <h2 style={{
-            color: '#fff',
-            fontSize: '24px',
-            marginBottom: '8px',
-            fontWeight: '700'
-          }}>
-            Suas Jornadas de Aprendizado
-          </h2>
-          <p style={{
-            color: 'rgba(255,255,255,0.5)',
-            fontSize: '14px',
-            marginBottom: '32px'
-          }}>
-            Caminhos personalizados para sua evolução
-          </p>
-
-          <div style={{
-            display: 'flex',
-            overflowX: 'auto',
-            gap: '24px',
-            paddingBottom: '20px',
-            scrollBehavior: 'smooth',
-            scrollSnapType: 'x mandatory'
-          }}>
-            <AnimatePresence>
-              {journeys.map((journey, index) => (
-                <motion.div
-                  key={journey.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: 0.1 * index }}
-                >
-                  <JourneyCard {...journey} />
-                </motion.div>
-              ))}
-            </AnimatePresence>
-          </div>
-        </motion.div>
-
-        {/* SECTION 4: Continue Your Journey */}
-        <ExplorationRow
-          title="Continue de Onde Parou"
-          subtitle="Sua progressão aguarda"
-          delay={0.6}
-        >
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0 }}
-            style={{
-              padding: '32px',
-              background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(59, 130, 246, 0.1))',
-              border: '1px solid rgba(139, 92, 246, 0.3)',
-              borderRadius: '12px',
-              textAlign: 'center',
-              gridColumn: '1 / -1'
-            }}
-          >
-            <h3 style={{
-              color: '#fff',
-              fontSize: '1.3rem',
-              fontWeight: '600',
-              margin: '0 0 12px'
-            }}>
-              Comece sua primeira jornada
-            </h3>
-            <p style={{
-              color: '#a0aec0',
-              fontSize: '1rem',
-              margin: '0 0 20px',
-              lineHeight: 1.6
-            }}>
-              Escolha uma jornada acima para começar a explorar o universo MENTE.AI e conectar-se com agentes que transformarão sua maneira de aprender.
-            </p>
-            <button
-              onClick={() => router.push('/aulas')}
-              style={{
-                padding: '12px 24px',
-                background: '#8B5CF6',
-                border: 'none',
-                borderRadius: '8px',
-                color: '#fff',
-                fontSize: '1rem',
-                fontWeight: '600',
-                cursor: 'pointer',
-                transition: 'all 0.3s ease'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.opacity = '0.9';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.opacity = '1';
-              }}
-            >
-              Explorar Jornadas
-            </button>
-          </motion.div>
-        </ExplorationRow>
-
-        {/* SECTION 5: Agent Universes */}
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.8, ease: "easeOut" }}
-          style={{ marginTop: '80px' }}
-        >
-          <h2 style={{
-            color: '#fff',
-            fontSize: '24px',
-            marginBottom: '8px',
-            fontWeight: '700'
-          }}>
-            Explore por Domínio
-          </h2>
-          <p style={{
-            color: 'rgba(255,255,255,0.5)',
-            fontSize: '14px',
-            marginBottom: '32px'
-          }}>
-            Escolha um universo e mergulhe em suas profundezas
-          </p>
-
-          <div style={{
-            display: 'flex',
-            overflowX: 'auto',
-            gap: '24px',
-            paddingBottom: '20px',
-            scrollBehavior: 'smooth',
-            scrollSnapType: 'x mandatory'
-          }}>
-            <AnimatePresence>
-              {topCategories.map((category, index) => (
-                <motion.div
-                  key={category}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: 0.1 * index }}
-                >
-                  <CategoryCard
-                    categoryName={category}
-                    agents={agentsByCategory[category] || []}
-                    agentCount={agentsByCategory[category]?.length || 0}
-                    color={agentsByCategory[category]?.[0]?.color || '#3B82F6'}
-                  />
-                </motion.div>
-              ))}
-            </AnimatePresence>
-          </div>
-        </motion.div>
-
-        {/* SECTION 6: Discovery Zone */}
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 1.0, ease: "easeOut" }}
-          style={{ marginTop: '80px' }}
-        >
-          <h2 style={{
-            color: '#fff',
-            fontSize: '24px',
-            marginBottom: '8px',
-            fontWeight: '700'
-          }}>
-            Descubra Conexões
-          </h2>
-          <p style={{
-            color: 'rgba(255,255,255,0.5)',
-            fontSize: '14px',
-            marginBottom: '32px'
-          }}>
-            Agentes que se complementam
-          </p>
-
-          <div style={{
-            display: 'flex',
-            overflowX: 'auto',
-            gap: '24px',
-            paddingBottom: '20px',
-            scrollBehavior: 'smooth',
-            scrollSnapType: 'x mandatory'
-          }}>
-            <AnimatePresence>
-              {pairings.map((pairing, index) => {
-                const agent1 = getPairingAgents(pairing.agent1Id);
-                const agent2 = getPairingAgents(pairing.agent2Id);
-                if (!agent1 || !agent2) return null;
-
-                return (
-                  <motion.div
-                    key={`${pairing.agent1Id}-${pairing.agent2Id}`}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4, delay: 0.1 * index }}
-                  >
-                    <AgentPairingCard
-                      agent1={agent1}
-                      agent2={agent2}
-                      title={pairing.title}
-                      description={pairing.description}
-                    />
-                  </motion.div>
-                );
-              })}
-            </AnimatePresence>
-          </div>
-        </motion.div>
-
-        {/* SECTION 7: CTA Zone */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5, delay: 1.2, ease: "easeOut" }}
-          style={{
-            marginTop: '80px',
-            padding: '60px 40px',
-            background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(59, 130, 246, 0.1))',
-            border: '1px solid rgba(139, 92, 246, 0.3)',
-            borderRadius: '20px',
-            textAlign: 'center',
-            marginBottom: '40px'
-          }}
-        >
-          <h2 style={{
-            color: '#fff',
-            fontSize: '2.5rem',
-            fontWeight: 'bold',
-            margin: '0 0 20px',
-            lineHeight: 1.2
-          }}>
-            Pronto para transformar sua mente?
-          </h2>
-          <p style={{
-            color: '#a0aec0',
-            fontSize: '1.2rem',
-            margin: '0 0 40px',
-            lineHeight: 1.6,
-            maxWidth: '600px',
-            marginLeft: 'auto',
-            marginRight: 'auto'
-          }}>
-            Acesse o conhecimento infinito de 22 agentes especializados. Comece grátis e descubra como a IA pode ampliar suas capacidades.
-          </p>
-          <div style={{ display: 'flex', gap: '20px', justifyContent: 'center' }}>
-            <button
-              onClick={() => router.push('/aulas')}
-              style={{
-                padding: '14px 32px',
-                background: '#8B5CF6',
-                border: 'none',
-                borderRadius: '8px',
-                color: '#fff',
-                fontSize: '1.1rem',
-                fontWeight: '600',
-                cursor: 'pointer',
-                boxShadow: '0 0 20px rgba(139, 92, 246, 0.4)',
-                transition: 'all 0.3s ease'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.boxShadow = '0 0 30px rgba(139, 92, 246, 0.6)';
-                e.currentTarget.style.transform = 'scale(1.05)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.boxShadow = '0 0 20px rgba(139, 92, 246, 0.4)';
-                e.currentTarget.style.transform = 'scale(1)';
-              }}
-            >
-              Comece Grátis
-            </button>
-            <button
-              onClick={() => router.push('/planos')}
-              style={{
-                padding: '14px 32px',
-                background: 'transparent',
-                border: '2px solid rgba(139, 92, 246, 0.6)',
-                borderRadius: '8px',
-                color: '#8B5CF6',
-                fontSize: '1.1rem',
-                fontWeight: '600',
-                cursor: 'pointer',
-                transition: 'all 0.3s ease'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.borderColor = 'rgba(139, 92, 246, 1)';
-                e.currentTarget.style.background = 'rgba(139, 92, 246, 0.1)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.borderColor = 'rgba(139, 92, 246, 0.6)';
-                e.currentTarget.style.background = 'transparent';
-              }}
-            >
-              Ver Planos Premium
-            </button>
-          </div>
-        </motion.div>
-      </div>
-
+      ))}
     </div>
+  )
+}
+
+export default function HomePage() {
+  const router = useRouter();
+  const { cognitiveProfile, progressionSnapshot, healthStatus } = useOasis();
+  const { user, isLoading: sessionLoading } = useSession();
+
+  const [narrativeSuggestions, setNarrativeSuggestions] = useState<NarrativeSuggestion[]>([]);
+  const [presenceCounts, setPresenceCounts] = useState<Record<string, number>>({});
+  useEffect(() => {
+    if (!user?.id) return;
+    fetch(`/api/narrative/suggestions?userId=${user.id}`)
+      .then(res => res.json())
+      .then(data => setNarrativeSuggestions(data.suggestions ?? []))
+      .catch(() => setNarrativeSuggestions([]));
+  }, [user?.id]);
+
+  // Fetch presence counts + dispatch beacons
+  useEffect(() => {
+    const fetchPresence = () => {
+      fetch("/api/presence")
+        .then(res => res.json())
+        .then(data => {
+          setPresenceCounts(data);
+          Object.entries(data as Record<string, number>).forEach(([id, count]) => {
+            useNavigationStore.getState().addBeacon(presenceToBeacon(id, count));
+          });
+        })
+        .catch(() => {});
+    };
+    fetchPresence();
+    const int = setInterval(fetchPresence, 30000);
+    return () => clearInterval(int);
+  }, []);
+
+  const completedCount = useMemo(
+    () => progressionSnapshot.totalCompleted ?? 0,
+    [progressionSnapshot.totalCompleted]
   );
+
+  const username = !sessionLoading && user?.name
+    ? user.name
+    : cognitiveProfile.archetype !== "explorer"
+      ? cognitiveProfile.archetype.toUpperCase()
+      : "PARTICIPANTE";
+
+  const isOnline = healthStatus === "optimal" || healthStatus === "degraded";
+  const nextAgent = AGENTS[completedCount] ?? AGENTS[0];
+  const showUpgrade = completedCount >= 3 && (!user || user.plan === "FREE");
+
+  function handleLogout() {
+    document.cookie = "mente_ai_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    router.push("/login");
   }
+
+  // ── Emotion Palette ────────────────────────────────────────────
+  useEffect(() => {
+    createEmotionStyleElement()
+    // Inject cyberpunk keyframes
+    if (typeof document !== "undefined" && !document.getElementById("cyberpunk-keyframes")) {
+      const style = document.createElement("style")
+      style.id = "cyberpunk-keyframes"
+      style.innerHTML = `@keyframes fadeIn { from { opacity: 0; transform: translateY(-4px) } to { opacity: 1; transform: translateY(0) } } @keyframes pulse { 0%,100% { box-shadow: 0 0 8px rgba(0,255,255,0.15) } 50% { box-shadow: 0 0 20px rgba(0,255,255,0.35) } } @keyframes scanline { 0% { background-position: 0 0 } 100% { background-position: 0 100% } }`
+      document.head.appendChild(style)
+    }
+  }, [])
+
+  const palette = useMemo(() => {
+    // Derive emotion from health + progression signals
+    if (!isOnline) return emotionPaletteToStyle(getPaletteFromEmotionalState(
+      { dominantEmotion: 'fear', intensity: 0.5, targetColor: { r: 128, g: 0, b: 128 }, emotionalMemory: [], lastUpdate: Date.now(), stability: 0 }
+    ))
+    if (completedCount >= 6) return emotionPaletteToStyle(getPaletteFromEmotionalState(
+      { dominantEmotion: 'joy', intensity: 0.7, targetColor: { r: 255, g: 200, b: 50 }, emotionalMemory: [], lastUpdate: Date.now(), stability: 0.8 }
+    ))
+    if (completedCount >= 3) return emotionPaletteToStyle(getPaletteFromEmotionalState(
+      { dominantEmotion: 'curiosity', intensity: 0.6, targetColor: { r: 50, g: 200, b: 200 }, emotionalMemory: [], lastUpdate: Date.now(), stability: 0.6 }
+    ))
+    if (completedCount >= 1) return emotionPaletteToStyle(getPaletteFromEmotionalState(
+      { dominantEmotion: 'surprise', intensity: 0.5, targetColor: { r: 255, g: 140, b: 0 }, emotionalMemory: [], lastUpdate: Date.now(), stability: 0.4 }
+    ))
+    return emotionPaletteToStyle(getPaletteFromEmotionalState(
+      { dominantEmotion: 'neutral', intensity: 0, targetColor: { r: 128, g: 128, b: 128 }, emotionalMemory: [], lastUpdate: Date.now(), stability: 1 }
+    ))
+  }, [completedCount, isOnline])
+
+  return (
+    <HomeErrorBoundary>
+    <div className="emotion-aware" style={{ minHeight: "100vh", color: "#ffffff", ...palette }}>
+      <UtcClock />
+      <FooterHud />
+
+      {/* HERO — Cosmic Brutal */}
+      <CosmicHero
+        isNewUser={!user}
+        episodeLeft={{ episodeNumber: 1, title: "O NASCIMENTO DA IA", accentColor: "cyan" }}
+        episodeRight={{ episodeNumber: 5, title: "REFORCO E RECOMPENSA", accentColor: "magenta" }}
+      />
+
+      {/* MAIN CONTENT */}
+      <main style={{ paddingTop: "140px", paddingBottom: "80px", maxWidth: "1200px", margin: "0 auto", padding: "140px 2rem 80px" }}>
+
+        {/* GREETING */}
+        <div style={{ marginBottom: "2rem" }}>
+          <h1 style={{ fontSize: "2rem", fontWeight: 700, color: "#ffffff", margin: 0, textShadow: "0 0 20px rgba(0,255,255,0.15)" }}>
+            Bem-vindo, {username}
+          </h1>
+          <p style={{ fontFamily: "monospace", fontSize: "1rem", color: "#00FFFF", margin: "0.5rem 0 0", textShadow: "0 0 10px rgba(0,255,255,0.2)" }}>
+            Seu universo aguarda.
+          </p>
+        </div>
+
+        {/* AGENTS GRID — Storyboard */}
+        <section style={{
+          backgroundImage: 'url(/images/storyboard/agents-grid.jpg)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          minHeight: '300px',
+          position: 'relative',
+          marginBottom: '2rem',
+          borderRadius: '12px',
+          overflow: 'hidden',
+        }}>
+          <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.6)' }} />
+          <div style={{ position: 'relative', textAlign: 'center', padding: '60px 20px', color: 'white' }}>
+            <h2 style={{ fontFamily: 'monospace', color: '#00FFFF', fontSize: '1.5rem', letterSpacing: '4px', marginBottom: '8px' }}>12 UNIVERSOS DE IA</h2>
+            <p style={{ color: '#94a3b8', fontSize: '0.9rem', marginBottom: '24px' }}>Escolha seu agente e comece sua jornada</p>
+            <a href="/explorar" style={{ background: 'transparent', border: '1px solid #00FFFF', color: '#00FFFF', padding: '12px 32px', fontFamily: 'monospace', fontSize: '0.8rem', letterSpacing: '2px', cursor: 'pointer', textDecoration: 'none' }}>
+              EXPLORAR UNIVERSOS →
+            </a>
+          </div>
+        </section>
+
+        {/* STATS ROW */}
+        <StatsPanel completedCount={completedCount} />
+
+        {/* PROGRESSION BAR */}
+        <div style={{ marginBottom: "2.5rem" }}>
+          <p style={{ fontFamily: "monospace", fontSize: "11px", color: "#00FF88", margin: "0 0 0.5rem" }}>
+            MUNDOS DESBLOQUEADOS: {completedCount}/12
+          </p>
+          <div style={{ width: "100%", height: "2px", background: "rgba(0,255,255,0.1)", borderRadius: "1px" }}>
+            <div style={{
+              width: `${(completedCount / 12) * 100}%`,
+              height: "100%", background: "#00FFFF",
+              borderRadius: "1px", transition: "width 0.5s ease",
+            }} />
+          </div>
+          <p style={{ fontFamily: "monospace", fontSize: "10px", color: "#0088FF", margin: "0.5rem 0 0" }}>
+            PRÓXIMO: {nextAgent.name}
+          </p>
+        </div>
+
+        {/* JOURNEY HUB — jornada cognitiva completa */}
+        <JourneyHub />
+
+        {/* NARRATIVE SUGGESTIONS */}
+        {narrativeSuggestions.length > 0 && (
+          <section style={{ marginBottom: "2rem" }}>
+            {narrativeSuggestions.map((suggestion, index) => (
+              <NarrativeSuggestionCard
+                key={`${suggestion.targetAgent}-${index}`}
+                suggestion={suggestion}
+                index={index}
+                onSelect={(targetAgent) => router.push(`/universo/${targetAgent}`)}
+              />
+            ))}
+          </section>
+        )}
+
+        {/* AGENT CARDS GRID */}
+        <div style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(3, 1fr)",
+          gap: "1rem",
+          marginBottom: "2.5rem",
+        }}>
+          {AGENTS.map((agent, i) => {
+            const unlocked = i < completedCount;
+            const count = presenceCounts[agent.id] || 0;
+            const intensity = count >= 10 ? "urgent" : count >= 3 ? "moderate" : "subtle";
+            return (
+              <Link key={agent.id} href={`/universo/${agent.id}`} style={{ textDecoration: "none" }}>
+                <div style={{
+                  height: "220px",
+                  backgroundImage: `url(${agent.image})`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center top',
+                  border: `1px solid ${unlocked ? agent.color : "rgba(255,255,255,0.1)"}`,
+                  borderRadius: "8px",
+                  cursor: "pointer",
+                  position: "relative",
+                  overflow: "hidden",
+                  transition: "all 0.3s ease",
+                }}
+                  onMouseEnter={e => {
+                    (e.currentTarget as HTMLDivElement).style.boxShadow = `0 0 16px ${agent.color}40`;
+                    (e.currentTarget as HTMLDivElement).style.transform = "scale(1.03)";
+                  }}
+                  onMouseLeave={e => {
+                    (e.currentTarget as HTMLDivElement).style.boxShadow = "none";
+                    (e.currentTarget as HTMLDivElement).style.transform = "scale(1)";
+                  }}
+                >
+                  {/* Overlay escuro */}
+                  <div style={{
+                    position: "absolute", inset: 0,
+                    background: "linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.1) 100%)",
+                  }} />
+                  {/* Info no canto inferior */}
+                  <div style={{ position: "absolute", bottom: "12px", left: "12px", right: "12px" }}>
+                    <p style={{ fontFamily: "monospace", fontSize: "13px", color: agent.color, letterSpacing: "0.1em", margin: "0 0 2px", textTransform: "uppercase", textShadow: `0 0 8px ${agent.color}80` }}>
+                      {agent.name}
+                    </p>
+                    <p style={{ fontFamily: "monospace", fontSize: "10px", color: "#9ca3af", margin: 0 }}>
+                      {agent.faction}
+                    </p>
+                    <PresenceIndicator agentId={agent.id} count={count} color={agent.color} pulseIntensity={intensity} />
+                  </div>
+                </div>
+              </Link>
+            );
+          })}
+        </div>
+
+        {/* QUICK ACTIONS */}
+        <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap", marginBottom: "2rem" }}>
+          {[
+            { label: "MAPA GALÁCTICO", href: "/universo" },
+            { label: "EXPLORAR", href: "/explorar" },
+            { label: "LABORATÓRIO", href: "/lab" },
+            { label: "AGENTES", href: "/agentes" },
+          ].map(btn => (
+            <Link key={btn.href} href={btn.href} style={{ textDecoration: "none" }}>
+              <button style={{
+                background: "transparent",
+                border: "1px solid rgba(0,255,255,0.3)",
+                color: "#00FFFF", fontFamily: "monospace",
+                fontSize: "11px", padding: "10px 20px",
+                cursor: "pointer", letterSpacing: "0.1em",
+                transition: "all 0.2s ease",
+              }}
+                onMouseEnter={e => {
+                  (e.currentTarget as HTMLButtonElement).style.background = "rgba(0,255,255,0.1)";
+                  (e.currentTarget as HTMLButtonElement).style.borderColor = "#00FFFF";
+                }}
+                onMouseLeave={e => {
+                  (e.currentTarget as HTMLButtonElement).style.background = "transparent";
+                  (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(0,255,255,0.3)";
+                }}
+              >
+                {btn.label}
+              </button>
+            </Link>
+          ))}
+        </div>
+
+        {/* UPGRADE PROMPT */}
+        {showUpgrade && (
+          <div style={{ textAlign: "center", padding: "2rem", border: "1px solid rgba(0,255,255,0.2)", borderRadius: "4px" }}>
+            <p style={{ fontFamily: "monospace", color: "#00FF88", fontSize: "14px", margin: "0 0 1rem" }}>
+              DESBLOQUEIE TODOS OS MUNDOS
+            </p>
+            <Link href="/planos">
+              <button style={{
+                background: "transparent",
+                border: "1px solid #00FF88",
+                color: "#00FF88", fontFamily: "monospace",
+                fontSize: "11px", padding: "10px 24px",
+                cursor: "pointer", letterSpacing: "0.1em",
+              }}>
+                UPGRADE
+              </button>
+            </Link>
+          </div>
+        )}
+
+        {/* NEXUS PORTAL — Storyboard Cena 3 */}
+        <section style={{
+          backgroundImage: 'url(/images/storyboard/universe-entry.jpg)',
+          backgroundSize: 'cover', backgroundPosition: 'center',
+          minHeight: '200px', display: 'flex', alignItems: 'center',
+          justifyContent: 'center', position: 'relative',
+          borderRadius: '12px', overflow: 'hidden', marginTop: '2rem',
+        }}>
+          <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.6)' }} />
+          <Link href="/universo/nexus" style={{
+            position: 'relative', display: "inline-flex", alignItems: "center", gap: "0.75rem",
+            padding: "1rem 2.5rem",
+            border: "1px solid rgba(0,255,255,0.3)", borderRadius: "8px",
+            background: "rgba(0,255,255,0.05)", color: "#00FFFF",
+            fontFamily: "monospace", fontSize: "14px",
+            letterSpacing: "0.15em", textTransform: "uppercase", textDecoration: "none",
+            transition: "all 0.3s ease",
+          }}>
+            ✦ ENTRAR NO UNIVERSO NEXUS
+          </Link>
+        </section>
+
+      </main>
+    </div>
+    </HomeErrorBoundary>
+  );
+}

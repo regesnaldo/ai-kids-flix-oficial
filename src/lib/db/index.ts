@@ -1,55 +1,69 @@
- import { drizzle } from "drizzle-orm/mysql2";
+import { drizzle } from "drizzle-orm/mysql2";
 import mysql from "mysql2/promise";
 import * as schema from "./schema";
+import "server-only";
 
-function normalizeDatabaseUrl(rawUrl: string): string {
-  let rawIsValid = true;
-  try {
-    new URL(rawUrl);
-  } catch {
-    rawIsValid = false;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- Pool type incompatibility between mysql2 and drizzle-orm
+let _pool: any;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- ReturnType<typeof drizzle> has $client type mismatch
+let _db: any;
+
+function getPool(): mysql.Pool {
+  if (_pool) return _pool as mysql.Pool;
+
+  const url = process.env.DATABASE_URL;
+  if (!url) {
+    throw new Error(
+      "[MENTE.AI] DATABASE_URL não definida. Adicione-a ao .env.local."
+    );
   }
 
-  if (rawIsValid) {
-    return rawUrl;
-  }
+  const parsed = new URL(url);
 
-  const sslIndex = rawUrl.indexOf("ssl=");
-  if (sslIndex === -1) {
-    return rawUrl;
-  }
+  _pool = mysql.createPool({
+    host: parsed.hostname,
+    port: parseInt(parsed.port || "4000"),
+    user: parsed.username,
+    password: decodeURIComponent(parsed.password),
+    database: parsed.pathname.replace("/", ""),
+    ssl: { rejectUnauthorized: true },
+    waitForConnections: true,
+    connectionLimit: 5,
+    queueLimit: 0,
+  });
 
-  const prefix = rawUrl.slice(0, sslIndex + 4);
-  const rest = rawUrl.slice(sslIndex + 4);
-  const ampIndex = rest.indexOf("&");
-  const sslValue = ampIndex === -1 ? rest : rest.slice(0, ampIndex);
-  const suffix = ampIndex === -1 ? "" : rest.slice(ampIndex);
-
-  if (!/[{}"]/u.test(sslValue)) {
-    return rawUrl;
-  }
-
-  const candidate = `${prefix}${encodeURIComponent(sslValue)}${suffix}`;
-  try {
-    new URL(candidate);
-    return candidate;
-  } catch {
-    return rawUrl;
-  }
+  return _pool as mysql.Pool;
 }
 
-const poolOptions: mysql.PoolOptions = {
-  waitForConnections: true,
-  connectionLimit: 10,
-  ssl: {
-    rejectUnauthorized: true,
+function getDbInstance(): ReturnType<typeof drizzle> {
+  if (_db) return _db as ReturnType<typeof drizzle>;
+  _db = drizzle(getPool(), { schema, mode: "default" });
+  return _db as ReturnType<typeof drizzle>;
+}
+
+export { getDbInstance as getDb };
+
+export const db: ReturnType<typeof drizzle> = new Proxy(
+  {} as ReturnType<typeof drizzle>,
+  {
+    get(_target, prop) {
+      const instance = getDbInstance();
+      const value = (instance as unknown as Record<string | symbol, unknown>)[prop];
+      if (typeof value === "function") {
+        return (value as (...args: unknown[]) => unknown).bind(instance);
+      }
+      return value;
+    },
+  }
+);
+
+export const pool: mysql.Pool = new Proxy({} as mysql.Pool, {
+  get(_target, prop) {
+    const p = getPool();
+    const value = (p as unknown as Record<string | symbol, unknown>)[prop];
+    if (typeof value === "function") {
+      return (value as (...args: unknown[]) => unknown).bind(p);
+    }
+    return value;
   },
-};
-
-if (process.env.DATABASE_URL) {
-  (poolOptions as mysql.PoolOptions & { url?: string }).url = normalizeDatabaseUrl(process.env.DATABASE_URL);
-}
-
-const pool = mysql.createPool(poolOptions);
-
-export const db = drizzle(pool, { schema, mode: "default" });
+});

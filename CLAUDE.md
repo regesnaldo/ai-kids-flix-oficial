@@ -259,7 +259,7 @@ Payments:
 - Stripe
 
 Build:
-- Turbopack
+- Webpack (Turbopack quebra com lockfile cross-platform no WSL)
 
 ---
 
@@ -339,7 +339,7 @@ inspect first, patch carefully.
 
 Run project:
 
-npm run dev
+npm run dev -- --webpack
 
 Validate build:
 

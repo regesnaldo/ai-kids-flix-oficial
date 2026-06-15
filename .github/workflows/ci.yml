@@ -1,17 +1,17 @@
-name: CI
+name: CI — MENTE.AI
 
 on:
   push:
-    branches: [feat/lab-redesign, main]
+    branches: [main, feat/*, fix/*, chore/*]
   pull_request:
     branches: [main]
 
 jobs:
-  build:
+  build-and-check:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout código
         uses: actions/checkout@v4
 
       - name: Setup Node.js
@@ -20,11 +20,15 @@ jobs:
           node-version: '20'
           cache: 'npm'
 
-      - name: Install dependencies
+      - name: Instalar dependências
         run: npm ci
 
-      - name: Run ESLint
-        run: npm run lint
+      - name: Verificar tipos TypeScript
+        run: npx tsc --noEmit
 
-      - name: Run build
+      - name: Build de produção
         run: npm run build
+        env:
+          NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          NEXT_PUBLIC_SITE_URL: https://mente-ai.vercel.app

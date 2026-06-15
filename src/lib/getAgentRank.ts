@@ -1,5 +1,5 @@
 // Helper para obter o rank hierárquico de um agente
-import { agentRankMap, getAgentInfo } from '../data/agents-hierarchy';
+import { agentRankMap, getAgentInfo } from '@/data/agents';
 
 /**
  * Obtém o nível hierárquico de um agente específico

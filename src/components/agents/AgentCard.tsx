@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
-import type { AgentShowcase } from "@/data/agents-showcase";
+import type { AgentShowcase } from "@/data/agents";
 
 interface AgentCardProps {
   agent: AgentShowcase;

@@ -3,6 +3,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, BookOpen, Download, Info, Share2, Volume2, VolumeX } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import type { Agent } from '@/data/agents';
 import AgentInfoModal from '@/components/info/AgentInfoModal';
 
@@ -14,11 +15,10 @@ const playAudioWithFallback = async (audioUrl: string, text: string) => {
     let audioSourceUrl = audioUrl;
 
     if (text) {
-      const encodedText = encodeURIComponent(text);
       const ttsResponse = await fetch('/api/elevenlabs/speak', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: encodedText }),
+        body: JSON.stringify({ text }),
       });
       if (ttsResponse.ok) {
         const ttsBlob = await ttsResponse.blob();
@@ -82,10 +82,10 @@ export default function BookModal({ agent, onClose }: BookModalProps) {
   const toggleMute = () => { setIsMuted(!isMuted); if (!isMuted) { stopAudio(); setIsPlaying(false); } else if (agent?.description) playAudioWithFallback(`/audio/livros/livro-${agent.id}.mp3`, agent.description); };
 
   const levelConfig: Record<string, { glow: string; bg: string }> = {
-    Fundamentos: { glow: '#3b82f6', bg: 'from-blue-900/50' },
-    Intermediário: { glow: '#22c55e', bg: 'from-green-900/50' },
-    Avançado: { glow: '#f97316', bg: 'from-orange-900/50' },
-    Mestre: { glow: '#a855f7', bg: 'from-purple-900/50' }
+    Fundamentos: { glow: '#3b82f6', bg: 'linear-gradient(to bottom right, #1e3a5f, #0a0a0f)' },
+    Intermediário: { glow: '#22c55e', bg: 'linear-gradient(to bottom right, #14532d, #0a0a0f)' },
+    Avançado: { glow: '#f97316', bg: 'linear-gradient(to bottom right, #7c2d12, #0a0a0f)' },
+    Mestre: { glow: '#a855f7', bg: 'linear-gradient(to bottom right, #3b0764, #0a0a0f)' }
   };
   const config = levelConfig[agent?.level] || levelConfig.Fundamentos;
 
@@ -94,8 +94,8 @@ export default function BookModal({ agent, onClose }: BookModalProps) {
     <AnimatePresence>
       <motion.div initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" onClick={onClose}>
         <motion.div initial={{scale:0.9,opacity:0,y:20}} animate={{scale:1,opacity:1,y:0}} exit={{scale:0.9,opacity:0,y:20}} transition={{type:"spring",damping:25,stiffness:300}}
-          className={`relative w-full max-w-2xl bg-gradient-to-br ${config.bg} to-[#0a0a0f] rounded-3xl border-2 overflow-hidden`}
-          style={{ borderColor: config.glow, boxShadow: `0 0 60px ${config.glow}40` }} onClick={(e)=>e.stopPropagation()}>
+          className="relative w-full max-w-2xl rounded-3xl border-2 overflow-hidden"
+          style={{ borderColor: config.glow, boxShadow: `0 0 60px ${config.glow}40`, backgroundImage: config.bg }} onClick={(e)=>e.stopPropagation()}>
           <div className="relative p-6 pb-4 border-b border-white/10">
             <div className="absolute inset-0 opacity-20" style={{background:`radial-gradient(ellipse at top,${config.glow}33,transparent 70%)`}}/>
             <div className="relative flex items-start justify-between">
@@ -143,7 +143,7 @@ export default function BookModal({ agent, onClose }: BookModalProps) {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full overflow-hidden" style={{boxShadow:`0 0 0 2px ${config.glow}`}}>
-                  {agent?.imageUrl?<img src={agent.imageUrl} alt={agent.nickname} className="w-full h-full object-cover"/>:<div className="w-full h-full flex items-center justify-center text-white font-bold text-sm" style={{background:`${config.glow}33`}}>{agent?.nickname?.charAt(0)}</div>}
+                  {agent?.imageUrl?<Image src={agent.imageUrl} alt={agent.nickname} width={40} height={40} className="w-full h-full object-cover"/>:<div className="w-full h-full flex items-center justify-center text-white font-bold text-sm" style={{background:`${config.glow}33`}}>{agent?.nickname?.charAt(0)}</div>}
                 </div>
                 <div><p className="text-xs text-gray-400">Guia da Missão</p><p className="text-white font-medium">{agent?.nickname}</p></div>
               </div>

@@ -14,7 +14,7 @@ import { useRef } from 'react';
 import { motion } from 'framer-motion';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import AgentCard from './AgentCard';
-import type { HomeAgent } from '@/data/all-agents';
+import type { HomeAgent } from '@/data/agents';
 
 interface AgentRowProps {
   title: string;
@@ -84,7 +84,7 @@ export default function AgentRow({ title, agents, onAgentClick }: AgentRowProps)
       {/* Cards */}
       <div
         ref={rowRef}
-        className="flex gap-3 overflow-x-auto scrollbar-hide px-4 md:px-12 pb-3"
+        className="flex gap-3 overflow-x-auto scrollbar-hide px-4 md:px-12 pb-3 pr-16 md:pr-20"
       >
         {agents.map((agent, i) => (
           <motion.div

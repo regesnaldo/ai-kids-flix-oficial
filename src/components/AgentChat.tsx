@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Volume2, VolumeX } from 'lucide-react';
 import { useChatHistory } from '@/hooks/useChatHistory';
+import { UniverseTransition } from './UniverseTransition';
 
 interface AgentChatProps {
   agentId: string;
@@ -10,6 +11,10 @@ interface AgentChatProps {
   agentApproach: string;
   accentColor?: string;
   immersive?: boolean;
+  /** Display mode: full=complete UI, compact=minimal chat box, lab=embedded */
+  mode?: 'full' | 'compact' | 'lab';
+  /** Max height for chat messages container */
+  maxHeight?: string;
   heroInput?: string;
   onHeroInputChange?: (value: string) => void;
   heroSendSignal?: number;
@@ -21,6 +26,8 @@ export default function AgentChat({
   agentApproach,
   accentColor = '#3B82F6',
   immersive = false,
+  mode = 'full',
+  maxHeight,
   heroInput,
   onHeroInputChange,
   heroSendSignal,
@@ -36,6 +43,8 @@ export default function AgentChat({
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [interruptedByUser, setInterruptedByUser] = useState(false);
+  const [transition, setTransition] = useState<{ from: string; to: string; reason: string } | null>(null);
   const endRef = useRef<HTMLDivElement | null>(null);
   const speakingRef = useRef<SpeechSynthesisUtterance | null>(null);
 
@@ -44,11 +53,19 @@ export default function AgentChat({
   }, [messages, isSending]);
 
   useEffect(() => {
-    if (!onHeroInputChange || !heroSendSignal) return;
+    if (!onHeroInputChange || heroSendSignal === 0) return;
     void sendMessage();
-  }, [heroSendSignal]);
+  }, [heroSendSignal, sendMessage]);
 
   const streamingMessageRef = useRef<string | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
+
+  // Cleanup: abort qualquer stream pendente ao desmontar
+  useEffect(() => {
+    return () => {
+      abortControllerRef.current?.abort();
+    };
+  }, []);
 
   const handleStreamChunk = useCallback((chunk: string) => {
     const currentText = streamingMessageRef.current || '';
@@ -70,11 +87,19 @@ export default function AgentChat({
     else setInput(value);
   };
 
+  /** Interrompe a geração atual — preserva texto parcial */
+  function handleStopGeneration() {
+    abortControllerRef.current?.abort();
+    setInterruptedByUser(true);
+    setIsSending(false);
+  }
+
   async function sendMessage(overrideText?: string) {
     const text = (overrideText ?? composerInput).trim();
     if (!text || isSending) return;
 
     setError(null);
+    setInterruptedByUser(false);
     setIsSending(true);
     setComposerInput('');
 
@@ -85,6 +110,11 @@ export default function AgentChat({
     setMessages(prev => [...prev, { id: tempMsgId, role: 'assistant', content: '', timestamp: Date.now() }]);
 
     try {
+      // Cancela qualquer stream anterior
+      abortControllerRef.current?.abort();
+      const controller = new AbortController();
+      abortControllerRef.current = controller;
+
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -93,10 +123,11 @@ export default function AgentChat({
           messages: [...messages, { role: 'user', content: text }].map((m) => ({ role: m.role, content: m.content })),
           stream: true,
         }),
+        signal: controller.signal,
       });
 
       if (!res.ok) {
-        const data: any = await res.json().catch(() => ({}));
+        const data: Record<string, unknown> = await res.json().catch(() => ({}));
         const msg = typeof data?.error === 'string' ? data.error : 'Falha ao enviar mensagem';
         setError(msg);
         setMessages(prev => prev.filter(m => m.id !== tempMsgId));
@@ -122,11 +153,37 @@ export default function AgentChat({
 
       streamingMessageRef.current = null;
 
-    } catch (e) {
+    } catch (e: unknown) {
+      // AbortError é esperado — usuário navegou ou novo stream cancelou o anterior
+      if (e instanceof DOMException && e.name === 'AbortError') {
+        setIsSending(false);
+        return;
+      }
       setError('Erro de rede ao enviar mensagem');
       setMessages(prev => prev.filter(m => m.id !== tempMsgId));
     } finally {
       setIsSending(false);
+    }
+
+    if (streamingMessageRef.current) {
+      try {
+        const checkRes = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            agentId,
+            messages: [...messages, { role: 'user', content: text }, { role: 'assistant', content: streamingMessageRef.current }].map((m) => ({ role: m.role, content: m.content })),
+            stream: false,
+          }),
+        })
+        if (checkRes.ok) {
+          const checkData = await checkRes.json()
+          if (checkData.transitionTo && checkData.transitionTo !== agentId) {
+            setTransition({ from: agentId, to: checkData.transitionTo, reason: checkData.transitionReason || 'Transicao narrativa' })
+          }
+        }
+      } catch (error) { console.error('[MENTE.AI] Error in AgentChat.tsx:', error); }
+      // TODO: [MENTE.AI] adicionar feedback visual ao usuário
     }
   }
 
@@ -170,7 +227,9 @@ export default function AgentChat({
   }
 
   return (
-    <section className={immersive ? 'w-full py-8 md:py-12' : 'mt-10 rounded-3xl border border-white/10 bg-white/5 backdrop-blur-lg overflow-hidden'}>
+    <section className={immersive || mode !== 'full' ? 'w-full' : 'mt-10 rounded-3xl border border-white/10 bg-white/5 backdrop-blur-lg overflow-hidden'}>
+      {/* Header — hidden in compact/lab mode */}
+      {mode === 'full' && (
       <div className={`flex items-center justify-between px-6 py-4 ${immersive ? '' : 'border-b border-white/10'}`}>
         <div className="min-w-0">
           <h2 className="text-2xl font-bold text-white truncate">Chat com {agentName}</h2>
@@ -196,15 +255,18 @@ export default function AgentChat({
           </button>
         </div>
       </div>
+      )}
 
       <div
-        className="h-[380px] sm:h-[440px] overflow-y-auto px-4 sm:px-6 py-5 space-y-4"
+        className="overflow-y-auto px-4 sm:px-6 py-5 space-y-4"
+        style={maxHeight ? { height: maxHeight } : { height: mode === 'compact' || mode === 'lab' ? '300px' : '380px' }}
         role="log"
         aria-live="polite"
         aria-label="Mensagens do chat"
       >
         {messages.map((m) => {
           const isUser = m.role === 'user';
+          const isStreamingMsg = !isUser && isSending && m.id.startsWith('stream_');
           return (
             <div key={m.id} className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}>
               <div
@@ -215,17 +277,37 @@ export default function AgentChat({
                 }`}
                 style={isUser ? { backgroundColor: `${accentColor}33` } : { backgroundColor: 'rgba(255,255,255,0.06)' }}
               >
-                <p className="whitespace-pre-wrap">{m.content}</p>
+                <p className="whitespace-pre-wrap">
+                  {m.content}
+                  {isStreamingMsg && m.content && (
+                    <span className="inline-block w-[2px] h-[1.1em] ml-0.5 align-text-bottom bg-[#00f0ff] animate-pulse rounded-full" />
+                  )}
+                </p>
               </div>
             </div>
           );
         })}
 
-        {isSending && (
+        {/* Indicador de pensamento cinemático */}
+        {isSending && !messages.some(m => m.role === 'assistant' && m.id.startsWith('stream_')) && (
           <div className="flex justify-start">
-            <div className="max-w-[92%] sm:max-w-[80%] rounded-2xl px-4 py-3 text-sm bg-black/30 text-white/70 border border-white/10">
-              Digitando…
+            <div className="max-w-[92%] sm:max-w-[80%] rounded-2xl px-4 py-3 text-sm bg-black/30 text-white/70 border border-white/10 flex items-center gap-2">
+              <span className="text-white/50 text-xs">{agentName} está pensando</span>
+              <span className="flex gap-1">
+                <span className="w-1 h-1 rounded-full bg-[#00f0ff] animate-bounce [animation-delay:0ms]" />
+                <span className="w-1 h-1 rounded-full bg-[#00f0ff] animate-bounce [animation-delay:150ms]" />
+                <span className="w-1 h-1 rounded-full bg-[#00f0ff] animate-bounce [animation-delay:300ms]" />
+              </span>
             </div>
+          </div>
+        )}
+
+        {/* Indicador de interrupção */}
+        {interruptedByUser && !isSending && (
+          <div className="flex justify-center">
+            <span className="text-xs text-white/30 italic">
+              Geração interrompida • texto preservado
+            </span>
           </div>
         )}
 
@@ -253,25 +335,46 @@ export default function AgentChat({
             className="flex-1 min-h-[52px] max-h-32 resize-none rounded-2xl bg-white/5 border border-white/10 px-4 py-3 text-white placeholder:text-white/40 focus:outline-none transition"
             style={{ boxShadow: 'none' }}
             aria-label="Digite sua mensagem"
+            disabled={isSending}
           />
-          <button
-            type="button"
-            onClick={() => {
-              void sendMessage();
-            }}
-            disabled={isSending || !composerInput.trim()}
-            className="px-5 py-3 rounded-2xl text-white font-semibold disabled:opacity-40 disabled:cursor-not-allowed transition"
-            style={{ backgroundColor: accentColor }}
-            aria-label="Enviar mensagem"
-          >
-            Enviar
-          </button>
+          {isSending ? (
+            <button
+              type="button"
+              onClick={handleStopGeneration}
+              className="px-5 py-3 rounded-2xl text-white font-semibold transition bg-red-500/20 border border-red-500/30 hover:bg-red-500/30"
+              aria-label="Parar geração"
+            >
+              Parar
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => {
+                void sendMessage();
+              }}
+              disabled={!composerInput.trim()}
+              className="px-5 py-3 rounded-2xl text-white font-semibold disabled:opacity-40 disabled:cursor-not-allowed transition"
+              style={{ backgroundColor: accentColor }}
+              aria-label="Enviar mensagem"
+            >
+              Enviar
+            </button>
+          )}
         </div>
 
         <p className="mt-3 text-xs text-white/50">
           Enter envia • Shift+Enter quebra linha
         </p>
       </div>
+
+      {transition && (
+        <UniverseTransition
+          fromAgent={transition.from}
+          toAgent={transition.to}
+          reason={transition.reason}
+          onComplete={() => setTransition(null)}
+        />
+      )}
     </section>
   );
 }

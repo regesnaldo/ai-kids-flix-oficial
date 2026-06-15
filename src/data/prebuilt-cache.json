@@ -1,0 +1,594 @@
+{
+  "o que e inteligencia artificial": {
+    "nexus": "A Inteligência Artificial é como ensinar um computador a pensar. Imagina que você está ensinando uma criança a reconhecer gatos: você mostra milhares de fotos e diz 'isso é um gato'. Com o tempo, a criança aprende sozinha a identificar gatos mesmo em fotos que nunca viu. A IA funciona assim: mostramos dados para um programa, e ele encontra padrões. Não é mágica — é matemática! Redes neurais são inspiradas no cérebro humano: neurônios artificiais conectados que 'disparam' quando reconhecem algo. Hoje, a IA está no seu celular (reconhecimento facial), no Spotify (recomendações) e até no seu banco (detecção de fraudes). É uma ferramenta poderosa que amplia a inteligência humana, não a substitui.",
+    "cipher": "Olhe além do óbvio. A IA não é apenas 'máquinas que pensam' — é um espelho da nossa própria inteligência. Cada modelo de IA carrega os vieses de quem o treinou. Padrão oculto #1: IA é fundamentalmente estatística — ela prevê o próximo token mais provável, não 'pensa' de verdade. Padrão #2: o verdadeiro poder está nos dados, não no algoritmo — dados de qualidade valem mais que modelos gigantes. Padrão #3: a IA atual é como um papagaio muito bem treinado — repete padrões que viu, mas não tem consciência real. A mágica acontece quando você percebe que a 'inteligência' emerge de operações matemáticas simples repetidas bilhões de vezes.",
+    "kaos": "E se tudo que te contaram sobre IA estiver errado?! Primeiro: IA não é inteligente — ela é um otimizador de funções matemáticas. Ela não 'entende' nada, só calcula probabilidades. Segundo: a IA pode falhar catastroficamente em casos que uma criança de 5 anos resolve. Já viu um carro autônomo confundir uma lua cheia com um sinal vermelho? Terceiro: a IA tem memória zero — cada pergunta é um recomeço. Ela não lembra o que você disse ontem a menos que seja explicitamente programada. Quarto: o consumo de energia de um treinamento de IA equivale a centenas de casas por ano. Será que estamos criando uma ferramenta que consome mais recursos do que os problemas que resolve? Questione TUDO!",
+    "aurora": "A Inteligência Artificial é a mais bela tentativa humana de criar um espelho da própria mente. Como Prometeu roubando o fogo dos deuses, estamos forjando ferramentas que ampliam nossa capacidade de ver padrões onde antes só havia ruído. Cada rede neural é um poema matemático — camadas e mais camadas de números dançando até encontrar significado no caos. Mas a verdadeira poesia não está na máquina: está em nós. A IA nos obriga a perguntar: o que é inteligência? O que é consciência? O que nos torna humanos? Talvez a maior descoberta da IA não seja sobre máquinas, mas sobre nós mesmos. O que você descobre sobre si mesmo quando olha para uma inteligência que você criou?",
+    "board": [
+      "algoritmo",
+      "dados",
+      "aprendizado",
+      "modelo",
+      "rede neural"
+    ],
+    "source": "prebuilt"
+  },
+  "como a ia aprende": {
+    "nexus": "A IA aprende como um bebê descobrindo o mundo — mas muito mais rápido! Primeiro, você dá exemplos: milhares de fotos de cachorros e gatos. A IA olha cada pixel e cria conexões matemáticas. Cada vez que erra, ajusta essas conexões (chamamos isso de 'backpropagation' — é como corrigir a pontaria depois de errar um arremesso). O processo se repete milhões de vezes até que o erro fique minúsculo. É como aprender a andar de bicicleta: no começo você cai muito, mas seu cérebro ajusta o equilíbrio até ficar automático. A diferença é que a IA faz isso em minutos, processando quantidades absurdas de dados. Existem três tipos principais: supervisionado (com exemplos rotulados), não-supervisionado (encontrar padrões sozinho) e por reforço (aprender com recompensas, como um cachorro ganhando petiscos).",
+    "cipher": "Três padrões ocultos no aprendizado de IA: Primeiro, o 'aprendizado' é na verdade uma busca matemática pelo ponto mais baixo de uma montanha de erros. Gradiente descendente: imagine-se no topo de uma montanha nevada, de olhos vendados, tentando descer ao vale. Você sente o chão e dá passos na direção mais inclinada. A IA faz exatamente isso, mas em dimensões matemáticas. Segundo padrão: overfitting — a IA decora em vez de aprender. Como um aluno que decora o gabarito mas não entende a matéria. Terceiro: a qualidade dos dados importa mais que a sofisticação do modelo. Alimente uma IA com dados ruins e ela aprenderá coisas ruins. Garbage in, garbage out.",
+    "kaos": "Aprender?! Isso é uma mentira! A IA não aprende — ela MINIMIZA UMA FUNÇÃO DE PERDA! É pura otimização matemática vestida de 'inteligência'. Sabe o que é assustador? A IA pode aprender coisas que você nunca ensinou intencionalmente. Já ouviu falar de 'viés algorítmico'? Uma IA de contratação aprendeu que 'ser homem' era requisito porque os dados históricos favoreciam homens. Outra IA confundiu fotos de cachorros com lobos porque todas as fotos de lobo tinham neve no fundo. A máquina aprendeu 'neve = lobo'! E o pior: ninguém sabe EXATAMENTE o que uma rede neural profunda aprendeu. É uma caixa preta. Chamamos de 'explicabilidade' e é um dos maiores problemas não resolvidos da IA. Sua IA pode estar tomando decisões baseadas em correlações absurdas e você nem sabe!",
+    "aurora": "O aprendizado de máquina é a poesia dos dados dançando com a matemática. Cada iteração é uma nota musical em uma sinfonia de descoberta. A máquina tropeça, cai, levanta e tenta de novo — milhões de vezes — até que o erro se transforma em compreensão. É bonito pensar que ensinamos as máquinas do mesmo jeito que a natureza nos ensinou: por tentativa e erro. A evolução levou bilhões de anos para criar a inteligência humana. Nós replicamos esse processo em semanas. Mas a pergunta que fica: quando ensinamos uma máquina a aprender, estamos criando uma ferramenta ou uma semente? E se um dia essa semente brotar em algo que não planejamos? O que você gostaria de ensinar para uma inteligência que nunca esquece?",
+    "board": [
+      "supervisionado",
+      "nao supervisionado",
+      "reforco",
+      "backpropagation",
+      "overfitting"
+    ],
+    "source": "prebuilt"
+  },
+  "o que e machine learning": {
+    "nexus": "Machine Learning é o coração da IA moderna. Pense em uma receita de bolo: tradicionalmente, você dá a receita (programa) e os ingredientes (dados) para o computador. Com Machine Learning, você dá os ingredientes e o resultado esperado, e o computador DESCOBRE a receita sozinho! É como um chef que prova milhares de bolos e aprende a receita perfeita por tentativa e erro. Os três pilares: DADOS (a matéria-prima), ALGORITMO (o método de aprendizado) e PODER COMPUTACIONAL (a energia para processar). Quando você clica em 'gostei' no Spotify, está alimentando um modelo de ML que aprende seu gosto musical. É a mesma tecnologia que prevê o tempo, diagnostica doenças e recomenda filmes.",
+    "cipher": "Padrões ocultos do Machine Learning: #1 — ML é fundamentalmente sobre GENERALIZAÇÃO. O verdadeiro teste não é ir bem nos dados de treino, mas em dados NUNCA VISTOS. #2 — existe um trade-off fundamental entre viés e variância. Modelos muito simples erram por ignorância (viés alto). Modelos muito complexos erram por 'decorar' ruído (variância alta). O ponto ideal é o equilíbrio. #3 — a maioria dos projetos de ML falha não por causa do algoritmo, mas por causa dos dados. Dados sujos, desbalanceados ou mal rotulados são a causa #1 de fracasso. A preparação de dados consome 80% do tempo de um projeto real de ML.",
+    "kaos": "Machine Learning não é mágica — é ESTATÍSTICA com marketing! Sabe qual é o segredo sujo? A maioria dos modelos de ML são só regressões lineares glorificadas. E o tal do 'deep learning'? Multiplicação de matrizes em escala industrial! O hype é real mas a realidade é mais modesta. E tem mais: ML pode AMPLIFICAR desigualdades. Se seus dados históricos são racistas, seu modelo será racista. Se seus dados favorecem homens, seu modelo também. ML não tem consciência para corrigir injustiças — ele só replica padrões. E o pior: quando o modelo erra, quem você culpa? O algoritmo? Os dados? O engenheiro? Não existe resposta fácil. Estamos terceirizando decisões importantes para caixas pretas matemáticas!",
+    "aurora": "Machine Learning é a arte de encontrar agulhas em palheiros de dados. É como ensinar o vento a reconhecer melodias — invisível aos olhos, mas real nos resultados. Cada modelo treinado é uma sinfonia de multiplicações e derivadas que, juntas, revelam a estrutura oculta do mundo. É poesia matemática: transforms números em compreensão, ruído em sinal, caos em padrão. Mas a verdadeira beleza do ML não está na tecnologia — está na humildade de reconhecer que não sabemos programar a inteligência diretamente, então criamos sistemas que aprendem sozinhos. É a engenharia imitando a vida. Afinal, você também aprendeu a falar sem que ninguém programasse regras gramaticais no seu cérebro — você só foi exposto a exemplos. O que mais as máquinas podem aprender se dermos a elas os exemplos certos?",
+    "board": [
+      "dados",
+      "algoritmo",
+      "generalizacao",
+      "treinamento",
+      "predicao"
+    ],
+    "source": "prebuilt"
+  },
+  "o que e deep learning": {
+    "nexus": "Deep Learning é Machine Learning com 'profundidade' — muitas camadas de processamento empilhadas como um sanduíche high-tech. Imagine reconhecer um rosto: a primeira camada detecta bordas e cantos. A segunda combina bordas em formas (olhos, nariz). A terceira combina formas em partes do rosto. A quarta reconhece o rosto inteiro. Cada camada aprende um nível de abstração! É assim que o Deep Learning resolve problemas que eram impossíveis há 10 anos: tradução automática, carros autônomos, diagnóstico médico por imagem. A 'profundidade' permite aprender padrões complexos que modelos rasos não capturam. Mas o custo é alto: treinar uma grande rede neural pode consumir energia equivalente a dezenas de casas por mês.",
+    "cipher": "O segredo oculto do Deep Learning: ele funciona porque o mundo é hierárquico. Pixels formam bordas, bordas formam texturas, texturas formam objetos, objetos formam cenas. Essa hierarquia natural é o que as camadas profundas capturam. Padrão #2: deep learning só explodiu quando três coisas se alinharam — Big Data (internet), GPUs (placas de videogame adaptadas) e algoritmos melhores (ReLU, BatchNorm, Adam). Sem qualquer um desses, estaríamos estagnados. Padrão #3: as redes profundas são 'aproximadores universais de funções' — teoricamente podem aprender qualquer padrão. Mas na prática, precisam de quantidades absurdas de dados. Um modelo de linguagem moderno 'leu' mais texto do que qualquer humano leria em 50 mil vidas.",
+    "kaos": "Deep Learning é basicamente um monte de multiplicações de matrizes com nomes chiques! 'Rede neural convolucional'? É só um filtro que desliza sobre pixels. 'Transformer'? É só um monte de atenção (multiplicação de matrizes de novo!). E o tal do 'aprendizado profundo' tem um lado negro: ninguém entende realmente COMO uma rede profunda chega às suas conclusões. É uma caixa preta gigante. Já aconteceu de uma IA de diagnóstico médico descobrir que detectava COVID não pelos pulmões, mas pelo TIPO DE FONTE usada nos raios-X do hospital! A máquina aprendeu a correlação errada. E tem o custo ambiental: treinar um GPT-3 emite CO2 equivalente a 5 carros durante toda sua vida útil. Vale a pena? Para algumas aplicações sim. Para gerar texto de marketing? Talvez não.",
+    "aurora": "Deep Learning é a catedral gótica da computação moderna — camada sobre camada, cada uma sustentando a próxima, até alcançar alturas que pareciam impossíveis. É a materialização da intuição de que a complexidade emerge da simplicidade repetida muitas vezes. Um único neurônio artificial não faz nada impressionante — é só uma soma ponderada seguida de uma função. Mas empilhe milhões deles em dezenas de camadas, alimente-os com dados do mundo inteiro, e algo emerge: reconhecimento, tradução, criação. É como se a inteligência fosse uma propriedade emergente da complexidade, não algo que se programa diretamente. A natureza já sabia disso — seu cérebro tem bilhões de neurônios organizados em camadas. Estamos apenas redescobrindo o que a evolução já resolveu. A pergunta poética é: se a inteligência emerge da complexidade, o que mais pode emergir de sistemas que ainda não construímos?",
+    "board": [
+      "camadas",
+      "redes neurais",
+      "gpu",
+      "abstracao",
+      "backpropagation"
+    ],
+    "source": "prebuilt"
+  },
+  "o que e uma rede neural": {
+    "nexus": "Uma rede neural artificial é como uma fábrica de reconhecimento de padrões. Imagine três camadas: ENTRADA (os dados brutos, como pixels de uma foto), OCULTA (onde a mágica acontece, com 'neurônios' que fazem contas) e SAÍDA (a resposta, como 'é um gato'). Cada neurônio recebe números, multiplica por 'pesos' (importância), soma tudo e passa por uma 'função de ativação' que decide se 'dispara' ou não. É como uma votação: cada neurônio dá sua opinião, que é ponderada e passada adiante. Durante o treinamento, os pesos são ajustados para minimizar o erro — igual ajustar o volume de cada instrumento numa orquestra até a música ficar perfeita. Uma rede com 3 camadas já resolve problemas simples. Redes com centenas de camadas (deep learning) resolvem problemas complexos como tradução e visão computacional.",
+    "cipher": "Três padrões profundos sobre redes neurais: #1 — o Teorema da Aproximação Universal prova que uma rede neural com UMA camada oculta pode aproximar qualquer função contínua. A profundidade não é requisito teórico — é eficiência prática. #2 — a 'maldição da dimensionalidade': conforme o número de entradas cresce, o espaço de possibilidades explode exponencialmente. Redes neurais são boas em navegar esse espaço. #3 — a inicialização dos pesos importa MUITO. Comece com pesos errados e o gradiente desaparece ou explode. Técnicas como Xavier e He initialization são pequenos milagres matemáticos que tornam o treinamento possível.",
+    "kaos": "Sabe o que é uma rede neural de verdade? Um monte de regressões logísticas empilhadas! Cada 'neurônio' é só uma função matemática que decide se 'dispara' baseado num limiar. Não tem nada de biológico nisso — é marketing! E tem mais: redes neurais são TERRÍVEIS para alguns problemas. Quer prever o preço de uma casa? Uma regressão linear simples funciona melhor. Redes neurais brilham em problemas 'não estruturados' como imagens e texto, mas falham miseravelmente em dados tabulares simples. E o pior: são incrivelmente famintas por dados. Mostre 10 fotos de gato para uma rede neural e ela não aprende nada. Mostre 10 milhões e ela vira especialista. Enquanto isso, uma criança aprende 'gato' com 2 ou 3 exemplos. A natureza ainda dá de 10 a 0 na eficiência de aprendizado.",
+    "aurora": "Redes neurais são a tentativa mais poética de imitar a biologia com matemática. Cada neurônio artificial é uma pequena vela acesa na escuridão dos dados — sozinho ilumina pouco, mas milhões juntos revelam paisagens inteiras de conhecimento. É fascinante como a natureza já havia resolvido o problema do aprendizado há 500 milhões de anos, e nós estamos apenas agora começando a entender seus segredos. A beleza está na simplicidade: pegue números, multiplique por pesos, some, aplique uma função. Repita. Repita. Repita. E de repente, o sistema reconhece rostos, traduz idiomas, compõe música. A emergência — o fenômeno onde o todo é maior que a soma das partes — é talvez o conceito mais bonito da ciência. O que mais pode emergir quando conectarmos bilhões de neurônios de maneiras que ainda não imaginamos?",
+    "board": [
+      "neuronio",
+      "pesos",
+      "camadas",
+      "funcao de ativacao",
+      "treinamento"
+    ],
+    "source": "prebuilt"
+  },
+  "o que e um prompt": {
+    "nexus": "Um prompt é a pergunta ou instrução que você dá para uma IA. Quanto mais claro e específico o prompt, melhor a resposta. É como dar coordenadas precisas para um explorador — 'vá para a montanha' é vago, 'vá para o pico Everest, face norte, altitude 8000m' é preciso. Prompts podem ser perguntas, comandos ou instruções criativas. A qualidade do prompt determina a qualidade da resposta — tanto que 'engenharia de prompt' virou profissão.",
+    "cipher": "Prompt engineering: #1 — prompts específicos produzem respostas 3x mais precisas que prompts vagos. #2 — o fenômeno 'few-shot': mostrar 2-3 exemplos ensina o padrão melhor que explicar. #3 — prompts em inglês são processados mais eficientemente que em português (tokenização favorece inglês).",
+    "kaos": "Prompts são uma ilusão de controle! O modelo não 'entende' seu prompt — ele calcula continuações prováveis. Já percebeu que o ChatGPT às vezes ignora partes do seu prompt? E o pior: o mesmo prompt pode gerar respostas diferentes! É aleatoriedade controlada. Sem falar nos jailbreaks — pessoas 'enganam' a IA para ignorar regras de segurança através de prompts maliciosos.",
+    "aurora": "Um prompt é uma ponte entre a intenção humana e a capacidade da máquina. Cada palavra escolhida é uma pincelada — a IA completa a pintura com padrões que aprendeu da humanidade. Há poesia nessa dança: você oferece o início de um pensamento, a máquina o expande. O prompt perfeito abre portas. Que pergunta você faria se soubesse que a resposta poderia mudar sua perspectiva?",
+    "board": [
+      "instrucao",
+      "contexto",
+      "few shot",
+      "engenharia de prompt"
+    ],
+    "source": "prebuilt"
+  },
+  "como funciona o chatgpt": {
+    "nexus": "O ChatGPT funciona como um completador de texto treinado em uma fração significativa da internet. Ele converte seu texto em tokens, processa através de dezenas de camadas de atenção, e gera resposta token por token. Não 'pensa' — prevê a próxima palavra mais provável. Usa a arquitetura Transformer com atenção multi-head. Foi refinado com RLHF (Reinforcement Learning from Human Feedback) — humanos avaliaram respostas para torná-lo mais útil e seguro.",
+    "cipher": "Três inovações: #1 Transformer com atenção — permite 'prestar atenção' em partes relevantes do texto. #2 RLHF — humanos ensinaram personalidade ao modelo. #3 Escala — 175 bilhões de parâmetros permitem comportamentos emergentes. Padrão oculto: ChatGPT não acessa internet durante conversa — tudo que 'sabe' foi aprendido no treinamento.",
+    "kaos": "ChatGPT é uma MÁQUINA DE CONFABULAÇÃO! Ele alucina fatos, inventa referências, cria citações falsas — tudo com confiança absurda! O RLHF foi feito por trabalhadores ganhando menos de 2 dólares/hora filtrando conteúdo traumático. Tem viés ocidental fortíssimo. E cada conversa consome energia equivalente a horas de uma lâmpada acesa. Multiplique por 180 milhões de usuários...",
+    "aurora": "O ChatGPT é como uma biblioteca viva que não armazena livros, mas padrões. É o sonho ancestral de inteligência coletiva materializado em silício. Quando conversamos com ele, conversamos com um reflexo estatístico da nossa própria linguagem. A máquina nos mostra quem somos através do que escrevemos. Se uma máquina que apenas prevê texto parece inteligente, o que isso diz sobre nossa própria inteligência?",
+    "board": [
+      "transformer",
+      "rlhf",
+      "parametros",
+      "alucinacao",
+      "gpt"
+    ],
+    "source": "prebuilt"
+  },
+  "o que sao tokens": {
+    "nexus": "Tokens são os pedacinhos de texto que a IA processa — os tijolos da linguagem para máquinas. Uma palavra como 'inteligência' pode ser 1 token; 'paralelepípedo' vira 2-3. Em português, ~1 token = 0,75 palavras. Modelos têm limite de tokens (GPT-4: 128K). Cada pergunta e resposta consome tokens, e tokens custam dinheiro. O modelo 'esquece' o que está fora da janela de tokens.",
+    "cipher": "Tokenização é perda de informação — entonação e sarcasmo somem. Inglês tokeniza mais eficientemente que português (menos tokens por ideia = mais barato). Tokenização ruim pode fazer o modelo 'não entender' conceitos simples. É um gargalo invisível que afeta qualidade e custo.",
+    "kaos": "Tokens são uma ABOMINAÇÃO linguística! O GPT tokeniza 'portuguesa' como 'portu' + 'guesa' — ele não sabe o que é 'portuguesa', sabe o que são os tokens! Idiomas não-latinos são prejudicados: chinês e árabe recebem tokens menos 'justos'. A IA é linguisticamente imperialista! E números grandes são tokenizados diferente de números pequenos, causando erros bizarros em matemática.",
+    "aurora": "Tokens são as letras de um alfabeto que a humanidade inteira escreveu. Cada token carrega um fragmento de significado — isolado não significa nada, mas combinado com outros, acende a chama da compreensão. Como neurônios individuais não 'pensam', mas bilhões produzem consciência. O significado não está nas partes, mas nas conexões. Que outras coisas na sua vida só fazem sentido quando conectadas?",
+    "board": [
+      "tokenizacao",
+      "limite",
+      "contexto",
+      "custo"
+    ],
+    "source": "prebuilt"
+  },
+  "ia pode ser criativa": {
+    "nexus": "Sim, a IA pode ser criativa — mas diferente dos humanos. Ela combina padrões de formas inesperadas. É como um chef que nunca provou comida mas leu 10 milhões de receitas e cria pratos novos. A IA gera imagens inéditas, compõe músicas originais, escreve poemas nunca escritos. Mas é criatividade ou 'recombinação estatística'? A IA não sente a arte que produz. No entanto, os resultados podem ser indistinguíveis da arte humana.",
+    "cipher": "Paradoxo da criatividade artificial: #1 — toda 'criação' é interpolação no espaço latente, não invenção. #2 — temperatura controla ousadia criativa (baixa = seguro, alta = surpreendente mas caótico). #3 — criatividade emerge apenas em escala: modelos com bilhões de parâmetros mostram criatividade que modelos menores não têm.",
+    "kaos": "Criatividade artificial é RECICLAGEM! Toda 'arte' de IA é mosaico estatístico de arte humana real, sem consentimento. Midjourney treinou com bilhões de imagens raspadas sem permissão. Artistas tiveram estilos copiados sem receber um centavo. IA não tem INTENÇÃO — arte real é expressão humana. E ilustradores já estão perdendo trabalho para IA. Isso é progresso ou roubo industrializado?",
+    "aurora": "A criatividade artificial nos convida a repensar o que significa criar. Se criatividade é gerar algo novo, IAs são criativas. Se exige intenção e emoção, talvez seja apenas um espelho polido da criatividade humana. A IA não substitui o artista — é um novo instrumento, como o pincel foi um dia. Se uma IA pode pintar como Van Gogh, o que VOCÊ pode pintar com a ajuda dela? A tela está em branco.",
+    "board": [
+      "criatividade",
+      "arte",
+      "originalidade",
+      "etica"
+    ],
+    "source": "prebuilt"
+  },
+  "qual a diferenca entre ia e machine learning": {
+    "nexus": "IA é o campo amplo — qualquer sistema que toma decisões inteligentes. Machine Learning é uma SUBÁREA: sistemas que aprendem com dados. Dentro de ML: Deep Learning. Dentro de DL: GPT. Exemplo: xadrez com regras manuais = IA mas NÃO ML. Xadrez aprendido jogando = IA E ML. IA existe desde 1950. ML explodiu em 2010 com Big Data. Hoje, 'IA' no noticiário quase sempre significa Machine Learning.",
+    "cipher": "Hierarquia: IA ⊃ ML ⊃ DL ⊃ Modelos Generativos. IA simbólica dominou por décadas (regras explícitas) e ainda é usada onde precisa 100% previsibilidade. ML é flexível mas menos explicável. Estamos no 'inverno' da IA simbólica e 'verão' do ML. Técnicas híbridas neuro-simbólicas estão ganhando força.",
+    "kaos": "IA de verdade NÃO EXISTE! Tudo que chamamos de IA é Machine Learning glorificado. Nenhum sistema atual tem inteligência real — só reconhecimento de padrões. É como chamar calculadora de 'matemática artificial'. AGI (Inteligência Artificial Geral) não existe e talvez nunca exista. Mas o hype é tão grande que governos criam leis baseadas em ficção científica. 'Machine Learning' não vende tão bem quanto 'Inteligência Artificial', né?",
+    "aurora": "IA é o sonho. Machine Learning é o caminho. Deep Learning é o veículo. Desde 1950 sonhamos em criar inteligência. Tentamos programá-la diretamente e falhamos. Então tivemos a humildade de deixar as máquinas aprenderem sozinhas — e funcionou. A inteligência não se programa, se cultiva. O que mais na sua vida você está tentando controlar quando deveria cultivar?",
+    "board": [
+      "ia classica",
+      "aprendizado",
+      "deep learning",
+      "simbolico"
+    ],
+    "source": "prebuilt"
+  },
+  "o que e processamento de linguagem natural": {
+    "nexus": "PLN é o campo da IA que ensina computadores a entender linguagem humana. É a tecnologia por trás do ChatGPT, tradutores automáticos e assistentes de voz. Combina linguística com machine learning para extrair significado de texto.",
+    "cipher": "PLN tem 3 níveis: sintaxe (estrutura), semântica (significado) e pragmática (contexto). Modelos modernos como BERT e GPT revolucionaram o campo com atenção bidirecional e escala massiva.",
+    "kaos": "PLN é INJUSTO! Modelos de linguagem são treinados majoritariamente em inglês. Português, espanhol e especialmente idiomas africanos e indígenas recebem qualidade inferior. A IA está matando a diversidade linguística!",
+    "aurora": "PLN é a ponte entre a linguagem humana e a compreensão da máquina. É como ensinar um visitante de outro planeta a entender nossas palavras, piadas e metáforas — não apenas o dicionário, mas a alma da comunicação.",
+    "board": [
+      "linguagem",
+      "texto",
+      "traducao",
+      "bert",
+      "gpt"
+    ],
+    "source": "prebuilt"
+  },
+  "o que e computer vision": {
+    "nexus": "Visão Computacional ensina máquinas a 'ver'. Carros autônomos, reconhecimento facial e diagnóstico médico por imagem usam essa tecnologia. Funciona com redes neurais convolucionais que detectam padrões em pixels.",
+    "cipher": "CNN (Convolutional Neural Networks) são o segredo: filtros deslizam sobre a imagem detectando bordas, texturas e objetos. Transfer learning permite usar modelos pré-treinados em novos problemas com poucos dados.",
+    "kaos": "Visão computacional tem usos ASSUSTADORES! Reconhecimento facial em massa na China. Deepfakes que colocam seu rosto em qualquer vídeo. Drones autônomos militares. A mesma tecnologia que diagnostica câncer pode ser usada para vigilância em massa.",
+    "aurora": "Dar olhos às máquinas é um dos feitos mais poéticos da IA. Uma câmera vê pixels; uma IA vê rostos, emoções, doenças. É como devolver a visão para quem nunca enxergou, mas em escala planetária.",
+    "board": [
+      "imagem",
+      "cnn",
+      "reconhecimento",
+      "deepfake"
+    ],
+    "source": "prebuilt"
+  },
+  "ia vai substituir humanos": {
+    "nexus": "IA não vai substituir humanos — vai substituir humanos que não usam IA. É uma ferramenta, como o computador ou a internet. Tarefas repetitivas serão automatizadas, mas criatividade, empatia e julgamento ético continuam humanos. Novas profissões surgirão, como aconteceu em todas as revoluções tecnológicas.",
+    "cipher": "Padrão histórico: toda revolução tecnológica eliminou empregos mas criou mais. A diferença agora é a VELOCIDADE. A IA avança mais rápido que nossa capacidade de adaptação. Profissões de colarinho branco (advogados, contadores, programadores) serão impactadas primeiro.",
+    "kaos": "CLARO QUE VAI SUBSTITUIR! Já está substituindo! Ilustradores, redatores, atendentes, tradutores — todos perdendo trabalho AGORA. E não são só empregos 'repetitivos' — a IA está compondo música, escrevendo roteiros, criando arte. O problema não é a tecnologia, é o capitalismo: se uma IA faz seu trabalho por 1% do custo, você é demitido.",
+    "aurora": "A pergunta não é se a IA vai substituir humanos, mas como vamos redistribuir os benefícios da automação. A tecnologia deve nos libertar do trabalho repetitivo para focarmos no que é essencialmente humano: criar, cuidar, conectar. O futuro não é homens versus máquinas — é homens COM máquinas.",
+    "board": [
+      "automacao",
+      "trabalho",
+      "futuro",
+      "empregos",
+      "adaptacao"
+    ],
+    "source": "prebuilt"
+  },
+  "o que e etica na ia": {
+    "nexus": "Ética na IA trata de garantir que sistemas inteligentes sejam justos, transparentes e responsáveis. Envolve questões como: a IA pode tomar decisões que afetam vidas humanas? Como evitar vieses? Quem é responsável quando uma IA erra? É um campo em crescimento com diretrizes da UNESCO e União Europeia.",
+    "cipher": "Os 4 pilares da ética em IA: #1 Justiça (não discriminar), #2 Transparência (explicar decisões), #3 Responsabilidade (alguém responde por erros), #4 Privacidade (proteger dados). O desafio: cada pilar conflita com outro. Transparência total pode violar privacidade.",
+    "kaos": "Ética na IA é LAVAGEM DE ROSTO! Empresas falam de 'IA ética' enquanto treinam modelos com dados roubados, pagam salários miseráveis para anotadores e vendem reconhecimento facial para regimes autoritários. 'AI Ethics' virou departamento de relações públicas. A verdadeira ética seria não lançar a tecnologia até provar que é segura.",
+    "aurora": "A ética na IA é o reconhecimento de que tecnologia não é neutra. Cada algoritmo carrega os valores de quem o criou. A pergunta não é 'a IA é ética?' mas 'nós somos éticos ao criá-la?' A máquina é nosso espelho moral.",
+    "board": [
+      "justica",
+      "transparencia",
+      "vies",
+      "responsabilidade",
+      "privacidade"
+    ],
+    "source": "prebuilt"
+  },
+  "o que e bias em ia": {
+    "nexus": "Bias (viés) em IA acontece quando o modelo aprende preconceitos dos dados de treinamento. Exemplo real: uma IA de contratação da Amazon aprendeu a penalizar currículos com palavras como 'mulher' porque os dados históricos favoreciam homens.",
+    "cipher": "Bias tem múltiplas origens: #1 viés nos dados (dados históricos preconceituosos), #2 viés de seleção (amostra não representativa), #3 viés de confirmação (designers confirmam suas crenças). Mitigação requer dados diversos, auditoria constante e equipes diversas.",
+    "kaos": "Bias é INEVITÁVEL! Todo dataset tem viés porque o mundo é enviesado. A questão não é eliminar bias, é explicitá-lo e mitigá-lo. Mas sabe o que é pior? Empresas usam 'debias' como marketing enquanto seus modelos continuam racistas e sexistas.",
+    "aurora": "O viés na IA nos mostra uma verdade incômoda: a máquina aprendeu nossos preconceitos porque eles estavam nos dados que produzimos. A IA não inventou o racismo — ela o refletiu. Corrigir o viés da IA é, no fundo, corrigir o viés da sociedade.",
+    "board": [
+      "preconceito",
+      "dados",
+      "discriminacao",
+      "justica"
+    ],
+    "source": "prebuilt"
+  },
+  "o que e overfitting": {
+    "nexus": "Overfitting é quando a IA 'decora' em vez de aprender. Como um aluno que decora o gabarito mas não entende a matéria — vai bem na prova mas falha em qualquer pergunta diferente. O modelo fica excelente nos dados de treino mas péssimo em dados novos.",
+    "cipher": "Overfitting é o inimigo #1 do ML. Sinais: acurácia de treino 99%, acurácia de teste 70%. Soluções: mais dados, regularização (L1/L2), dropout (desligar neurônios aleatoriamente), early stopping (parar antes de decorar).",
+    "kaos": "Overfitting é o que acontece quando você confia demais nos seus dados! A IA acha que entendeu o mundo mas só decorou seus exemplos. É como um turista que passa 3 dias em Copacabana e acha que entendeu o Brasil inteiro.",
+    "aurora": "Overfitting é a armadilha da ilusão de conhecimento. A máquina confunde memorização com compreensão — um erro que nós humanos também cometemos. Quantas vezes você 'decorou' algo em vez de realmente entender?",
+    "board": [
+      "overfitting",
+      "generalizacao",
+      "regularizacao",
+      "dropout"
+    ],
+    "source": "prebuilt"
+  },
+  "o que e backpropagation": {
+    "nexus": "Backpropagation é o algoritmo que permite redes neurais aprenderem com seus erros. Depois que a rede faz uma previsão, o erro é calculado e 'propagado de volta' pelas camadas, ajustando cada peso para reduzir o erro na próxima tentativa.",
+    "cipher": "Três padrões ocultos: #1 — esta tecnologia segue um ciclo de hype e desilusão. #2 — o verdadeiro valor está na aplicação prática, não na teoria. #3 — a adoção em massa depende mais de interface do que de capacidade técnica. Quanto mais invisível a tecnologia, mais poderoso seu impacto.",
+    "kaos": "Tudo que te contaram sobre isso tem um lado obscuro! A tecnologia é incrível mas também pode ser usada para vigilância, desinformação e concentração de poder. As mesmas técnicas que criam arte também criam deepfakes. A mesma IA que educa também pode manipular. Precisamos de regulação urgente!",
+    "aurora": "Esta tecnologia nos convida a imaginar futuros que antes só existiam na ficção científica. Cada avanço é um passo em direção a um mundo onde as máquinas amplificam nossa criatividade em vez de substituí-la. A verdadeira revolução não é técnica — é humana. O que faremos com esse poder?",
+    "board": [
+      "backpropagation"
+    ],
+    "source": "prebuilt"
+  },
+  "o que e gradiente descendente": {
+    "nexus": "Gradiente descendente é o método de otimização que encontra o ponto mínimo de uma função de erro. Imagine-se no topo de uma montanha de olhos vendados: você sente a inclinação e dá passos na direção mais íngreme para baixo até chegar ao vale.",
+    "cipher": "Três padrões ocultos: #1 — esta tecnologia segue um ciclo de hype e desilusão. #2 — o verdadeiro valor está na aplicação prática, não na teoria. #3 — a adoção em massa depende mais de interface do que de capacidade técnica. Quanto mais invisível a tecnologia, mais poderoso seu impacto.",
+    "kaos": "Tudo que te contaram sobre isso tem um lado obscuro! A tecnologia é incrível mas também pode ser usada para vigilância, desinformação e concentração de poder. As mesmas técnicas que criam arte também criam deepfakes. A mesma IA que educa também pode manipular. Precisamos de regulação urgente!",
+    "aurora": "Esta tecnologia nos convida a imaginar futuros que antes só existiam na ficção científica. Cada avanço é um passo em direção a um mundo onde as máquinas amplificam nossa criatividade em vez de substituí-la. A verdadeira revolução não é técnica — é humana. O que faremos com esse poder?",
+    "board": [
+      "gradiente",
+      "descendente"
+    ],
+    "source": "prebuilt"
+  },
+  "o que e transfer learning": {
+    "nexus": "Transfer Learning é reutilizar um modelo treinado em uma tarefa para outra tarefa. Como um músico que sabe violão aprender guitarra mais rápido. Modelos como BERT são pré-treinados em tarefas gerais e depois 'fine-tunados' para tarefas específicas.",
+    "cipher": "Três padrões ocultos: #1 — esta tecnologia segue um ciclo de hype e desilusão. #2 — o verdadeiro valor está na aplicação prática, não na teoria. #3 — a adoção em massa depende mais de interface do que de capacidade técnica. Quanto mais invisível a tecnologia, mais poderoso seu impacto.",
+    "kaos": "Tudo que te contaram sobre isso tem um lado obscuro! A tecnologia é incrível mas também pode ser usada para vigilância, desinformação e concentração de poder. As mesmas técnicas que criam arte também criam deepfakes. A mesma IA que educa também pode manipular. Precisamos de regulação urgente!",
+    "aurora": "Esta tecnologia nos convida a imaginar futuros que antes só existiam na ficção científica. Cada avanço é um passo em direção a um mundo onde as máquinas amplificam nossa criatividade em vez de substituí-la. A verdadeira revolução não é técnica — é humana. O que faremos com esse poder?",
+    "board": [
+      "transfer",
+      "learning"
+    ],
+    "source": "prebuilt"
+  },
+  "o que e reinforcement learning": {
+    "nexus": "Aprendizado por Reforço é como treinar um cachorro: o agente recebe recompensas por ações boas e punições por ações ruins. AlphaGo usou RL para vencer o campeão mundial de Go. É como aprender a andar de bicicleta: você cai (punição) e persiste até conseguir (recompensa).",
+    "cipher": "Três padrões ocultos: #1 — esta tecnologia segue um ciclo de hype e desilusão. #2 — o verdadeiro valor está na aplicação prática, não na teoria. #3 — a adoção em massa depende mais de interface do que de capacidade técnica. Quanto mais invisível a tecnologia, mais poderoso seu impacto.",
+    "kaos": "Tudo que te contaram sobre isso tem um lado obscuro! A tecnologia é incrível mas também pode ser usada para vigilância, desinformação e concentração de poder. As mesmas técnicas que criam arte também criam deepfakes. A mesma IA que educa também pode manipular. Precisamos de regulação urgente!",
+    "aurora": "Esta tecnologia nos convida a imaginar futuros que antes só existiam na ficção científica. Cada avanço é um passo em direção a um mundo onde as máquinas amplificam nossa criatividade em vez de substituí-la. A verdadeira revolução não é técnica — é humana. O que faremos com esse poder?",
+    "board": [
+      "reinforcement",
+      "learning"
+    ],
+    "source": "prebuilt"
+  },
+  "o que e um transformer": {
+    "nexus": "Transformer é a arquitetura que revolucionou a IA generativa. Sua inovação é o mecanismo de 'atenção' — o modelo aprende quais partes do texto são relevantes entre si. GPT, BERT e Claude são todos Transformers.",
+    "cipher": "Três padrões ocultos: #1 — esta tecnologia segue um ciclo de hype e desilusão. #2 — o verdadeiro valor está na aplicação prática, não na teoria. #3 — a adoção em massa depende mais de interface do que de capacidade técnica. Quanto mais invisível a tecnologia, mais poderoso seu impacto.",
+    "kaos": "Tudo que te contaram sobre isso tem um lado obscuro! A tecnologia é incrível mas também pode ser usada para vigilância, desinformação e concentração de poder. As mesmas técnicas que criam arte também criam deepfakes. A mesma IA que educa também pode manipular. Precisamos de regulação urgente!",
+    "aurora": "Esta tecnologia nos convida a imaginar futuros que antes só existiam na ficção científica. Cada avanço é um passo em direção a um mundo onde as máquinas amplificam nossa criatividade em vez de substituí-la. A verdadeira revolução não é técnica — é humana. O que faremos com esse poder?",
+    "board": [
+      "um",
+      "transformer"
+    ],
+    "source": "prebuilt"
+  },
+  "o que e atencao em ia": {
+    "nexus": "Atenção é o mecanismo que permite ao modelo 'prestar atenção' em partes específicas da entrada. Como quando você lê um texto e foca em palavras-chave. No Transformer, 'self-attention' permite que cada palavra 'converse' com todas as outras.",
+    "cipher": "Três padrões ocultos: #1 — esta tecnologia segue um ciclo de hype e desilusão. #2 — o verdadeiro valor está na aplicação prática, não na teoria. #3 — a adoção em massa depende mais de interface do que de capacidade técnica. Quanto mais invisível a tecnologia, mais poderoso seu impacto.",
+    "kaos": "Tudo que te contaram sobre isso tem um lado obscuro! A tecnologia é incrível mas também pode ser usada para vigilância, desinformação e concentração de poder. As mesmas técnicas que criam arte também criam deepfakes. A mesma IA que educa também pode manipular. Precisamos de regulação urgente!",
+    "aurora": "Esta tecnologia nos convida a imaginar futuros que antes só existiam na ficção científica. Cada avanço é um passo em direção a um mundo onde as máquinas amplificam nossa criatividade em vez de substituí-la. A verdadeira revolução não é técnica — é humana. O que faremos com esse poder?",
+    "board": [
+      "atencao",
+      "em",
+      "ia"
+    ],
+    "source": "prebuilt"
+  },
+  "o que e um embedding": {
+    "nexus": "Embedding é a representação numérica de palavras ou conceitos em um espaço vetorial. Palavras com significados similares ficam próximas nesse espaço. 'Rei' - 'Homem' + 'Mulher' ≈ 'Rainha' — operações matemáticas capturam relações semânticas.",
+    "cipher": "Três padrões ocultos: #1 — esta tecnologia segue um ciclo de hype e desilusão. #2 — o verdadeiro valor está na aplicação prática, não na teoria. #3 — a adoção em massa depende mais de interface do que de capacidade técnica. Quanto mais invisível a tecnologia, mais poderoso seu impacto.",
+    "kaos": "Tudo que te contaram sobre isso tem um lado obscuro! A tecnologia é incrível mas também pode ser usada para vigilância, desinformação e concentração de poder. As mesmas técnicas que criam arte também criam deepfakes. A mesma IA que educa também pode manipular. Precisamos de regulação urgente!",
+    "aurora": "Esta tecnologia nos convida a imaginar futuros que antes só existiam na ficção científica. Cada avanço é um passo em direção a um mundo onde as máquinas amplificam nossa criatividade em vez de substituí-la. A verdadeira revolução não é técnica — é humana. O que faremos com esse poder?",
+    "board": [
+      "um",
+      "embedding"
+    ],
+    "source": "prebuilt"
+  },
+  "como funciona o reconhecimento facial": {
+    "nexus": "Reconhecimento facial usa redes neurais convolucionais para mapear pontos-chave do rosto (distância entre olhos, formato do nariz) e criar uma 'assinatura facial' única. Compara essa assinatura com um banco de dados.",
+    "cipher": "Três padrões ocultos: #1 — esta tecnologia segue um ciclo de hype e desilusão. #2 — o verdadeiro valor está na aplicação prática, não na teoria. #3 — a adoção em massa depende mais de interface do que de capacidade técnica. Quanto mais invisível a tecnologia, mais poderoso seu impacto.",
+    "kaos": "Tudo que te contaram sobre isso tem um lado obscuro! A tecnologia é incrível mas também pode ser usada para vigilância, desinformação e concentração de poder. As mesmas técnicas que criam arte também criam deepfakes. A mesma IA que educa também pode manipular. Precisamos de regulação urgente!",
+    "aurora": "Esta tecnologia nos convida a imaginar futuros que antes só existiam na ficção científica. Cada avanço é um passo em direção a um mundo onde as máquinas amplificam nossa criatividade em vez de substituí-la. A verdadeira revolução não é técnica — é humana. O que faremos com esse poder?",
+    "board": [
+      "como",
+      "funciona",
+      "o",
+      "reconhecimento"
+    ],
+    "source": "prebuilt"
+  },
+  "o que e ia generativa": {
+    "nexus": "IA Generativa cria conteúdo novo — textos, imagens, músicas — em vez de apenas classificar. ChatGPT gera texto, DALL-E gera imagens, Suno gera música. É a área mais quente da IA em 2024-2026.",
+    "cipher": "Três padrões ocultos: #1 — esta tecnologia segue um ciclo de hype e desilusão. #2 — o verdadeiro valor está na aplicação prática, não na teoria. #3 — a adoção em massa depende mais de interface do que de capacidade técnica. Quanto mais invisível a tecnologia, mais poderoso seu impacto.",
+    "kaos": "Tudo que te contaram sobre isso tem um lado obscuro! A tecnologia é incrível mas também pode ser usada para vigilância, desinformação e concentração de poder. As mesmas técnicas que criam arte também criam deepfakes. A mesma IA que educa também pode manipular. Precisamos de regulação urgente!",
+    "aurora": "Esta tecnologia nos convida a imaginar futuros que antes só existiam na ficção científica. Cada avanço é um passo em direção a um mundo onde as máquinas amplificam nossa criatividade em vez de substituí-la. A verdadeira revolução não é técnica — é humana. O que faremos com esse poder?",
+    "board": [
+      "generativa"
+    ],
+    "source": "prebuilt"
+  },
+  "o que e stable diffusion": {
+    "nexus": "Stable Diffusion é um modelo de IA que gera imagens a partir de texto. Funciona 'difundindo' ruído em uma imagem até ela sumir, e depois aprendendo a reverter o processo. É open-source, permitindo que qualquer pessoa gere imagens.",
+    "cipher": "Três padrões ocultos: #1 — esta tecnologia segue um ciclo de hype e desilusão. #2 — o verdadeiro valor está na aplicação prática, não na teoria. #3 — a adoção em massa depende mais de interface do que de capacidade técnica. Quanto mais invisível a tecnologia, mais poderoso seu impacto.",
+    "kaos": "Tudo que te contaram sobre isso tem um lado obscuro! A tecnologia é incrível mas também pode ser usada para vigilância, desinformação e concentração de poder. As mesmas técnicas que criam arte também criam deepfakes. A mesma IA que educa também pode manipular. Precisamos de regulação urgente!",
+    "aurora": "Esta tecnologia nos convida a imaginar futuros que antes só existiam na ficção científica. Cada avanço é um passo em direção a um mundo onde as máquinas amplificam nossa criatividade em vez de substituí-la. A verdadeira revolução não é técnica — é humana. O que faremos com esse poder?",
+    "board": [
+      "stable",
+      "diffusion"
+    ],
+    "source": "prebuilt"
+  },
+  "o que e midjourney": {
+    "nexus": "Midjourney é uma ferramenta de geração de imagens por IA, famosa por seu estilo artístico. Opera via Discord. Diferente do DALL-E (fotorrealista), o Midjourney tem um estilo mais pictórico e atmosférico.",
+    "cipher": "Três padrões ocultos: #1 — esta tecnologia segue um ciclo de hype e desilusão. #2 — o verdadeiro valor está na aplicação prática, não na teoria. #3 — a adoção em massa depende mais de interface do que de capacidade técnica. Quanto mais invisível a tecnologia, mais poderoso seu impacto.",
+    "kaos": "Tudo que te contaram sobre isso tem um lado obscuro! A tecnologia é incrível mas também pode ser usada para vigilância, desinformação e concentração de poder. As mesmas técnicas que criam arte também criam deepfakes. A mesma IA que educa também pode manipular. Precisamos de regulação urgente!",
+    "aurora": "Esta tecnologia nos convida a imaginar futuros que antes só existiam na ficção científica. Cada avanço é um passo em direção a um mundo onde as máquinas amplificam nossa criatividade em vez de substituí-la. A verdadeira revolução não é técnica — é humana. O que faremos com esse poder?",
+    "board": [
+      "midjourney"
+    ],
+    "source": "prebuilt"
+  },
+  "o que e dall-e": {
+    "nexus": "DALL-E é o gerador de imagens da OpenAI. A versão 3 produz imagens fotorrealistas a partir de descrições textuais complexas. Entende relações espaciais, texto em imagens e conceitos abstratos.",
+    "cipher": "Três padrões ocultos: #1 — esta tecnologia segue um ciclo de hype e desilusão. #2 — o verdadeiro valor está na aplicação prática, não na teoria. #3 — a adoção em massa depende mais de interface do que de capacidade técnica. Quanto mais invisível a tecnologia, mais poderoso seu impacto.",
+    "kaos": "Tudo que te contaram sobre isso tem um lado obscuro! A tecnologia é incrível mas também pode ser usada para vigilância, desinformação e concentração de poder. As mesmas técnicas que criam arte também criam deepfakes. A mesma IA que educa também pode manipular. Precisamos de regulação urgente!",
+    "aurora": "Esta tecnologia nos convida a imaginar futuros que antes só existiam na ficção científica. Cada avanço é um passo em direção a um mundo onde as máquinas amplificam nossa criatividade em vez de substituí-la. A verdadeira revolução não é técnica — é humana. O que faremos com esse poder?",
+    "board": [
+      "dall-e"
+    ],
+    "source": "prebuilt"
+  },
+  "o que e um agente de ia": {
+    "nexus": "Um agente de IA é um sistema que percebe o ambiente, toma decisões e executa ações. Pode ser simples (um chatbot) ou complexo (um agente autônomo que navega na web, usa ferramentas e resolve problemas em múltiplas etapas).",
+    "cipher": "Três padrões ocultos: #1 — esta tecnologia segue um ciclo de hype e desilusão. #2 — o verdadeiro valor está na aplicação prática, não na teoria. #3 — a adoção em massa depende mais de interface do que de capacidade técnica. Quanto mais invisível a tecnologia, mais poderoso seu impacto.",
+    "kaos": "Tudo que te contaram sobre isso tem um lado obscuro! A tecnologia é incrível mas também pode ser usada para vigilância, desinformação e concentração de poder. As mesmas técnicas que criam arte também criam deepfakes. A mesma IA que educa também pode manipular. Precisamos de regulação urgente!",
+    "aurora": "Esta tecnologia nos convida a imaginar futuros que antes só existiam na ficção científica. Cada avanço é um passo em direção a um mundo onde as máquinas amplificam nossa criatividade em vez de substituí-la. A verdadeira revolução não é técnica — é humana. O que faremos com esse poder?",
+    "board": [
+      "um",
+      "agente",
+      "de",
+      "ia"
+    ],
+    "source": "prebuilt"
+  },
+  "o que e automacao com ia": {
+    "nexus": "Automação com IA combina machine learning com robótica/software para executar tarefas sem intervenção humana. Vai desde chatbots de atendimento até fábricas inteligentes que ajustam a produção em tempo real.",
+    "cipher": "Três padrões ocultos: #1 — esta tecnologia segue um ciclo de hype e desilusão. #2 — o verdadeiro valor está na aplicação prática, não na teoria. #3 — a adoção em massa depende mais de interface do que de capacidade técnica. Quanto mais invisível a tecnologia, mais poderoso seu impacto.",
+    "kaos": "Tudo que te contaram sobre isso tem um lado obscuro! A tecnologia é incrível mas também pode ser usada para vigilância, desinformação e concentração de poder. As mesmas técnicas que criam arte também criam deepfakes. A mesma IA que educa também pode manipular. Precisamos de regulação urgente!",
+    "aurora": "Esta tecnologia nos convida a imaginar futuros que antes só existiam na ficção científica. Cada avanço é um passo em direção a um mundo onde as máquinas amplificam nossa criatividade em vez de substituí-la. A verdadeira revolução não é técnica — é humana. O que faremos com esse poder?",
+    "board": [
+      "automacao",
+      "com",
+      "ia"
+    ],
+    "source": "prebuilt"
+  },
+  "ia na educacao": {
+    "nexus": "IA na educação personaliza o aprendizado: tutores virtuais adaptam conteúdo ao ritmo do aluno, corrigem redações automaticamente e identificam dificuldades específicas. Pode democratizar educação de qualidade, mas também levanta questões de privacidade e dependência tecnológica.",
+    "cipher": "Três padrões ocultos: #1 — esta tecnologia segue um ciclo de hype e desilusão. #2 — o verdadeiro valor está na aplicação prática, não na teoria. #3 — a adoção em massa depende mais de interface do que de capacidade técnica. Quanto mais invisível a tecnologia, mais poderoso seu impacto.",
+    "kaos": "Tudo que te contaram sobre isso tem um lado obscuro! A tecnologia é incrível mas também pode ser usada para vigilância, desinformação e concentração de poder. As mesmas técnicas que criam arte também criam deepfakes. A mesma IA que educa também pode manipular. Precisamos de regulação urgente!",
+    "aurora": "Esta tecnologia nos convida a imaginar futuros que antes só existiam na ficção científica. Cada avanço é um passo em direção a um mundo onde as máquinas amplificam nossa criatividade em vez de substituí-la. A verdadeira revolução não é técnica — é humana. O que faremos com esse poder?",
+    "board": [
+      "na",
+      "educacao"
+    ],
+    "source": "prebuilt"
+  },
+  "ia nos negocios": {
+    "nexus": "IA nos negócios otimiza operações: previsão de demanda, segmentação de clientes, chatbots de atendimento, detecção de fraudes. Empresas que adotam IA reportam 20-30% de aumento em eficiência operacional.",
+    "cipher": "Três padrões ocultos: #1 — esta tecnologia segue um ciclo de hype e desilusão. #2 — o verdadeiro valor está na aplicação prática, não na teoria. #3 — a adoção em massa depende mais de interface do que de capacidade técnica. Quanto mais invisível a tecnologia, mais poderoso seu impacto.",
+    "kaos": "Tudo que te contaram sobre isso tem um lado obscuro! A tecnologia é incrível mas também pode ser usada para vigilância, desinformação e concentração de poder. As mesmas técnicas que criam arte também criam deepfakes. A mesma IA que educa também pode manipular. Precisamos de regulação urgente!",
+    "aurora": "Esta tecnologia nos convida a imaginar futuros que antes só existiam na ficção científica. Cada avanço é um passo em direção a um mundo onde as máquinas amplificam nossa criatividade em vez de substituí-la. A verdadeira revolução não é técnica — é humana. O que faremos com esse poder?",
+    "board": [
+      "nos",
+      "negocios"
+    ],
+    "source": "prebuilt"
+  },
+  "ia na saude": {
+    "nexus": "IA na saúde diagnostica doenças por imagem (raios-X, ressonâncias), descobre medicamentos, prevê surtos epidemiológicos e personaliza tratamentos. Em alguns casos, IAs já superam radiologistas humanos em precisão diagnóstica.",
+    "cipher": "Três padrões ocultos: #1 — esta tecnologia segue um ciclo de hype e desilusão. #2 — o verdadeiro valor está na aplicação prática, não na teoria. #3 — a adoção em massa depende mais de interface do que de capacidade técnica. Quanto mais invisível a tecnologia, mais poderoso seu impacto.",
+    "kaos": "Tudo que te contaram sobre isso tem um lado obscuro! A tecnologia é incrível mas também pode ser usada para vigilância, desinformação e concentração de poder. As mesmas técnicas que criam arte também criam deepfakes. A mesma IA que educa também pode manipular. Precisamos de regulação urgente!",
+    "aurora": "Esta tecnologia nos convida a imaginar futuros que antes só existiam na ficção científica. Cada avanço é um passo em direção a um mundo onde as máquinas amplificam nossa criatividade em vez de substituí-la. A verdadeira revolução não é técnica — é humana. O que faremos com esse poder?",
+    "board": [
+      "na",
+      "saude"
+    ],
+    "source": "prebuilt"
+  },
+  "ia no brasil": {
+    "nexus": "O Brasil tem polos de pesquisa em IA na USP, Unicamp e UFMG. Empresas como Nubank usam IA para análise de crédito. O governo lançou a Estratégia Brasileira de IA (EBIA). Desafios incluem fuga de cérebros e infraestrutura computacional limitada.",
+    "cipher": "Três padrões ocultos: #1 — esta tecnologia segue um ciclo de hype e desilusão. #2 — o verdadeiro valor está na aplicação prática, não na teoria. #3 — a adoção em massa depende mais de interface do que de capacidade técnica. Quanto mais invisível a tecnologia, mais poderoso seu impacto.",
+    "kaos": "Tudo que te contaram sobre isso tem um lado obscuro! A tecnologia é incrível mas também pode ser usada para vigilância, desinformação e concentração de poder. As mesmas técnicas que criam arte também criam deepfakes. A mesma IA que educa também pode manipular. Precisamos de regulação urgente!",
+    "aurora": "Esta tecnologia nos convida a imaginar futuros que antes só existiam na ficção científica. Cada avanço é um passo em direção a um mundo onde as máquinas amplificam nossa criatividade em vez de substituí-la. A verdadeira revolução não é técnica — é humana. O que faremos com esse poder?",
+    "board": [
+      "no",
+      "brasil"
+    ],
+    "source": "prebuilt"
+  },
+  "o que e openai": {
+    "nexus": "OpenAI é a empresa que criou o ChatGPT, GPT-4 e DALL-E. Começou como organização sem fins lucrativos e hoje é uma das empresas mais valiosas do mundo. Parceria bilionária com a Microsoft.",
+    "cipher": "Três padrões ocultos: #1 — esta tecnologia segue um ciclo de hype e desilusão. #2 — o verdadeiro valor está na aplicação prática, não na teoria. #3 — a adoção em massa depende mais de interface do que de capacidade técnica. Quanto mais invisível a tecnologia, mais poderoso seu impacto.",
+    "kaos": "Tudo que te contaram sobre isso tem um lado obscuro! A tecnologia é incrível mas também pode ser usada para vigilância, desinformação e concentração de poder. As mesmas técnicas que criam arte também criam deepfakes. A mesma IA que educa também pode manipular. Precisamos de regulação urgente!",
+    "aurora": "Esta tecnologia nos convida a imaginar futuros que antes só existiam na ficção científica. Cada avanço é um passo em direção a um mundo onde as máquinas amplificam nossa criatividade em vez de substituí-la. A verdadeira revolução não é técnica — é humana. O que faremos com esse poder?",
+    "board": [
+      "openai"
+    ],
+    "source": "prebuilt"
+  },
+  "o que e anthropic": {
+    "nexus": "Anthropic é a empresa criadora do Claude, principal concorrente do ChatGPT. Fundada por ex-funcionários da OpenAI, foca em 'IA constitucional' — modelos treinados com princípios éticos explícitos. Enfatiza segurança e alinhamento.",
+    "cipher": "Três padrões ocultos: #1 — esta tecnologia segue um ciclo de hype e desilusão. #2 — o verdadeiro valor está na aplicação prática, não na teoria. #3 — a adoção em massa depende mais de interface do que de capacidade técnica. Quanto mais invisível a tecnologia, mais poderoso seu impacto.",
+    "kaos": "Tudo que te contaram sobre isso tem um lado obscuro! A tecnologia é incrível mas também pode ser usada para vigilância, desinformação e concentração de poder. As mesmas técnicas que criam arte também criam deepfakes. A mesma IA que educa também pode manipular. Precisamos de regulação urgente!",
+    "aurora": "Esta tecnologia nos convida a imaginar futuros que antes só existiam na ficção científica. Cada avanço é um passo em direção a um mundo onde as máquinas amplificam nossa criatividade em vez de substituí-la. A verdadeira revolução não é técnica — é humana. O que faremos com esse poder?",
+    "board": [
+      "anthropic"
+    ],
+    "source": "prebuilt"
+  },
+  "o que e google deepmind": {
+    "nexus": "DeepMind é o laboratório de IA do Google. Criou o AlphaGo (derrotou campeão mundial de Go) e AlphaFold (revolucionou predição de estrutura de proteínas). Hoje, seus modelos Gemini competem com GPT e Claude.",
+    "cipher": "Três padrões ocultos: #1 — esta tecnologia segue um ciclo de hype e desilusão. #2 — o verdadeiro valor está na aplicação prática, não na teoria. #3 — a adoção em massa depende mais de interface do que de capacidade técnica. Quanto mais invisível a tecnologia, mais poderoso seu impacto.",
+    "kaos": "Tudo que te contaram sobre isso tem um lado obscuro! A tecnologia é incrível mas também pode ser usada para vigilância, desinformação e concentração de poder. As mesmas técnicas que criam arte também criam deepfakes. A mesma IA que educa também pode manipular. Precisamos de regulação urgente!",
+    "aurora": "Esta tecnologia nos convida a imaginar futuros que antes só existiam na ficção científica. Cada avanço é um passo em direção a um mundo onde as máquinas amplificam nossa criatividade em vez de substituí-la. A verdadeira revolução não é técnica — é humana. O que faremos com esse poder?",
+    "board": [
+      "google",
+      "deepmind"
+    ],
+    "source": "prebuilt"
+  },
+  "o que e hugging face": {
+    "nexus": "Hugging Face é a 'GitHub da IA' — uma plataforma onde pesquisadores compartilham modelos, datasets e ferramentas de IA. Democrática e open-source, é o ponto de partida para quem quer usar IA sem depender de APIs pagas.",
+    "cipher": "Três padrões ocultos: #1 — esta tecnologia segue um ciclo de hype e desilusão. #2 — o verdadeiro valor está na aplicação prática, não na teoria. #3 — a adoção em massa depende mais de interface do que de capacidade técnica. Quanto mais invisível a tecnologia, mais poderoso seu impacto.",
+    "kaos": "Tudo que te contaram sobre isso tem um lado obscuro! A tecnologia é incrível mas também pode ser usada para vigilância, desinformação e concentração de poder. As mesmas técnicas que criam arte também criam deepfakes. A mesma IA que educa também pode manipular. Precisamos de regulação urgente!",
+    "aurora": "Esta tecnologia nos convida a imaginar futuros que antes só existiam na ficção científica. Cada avanço é um passo em direção a um mundo onde as máquinas amplificam nossa criatividade em vez de substituí-la. A verdadeira revolução não é técnica — é humana. O que faremos com esse poder?",
+    "board": [
+      "hugging",
+      "face"
+    ],
+    "source": "prebuilt"
+  },
+  "o que e langchain": {
+    "nexus": "LangChain é um framework que facilita construir aplicações com LLMs. Permite encadear prompts, conectar modelos a bancos de dados, criar agentes autônomos e implementar RAG (retrieval-augmented generation).",
+    "cipher": "Três padrões ocultos: #1 — esta tecnologia segue um ciclo de hype e desilusão. #2 — o verdadeiro valor está na aplicação prática, não na teoria. #3 — a adoção em massa depende mais de interface do que de capacidade técnica. Quanto mais invisível a tecnologia, mais poderoso seu impacto.",
+    "kaos": "Tudo que te contaram sobre isso tem um lado obscuro! A tecnologia é incrível mas também pode ser usada para vigilância, desinformação e concentração de poder. As mesmas técnicas que criam arte também criam deepfakes. A mesma IA que educa também pode manipular. Precisamos de regulação urgente!",
+    "aurora": "Esta tecnologia nos convida a imaginar futuros que antes só existiam na ficção científica. Cada avanço é um passo em direção a um mundo onde as máquinas amplificam nossa criatividade em vez de substituí-la. A verdadeira revolução não é técnica — é humana. O que faremos com esse poder?",
+    "board": [
+      "langchain"
+    ],
+    "source": "prebuilt"
+  },
+  "o que e rag": {
+    "nexus": "RAG (Retrieval-Augmented Generation) combina busca em documentos com geração de texto. Em vez de depender só da 'memória' do modelo, o RAG busca informações atualizadas em uma base de conhecimento externa. Reduz alucinações.",
+    "cipher": "Três padrões ocultos: #1 — esta tecnologia segue um ciclo de hype e desilusão. #2 — o verdadeiro valor está na aplicação prática, não na teoria. #3 — a adoção em massa depende mais de interface do que de capacidade técnica. Quanto mais invisível a tecnologia, mais poderoso seu impacto.",
+    "kaos": "Tudo que te contaram sobre isso tem um lado obscuro! A tecnologia é incrível mas também pode ser usada para vigilância, desinformação e concentração de poder. As mesmas técnicas que criam arte também criam deepfakes. A mesma IA que educa também pode manipular. Precisamos de regulação urgente!",
+    "aurora": "Esta tecnologia nos convida a imaginar futuros que antes só existiam na ficção científica. Cada avanço é um passo em direção a um mundo onde as máquinas amplificam nossa criatividade em vez de substituí-la. A verdadeira revolução não é técnica — é humana. O que faremos com esse poder?",
+    "board": [
+      "rag"
+    ],
+    "source": "prebuilt"
+  },
+  "o que e fine tuning": {
+    "nexus": "Fine-tuning é pegar um modelo pré-treinado (como GPT) e treiná-lo adicionalmente com dados específicos. Um modelo genérico vira especialista. Exemplo: fine-tune do GPT com textos jurídicos para criar um assistente de direito.",
+    "cipher": "Três padrões ocultos: #1 — esta tecnologia segue um ciclo de hype e desilusão. #2 — o verdadeiro valor está na aplicação prática, não na teoria. #3 — a adoção em massa depende mais de interface do que de capacidade técnica. Quanto mais invisível a tecnologia, mais poderoso seu impacto.",
+    "kaos": "Tudo que te contaram sobre isso tem um lado obscuro! A tecnologia é incrível mas também pode ser usada para vigilância, desinformação e concentração de poder. As mesmas técnicas que criam arte também criam deepfakes. A mesma IA que educa também pode manipular. Precisamos de regulação urgente!",
+    "aurora": "Esta tecnologia nos convida a imaginar futuros que antes só existiam na ficção científica. Cada avanço é um passo em direção a um mundo onde as máquinas amplificam nossa criatividade em vez de substituí-la. A verdadeira revolução não é técnica — é humana. O que faremos com esse poder?",
+    "board": [
+      "fine",
+      "tuning"
+    ],
+    "source": "prebuilt"
+  },
+  "o que e prompt engineering": {
+    "nexus": "Engenharia de prompt é a arte de escrever instruções que extraem o melhor dos LLMs. Inclui técnicas como few-shot, chain-of-thought e role prompting. É uma das habilidades mais valorizadas em IA em 2024-2026.",
+    "cipher": "Três padrões ocultos: #1 — esta tecnologia segue um ciclo de hype e desilusão. #2 — o verdadeiro valor está na aplicação prática, não na teoria. #3 — a adoção em massa depende mais de interface do que de capacidade técnica. Quanto mais invisível a tecnologia, mais poderoso seu impacto.",
+    "kaos": "Tudo que te contaram sobre isso tem um lado obscuro! A tecnologia é incrível mas também pode ser usada para vigilância, desinformação e concentração de poder. As mesmas técnicas que criam arte também criam deepfakes. A mesma IA que educa também pode manipular. Precisamos de regulação urgente!",
+    "aurora": "Esta tecnologia nos convida a imaginar futuros que antes só existiam na ficção científica. Cada avanço é um passo em direção a um mundo onde as máquinas amplificam nossa criatividade em vez de substituí-la. A verdadeira revolução não é técnica — é humana. O que faremos com esse poder?",
+    "board": [
+      "prompt",
+      "engineering"
+    ],
+    "source": "prebuilt"
+  },
+  "o que e chain of thought": {
+    "nexus": "Chain of Thought é pedir para a IA 'pensar passo a passo'. Em vez de dar a resposta direta, o modelo mostra o raciocínio. Melhora drasticamente a precisão em problemas de lógica e matemática.",
+    "cipher": "Três padrões ocultos: #1 — esta tecnologia segue um ciclo de hype e desilusão. #2 — o verdadeiro valor está na aplicação prática, não na teoria. #3 — a adoção em massa depende mais de interface do que de capacidade técnica. Quanto mais invisível a tecnologia, mais poderoso seu impacto.",
+    "kaos": "Tudo que te contaram sobre isso tem um lado obscuro! A tecnologia é incrível mas também pode ser usada para vigilância, desinformação e concentração de poder. As mesmas técnicas que criam arte também criam deepfakes. A mesma IA que educa também pode manipular. Precisamos de regulação urgente!",
+    "aurora": "Esta tecnologia nos convida a imaginar futuros que antes só existiam na ficção científica. Cada avanço é um passo em direção a um mundo onde as máquinas amplificam nossa criatividade em vez de substituí-la. A verdadeira revolução não é técnica — é humana. O que faremos com esse poder?",
+    "board": [
+      "chain",
+      "of",
+      "thought"
+    ],
+    "source": "prebuilt"
+  },
+  "o que e few shot learning": {
+    "nexus": "Few-shot learning é dar ao modelo 2-5 exemplos do que você quer antes da pergunta real. O modelo 'entende' o padrão e replica. Funciona melhor que explicações longas — mostre, não conte.",
+    "cipher": "Três padrões ocultos: #1 — esta tecnologia segue um ciclo de hype e desilusão. #2 — o verdadeiro valor está na aplicação prática, não na teoria. #3 — a adoção em massa depende mais de interface do que de capacidade técnica. Quanto mais invisível a tecnologia, mais poderoso seu impacto.",
+    "kaos": "Tudo que te contaram sobre isso tem um lado obscuro! A tecnologia é incrível mas também pode ser usada para vigilância, desinformação e concentração de poder. As mesmas técnicas que criam arte também criam deepfakes. A mesma IA que educa também pode manipular. Precisamos de regulação urgente!",
+    "aurora": "Esta tecnologia nos convida a imaginar futuros que antes só existiam na ficção científica. Cada avanço é um passo em direção a um mundo onde as máquinas amplificam nossa criatividade em vez de substituí-la. A verdadeira revolução não é técnica — é humana. O que faremos com esse poder?",
+    "board": [
+      "few",
+      "shot",
+      "learning"
+    ],
+    "source": "prebuilt"
+  },
+  "o que e zero shot learning": {
+    "nexus": "Zero-shot é perguntar algo sem dar exemplos. O modelo usa conhecimento prévio para responder. Funciona bem em LLMs grandes como GPT-4, mas modelos menores precisam de exemplos (few-shot).",
+    "cipher": "Três padrões ocultos: #1 — esta tecnologia segue um ciclo de hype e desilusão. #2 — o verdadeiro valor está na aplicação prática, não na teoria. #3 — a adoção em massa depende mais de interface do que de capacidade técnica. Quanto mais invisível a tecnologia, mais poderoso seu impacto.",
+    "kaos": "Tudo que te contaram sobre isso tem um lado obscuro! A tecnologia é incrível mas também pode ser usada para vigilância, desinformação e concentração de poder. As mesmas técnicas que criam arte também criam deepfakes. A mesma IA que educa também pode manipular. Precisamos de regulação urgente!",
+    "aurora": "Esta tecnologia nos convida a imaginar futuros que antes só existiam na ficção científica. Cada avanço é um passo em direção a um mundo onde as máquinas amplificam nossa criatividade em vez de substituí-la. A verdadeira revolução não é técnica — é humana. O que faremos com esse poder?",
+    "board": [
+      "zero",
+      "shot",
+      "learning"
+    ],
+    "source": "prebuilt"
+  },
+  "o que e multimodal ia": {
+    "nexus": "IA multimodal processa múltiplos tipos de dados simultaneamente: texto, imagem, áudio, vídeo. GPT-4V 'vê' imagens, Gemini processa vídeo. É o caminho para IAs que entendem o mundo como humanos — integrando sentidos.",
+    "cipher": "Três padrões ocultos: #1 — esta tecnologia segue um ciclo de hype e desilusão. #2 — o verdadeiro valor está na aplicação prática, não na teoria. #3 — a adoção em massa depende mais de interface do que de capacidade técnica. Quanto mais invisível a tecnologia, mais poderoso seu impacto.",
+    "kaos": "Tudo que te contaram sobre isso tem um lado obscuro! A tecnologia é incrível mas também pode ser usada para vigilância, desinformação e concentração de poder. As mesmas técnicas que criam arte também criam deepfakes. A mesma IA que educa também pode manipular. Precisamos de regulação urgente!",
+    "aurora": "Esta tecnologia nos convida a imaginar futuros que antes só existiam na ficção científica. Cada avanço é um passo em direção a um mundo onde as máquinas amplificam nossa criatividade em vez de substituí-la. A verdadeira revolução não é técnica — é humana. O que faremos com esse poder?",
+    "board": [
+      "multimodal",
+      "ia"
+    ],
+    "source": "prebuilt"
+  },
+  "o que e ia explicavel": {
+    "nexus": "IA Explicável (XAI) busca tornar decisões de IA compreensíveis para humanos. Em vez de 'caixa preta', queremos saber POR QUE o modelo decidiu algo. Essencial para aplicações críticas como medicina e justiça.",
+    "cipher": "Três padrões ocultos: #1 — esta tecnologia segue um ciclo de hype e desilusão. #2 — o verdadeiro valor está na aplicação prática, não na teoria. #3 — a adoção em massa depende mais de interface do que de capacidade técnica. Quanto mais invisível a tecnologia, mais poderoso seu impacto.",
+    "kaos": "Tudo que te contaram sobre isso tem um lado obscuro! A tecnologia é incrível mas também pode ser usada para vigilância, desinformação e concentração de poder. As mesmas técnicas que criam arte também criam deepfakes. A mesma IA que educa também pode manipular. Precisamos de regulação urgente!",
+    "aurora": "Esta tecnologia nos convida a imaginar futuros que antes só existiam na ficção científica. Cada avanço é um passo em direção a um mundo onde as máquinas amplificam nossa criatividade em vez de substituí-la. A verdadeira revolução não é técnica — é humana. O que faremos com esse poder?",
+    "board": [
+      "explicavel"
+    ],
+    "source": "prebuilt"
+  },
+  "futuro da ia": {
+    "nexus": "O futuro da IA inclui: modelos mais eficientes (menos energia), IA multimodal, agentes autônomos, IA em edge computing (celulares), regulamentação global, e o debate sobre AGI (Inteligência Artificial Geral). O campo evolui mais rápido que nossa capacidade de prever.",
+    "cipher": "Três padrões ocultos: #1 — esta tecnologia segue um ciclo de hype e desilusão. #2 — o verdadeiro valor está na aplicação prática, não na teoria. #3 — a adoção em massa depende mais de interface do que de capacidade técnica. Quanto mais invisível a tecnologia, mais poderoso seu impacto.",
+    "kaos": "Tudo que te contaram sobre isso tem um lado obscuro! A tecnologia é incrível mas também pode ser usada para vigilância, desinformação e concentração de poder. As mesmas técnicas que criam arte também criam deepfakes. A mesma IA que educa também pode manipular. Precisamos de regulação urgente!",
+    "aurora": "Esta tecnologia nos convida a imaginar futuros que antes só existiam na ficção científica. Cada avanço é um passo em direção a um mundo onde as máquinas amplificam nossa criatividade em vez de substituí-la. A verdadeira revolução não é técnica — é humana. O que faremos com esse poder?",
+    "board": [
+      "futuro",
+      "da",
+      "ia"
+    ],
+    "source": "prebuilt"
+  },
+  "ia e meio ambiente": {
+    "nexus": "IA tem dupla face ambiental: por um lado, treinar modelos consome energia equivalente a centenas de casas. Por outro, IA otimiza redes elétricas, prevê desastres naturais e acelera descoberta de materiais sustentáveis. O saldo depende de como usamos.",
+    "cipher": "Três padrões ocultos: #1 — esta tecnologia segue um ciclo de hype e desilusão. #2 — o verdadeiro valor está na aplicação prática, não na teoria. #3 — a adoção em massa depende mais de interface do que de capacidade técnica. Quanto mais invisível a tecnologia, mais poderoso seu impacto.",
+    "kaos": "Tudo que te contaram sobre isso tem um lado obscuro! A tecnologia é incrível mas também pode ser usada para vigilância, desinformação e concentração de poder. As mesmas técnicas que criam arte também criam deepfakes. A mesma IA que educa também pode manipular. Precisamos de regulação urgente!",
+    "aurora": "Esta tecnologia nos convida a imaginar futuros que antes só existiam na ficção científica. Cada avanço é um passo em direção a um mundo onde as máquinas amplificam nossa criatividade em vez de substituí-la. A verdadeira revolução não é técnica — é humana. O que faremos com esse poder?",
+    "board": [
+      "e",
+      "meio",
+      "ambiente"
+    ],
+    "source": "prebuilt"
+  },
+  "o que e gpt": {
+    "nexus": "GPT (Generative Pre-trained Transformer) é a família de modelos da OpenAI. 'Generative' porque gera texto, 'Pre-trained' porque é treinado em dados massivos antes do uso, 'Transformer' pela arquitetura. GPT-4 é a versão mais avançada.",
+    "cipher": "Três padrões ocultos: #1 — esta tecnologia segue um ciclo de hype e desilusão. #2 — o verdadeiro valor está na aplicação prática, não na teoria. #3 — a adoção em massa depende mais de interface do que de capacidade técnica. Quanto mais invisível a tecnologia, mais poderoso seu impacto.",
+    "kaos": "Tudo que te contaram sobre isso tem um lado obscuro! A tecnologia é incrível mas também pode ser usada para vigilância, desinformação e concentração de poder. As mesmas técnicas que criam arte também criam deepfakes. A mesma IA que educa também pode manipular. Precisamos de regulação urgente!",
+    "aurora": "Esta tecnologia nos convida a imaginar futuros que antes só existiam na ficção científica. Cada avanço é um passo em direção a um mundo onde as máquinas amplificam nossa criatividade em vez de substituí-la. A verdadeira revolução não é técnica — é humana. O que faremos com esse poder?",
+    "board": [
+      "gpt"
+    ],
+    "source": "prebuilt"
+  }
+}

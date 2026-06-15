@@ -18,7 +18,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Brain, Play, TrendingUp, X, Zap } from 'lucide-react';
-import type { HomeAgent } from '@/data/all-agents';
+import type { HomeAgent } from '@/data/agents';
 
 interface AgentDetailModalProps {
   agent: HomeAgent | null;

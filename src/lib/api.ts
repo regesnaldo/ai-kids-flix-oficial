@@ -1,14 +1,13 @@
-export async function sendMessageToNexus(message: string) {
-  const res = await fetch("http://localhost:3000/chat", {
+export async function sendMessageToNexus(message: string): Promise<{ response: string }> {
+  const res = await fetch("/api/chat", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({ message })
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ message, agentId: "nexus" }),
   });
 
   if (!res.ok) {
-    throw new Error("Request failed");
+    throw new Error("Erro ao enviar mensagem para NEXUS");
   }
 
   return res.json();

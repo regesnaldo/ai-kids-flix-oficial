@@ -1,4 +1,5 @@
-import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, boolean, decimal, json, uniqueIndex, primaryKey, index } from "drizzle-orm/mysql-core";
+import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, boolean, decimal, json, uniqueIndex, primaryKey, index, float, real } from "drizzle-orm/mysql-core";
+import { sql } from "drizzle-orm";
 
 export const users = mysqlTable("users", {
   id: int("id").autoincrement().primaryKey(),
@@ -193,6 +194,10 @@ export const profiles = mysqlTable("profiles", {
   userId: int("userId").notNull(),
   name: varchar("name", { length: 100 }).notNull(),
   avatar: varchar("avatar", { length: 20 }).default("blue"),
+  avatarShape: varchar("avatar_shape", { length: 20 }).default("humanoid"),
+  avatarColor: varchar("avatar_color", { length: 7 }).default("#3B82F6"),
+  auraColor: varchar("aura_color", { length: 7 }).default("#60A5FA"),
+  auraIntensity: decimal("aura_intensity", { precision: 3, scale: 2 }).default("0.50"),
   ageGroup: mysqlEnum("ageGroup", ["kids-4-6", "kids-7-9", "kids-10-12", "teens-13", "adults-18"]).default("adults-18").notNull(),
   isKids: boolean("isKids").default(false),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
@@ -276,7 +281,7 @@ export const agentMetadata = mysqlTable(
     ordemNaTemporada: int("ordem_na_temporada").notNull().default(0),
     fase:            int("fase").notNull().default(1),              // 1=MVP, 2=Beta, 3=Early, 4=Full
     categoria:       mysqlEnum("categoria", CATEGORIAS_AGENTE).notNull().default("fundamentos"),
-    tags:            json("tags").$type<string[]>().default([]),
+    tags:            json("tags").$type<string[]>().$defaultFn(() => []),
 
     // Gamificação
     dificuldade:         int("dificuldade").notNull().default(1),   // 1-5
@@ -285,7 +290,7 @@ export const agentMetadata = mysqlTable(
     bloqueadoPorPadrao:  boolean("bloqueado_por_padrao").notNull().default(false),
     requisitosDesbloqueio: json("requisitos_desbloqueio")
       .$type<RequisitosDesbloqueio>()
-      .default({}),
+      .$defaultFn(() => ({})),
 
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow().onUpdateNow(),
@@ -366,7 +371,7 @@ export const agentCombinations = mysqlTable(
     // Requisitos para descobrir esta combinação
     requisitosDesbloqueio: json("requisitos_desbloqueio")
       .$type<RequisitosDesbloqueio>()
-      .default({}),
+      .$defaultFn(() => ({})),
 
     ativa:     boolean("ativa").notNull().default(true),
     createdAt: timestamp("created_at").notNull().defaultNow(),
@@ -412,3 +417,312 @@ export const userCombinations = mysqlTable(
 
 export type UserCombination    = typeof userCombinations.$inferSelect;
 export type NewUserCombination = typeof userCombinations.$inferInsert;
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// FASE 3 — Memória Persistente Multi-Agente
+// ═══════════════════════════════════════════════════════════════════════════════
+
+export const MEMORY_TYPES = [
+  "emotional",   // Memória emocional (ex: "usuário demonstrou empatia com TERRA")
+  "factual",     // Fato aprendido (ex: "usuário sabe o que é backpropagation")
+  "preference",  // Preferência do usuário (ex: "prefere explicações visuais")
+  "narrative",   // Evento narrativo (ex: "NEXUS revelou segredo sobre VOLT")
+] as const;
+
+export type MemoryType = (typeof MEMORY_TYPES)[number];
+
+// ─── agent_memories ───────────────────────────────────────────────────────────
+//
+// Memória persistente por agente. Cada agente pode armazenar até 200 memórias
+// por usuário. Memórias expiram após TTL (padrão 90 dias) e são podadas
+// automaticamente por um job de limpeza (cron futuro) ou na leitura.
+//
+// Relacionamento: users (1) → agent_memories (N) ← agentMetadata (1)
+
+export const agentMemories = mysqlTable(
+  "agent_memories",
+  {
+    id: varchar("id", { length: 36 }).primaryKey(),
+
+    userId:  int("user_id").notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    agentId: varchar("agent_id", { length: 100 }).notNull(),
+
+    memoryType: mysqlEnum("memory_type", MEMORY_TYPES).notNull().default("factual"),
+
+    content: text("content").notNull(),
+
+    // Peso emocional (-1.0 a 1.0): negativo = memória negativa, positivo = positiva
+    emotionalWeight: decimal("emotional_weight", { precision: 3, scale: 2 }).default("0.00"),
+
+    // Metadados para busca contextual
+    tags:     json("tags").$type<string[]>().$defaultFn(() => []),
+    contexto: json("contexto").$type<Record<string, unknown>>().$defaultFn(() => ({})),
+
+    // Controle de ciclo de vida
+    ttlDays:      int("ttl_days").notNull().default(90),
+    expiresAt:    timestamp("expires_at"),
+    accessCount:  int("access_count").notNull().default(0),
+    lastAccessAt: timestamp("last_access_at"),
+
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (t) => ({
+    // Queries frequentes: "memórias do usuário X com agente Y"
+    idxUserAgent:       index("idx_am_user_agent").on(t.userId, t.agentId),
+    // "Memórias emocionais do usuário X"
+    idxUserEmotional:   index("idx_am_user_emotional").on(t.userId, t.memoryType),
+    // "Memórias que expiram em breve" (para job de limpeza)
+    idxExpiresAt:       index("idx_am_expires").on(t.expiresAt),
+    // "Top memórias mais acessadas do usuário"
+    idxUserAccess:      index("idx_am_user_access").on(t.userId, t.accessCount),
+    // Limite de 200 memórias por par (usuário, agente) — via aplicação
+  }),
+);
+
+export type AgentMemory    = typeof agentMemories.$inferSelect;
+export type NewAgentMemory = typeof agentMemories.$inferInsert;
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// FOUNDATION FREEZE — Universe Progression
+// ═══════════════════════════════════════════════════════════════════════════════
+
+export const universeProgression = mysqlTable(
+  "universe_progression",
+  {
+    id: varchar("id", { length: 36 }).primaryKey(),
+
+    userId: int("user_id").notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+
+    // Planetas completados: ["nexus", "kaos", ...]
+    completed: json("completed").$type<string[]>().$defaultFn(() => []),
+
+    // Planeta ativo atual (null = nenhum)
+    activePlanet: varchar("active_planet", { length: 50 }),
+
+    // Planetas disponíveis para ativação: ["lyra", ...]
+    available: json("available").$type<string[]>().$defaultFn(() => ["nexus"]),
+
+    // Dicas ativas (max 2): [{ id, planetId, text, createdAt }]
+    activeHints: json("active_hints").$defaultFn(() => []),
+
+    // Timestamp da última mudança de progressão (cooldown)
+    lastProgressionAt: timestamp("last_progression_at").defaultNow(),
+
+    // Total completado (derivado, cache para queries rápidas)
+    totalCompleted: int("total_completed").notNull().default(0),
+
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow().onUpdateNow(),
+  },
+  (t) => ({
+    // Um registro por usuário
+    uniqUser:  uniqueIndex("uq_up_user").on(t.userId),
+    // "Quantos usuários estão ativos no planeta X"
+    idxActive: index("idx_up_active_planet").on(t.activePlanet),
+  }),
+);
+
+export type UniverseProgression    = typeof universeProgression.$inferSelect;
+export type NewUniverseProgression = typeof universeProgression.$inferInsert;
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// LOGOS — Knowledge Validation
+// ═══════════════════════════════════════════════════════════════════════════════
+
+export const logosAttempts = mysqlTable("logos_attempts", {
+  id: varchar("id", { length: 36 }).primaryKey(),
+  userId: varchar("user_id", { length: 36 }).notNull(),
+  episodeId: varchar("episode_id", { length: 36 }).notNull(),
+  agentId: varchar("agent_id", { length: 50 }).notNull(),
+  questions: json("questions").notNull(),
+  answers: json("answers").notNull(),
+  score: int("score").notNull().default(0),
+  passed: boolean("passed").notNull().default(false),
+  attemptNumber: int("attempt_number").notNull().default(1),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export type LogosAttempt = typeof logosAttempts.$inferSelect;
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// KNOWLEDGE MODEL — Content Persistence Layer
+// ═══════════════════════════════════════════════════════════════════════════════
+
+export const COGNITIVE_LEVELS = [
+  "remember",
+  "understand",
+  "apply",
+  "analyze",
+  "evaluate",
+  "create",
+] as const;
+export type CognitiveLevel = (typeof COGNITIVE_LEVELS)[number];
+
+export const ASSET_TYPES = [
+  "episode",
+  "quiz",
+  "video",
+  "audio",
+  "mission",
+  "image",
+] as const;
+export type AssetType = (typeof ASSET_TYPES)[number];
+
+export const EDITORIAL_STATUS = [
+  "draft",
+  "review",
+  "approved",
+  "published",
+] as const;
+export type EditorialStatus = (typeof EDITORIAL_STATUS)[number];
+
+export const CONTENT_SOURCE = ["manual", "deepseek", "groq", "hybrid"] as const;
+export type ContentSource = (typeof CONTENT_SOURCE)[number];
+
+// ─── knowledge_unit — O ÁTOMO DE CONHECIMENTO ────────────────────────────────
+//
+// O QUE o usuário aprende. Independente de formato.
+// Um conceito pode ser entregue como episódio, vídeo, quiz ou missão.
+// Separação: conhecimento ≠ forma de apresentação.
+
+export const knowledgeUnit = mysqlTable(
+  "knowledge_unit",
+  {
+    id: varchar("id", { length: 36 }).primaryKey(),
+
+    // Identidade
+    title: varchar("title", { length: 256 }).notNull(),
+    slug: varchar("slug", { length: 256 }).notNull().unique(),
+
+    // Pedagogia
+    learningObjective: text("learning_objective").notNull(),
+    cognitiveLevel: mysqlEnum("cognitive_level", COGNITIVE_LEVELS)
+      .notNull()
+      .default("understand"),
+    difficulty: varchar("difficulty", { length: 16 }).default("beginner"),
+    estimatedTimeMin: int("estimated_time_min"),
+    skills: json("skills").$type<string[]>().$defaultFn(() => []),
+
+    // Curadoria
+    tags: json("tags").$type<string[]>().$defaultFn(() => []),
+    agentDomain: varchar("agent_domain", { length: 32 }),
+
+    // Metadados
+    version: int("version").default(1),
+    status: mysqlEnum("status", EDITORIAL_STATUS).default("draft"),
+
+    createdAt: timestamp("created_at").defaultNow(),
+    updatedAt: timestamp("updated_at").defaultNow().onUpdateNow(),
+  },
+  (t) => ({
+    idxCognitive: index("idx_ku_cognitive").on(t.cognitiveLevel, t.difficulty),
+    idxAgent: index("idx_ku_agent").on(t.agentDomain),
+    idxStatus: index("idx_ku_status").on(t.status),
+  }),
+);
+
+export type KnowledgeUnit = typeof knowledgeUnit.$inferSelect;
+export type NewKnowledgeUnit = typeof knowledgeUnit.$inferInsert;
+
+// ─── knowledge_asset — A FORMA DE APRESENTAÇÃO ───────────────────────────────
+//
+// COMO o conhecimento é entregue. Um knowledge_unit pode ter N assets.
+// Conteúdo polimórfico por type (episode, quiz, video, audio, mission, image).
+
+export const knowledgeAsset = mysqlTable(
+  "knowledge_asset",
+  {
+    id: varchar("id", { length: 36 }).primaryKey(),
+    knowledgeUnitId: varchar("knowledge_unit_id", { length: 36 }).notNull(),
+
+    // Posicionamento na série
+    agentId: varchar("agent_id", { length: 32 }),
+    season: int("season"),
+    episode: int("episode"),
+
+    // Tipo de mídia
+    type: mysqlEnum("type", ASSET_TYPES).notNull(),
+
+    // Conteúdo polimórfico por type
+    content: json("content").notNull(),
+    metadata: json("metadata").$type<Record<string, unknown>>().$defaultFn(() => ({})),
+
+    // Provenance
+    source: mysqlEnum("source", CONTENT_SOURCE).default("manual"),
+    generatedBy: varchar("generated_by", { length: 64 }),
+    generatedAt: timestamp("generated_at"),
+
+    // Editorial
+    version: int("version").default(1),
+    status: mysqlEnum("status", EDITORIAL_STATUS).default("draft"),
+
+    // Cache
+    cacheKey: varchar("cache_key", { length: 64 }),
+
+    createdAt: timestamp("created_at").defaultNow(),
+    updatedAt: timestamp("updated_at").defaultNow().onUpdateNow(),
+  },
+  (t) => ({
+    idxUnit: index("idx_ka_unit").on(t.knowledgeUnitId),
+    idxSeries: index("idx_ka_series").on(t.agentId, t.season, t.episode),
+    idxTypeStatus: index("idx_ka_type_status").on(t.type, t.status),
+    idxCache: index("idx_ka_cache").on(t.cacheKey),
+  }),
+);
+
+export type KnowledgeAsset = typeof knowledgeAsset.$inferSelect;
+export type NewKnowledgeAsset = typeof knowledgeAsset.$inferInsert;
+
+// ─── knowledge_graph_edge — A TEIA DE DEPENDÊNCIAS ───────────────────────────
+//
+// Grafo direcionado entre knowledge_units.
+// Suporta: prerequisite, next, related, reinforces, expands.
+
+export const GRAPH_RELATIONSHIPS = [
+  "prerequisite",
+  "next",
+  "related",
+  "reinforces",
+  "expands",
+] as const;
+export type GraphRelationship = (typeof GRAPH_RELATIONSHIPS)[number];
+
+export const knowledgeGraphEdge = mysqlTable(
+  "knowledge_graph_edge",
+  {
+    id: varchar("id", { length: 36 }).primaryKey(),
+    fromUnitId: varchar("from_unit_id", { length: 36 }).notNull(),
+    toUnitId: varchar("to_unit_id", { length: 36 }).notNull(),
+    relationship: mysqlEnum("relationship", GRAPH_RELATIONSHIPS).notNull(),
+    weight: real("weight").default(1.0),
+
+    createdAt: timestamp("created_at").defaultNow(),
+  },
+  (t) => ({
+    uniqueEdge: uniqueIndex("uq_kge_edge").on(
+      t.fromUnitId,
+      t.toUnitId,
+      t.relationship,
+    ),
+    idxFrom: index("idx_kge_from").on(t.fromUnitId),
+    idxTo: index("idx_kge_to").on(t.toUnitId),
+  }),
+);
+
+export type KnowledgeGraphEdge = typeof knowledgeGraphEdge.$inferSelect;
+export type NewKnowledgeGraphEdge = typeof knowledgeGraphEdge.$inferInsert;
+export type NewLogosAttempt = typeof logosAttempts.$inferInsert;
+
+// ─── universe_presence — INDICADOR DE PRESENÇA POR UNIVERSO ──────────────────
+export const universePresence = mysqlTable("universe_presence", {
+  id: varchar("id", { length: 36 }).primaryKey(),
+  userId: varchar("user_id", { length: 36 }).notNull(),
+  agentId: varchar("agent_id", { length: 50 }).notNull(),
+  lastSeen: timestamp("last_seen").defaultNow().onUpdateNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export type UniversePresence = typeof universePresence.$inferSelect;
+export type NewUniversePresence = typeof universePresence.$inferInsert;

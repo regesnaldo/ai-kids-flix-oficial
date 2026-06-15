@@ -1,6 +1,6 @@
 'use client';
-import { useRef } from 'react';
-import { useFrame } from '@react-three/fiber';
+import { useRef, useEffect } from 'react';
+import { useFrame, useThree } from '@react-three/fiber';
 import { Sparkles } from '@react-three/drei';
 import * as THREE from 'three';
 
@@ -48,9 +48,10 @@ const STRIPS: StripProps[] = Array.from({ length: STRIP_COUNT }, (_, i) => ({
 }));
 
 export function AuroraScene() {
+  const { scene } = useThree()
+  useEffect(() => { scene.background = new THREE.Color('#010509') }, [scene])
   return (
     <>
-      <color attach="background" args={['#010509']} />
       <ambientLight intensity={0.05} />
       <pointLight position={[0, 10, 4]} intensity={12} color="#10B981" />
       <pointLight position={[0, -4, 4]} intensity={6} color="#8B5CF6" />

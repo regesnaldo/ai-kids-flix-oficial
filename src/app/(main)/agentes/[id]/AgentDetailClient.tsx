@@ -7,6 +7,7 @@ import { motion, useScroll, useTransform } from 'framer-motion';
 import type { AgentDefinition } from '@/canon/agents/all-agents';
 import AgentChat from '@/components/AgentChat';
 import { t } from '@/lib/translations';
+import { getAgentImage } from '@/lib/getAgentImage';
 
 interface AgentDetailClientProps {
   agent: AgentDefinition;
@@ -20,28 +21,37 @@ export default function AgentDetailClient({ agent }: AgentDetailClientProps) {
 
   const visuals = useMemo(() => {
     const byId: Record<string, { avatar: string; color: string; title: string }> = {
-      nexus: { avatar: '/images/agentes/nexus.png', color: '#3B82F6', title: 'O Conector' },
-      volt: { avatar: '/images/agentes/volt.png', color: '#F59E0B', title: 'O Energético' },
-      aurora: { avatar: '/images/agentes/aurora.png', color: '#EC4899', title: 'A Criadora' },
-      ethos: { avatar: '/images/agentes/ethos.png', color: '#22C55E', title: 'O Filósofo' },
+      nexus: { avatar: getAgentImage('nexus'), color: '#3B82F6', title: 'O Conector' },
+      volt: { avatar: getAgentImage('volt'), color: '#F59E0B', title: 'O Energético' },
+      aurora: { avatar: getAgentImage('aurora'), color: '#EC4899', title: 'A Criadora' },
+      ethos: { avatar: getAgentImage('ethos'), color: '#22C55E', title: 'O Filósofo' },
     };
 
     return byId[agent.id] ?? {
-      avatar: `/images/agentes/${agent.id}.png`,
+      avatar: getAgentImage(agent.id),
       color: '#3B82F6',
       title: `${t(`dimensions.${agent.dimension}`)} ${t(`levels.${agent.level}`)}`,
     };
   }, [agent.dimension, agent.id, agent.level]);
 
   return (
-    <div className="min-h-screen bg-[#0a0a1a] text-white">
-      <div className="mx-auto max-w-7xl px-5 md:px-8 pt-8">
-        <Link
-          href="/agentes"
-          className="inline-flex items-center gap-2 text-white/70 hover:text-white mb-6 transition"
-        >
-          ← Voltar para todos os agentes
-        </Link>
+    <div className="min-h-screen" style={{ background: '#0a0a1a' }}>
+      <nav className="fixed top-0 left-0 right-0 z-50 px-6 py-4" style={{ background: 'linear-gradient(to bottom, #0a0a1a, transparent)' }}>
+        <div className="flex items-center justify-between w-full" style={{ pointerEvents: 'auto' }}>
+          <div className="flex items-center gap-8">
+            <Link href="/" className="text-2xl font-bold">
+              <span className="text-white">MENTE</span><span className="text-red-500">.AI</span>
+            </Link>
+            <div className="hidden md:flex items-center gap-6 text-sm">
+              <Link href="/" className="text-gray-400 hover:text-white transition">Início</Link>
+              <Link href="/aulas" className="text-gray-400 hover:text-white transition">Séries</Link>
+              <Link href="/agentes" className="text-white font-semibold">Agentes</Link>
+              <Link href="/explorar" className="text-gray-400 hover:text-white transition">Explorar</Link>
+            </div>
+          </div>
+        </div>
+      </nav>
+      <div className="mx-auto max-w-7xl px-5 md:px-8 pt-24">
 
         <section
           className="relative min-h-screen overflow-hidden rounded-3xl"

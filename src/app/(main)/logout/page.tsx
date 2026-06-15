@@ -3,6 +3,8 @@
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
+import { getAgentImage } from '@/lib/getAgentImage';
+import { toastError } from '@/lib/toast';
 
 export default function LogoutPage() {
   const router = useRouter();
@@ -10,7 +12,8 @@ export default function LogoutPage() {
   const intervalRef = useRef<ReturnType<typeof globalThis.setInterval> | null>(null);
 
   useEffect(() => {
-    void fetch('/api/auth/logout', { method: 'POST' });
+    void fetch('/api/auth/logout', { method: 'POST' }).catch((error) => { console.error('[Logout] fetch error:', error); toastError('Erro ao encerrar sessão.'); });
+    // TODO: [MENTE.AI] adicionar feedback visual ao usuário
 
     intervalRef.current = globalThis.setInterval(() => {
       setSeconds((s) => s - 1);
@@ -26,12 +29,13 @@ export default function LogoutPage() {
     if (seconds > 0) return;
     if (intervalRef.current) globalThis.clearInterval(intervalRef.current);
     intervalRef.current = null;
-    void fetch('/api/auth/logout', { method: 'POST' }).then(() => router.push('/'));
+    void fetch('/api/auth/logout', { method: 'POST' }).then(() => router.push('/')).catch((error) => console.error('[Logout] fetch error:', error));
+    // TODO: [MENTE.AI] adicionar feedback visual ao usuário
   }, [seconds, router]);
 
   return (
     <div className="min-h-screen bg-black relative overflow-hidden">
-      <Image src="/images/agentes/nexus.png" alt="MENTE.AI" fill priority className="object-cover opacity-30" />
+      <Image src={getAgentImage("nexus")} alt="MENTE.AI" fill priority className="object-cover opacity-30" />
       <div className="absolute inset-0 bg-black/55" />
 
       <header className="relative z-10 flex items-center justify-between px-6 md:px-12 py-6">
@@ -60,7 +64,8 @@ export default function LogoutPage() {
           <button
             type="button"
             onClick={async () => {
-              await fetch('/api/auth/logout', { method: 'POST' });
+              await fetch('/api/auth/logout', { method: 'POST' }).catch((error) => console.error('[Logout] fetch error:', error));
+              // TODO: [MENTE.AI] adicionar feedback visual ao usuário
               router.push('/');
             }}
             className="mt-6 bg-blue-600 hover:bg-blue-700 text-white w-full py-3 rounded font-semibold text-lg transition"

@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import Image from "next/image";
-import { HomeAgent } from "@/data/all-agents";
+import { HomeAgent } from "@/data/agents";
 
 interface AgentPairingCardProps {
   agent1: HomeAgent;
