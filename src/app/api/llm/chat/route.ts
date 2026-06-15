@@ -10,11 +10,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createLLM, type LLMProviderMode } from "@/lib/llm/provider";
 import { HumanMessage, SystemMessage } from "@langchain/core/messages";
+import { getAuthCookieFromRequest, verifyToken } from "@/lib/auth";
 
 export const runtime = "nodejs";
 
 export async function POST(request: NextRequest) {
   try {
+    // ── Auth ──────────────────────────────────────────────────────
+    const token = await getAuthCookieFromRequest(request);
+    if (!token) return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
+    const jwtPayload = await verifyToken(token);
+    if (!jwtPayload) return NextResponse.json({ error: "Token inválido" }, { status: 401 });
+
     const body = await request.json();
 
     if (!body.system || !body.prompt) {

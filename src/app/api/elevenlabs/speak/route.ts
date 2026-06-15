@@ -1,7 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getAuthCookieFromRequest, verifyToken } from '@/lib/auth';
 
 export async function POST(request: NextRequest) {
   try {
+    // ── Auth ──────────────────────────────────────────────────────
+    const token = await getAuthCookieFromRequest(request);
+    if (!token) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
+    const jwtPayload = await verifyToken(token);
+    if (!jwtPayload) return NextResponse.json({ error: 'Token inválido' }, { status: 401 });
+
     const { text, voice_id, model_id } = await request.json();
     
     if (!text) {

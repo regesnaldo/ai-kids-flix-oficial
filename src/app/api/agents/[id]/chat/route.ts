@@ -1,14 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
 import { sessionManager } from "@/engine/session/manager";
+import { getAuthCookieFromRequest, verifyToken } from "@/lib/auth";
 
 export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    // ── Auth ──────────────────────────────────────────────────────
+    const token = await getAuthCookieFromRequest(req);
+    if (!token) return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
+    const jwtPayload = await verifyToken(token);
+    if (!jwtPayload || !jwtPayload.userId) {
+      return NextResponse.json({ error: "Token inválido" }, { status: 401 });
+    }
+    const authenticatedUserId = Number(jwtPayload.userId);
+
     const { id: agentId } = await params;
     const body = await req.json();
-    const { sessionId, message, userId } = body;
+    const { sessionId, message } = body;
 
     let session;
     if (sessionId) {
@@ -20,15 +30,9 @@ export async function POST(
         );
       }
     } else {
-      if (!userId) {
-        return NextResponse.json(
-          { error: "userId required to create session" },
-          { status: 400 }
-        );
-      }
       session = await sessionManager.create({
         agentId,
-        userId: Number(userId),
+        userId: authenticatedUserId,
         title: "Chat session",
       });
     }
