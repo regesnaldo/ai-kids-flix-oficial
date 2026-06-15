@@ -130,7 +130,7 @@ function toHomeAgent(agent: AgentDefinition): HomeAgent {
     role: agent.personality.approach.slice(0, 40),
     description: agent.laboratoryTask,
     longDescription: agent.personality.approach,
-    image: `/images/agentes/${agent.id}.png`,
+    image: `/images/agents/${agent.id}.jpg`,
     color: HOME_COLOR_BY_ID[agent.id] ?? "#8B5CF6",
     category: CATEGORY_BY_DIMENSION[agent.dimension],
     level: LEVEL_BY_CANONICAL[agent.level],
@@ -195,7 +195,7 @@ function toAgentShowcase(agent: AgentDefinition): AgentShowcase {
     category: SHOWCASE_CATEGORY_BY_DIMENSION[agent.dimension],
     categoryColor: color,
     description: agent.laboratoryTask,
-    image: `/images/agentes/${agent.id}.png`,
+    image: `/images/agents/${agent.id}.jpg`,
     themeGlow: color,
   };
 }
