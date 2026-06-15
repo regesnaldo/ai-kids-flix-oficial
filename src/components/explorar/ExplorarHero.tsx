@@ -61,7 +61,7 @@ export default function ExplorarHero({
             <Link
               key={agent.id}
               href={`/agentes/${agent.id}`}
-              className="group flex items-center gap-4 p-4 bg-slate-900 border border-slate-800 rounded-2xl hover:border-slate-600 transition-all duration-300"
+              className="group flex items-center gap-4 p-4 bg-slate-800/80 border border-slate-700 rounded-2xl hover:border-slate-500 hover:bg-slate-800 transition-all duration-300"
             >
               <div
                 className="w-12 h-12 rounded-xl flex-shrink-0 flex items-center justify-center text-lg font-bold text-white"
