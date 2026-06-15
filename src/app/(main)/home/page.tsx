@@ -291,33 +291,6 @@ export default function HomePage() {
         episodeRight={{ episodeNumber: 5, title: "REFORCO E RECOMPENSA", accentColor: "magenta" }}
       />
 
-      {/* HEADER */}
-      <header style={{
-        position: "fixed", top: 0, left: 0, right: 0, zIndex: 200,
-        padding: "1rem 2rem",
-        display: "flex", alignItems: "center", justifyContent: "space-between",
-        background: "linear-gradient(to bottom, rgba(0,0,0,0.95), transparent)",
-        borderBottom: "1px solid rgba(0,255,255,0.1)",
-      }}>
-        <Link href="/" style={{ textDecoration: "none" }}>
-          <span style={{ fontSize: "1.6rem", fontWeight: 900, letterSpacing: "-0.02em", display: "inline-flex", alignItems: "baseline", gap: "0.4rem" }}>
-            <span style={{ color: "#00FFFF", fontFamily: "monospace", fontSize: "0.65rem", letterSpacing: "0.2em", opacity: 0.85, textShadow: "0 0 12px rgba(0,255,255,0.4)" }}>NEXUS PRIME</span>
-            <span style={{ color: "#ffffff" }}>MENTE</span>
-            <span style={{ color: "#E50914" }}>.AI</span>
-          </span>
-        </Link>
-        <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-          <span style={{
-            fontFamily: "monospace", fontSize: "10px",
-            color: isOnline ? "#00FF88" : "#ff4444",
-            textShadow: isOnline ? "0 0 8px rgba(0,255,136,0.3)" : "none",
-          }}>
-            ● METAVERSE {isOnline ? "ONLINE" : "OFFLINE"}
-          </span>
-          <AvatarDropdown username={username} onLogout={handleLogout} />
-        </div>
-      </header>
-
       {/* MAIN CONTENT */}
       <main style={{ paddingTop: "140px", paddingBottom: "80px", maxWidth: "1200px", margin: "0 auto", padding: "140px 2rem 80px" }}>
 
