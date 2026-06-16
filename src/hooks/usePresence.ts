@@ -6,6 +6,7 @@ export function useRegisterPresence(agentId: string) {
   useEffect(() => {
     fetch("/api/presence", {
       method: "POST",
+      credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ agentId }),
     }).catch(() => {});
@@ -13,6 +14,7 @@ export function useRegisterPresence(agentId: string) {
     const interval = setInterval(() => {
       fetch("/api/presence", {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ agentId }),
       }).catch(() => {});

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getBoard, saveBoard, kvSet, kvGetCounter, kvIncr, kvDecr, type AgentStep } from "../board-store";
 import { AGENTS, AGENT_ORDER } from "@/canon/agents/canon";
+import { getAuthCookieFromRequest, verifyToken } from "@/lib/auth";
 
 // ── Groq API call ──────────────────────────────────────────────────
 const GROQ_BASE = "https://api.groq.com/openai/v1";
@@ -123,6 +124,16 @@ export async function POST(request: NextRequest) {
   const startTime = Date.now();
 
   try {
+    // ── Auth ──────────────────────────────────────────────────────
+    const token = await getAuthCookieFromRequest(request);
+    if (!token) {
+      return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
+    }
+    const jwtPayload = await verifyToken(token);
+    if (!jwtPayload) {
+      return NextResponse.json({ error: "Token inválido" }, { status: 401 });
+    }
+
     const body = (await request.json()) as {
       experimentId: string;
       agent: string;

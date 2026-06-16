@@ -1,9 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getBoard, saveBoard } from "../board-store";
+import { getAuthCookieFromRequest, verifyToken } from "@/lib/auth";
 
 // ── POST /api/lab/rollback ──────────────────────────────────────────
 export async function POST(request: NextRequest) {
   try {
+    // ── Auth ──────────────────────────────────────────────────────
+    const token = await getAuthCookieFromRequest(request);
+    if (!token) return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
+    const jwtPayload = await verifyToken(token);
+    if (!jwtPayload) return NextResponse.json({ error: "Token inválido" }, { status: 401 });
+
     const { experimentId, targetStep, injectIdea } = (await request.json()) as {
       experimentId: string;
       targetStep: number; // índice no histórico (0-based)

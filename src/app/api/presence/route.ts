@@ -3,6 +3,7 @@ import { v4 as uuid } from "uuid";
 import { db } from "@/lib/db";
 import { universePresence } from "@/lib/db/schema";
 import { sql } from "drizzle-orm";
+import { getAuthCookieFromRequest, verifyToken } from "@/lib/auth";
 
 // GET /api/presence — contagem de participantes por universo (últimos 5 min)
 export async function GET() {
@@ -35,9 +36,16 @@ export async function POST(req: NextRequest) {
     const { agentId } = await req.json();
     if (!agentId) return NextResponse.json({ error: "agentId required" }, { status: 400 });
 
-    // Usa cookie mente_ai_token para identificar usuário
-    const token = req.cookies.get("mente_ai_token")?.value;
-    const userId = token ? atob(token) : "anon";
+    // Verifica autenticação via JWT (cookie mente_ai_token)
+    const token = await getAuthCookieFromRequest(req);
+    if (!token) {
+      return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
+    }
+    const payload = await verifyToken(token);
+    if (!payload || !payload.userId) {
+      return NextResponse.json({ error: "Token inválido" }, { status: 401 });
+    }
+    const userId = String(payload.userId);
 
     await db
       .insert(universePresence)

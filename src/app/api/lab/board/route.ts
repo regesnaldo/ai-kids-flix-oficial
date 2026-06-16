@@ -1,9 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getBoard, saveBoard } from "../board-store";
+import { getAuthCookieFromRequest, verifyToken } from "@/lib/auth";
 
 // ── GET /api/lab/board?experimentId=xxx ─────────────────────────────
 export async function GET(request: NextRequest) {
   try {
+    // ── Auth ──────────────────────────────────────────────────────
+    const token = await getAuthCookieFromRequest(request);
+    if (!token) return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
+    const jwtPayload = await verifyToken(token);
+    if (!jwtPayload) return NextResponse.json({ error: "Token inválido" }, { status: 401 });
+
     const experimentId = request.nextUrl.searchParams.get("experimentId");
     if (!experimentId) {
       return NextResponse.json({ error: "experimentId é obrigatório" }, { status: 400 });
@@ -36,6 +43,12 @@ export async function GET(request: NextRequest) {
 // ── POST /api/lab/board — adiciona ideia ao quadro ──────────────────
 export async function POST(request: NextRequest) {
   try {
+    // ── Auth ──────────────────────────────────────────────────────
+    const token = await getAuthCookieFromRequest(request);
+    if (!token) return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
+    const jwtPayload = await verifyToken(token);
+    if (!jwtPayload) return NextResponse.json({ error: "Token inválido" }, { status: 401 });
+
     const { experimentId, idea } = (await request.json()) as {
       experimentId: string;
       idea: string;
