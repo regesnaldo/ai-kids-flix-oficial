@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import { getAgentColor } from '@/canon/agents/presence'
 import { playAgentTone, playUnlockTone, playBlockedTone } from '@/lib/audio/agentTones'
+import { AGENT_PRESENCE } from '@/canon/agents/presence'
 
 const AGENTS = [
   { id: 'nexus', name: 'NEXUS', color: getAgentColor('nexus'), size: 56, status: 'active', x: 50, y: 50, floatX: 0, floatY: 0 },
@@ -138,15 +139,54 @@ export default function MemoryGalaxy() {
             </span>
             {isHovered && (
               <div style={{
-                position: 'absolute', top: -36,
-                background: 'rgba(10,10,26,0.95)',
-                border: '1px solid ' + agent.color + '44',
-                borderRadius: 6, padding: '4px 10px',
-                fontSize: 11, color: agent.color,
-                fontFamily: 'monospace', whiteSpace: 'nowrap',
+                position: 'absolute',
+                top: -(agent.size + 80),
+                left: '50%',
+                transform: 'translateX(-50%)',
+                background: 'rgba(5,5,20,0.97)',
+                border: '1px solid ' + agent.color + '66',
+                borderRadius: 10,
+                padding: '10px 14px',
+                minWidth: 200,
                 pointerEvents: 'none',
+                zIndex: 20,
+                boxShadow: '0 0 20px ' + agent.color + '22',
               }}>
-                {agent.name} — {isActive ? 'ATIVO' : 'BLOQUEADO'}
+                {/* Nome + status */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                  <span style={{ fontFamily: 'monospace', fontSize: 12, fontWeight: 700, color: agent.color, letterSpacing: '0.08em' }}>
+                    {agent.name}
+                  </span>
+                  <span style={{
+                    fontSize: 9, fontFamily: 'monospace', fontWeight: 500,
+                    padding: '2px 6px', borderRadius: 4,
+                    background: isActive ? agent.color + '22' : 'rgba(255,255,255,0.05)',
+                    color: isActive ? agent.color : 'rgba(255,255,255,0.3)',
+                    letterSpacing: '0.1em',
+                  }}>
+                    {isActive ? '● ATIVO' : '○ BLOQUEADO'}
+                  </span>
+                </div>
+                {/* Divider */}
+                <div style={{ height: 1, background: agent.color + '22', marginBottom: 8 }} />
+                {/* Frequência */}
+                {AGENT_PRESENCE[agent.id] && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+                    <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', fontFamily: 'monospace' }}>FREQ</span>
+                    <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)', fontFamily: 'monospace' }}>
+                      {AGENT_PRESENCE[agent.id].frequency} Hz
+                    </span>
+                    <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.25)', fontFamily: 'monospace' }}>
+                      · {AGENT_PRESENCE[agent.id].animationRhythm}
+                    </span>
+                  </div>
+                )}
+                {/* Descrição */}
+                {AGENT_PRESENCE[agent.id] && (
+                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.45)', fontFamily: 'monospace', lineHeight: 1.5 }}>
+                    {AGENT_PRESENCE[agent.id].description}
+                  </div>
+                )}
               </div>
             )}
           </div>
