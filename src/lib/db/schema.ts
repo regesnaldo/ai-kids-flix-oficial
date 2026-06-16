@@ -726,34 +726,3 @@ export const universePresence = mysqlTable("universe_presence", {
 
 export type UniversePresence = typeof universePresence.$inferSelect;
 export type NewUniversePresence = typeof universePresence.$inferInsert;
-
-// ─── SESSIONS (B1 — Session Manager) ───────────────────────────────────────────
-export const sessions = mysqlTable("sessions", {
-  id: int("id").primaryKey().autoincrement(),
-  agentId: varchar("agent_id", { length: 50 }).notNull(),
-  userId: int("user_id").notNull(),
-  title: varchar("title", { length: 255 }),
-  status: mysqlEnum("status", ["active", "idle", "error"]).notNull().default("active"),
-  environment: json("environment").default({}),
-  contextWindow: int("context_window").default(0),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow(),
-  endedAt: timestamp("ended_at"),
-});
-
-export type Session = typeof sessions.$inferSelect;
-export type NewSession = typeof sessions.$inferInsert;
-
-// ─── SESSION EVENTS (B1 — Event Stream) ────────────────────────────────────────
-export const sessionEvents = mysqlTable("session_events", {
-  id: int("id").primaryKey().autoincrement(),
-  sessionId: int("session_id").notNull(),
-  type: varchar("type", { length: 50 }).notNull(),
-  content: json("content").notNull(),
-  sequence: int("sequence").notNull(),
-  latencyMs: int("latency_ms"),
-  createdAt: timestamp("created_at").defaultNow(),
-});
-
-export type SessionEvent = typeof sessionEvents.$inferSelect;
-export type NewSessionEvent = typeof sessionEvents.$inferInsert;
