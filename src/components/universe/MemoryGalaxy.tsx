@@ -48,12 +48,6 @@ export default function MemoryGalaxy() {
 
   useEffect(() => { setMounted(true) }, [])
 
-  const activeCount = AGENTS.filter(a => a.status === 'active').length
-  const activeLinks = LINKS.filter(([s, t]) =>
-    AGENTS.find(a => a.id === s)?.status === 'active' &&
-    AGENTS.find(a => a.id === t)?.status === 'active'
-  ).length
-
   function handleClick(agent: Agent) {
     if (agent.status === 'active') {
       playUnlockTone(agent.id)
@@ -221,16 +215,6 @@ export default function MemoryGalaxy() {
           Agente bloqueado. Continue sua jornada.
         </div>
       )}
-
-      <div style={{
-        position: 'fixed', bottom: 24, left: '50%', transform: 'translateX(-50%)',
-        background: 'rgba(10,10,26,0.8)', border: '1px solid rgba(255,255,255,0.08)',
-        borderRadius: 8, padding: '8px 24px', fontFamily: 'monospace',
-        fontSize: 12, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.08em',
-        whiteSpace: 'nowrap', zIndex: 50,
-      }}>
-        {'TERRITORIOS: ' + activeCount + '/12 | SINAIS ATIVOS: ' + activeLinks + ' | CAMADA: SUPERFICIE'}
-      </div>
 
       <style>{`
 @keyframes float-nexus  { from { translate: 0px 0px; }   to { translate: 0px 0px; } }
