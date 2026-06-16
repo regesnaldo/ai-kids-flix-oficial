@@ -2,20 +2,21 @@
 
 import { useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
+import { getAgentColor } from '@/canon/agents/presence'
 
 const AGENTS = [
-  { id: 'nexus', name: 'NEXUS', color: '#00f0ff', size: 56, status: 'active', x: 50, y: 50, floatX: 0, floatY: 0 },
-  { id: 'volt', name: 'VOLT', color: '#f97316', size: 36, status: 'active', x: 30, y: 25, floatX: 12, floatY: 8 },
-  { id: 'aurora', name: 'AURORA', color: '#a855f7', size: 36, status: 'active', x: 70, y: 22, floatX: -10, floatY: 14 },
-  { id: 'kaos', name: 'KAOS', color: '#ef4444', size: 32, status: 'locked', x: 82, y: 42, floatX: 8, floatY: -12 },
-  { id: 'cipher', name: 'CIPHER', color: '#10b981', size: 32, status: 'locked', x: 75, y: 72, floatX: -14, floatY: 6 },
-  { id: 'ethos', name: 'ETHOS', color: '#3b82f6', size: 32, status: 'locked', x: 50, y: 82, floatX: 10, floatY: -10 },
-  { id: 'janus', name: 'JANUS', color: '#8b5cf6', size: 30, status: 'locked', x: 25, y: 75, floatX: -8, floatY: 12 },
-  { id: 'lyra', name: 'LYRA', color: '#ec4899', size: 30, status: 'locked', x: 15, y: 50, floatX: 14, floatY: -6 },
-  { id: 'prism', name: 'PRISM', color: '#fbbf24', size: 30, status: 'locked', x: 22, y: 28, floatX: -12, floatY: -10 },
-  { id: 'stratos', name: 'STRATOS', color: '#06b6d4', size: 28, status: 'locked', x: 60, y: 15, floatX: 6, floatY: 14 },
-  { id: 'terra', name: 'TERRA', color: '#84cc16', size: 28, status: 'locked', x: 85, y: 60, floatX: -10, floatY: -8 },
-  { id: 'axiom', name: 'AXIOM', color: '#e2e8f0', size: 28, status: 'locked', x: 38, y: 88, floatX: 12, floatY: 10 },
+  { id: 'nexus', name: 'NEXUS', color: getAgentColor('nexus'), size: 56, status: 'active', x: 50, y: 50, floatX: 0, floatY: 0 },
+  { id: 'volt', name: 'VOLT', color: getAgentColor('volt'), size: 36, status: 'active', x: 30, y: 25, floatX: 12, floatY: 8 },
+  { id: 'aurora', name: 'AURORA', color: getAgentColor('aurora'), size: 36, status: 'active', x: 70, y: 22, floatX: -10, floatY: 14 },
+  { id: 'kaos', name: 'KAOS', color: getAgentColor('kaos'), size: 32, status: 'locked', x: 82, y: 42, floatX: 8, floatY: -12 },
+  { id: 'cipher', name: 'CIPHER', color: getAgentColor('cipher'), size: 32, status: 'locked', x: 75, y: 72, floatX: -14, floatY: 6 },
+  { id: 'ethos', name: 'ETHOS', color: getAgentColor('ethos'), size: 32, status: 'locked', x: 50, y: 82, floatX: 10, floatY: -10 },
+  { id: 'janus', name: 'JANUS', color: getAgentColor('janus'), size: 30, status: 'locked', x: 25, y: 75, floatX: -8, floatY: 12 },
+  { id: 'lyra', name: 'LYRA', color: getAgentColor('lyra'), size: 30, status: 'locked', x: 15, y: 50, floatX: 14, floatY: -6 },
+  { id: 'prism', name: 'PRISM', color: getAgentColor('prism'), size: 30, status: 'locked', x: 22, y: 28, floatX: -12, floatY: -10 },
+  { id: 'stratos', name: 'STRATOS', color: getAgentColor('stratos'), size: 28, status: 'locked', x: 60, y: 15, floatX: 6, floatY: 14 },
+  { id: 'terra', name: 'TERRA', color: getAgentColor('terra'), size: 28, status: 'locked', x: 85, y: 60, floatX: -10, floatY: -8 },
+  { id: 'axiom', name: 'AXIOM', color: getAgentColor('axiom'), size: 28, status: 'locked', x: 38, y: 88, floatX: 12, floatY: 10 },
 ]
 
 const LINKS = [
