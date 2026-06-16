@@ -18,6 +18,7 @@ export function CosmicHero({
     <section
       style={{
         minHeight: "700px",
+        paddingTop: "64px",
         position: "relative",
         overflow: "hidden",
         display: "flex",
