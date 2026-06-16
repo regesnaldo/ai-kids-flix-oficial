@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react'
 import { getAgentColor } from '@/canon/agents/presence'
 import { playAgentTone, playUnlockTone, playBlockedTone } from '@/lib/audio/agentTones'
 import { AGENT_PRESENCE } from '@/canon/agents/presence'
+import { useAgentStates, getAgentState } from '@/hooks/useAgentStates'
 
 const AGENTS = [
   { id: 'nexus', name: 'NEXUS', color: getAgentColor('nexus'), size: 56, status: 'active', x: 50, y: 50, floatX: 0, floatY: 0 },
@@ -42,6 +43,8 @@ export default function MemoryGalaxy() {
   const [hovered, setHovered] = useState<string | null>(null)
   const [toast, setToast] = useState(false)
   const [mounted, setMounted] = useState(false)
+
+  const { states } = useAgentStates()
 
   useEffect(() => { setMounted(true) }, [])
 
@@ -181,6 +184,21 @@ export default function MemoryGalaxy() {
                     </span>
                   </div>
                 )}
+                {/* Presença real */}
+                {(() => {
+                  const agentState = getAgentState(states, agent.id)
+                  if (agentState.presenceCount > 0) {
+                    return (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+                        <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', fontFamily: 'monospace' }}>PRESENÇA</span>
+                        <span style={{ fontSize: 11, color: '#00ff88', fontFamily: 'monospace' }}>
+                          {agentState.presenceCount} {agentState.presenceCount === 1 ? 'mente' : 'mentes'} agora
+                        </span>
+                      </div>
+                    )
+                  }
+                  return null
+                })()}
                 {/* Descrição */}
                 {AGENT_PRESENCE[agent.id] && (
                   <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.45)', fontFamily: 'monospace', lineHeight: 1.5 }}>
