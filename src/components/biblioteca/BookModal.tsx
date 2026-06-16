@@ -17,6 +17,7 @@ const playAudioWithFallback = async (audioUrl: string, text: string) => {
     if (text) {
       const ttsResponse = await fetch('/api/elevenlabs/speak', {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text }),
       });

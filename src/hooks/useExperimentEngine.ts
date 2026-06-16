@@ -61,7 +61,7 @@ export function useExperimentEngine(experimentId: string | null) {
 
     const poll = async () => {
       try {
-        const res = await fetch(`/api/lab/board?experimentId=${experimentId}`);
+        const res = await fetch(`/api/lab/board?experimentId=${experimentId}`, { credentials: "include" });
         if (!res.ok) return;
         const data = await res.json();
         if (data.facts) setBoardFacts(data.facts);
@@ -83,6 +83,7 @@ export function useExperimentEngine(experimentId: string | null) {
     try {
       const res = await fetch("/api/lab/agent", {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ experimentId, agent, injectIdea, mode: modeRef.current }),
       });
@@ -165,6 +166,7 @@ export function useExperimentEngine(experimentId: string | null) {
     if (!experimentId) return;
     await fetch("/api/lab/board", {
       method: "POST",
+      credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ experimentId, idea }),
     });
@@ -176,6 +178,7 @@ export function useExperimentEngine(experimentId: string | null) {
     if (!experimentId) return;
     const res = await fetch("/api/lab/rollback", {
       method: "POST",
+      credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ experimentId, targetStep, injectIdea }),
     });

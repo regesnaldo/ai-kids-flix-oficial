@@ -95,6 +95,7 @@ export function useDeepSeek() {
       try {
         const res = await fetch("/api/llm/chat", {
           method: "POST",
+          credentials: "include",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             system: params.system,

@@ -212,7 +212,7 @@ export default function HomePage() {
   // Fetch presence counts + dispatch beacons
   useEffect(() => {
     const fetchPresence = () => {
-      fetch("/api/presence")
+      fetch("/api/presence", { credentials: "include" })
         .then(res => res.json())
         .then(data => {
           setPresenceCounts(data);
