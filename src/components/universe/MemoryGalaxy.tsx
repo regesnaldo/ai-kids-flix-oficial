@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import { getAgentColor } from '@/canon/agents/presence'
+import { playAgentTone, playUnlockTone, playBlockedTone } from '@/lib/audio/agentTones'
 
 const AGENTS = [
   { id: 'nexus', name: 'NEXUS', color: getAgentColor('nexus'), size: 56, status: 'active', x: 50, y: 50, floatX: 0, floatY: 0 },
@@ -51,8 +52,10 @@ export default function MemoryGalaxy() {
 
   function handleClick(agent: Agent) {
     if (agent.status === 'active') {
+      playUnlockTone(agent.id)
       router.push('/universo/' + agent.id)
     } else {
+      playBlockedTone()
       setToast(true)
       setTimeout(() => setToast(false), 2500)
     }
@@ -88,7 +91,10 @@ export default function MemoryGalaxy() {
         return (
           <div key={agent.id}
             onClick={() => handleClick(agent)}
-            onMouseEnter={() => setHovered(agent.id)}
+            onMouseEnter={() => {
+              setHovered(agent.id)
+              playAgentTone(agent.id)
+            }}
             onMouseLeave={() => setHovered(null)}
             style={{
               position: 'absolute',
