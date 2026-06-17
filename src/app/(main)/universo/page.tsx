@@ -28,6 +28,7 @@ import { UniverseHUD } from "@/components/universe/UniverseHUD";
 import { tokens } from "@/design-system/tokens";
 import { typography, toStyle } from "@/design-system/typography";
 import { useOasis } from "@/providers/OasisProvider";
+import { SYSTEM_ONLINE_COUNT, SYSTEM_TOTAL_AGENTS } from "@/canon/agents/presence";
 
 // ─── ORBITAL LAYOUT ───────────────────────────────────────────────────────────
 
@@ -234,7 +235,7 @@ export default function UniversoPage() {
 
       {/* Header */}
       <div style={styles.headerLabel}>
-        NEXUS PRIME // MAPA GALACTICO // {progression.totalCompleted}/12 MUNDOS ATIVOS
+        NEXUS PRIME // MAPA GALACTICO // {SYSTEM_ONLINE_COUNT}/{SYSTEM_TOTAL_AGENTS} MUNDOS ATIVOS
       </div>
       <button
         style={styles.backButton}
