@@ -49,42 +49,6 @@ export const agents: Agent[] = [
   { id: "20", discoveryOrder: 20, level: "Mestre", technicalName: "Arquitetura", nickname: "Planta da Casa", category: "Estrutura", description: "Desenha o formato completo do cérebro artificial.", imageUrl: "/images/agents/agent-20.svg", icon: "Building", dimension: "Estrutural", faction: "Pensamento" },
 ];
 
-export const nexus = {
-  id: "nexus",
-  technicalName: "NEXUS",
-  nickname: "O Conector",
-  role: "Orquestrador Central",
-  description: "Conecta ideias, pessoas e dados. NEXUS orquestra todos os agentes.",
-  signature: "Orquestrado por NEXUS 'O Conector'",
-} as const;
-
-// ── src/data/agentsData.ts ──────────────────────────────────────────────────
-export interface AgentsDataAgent {
-  id: string;
-  name: string;
-  role: string;
-  color: string;
-  description: string;
-  tag: string;
-}
-
-export const AGENTS: AgentsDataAgent[] = [
-  { id: 'ethos', name: 'ETHOS', role: 'Especialista em Ética & Valores', color: '#E50914', description: 'Mestre da ética e caráter. Guia decisões morais com integridade.', tag: 'ÉTICA' },
-  { id: 'logos', name: 'LOGOS', role: 'Mestre em Lógica & Raciocínio', color: '#564D4D', description: 'Especialista em pensamento crítico e argumentação lógica.', tag: 'LÓGICA' },
-  { id: 'gnosis', name: 'GNOSIS', role: 'Guardião do Conhecimento', color: '#221F1F', description: 'Acesso ao conhecimento profundo e sabedoria ancestral.', tag: 'SABEDORIA' },
-  { id: 'pathos', name: 'PATHOS', role: 'Especialista em Emoção & Empatia', color: '#E87C03', description: 'Desenvolve inteligência emocional e conexão humana.', tag: 'EMOÇÃO' },
-  { id: 'kairos', name: 'KAIROS', role: 'Mestre do Timing Oportuno', color: '#0071EB', description: 'Reconhece o momento exato para ação e decisão.', tag: 'OPORTUNIDADE' },
-  { id: 'nexus', name: 'NEXUS', role: 'Conector de Conceitos', color: '#46D369', description: 'Conecta ideias e cria sinapses entre conhecimentos.', tag: 'CONEXÃO' },
-  { id: 'volt', name: 'VOLT', role: 'Especialista em Energia & Ação', color: '#B81D24', description: 'Potencializa execução e produtividade nas tarefas.', tag: 'ENERGIA' },
-];
-
-export const CATEGORIES = [
-  { title: "Agentes Gregos Clássicos", agents: AGENTS.slice(0, 5) },
-  { title: "Destaques da Semana", agents: AGENTS.slice(0, 6) },
-  { title: "Especialistas em Ética", agents: AGENTS.filter(a => a.tag === 'ÉTICA') },
-  { title: "Todos os Agentes", agents: AGENTS },
-];
-
 // ── src/data/all-agents.ts (HomeAgent → @/canon adapter) ────────────────────
 export interface HomeAgent {
   id: string;
@@ -201,52 +165,6 @@ function toAgentShowcase(agent: AgentDefinition): AgentShowcase {
 }
 
 export const agentsShowcase: AgentShowcase[] = ALL_AGENTS.map(toAgentShowcase);
-
-// ── src/data/agents-hierarchy.ts ────────────────────────────────────────────
-export const agentsHierarchy = [
-  {
-    level: "Primordial",
-    description: "Fundamentos absolutos da mente consciente",
-    division: "Consciência Pura",
-    narrativeRole: "Arquétipos Fundadores - Celestials tipo Marvel",
-    agents: ["LOGOS", "PSYCHE", "COSMOS", "CHAOS", "NOUS", "OUSIA", "APEIRON", "ANAKE", "AION"]
-  },
-  {
-    level: "Titan",
-    description: "Forças massivas que moldam a realidade mental",
-    division: "Estrutura da Realidade",
-    narrativeRole: "Titãs Cósmicos - Game of Thrones level threats",
-    agents: ["URANOS", "GAIA", "CHRONOS", "MOIRA", "DIKHE", "NOMOS", "EROS", "THANATOS", "KOSMOS", "MYTHOS", "POLITEIA", "KRATOS", "DUNAMIS", "ENERGEIA", "POIESIS"]
-  },
-  {
-    level: "Architect",
-    description: "Projetistas ativos dos sistemas mentais",
-    division: "Sistemas Cognitivos",
-    narrativeRole: "Builders - Arquitetos da Realidade tipo MCU",
-    agents: ["SOPHIA", "EPISTEME", "PHRONESIS", "DIALETICA", "MAIEUTICA", "IRONIA", "ALETHEIA", "ANAMNESIS", "KATHARSIS", "ENTELEQUIA", "HARMONIA", "SYSTASIS", "PARADEIGMA", "TYPOS", "KANON", "GNOMON", "PRONOIA", "HEIMARMENE"]
-  },
-  {
-    level: "Guardian",
-    description: "Protetores e estabilizadores da ordem mental",
-    division: "Defesa Cognitiva",
-    narrativeRole: "Sentinels - Jedi Guardians protetores",
-    agents: ["ETHOS", "ARETE", "SOBROSUNE", "ATARAXIA", "AUTONOMIA", "ASKESIS", "HEXIS", "HABITUS", "SYNEIDESIS", "NEMESIS", "ATLAS", "STASIS", "PERAS", "MNEMOS", "MNEME", "HESYCHIA", "ELEUTHERIA", "PARRHESIA", "ZELUS", "PONOS", "XENIA", "CHARIS", "AGAPE"]
-  },
-  {
-    level: "Explorer",
-    description: "Pioneiros que expandem fronteiras do conhecimento",
-    division: "Expansão Cognitiva",
-    narrativeRole: "Pathfinders - Star Trek Explorers",
-    agents: ["GNOSIS", "THEORIA", "ANCHINOIA", "EUSTOCHIA", "PHANTASIA", "DOXA", "APORIA", "METIS", "KERDOS", "GNOME", "SUNESIS", "DEINOTES", "EUPRAXIA", "PROHAIRESIS", "KAIROS", "TYCHE", "HELIX", "KINETOS", "METABOLE", "GENESIS", "PHUSIS", "PHILEO", "STORGE", "KOINONIA", "GENOS", "ISEGORIA", "DEMOS"]
-  },
-  {
-    level: "Operator",
-    description: "Executores práticos que manifestam na realidade",
-    division: "Operações Práticas",
-    narrativeRole: "Field Agents - SHIELD Operators, Avengers",
-    agents: ["PRAXIS", "TECHNE", "ERGON", "LOGISMOS", "DIANOIA", "MIMESIS", "SOMA", "PSYCHIKOS", "PATHOS", "HUBRIS", "KAOS", "NEXUS", "JANUS", "STRATOS", "ARKHE", "DYNAMIS", "AEON", "TARTAROS", "EREBOS", "NYX", "HEMERA", "HORAI", "PHTHORA", "EPISTROME", "HYPOTYPOSIS", "DIATHESIS", "EXOUSIA"]
-  }
-];
 
 export const agentRankMap: Record<string, { level: string; division: string; narrativeRole: string }> = {
   "LOGOS": { level: "Primordial", division: "Consciência Pura", narrativeRole: "Fundador da razão e lógica" },
@@ -372,26 +290,4 @@ export const agentRankMap: Record<string, { level: string; division: string; nar
 
 export function getAgentInfo(name: string): { level: string; division: string; narrativeRole: string } | null {
   return agentRankMap[name.toUpperCase()] || null;
-}
-
-export function getAgentsByLevel(level: string): string[] {
-  const hierarchyLevel = agentsHierarchy.find(h => h.level === level);
-  return hierarchyLevel ? hierarchyLevel.agents : [];
-}
-
-export function getLevelDescription(level: string): string | null {
-  const hierarchyLevel = agentsHierarchy.find(h => h.level === level);
-  return hierarchyLevel ? hierarchyLevel.description : null;
-}
-
-export function isAgent(name: string): boolean {
-  return name.toUpperCase() in agentRankMap;
-}
-
-export function countAgentsByLevel(): Record<string, number> {
-  const counts: Record<string, number> = {};
-  agentsHierarchy.forEach(level => {
-    counts[level.level] = level.agents.length;
-  });
-  return counts;
 }
