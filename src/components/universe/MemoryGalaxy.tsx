@@ -2,25 +2,26 @@
 
 import { useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
-import { getAgentColor } from '@/canon/agents/presence'
+import { getAgentColor, AGENT_PRESENCE, SYSTEM_ONLINE_AGENTS } from '@/canon/agents/presence'
 import { playAgentTone, playUnlockTone, playBlockedTone } from '@/lib/audio/agentTones'
-import { AGENT_PRESENCE } from '@/canon/agents/presence'
 import { useAgentStates, getAgentState } from '@/hooks/useAgentStates'
 
 const AGENTS = [
-  { id: 'nexus', name: 'NEXUS', color: getAgentColor('nexus'), size: 56, status: 'active', x: 50, y: 50, floatX: 0, floatY: 0 },
-  { id: 'volt', name: 'VOLT', color: getAgentColor('volt'), size: 36, status: 'active', x: 30, y: 25, floatX: 12, floatY: 8 },
-  { id: 'aurora', name: 'AURORA', color: getAgentColor('aurora'), size: 36, status: 'active', x: 70, y: 22, floatX: -10, floatY: 14 },
-  { id: 'kaos', name: 'KAOS', color: getAgentColor('kaos'), size: 32, status: 'locked', x: 82, y: 42, floatX: 8, floatY: -12 },
-  { id: 'cipher', name: 'CIPHER', color: getAgentColor('cipher'), size: 32, status: 'locked', x: 75, y: 72, floatX: -14, floatY: 6 },
-  { id: 'ethos', name: 'ETHOS', color: getAgentColor('ethos'), size: 32, status: 'locked', x: 50, y: 82, floatX: 10, floatY: -10 },
-  { id: 'janus', name: 'JANUS', color: getAgentColor('janus'), size: 30, status: 'locked', x: 25, y: 75, floatX: -8, floatY: 12 },
-  { id: 'lyra', name: 'LYRA', color: getAgentColor('lyra'), size: 30, status: 'locked', x: 15, y: 50, floatX: 14, floatY: -6 },
-  { id: 'prism', name: 'PRISM', color: getAgentColor('prism'), size: 30, status: 'locked', x: 22, y: 28, floatX: -12, floatY: -10 },
-  { id: 'stratos', name: 'STRATOS', color: getAgentColor('stratos'), size: 28, status: 'locked', x: 60, y: 15, floatX: 6, floatY: 14 },
-  { id: 'terra', name: 'TERRA', color: getAgentColor('terra'), size: 28, status: 'locked', x: 85, y: 60, floatX: -10, floatY: -8 },
-  { id: 'axiom', name: 'AXIOM', color: getAgentColor('axiom'), size: 28, status: 'locked', x: 38, y: 88, floatX: 12, floatY: 10 },
+  { id: 'nexus', name: 'NEXUS', color: getAgentColor('nexus'), size: 56, x: 50, y: 50, floatX: 0, floatY: 0 },
+  { id: 'volt', name: 'VOLT', color: getAgentColor('volt'), size: 36, x: 30, y: 25, floatX: 12, floatY: 8 },
+  { id: 'aurora', name: 'AURORA', color: getAgentColor('aurora'), size: 36, x: 70, y: 22, floatX: -10, floatY: 14 },
+  { id: 'kaos', name: 'KAOS', color: getAgentColor('kaos'), size: 32, x: 82, y: 42, floatX: 8, floatY: -12 },
+  { id: 'cipher', name: 'CIPHER', color: getAgentColor('cipher'), size: 32, x: 75, y: 72, floatX: -14, floatY: 6 },
+  { id: 'ethos', name: 'ETHOS', color: getAgentColor('ethos'), size: 32, x: 50, y: 82, floatX: 10, floatY: -10 },
+  { id: 'janus', name: 'JANUS', color: getAgentColor('janus'), size: 30, x: 25, y: 75, floatX: -8, floatY: 12 },
+  { id: 'lyra', name: 'LYRA', color: getAgentColor('lyra'), size: 30, x: 15, y: 50, floatX: 14, floatY: -6 },
+  { id: 'prism', name: 'PRISM', color: getAgentColor('prism'), size: 30, x: 22, y: 28, floatX: -12, floatY: -10 },
+  { id: 'stratos', name: 'STRATOS', color: getAgentColor('stratos'), size: 28, x: 60, y: 15, floatX: 6, floatY: 14 },
+  { id: 'terra', name: 'TERRA', color: getAgentColor('terra'), size: 28, x: 85, y: 60, floatX: -10, floatY: -8 },
+  { id: 'axiom', name: 'AXIOM', color: getAgentColor('axiom'), size: 28, x: 38, y: 88, floatX: 12, floatY: 10 },
 ]
+
+const ONLINE_SET = new Set<string>(SYSTEM_ONLINE_AGENTS)
 
 const LINKS = [
   ['nexus','volt'], ['nexus','aurora'], ['nexus','kaos'], ['nexus','cipher'], ['nexus','ethos'],
@@ -49,7 +50,7 @@ export default function MemoryGalaxy() {
   useEffect(() => { setMounted(true) }, [])
 
   function handleClick(agent: Agent) {
-    if (agent.status === 'active') {
+    if (ONLINE_SET.has(agent.id)) {
       playUnlockTone(agent.id)
       router.push('/universo/' + agent.id)
     } else {
@@ -70,7 +71,7 @@ export default function MemoryGalaxy() {
         {LINKS.map(([sourceId, targetId], i) => {
           const source = AGENTS.find(a => a.id === sourceId)!
           const target = AGENTS.find(a => a.id === targetId)!
-          const isActive = source.status === 'active' && target.status === 'active'
+          const isActive = ONLINE_SET.has(source.id) && ONLINE_SET.has(target.id)
           return (
             <line key={i}
               x1={source.x + '%'} y1={source.y + '%'}
@@ -85,7 +86,7 @@ export default function MemoryGalaxy() {
 
       {AGENTS.map(agent => {
         const isHovered = hovered === agent.id
-        const isActive = agent.status === 'active'
+        const isActive = ONLINE_SET.has(agent.id)
         return (
           <div key={agent.id}
             onClick={() => handleClick(agent)}
