@@ -553,6 +553,7 @@ const styles: Record<string, React.CSSProperties> = {
   galacticMap: {
     width: "100vw",
     height: "100vh",
+    paddingTop: "64px",
     position: "relative",
     overflow: "hidden",
     background: "radial-gradient(ellipse at center, #000510 0%, #000000 70%)",
