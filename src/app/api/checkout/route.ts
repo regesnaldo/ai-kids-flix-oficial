@@ -65,7 +65,6 @@ export async function POST(request: NextRequest) {
     }
 
     const stripe = new Stripe(stripeSecret, {
-      apiVersion: "2026-02-25.clover",
     });
 
     const session = await stripe.checkout.sessions.create({
