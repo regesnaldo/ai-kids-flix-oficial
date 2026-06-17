@@ -2,12 +2,17 @@
 
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Volume2, VolumeX } from 'lucide-react';
+import { Volume2, VolumeX, Send } from 'lucide-react';
 import VoiceInputButton, { type VoiceConverseResult } from './VoiceInputButton';
 import EmotionIndicator from './EmotionIndicator';
 import type { EmotionResult } from '@/lib/voice/hume';
 
-export type DialogueState = 'initial' | 'responding' | 'awaiting';
+export type DialogueState = 'initial' | 'responding' | 'awaiting' | 'chatting';
+
+interface ChatMessage {
+  role: 'user' | 'assistant';
+  content: string;
+}
 
 export interface NexusDialogProps {
   dialogueState: DialogueState
@@ -169,10 +174,133 @@ export function NexusDialog({
               </motion.div>
             )}
           </AnimatePresence>
+
+          {/* ── Chat livre com NEXUS ──────────────────────────────── */}
+          {selectedOption && (
+            <ChatInterface
+              agentId={NEXUS_AGENT_ID}
+              onSpeak={onSpeak}
+              audioEnabled={audioEnabled}
+            />
+          )}
         </div>
         <motion.div className="h-0.5 bg-gradient-to-r from-blue-600 via-blue-400 to-blue-600 mt-3 rounded-full"
           initial={{ scaleX: 0 }} animate={{ scaleX: activeText ? displayedText.length / activeText.length : 0 }} transition={{ duration: 0.1 }} />
       </motion.div>
+    </div>
+  );
+}
+
+// ─── Chat Interface (NEXUS chat livre via /api/chat) ────────────────
+
+function ChatInterface({
+  agentId,
+  onSpeak,
+  audioEnabled,
+}: {
+  agentId: string;
+  onSpeak: (text: string) => void;
+  audioEnabled: boolean;
+}) {
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [input, setInput] = useState('');
+  const [loading, setLoading] = useState(false);
+  const bottomRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
+  async function handleSend() {
+    const text = input.trim();
+    if (!text || loading) return;
+
+    const userMsg: ChatMessage = { role: 'user', content: text };
+    setMessages((prev) => [...prev, userMsg]);
+    setInput('');
+    setLoading(true);
+
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          agentId,
+          messages: [...messages, userMsg].map((m) => ({
+            role: m.role,
+            content: m.content,
+          })),
+        }),
+      });
+
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+      const contentType = res.headers.get('content-type') || '';
+      if (contentType.includes('text/plain')) {
+        const reply = await res.text();
+        const assistantMsg: ChatMessage = { role: 'assistant', content: reply };
+        setMessages((prev) => [...prev, assistantMsg]);
+        if (audioEnabled) onSpeak(reply);
+      } else {
+        const data = await res.json();
+        const reply = data.content || data.response || JSON.stringify(data);
+        const assistantMsg: ChatMessage = { role: 'assistant', content: reply };
+        setMessages((prev) => [...prev, assistantMsg]);
+        if (audioEnabled) onSpeak(reply);
+      }
+    } catch {
+      setMessages((prev) => [
+        ...prev,
+        { role: 'assistant', content: 'As vezes o caminho interrompe para que possamos notar onde estamos. Tente novamente.' },
+      ]);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div className="mt-4 border-t border-blue-500/20 pt-4">
+      <div className="max-h-[200px] overflow-y-auto space-y-2 mb-3">
+        {messages.map((msg, i) => (
+          <div
+            key={i}
+            className={`text-xs font-mono leading-relaxed px-3 py-2 rounded-lg ${
+              msg.role === 'user'
+                ? 'bg-blue-950/30 text-blue-200 ml-8'
+                : 'bg-gray-900/50 text-gray-300 mr-8'
+            }`}
+          >
+            {msg.content}
+          </div>
+        ))}
+        {loading && (
+          <div className="text-xs font-mono text-blue-400 px-3 py-2 animate-pulse">
+            NEXUS esta refletindo...
+          </div>
+        )}
+        <div ref={bottomRef} />
+      </div>
+      <div className="flex gap-2">
+        <input
+          type="text"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+          placeholder="Pergunte ao NEXUS..."
+          disabled={loading}
+          className="flex-1 bg-black/40 border border-blue-500/30 rounded-lg px-3 py-2 text-xs font-mono text-blue-100 placeholder-gray-600 focus:outline-none focus:border-blue-400/60 disabled:opacity-50"
+        />
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={handleSend}
+          disabled={loading || !input.trim()}
+          className="px-3 py-2 bg-blue-600/30 border border-blue-500/40 rounded-lg text-blue-300 hover:bg-blue-600/50 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+        >
+          <Send size={14} />
+        </motion.button>
+      </div>
     </div>
   );
 }
