@@ -80,7 +80,7 @@ export async function GET(request: NextRequest) {
     const published = assets.find((a) => a.status === "published");
 
     if (published) {
-      console.log("[SERIES/CONTENT] CACHE HIT —", agentId, seasonNum, episodeNum);
+      if (process.env.NODE_ENV === "development") console.log("[SERIES/CONTENT] CACHE HIT —", agentId, seasonNum, episodeNum);
 
       const units = await db
         .select()
@@ -103,14 +103,14 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    console.log("[SERIES/CONTENT] CACHE MISS —", agentId, seasonNum, episodeNum);
+    if (process.env.NODE_ENV === "development") console.log("[SERIES/CONTENT] CACHE MISS —", agentId, seasonNum, episodeNum);
 
     // ─── Step 2: Check draft ──────────────────────────────────────────
 
     const latestDraft = assets[assets.length - 1];
 
     if (latestDraft) {
-      console.log("[SERIES/CONTENT] DRAFT HIT — returning existing draft");
+      if (process.env.NODE_ENV === "development") console.log("[SERIES/CONTENT] DRAFT HIT — returning existing draft");
       return NextResponse.json(
         {
           unit: null,
@@ -124,16 +124,16 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    console.log("[SERIES/CONTENT] DRAFT MISS — triggering generation");
+    if (process.env.NODE_ENV === "development") console.log("[SERIES/CONTENT] DRAFT MISS — triggering generation");
 
     // ─── Step 3: Generate via resolveProviderWithFallback() ───────────
 
     const resolved = await resolveProviderWithFallback();
 
     if (resolved.provider === "deepseek") {
-      console.log("[SERIES/CONTENT] GENERATING VIA DEEPSEEK");
+      if (process.env.NODE_ENV === "development") console.log("[SERIES/CONTENT] GENERATING VIA DEEPSEEK");
     } else {
-      console.log("[SERIES/CONTENT] GENERATING VIA GROQ (fallback)");
+      if (process.env.NODE_ENV === "development") console.log("[SERIES/CONTENT] GENERATING VIA GROQ (fallback)");
     }
 
     const userPrompt = `Agente: ${agentId}. Temporada ${seasonNum}, Episódio ${episodeNum}. Gere o roteiro.`;
@@ -186,7 +186,7 @@ export async function GET(request: NextRequest) {
       cacheKey,
     });
 
-    console.log(
+    if (process.env.NODE_ENV === "development") console.log(
       `[SERIES/CONTENT] SAVED TO CACHE — asset ${assetId}, unit ${unitId}, provider ${resolved.provider}`,
     );
 
@@ -228,9 +228,9 @@ export async function GET(request: NextRequest) {
     const message = error instanceof Error ? error.message : String(error);
 
     if (message.includes("Nenhum provedor")) {
-      console.log("[SERIES/CONTENT] DEEPSEEK FAILED");
-      console.log("[SERIES/CONTENT] FALLBACK TO GROQ — também falhou");
-      console.log("[SERIES/CONTENT] GROQ FAILED");
+      if (process.env.NODE_ENV === "development") console.log("[SERIES/CONTENT] DEEPSEEK FAILED");
+      if (process.env.NODE_ENV === "development") console.log("[SERIES/CONTENT] FALLBACK TO GROQ — também falhou");
+      if (process.env.NODE_ENV === "development") console.log("[SERIES/CONTENT] GROQ FAILED");
       return NextResponse.json(
         { error: "Nenhum provedor LLM disponível no momento" },
         { status: 503 },

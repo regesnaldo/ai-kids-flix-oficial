@@ -30,7 +30,7 @@ export const NEXUS: AgentDefinition = {
 // Adicionar agentes do laboratório ao ALL_AGENTS para integração com o sistema canônico
 export const KAOS: AgentDefinition = {
   id: 'kaos',
-  name: 'KAOS "O CAOS CRIATIVO"',
+  name: 'KAOS "O Explorador"',
   dimension: 'creative',
   level: 'archetypal',
   faction: 'chaos',
@@ -48,7 +48,7 @@ export const KAOS: AgentDefinition = {
 
 export const CIPHER: AgentDefinition = {
   id: 'cipher',
-  name: 'CIPHER "O CRIPTÓGRAFO"',
+  name: 'CIPHER "O Analista"',
   dimension: 'intellectual',
   level: 'archetypal',
   faction: 'order',
@@ -196,7 +196,7 @@ const LABORATORY_AGENTS: AgentDefinition[] = [
   },
   {
     id: 'aurora',
-    name: 'AURORA "A CRIADORA"',
+    name: 'AURORA "A Sintetizadora"',
     dimension: 'creative',
     level: 'archetypal',
     faction: 'balance',

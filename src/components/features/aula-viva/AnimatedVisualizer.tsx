@@ -4,7 +4,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Canvas } from "@react-three/fiber";
 import { Sparkles } from "@react-three/drei";
 import { useMemo } from "react";
-import { NexusScene } from "@/components/universo/NexusScene";
+import { NexusScene } from "@/components/universe/NexusScene";
 import { VoltScene } from "@/components/scenes/VoltScene";
 import { StratosScene } from "@/components/scenes/StratosScene";
 import { KaosScene } from "@/components/scenes/KaosScene";

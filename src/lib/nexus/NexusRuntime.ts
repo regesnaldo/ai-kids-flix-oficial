@@ -122,7 +122,7 @@ class NexusRuntime {
       uptimeMs: 0,
     });
 
-    console.log(
+    if (process.env.NODE_ENV === "development") console.log(
       `[NexusRuntime] Initialized — ${Object.keys(this.state.agentRecords).length} agents registered`
     );
   }

@@ -522,7 +522,7 @@ const TERRA: AgentDefinition = {
   identity: {
     id: 'terra',
     name: 'TERRA',
-    role: 'A Guardia',
+    role: 'A Guardiã',
     color: '#22c55e',
     glowColor: 'rgba(34, 197, 94, 0.4)',
     aestheticDescription: 'Guardia da humanidade no sistema. Visual de floresta bioluminescente em verde e dourado, natureza e tecnologia entrelacadas. Estetica de vida pulsante.',

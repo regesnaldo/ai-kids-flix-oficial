@@ -11,12 +11,12 @@ import {
 } from '@/lib/laboratorio/volt-orchestrator'
 
 const UniverseDialog = dynamic(
-  () => import('@/components/universo/UniverseDialog'),
+  () => import('@/components/universe/UniverseDialog'),
   { ssr: false }
 )
 
 const UniverseCanvas = dynamic(
-  () => import('@/components/universo/VoltCanvas'),
+  () => import('@/components/universe/VoltCanvas'),
   {
     ssr: false,
     loading: () => <div className="w-full h-full bg-black" />,

@@ -13,11 +13,11 @@ import { extractNavigationHints } from "./extractor.js";
 let passed = 0;
 let failed = 0;
 function assert(condition: boolean, msg: string) {
-  if (condition) { passed++; console.log(`  PASS: ${msg}`); }
+  if (condition) { passed++; if (process.env.NODE_ENV === "development") console.log(`  PASS: ${msg}`); }
   else { failed++; console.error(`  FAIL: ${msg}`); }
 }
 
-console.log("═══ Resilience Tests ═══\n");
+if (process.env.NODE_ENV === "development") console.log("═══ Resilience Tests ═══\n");
 
 // Test 1: null input
 const r1 = extractNavigationHints(null as unknown as string);
@@ -104,7 +104,7 @@ assert(Buffer.from(hdr2, "base64").toString("utf-8").includes("series"),
   "header decodes back to valid JSON with series hint");
 
 // Summary
-console.log(`\n═══════════════════════════════════════`);
-console.log(`  ${passed} PASSED / ${failed} FAILED / ${passed + failed} TOTAL`);
-console.log(`═══════════════════════════════════════`);
+if (process.env.NODE_ENV === "development") console.log(`\n═══════════════════════════════════════`);
+if (process.env.NODE_ENV === "development") console.log(`  ${passed} PASSED / ${failed} FAILED / ${passed + failed} TOTAL`);
+if (process.env.NODE_ENV === "development") console.log(`═══════════════════════════════════════`);
 if (failed > 0) process.exit(1);

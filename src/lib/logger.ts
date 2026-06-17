@@ -83,7 +83,7 @@ function writeLog(entry: LogEntry): void {
     const json = JSON.stringify(entry);
     if (entry.level === "error") console.error(json);
     else if (entry.level === "warn") console.warn(json);
-    else console.log(json);
+    else if (process.env.NODE_ENV === "development") console.log(json);
   }
 }
 

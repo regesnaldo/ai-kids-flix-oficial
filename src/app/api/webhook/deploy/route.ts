@@ -4,10 +4,10 @@ export async function POST(request: Request) {
   try {
     const payload = await request.json();
     const event = request.headers.get('x-github-event');
-    console.log(`[Webhook] GitHub event: ${event}`);
+    if (process.env.NODE_ENV === "development") console.log(`[Webhook] GitHub event: ${event}`);
 
     if (event === 'push' || event === 'pull_request') {
-      console.log(`[Webhook] Evento recebido: ${event}`);
+      if (process.env.NODE_ENV === "development") console.log(`[Webhook] Evento recebido: ${event}`);
     }
 
     return NextResponse.json({ received: true, event });

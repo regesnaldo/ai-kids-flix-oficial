@@ -4,7 +4,7 @@ import dynamic from 'next/dynamic'
 import { useRegisterPresence } from '@/hooks/usePresence'
 
 const NexusCosmos = dynamic(
-  () => import('@/components/universo/NexusCosmos'),
+  () => import('@/components/universe/NexusCosmos'),
   { ssr: false }
 )
 

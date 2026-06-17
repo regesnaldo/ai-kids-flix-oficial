@@ -1,0 +1,20 @@
+{
+  "bridge": "hermes-obsidian",
+  "vault_path": "C:\\Users\\REGINALDO\\Desktop\\MENTE-AI-VAULT",
+  "agents": [
+    { "name": "NEXUS", "color": "#00f0ff", "status": "ACTIVE", "soul": "00-NEXUS-CENTRAL/nexus-soul.md" },
+    { "name": "VOLT", "color": "#f97316", "status": "ACTIVE", "soul": "01-AGENTS/volt-soul.md" },
+    { "name": "AURORA", "color": "#a855f7", "status": "ACTIVE", "soul": "01-AGENTS/aurora-soul.md" },
+    { "name": "KAOS", "color": "#ef4444", "status": "LOCKED", "soul": "01-AGENTS/kaos-soul.md" },
+    { "name": "CIPHER", "color": "#10b981", "status": "LOCKED", "soul": "01-AGENTS/cipher-soul.md" },
+    { "name": "ECHO", "color": "#3b82f6", "status": "LOCKED", "soul": "01-AGENTS/echo-soul.md" },
+    { "name": "PHANTOM", "color": "#8b5cf6", "status": "LOCKED", "soul": "01-AGENTS/phantom-soul.md" },
+    { "name": "NOVA", "color": "#f59e0b", "status": "LOCKED", "soul": "01-AGENTS/nova-soul.md" },
+    { "name": "ATLAS", "color": "#06b6d4", "status": "LOCKED", "soul": "01-AGENTS/atlas-soul.md" },
+    { "name": "PRISM", "color": "#ec4899", "status": "LOCKED", "soul": "01-AGENTS/prism-soul.md" },
+    { "name": "LUNA", "color": "#e2e8f0", "status": "LOCKED", "soul": "01-AGENTS/luna-soul.md" },
+    { "name": "ZENITH", "color": "#fbbf24", "status": "LOCKED", "soul": "01-AGENTS/zenith-soul.md" }
+  ],
+  "drama_log": "02-DRAMA-LOG/decisions.md",
+  "memory_collective": "04-MEMORIA-COLETIVA/"
+}
