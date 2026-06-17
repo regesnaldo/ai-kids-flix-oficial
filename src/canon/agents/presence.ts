@@ -157,3 +157,8 @@ export function getAgentColor(agentId: string): string {
 export function getAgentFrequency(agentId: string): number {
   return AGENT_PRESENCE[agentId]?.frequency ?? 440
 }
+
+/** Agentes ativos no sistema (canon) — universos online */
+export const SYSTEM_ONLINE_AGENTS = ['nexus', 'volt', 'aurora'] as const
+export const SYSTEM_ONLINE_COUNT = SYSTEM_ONLINE_AGENTS.length
+export const SYSTEM_TOTAL_AGENTS = 12
