@@ -21,6 +21,7 @@ import type { PlanetId, ClearanceLevel } from "@/lib/universe/planet-registry";
 import { planetRegistry, TOTAL_PLANETS } from "@/lib/universe/planet-registry";
 import type { PlayerProgression } from "@/lib/universe/progression-engine";
 import { countByState, getUniverseSnapshot } from "@/lib/universe/progression-engine";
+import { SYSTEM_ONLINE_COUNT, SYSTEM_TOTAL_AGENTS } from "@/canon/agents/presence";
 
 // ─── PROPS ────────────────────────────────────────────────────────────────────
 
@@ -144,14 +145,25 @@ export function UniverseHUD({ progression, className = "" }: UniverseHUDProps) {
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: tokens.spacing.sm }}>
-          <span
-            style={{
-              ...toStyle(typography.classifiedLabel),
-              color: tokens.color.text.tertiary,
-            }}
-          >
-            {totalCompleted}/{TOTAL_PLANETS}
-          </span>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 2 }}>
+            <span
+              style={{
+                ...toStyle(typography.classifiedLabel),
+                color: tokens.color.text.tertiary,
+              }}
+            >
+              SISTEMA {SYSTEM_ONLINE_COUNT}/{SYSTEM_TOTAL_AGENTS} ONLINE
+            </span>
+            <span
+              style={{
+                ...toStyle(typography.classifiedLabel),
+                color: tokens.color.text.tertiary,
+                opacity: 0.7,
+              }}
+            >
+              EXPLORADOR {totalCompleted}/{SYSTEM_TOTAL_AGENTS} DESCOBERTOS
+            </span>
+          </div>
           <SignalBars state={signalStrength} />
         </div>
 
