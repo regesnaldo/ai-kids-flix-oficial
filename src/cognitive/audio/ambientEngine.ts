@@ -71,7 +71,7 @@ class AmbientEngine {
       }).connect(this.reverb);
 
       this.isInitialized = true;
-      console.log("🎵 Audio ambiente inicializado com sucesso");
+      if (process.env.NODE_ENV === "development") console.log("🎵 Audio ambiente inicializado com sucesso");
       return true;
     } catch (error) {
       console.error("❌ Erro ao inicializar áudio ambiente:", error);
@@ -114,7 +114,7 @@ class AmbientEngine {
       this.volume.volume.value = -10;
     }
     this.notify();
-    console.log("🔊 Áudio desmutado");
+    if (process.env.NODE_ENV === "development") console.log("🔊 Áudio desmutado");
     return true;
   }
 
@@ -124,7 +124,7 @@ class AmbientEngine {
       this.volume.volume.value = -Infinity;
     }
     this.notify();
-    console.log("🔇 Áudio mutado");
+    if (process.env.NODE_ENV === "development") console.log("🔇 Áudio mutado");
   }
 
   setEmotion(emotion: Emotion) {
@@ -172,7 +172,7 @@ class AmbientEngine {
       this.volume = null;
     }
     this.isInitialized = false;
-    console.log("🔇 Áudio dispose");
+    if (process.env.NODE_ENV === "development") console.log("🔇 Áudio dispose");
   }
 }
 

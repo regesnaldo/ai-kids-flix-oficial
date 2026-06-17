@@ -11,12 +11,12 @@ import {
 } from '@/lib/laboratorio/stratos-orchestrator'
 
 const UniverseDialog = dynamic(
-  () => import('@/components/universo/UniverseDialog'),
+  () => import('@/components/universe/UniverseDialog'),
   { ssr: false }
 )
 
 const UniverseCanvas = dynamic(
-  () => import('@/components/universo/StratosCanvas'),
+  () => import('@/components/universe/StratosCanvas'),
   { ssr: false, loading: () => <div className="w-full h-full bg-black"></div> }
 )
 

@@ -7,7 +7,7 @@ import { useSession } from "@/providers/SessionProvider";
 import { createEmotionStyleElement, getPaletteFromEmotionalState, emotionPaletteToStyle } from "@/design-system/colorEngine";
 import JourneyHub from "@/components/journey/JourneyHub";
 import HomeErrorBoundary from "@/components/home/HomeErrorBoundary";
-import NarrativeSuggestionCard from "@/components/universo/NarrativeSuggestionCard";
+import NarrativeSuggestionCard from "@/components/universe/NarrativeSuggestionCard";
 import { PresenceIndicator } from "@/components/PresenceIndicator";
 import { presenceToBeacon } from "@/lib/navigation-hints/beacon-factory";
 import { useNavigationStore } from "@/store/useNavigationStore";

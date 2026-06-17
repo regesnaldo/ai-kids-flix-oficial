@@ -14,7 +14,7 @@ async function callGroq(systemPrompt: string, maxTokens = 1500): Promise<string>
   }
 
   const model = process.env.GROQ_MODEL || "llama-3.3-70b-versatile";
-  console.log("[lab/agent] Chamando Groq...", { model, maxTokens });
+  if (process.env.NODE_ENV === "development") console.log("[lab/agent] Chamando Groq...", { model, maxTokens });
 
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), GROQ_TIMEOUT);
@@ -51,7 +51,7 @@ async function callGroq(systemPrompt: string, maxTokens = 1500): Promise<string>
       throw new Error("Groq retornou resposta vazia");
     }
 
-    console.log("[lab/agent] Groq OK", { length: content.length });
+    if (process.env.NODE_ENV === "development") console.log("[lab/agent] Groq OK", { length: content.length });
     return content;
   } catch (err) {
     if (err instanceof Error && err.name === "AbortError") {
@@ -141,7 +141,7 @@ export async function POST(request: NextRequest) {
       mode?: "fast" | "full";
     };
 
-    console.log("[lab/agent] Requisição recebida", {
+    if (process.env.NODE_ENV === "development") console.log("[lab/agent] Requisição recebida", {
       agent: body.agent,
       experimentId: body.experimentId?.slice(0, 8),
       mode: body.mode || "full",
@@ -170,7 +170,7 @@ export async function POST(request: NextRequest) {
 
     // ── Inject idea ────────────────────────────────────────────────
     if (body.injectIdea) {
-      console.log("[lab/agent] Ideia injetada", { idea: body.injectIdea.slice(0, 50) });
+      if (process.env.NODE_ENV === "development") console.log("[lab/agent] Ideia injetada", { idea: body.injectIdea.slice(0, 50) });
       board.facts.push(`💡 IDEIA INJETADA: ${body.injectIdea}`);
       board.history.push({
         agent: "human",
@@ -190,7 +190,7 @@ export async function POST(request: NextRequest) {
       ? buildEconomyPrompt(body.agent, board.topic, boardFacts)
       : buildFullPrompt(body.agent, board.topic, boardFacts);
 
-    console.log("[lab/agent] Prompt construído", {
+    if (process.env.NODE_ENV === "development") console.log("[lab/agent] Prompt construído", {
       agent: body.agent,
       economy: isEconomy,
       promptLength: systemPrompt.length,
@@ -268,7 +268,7 @@ export async function POST(request: NextRequest) {
         board: board.facts,
         source: "learned",
       });
-      console.log("[lab/agent] Salvo no KV", { key: `lab_${normalized}` });
+      if (process.env.NODE_ENV === "development") console.log("[lab/agent] Salvo no KV", { key: `lab_${normalized}` });
     }
 
     saveBoard(board);
@@ -277,7 +277,7 @@ export async function POST(request: NextRequest) {
     kvDecr("global_active");
 
     const elapsed = Date.now() - startTime;
-    console.log("[lab/agent] Concluído", {
+    if (process.env.NODE_ENV === "development") console.log("[lab/agent] Concluído", {
       agent: body.agent,
       elapsed: `${elapsed}ms`,
       facts: facts.length,

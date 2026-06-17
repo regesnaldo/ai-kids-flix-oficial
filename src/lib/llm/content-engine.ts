@@ -34,7 +34,7 @@ export async function generateContent(
 ): Promise<ContentResponse> {
   const resolved = await resolveProviderWithFallback();
 
-  console.log(
+  if (process.env.NODE_ENV === "development") console.log(
     `[CONTENT_ENGINE] GENERATING VIA ${resolved.provider.toUpperCase()}`,
   );
 

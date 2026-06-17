@@ -134,7 +134,7 @@ export class MemoryKeeper {
     );
 
     this.registered = true;
-    console.log("[MemoryKeeper] Registered with Nexus — MEMORY_SYNC subscription active");
+    if (process.env.NODE_ENV === "development") console.log("[MemoryKeeper] Registered with Nexus — MEMORY_SYNC subscription active");
   }
 
   // ── Profile Management ──────────────────────────────────────────────────────
@@ -311,7 +311,7 @@ export class MemoryKeeper {
         // Context compaction is handled by the context-compressor
         // Memory Keeper acknowledges by updating lastSyncAt
         const snapshot = nexusRuntime.getSnapshot();
-        console.log(
+        if (process.env.NODE_ENV === "development") console.log(
           `[MemoryKeeper] Context compaction requested for planet ${event.planetId} ` +
           `(tokens: ${event.currentTokens}/${event.maxTokens})`
         );
@@ -319,7 +319,7 @@ export class MemoryKeeper {
       }
 
       case "MEMORY_HEALTH_CHECK": {
-        console.log(
+        if (process.env.NODE_ENV === "development") console.log(
           `[MemoryKeeper] Health check — ${event.totalEntries} entries, ` +
           `${event.estimatedTokens} tokens across ${(event.activeDomains as string[]).join(", ")}`
         );

@@ -24,7 +24,7 @@ export function initLangSmith() {
   }
 
   initialized = true;
-  console.log('[LangSmith] Tracing enabled for project:', process.env.LANGSMITH_PROJECT || 'mente-ai');
+  if (process.env.NODE_ENV === "development") console.log('[LangSmith] Tracing enabled for project:', process.env.LANGSMITH_PROJECT || 'mente-ai');
 }
 
 // Health check para o Sentinela

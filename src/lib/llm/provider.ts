@@ -150,7 +150,7 @@ export async function resolveProviderWithFallback(): Promise<ResolvedProviderWit
         signal: AbortSignal.timeout(5000),
       });
       if (ping.ok) {
-        console.log("[PROVIDER] DEEPSEEK OK");
+        if (process.env.NODE_ENV === "development") console.log("[PROVIDER] DEEPSEEK OK");
         return {
           baseURL: PROVIDER_URLS.deepseek,
           apiKey: deepseekKey,
@@ -158,9 +158,9 @@ export async function resolveProviderWithFallback(): Promise<ResolvedProviderWit
           provider: "deepseek",
         };
       }
-      console.log("[PROVIDER] DEEPSEEK FAILED — status", ping.status);
+      if (process.env.NODE_ENV === "development") console.log("[PROVIDER] DEEPSEEK FAILED — status", ping.status);
     } catch {
-      console.log("[PROVIDER] DEEPSEEK FAILED — network error");
+      if (process.env.NODE_ENV === "development") console.log("[PROVIDER] DEEPSEEK FAILED — network error");
     }
   }
 
@@ -172,7 +172,7 @@ export async function resolveProviderWithFallback(): Promise<ResolvedProviderWit
         signal: AbortSignal.timeout(5000),
       });
       if (ping.ok) {
-        console.log("[PROVIDER] FALLBACK TO GROQ");
+        if (process.env.NODE_ENV === "development") console.log("[PROVIDER] FALLBACK TO GROQ");
         return {
           baseURL: PROVIDER_URLS.groq,
           apiKey: groqKey,
@@ -180,9 +180,9 @@ export async function resolveProviderWithFallback(): Promise<ResolvedProviderWit
           provider: "groq",
         };
       }
-      console.log("[PROVIDER] GROQ FAILED — status", ping.status);
+      if (process.env.NODE_ENV === "development") console.log("[PROVIDER] GROQ FAILED — status", ping.status);
     } catch {
-      console.log("[PROVIDER] GROQ FAILED — network error");
+      if (process.env.NODE_ENV === "development") console.log("[PROVIDER] GROQ FAILED — network error");
     }
   }
 

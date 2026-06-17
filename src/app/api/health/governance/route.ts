@@ -5,8 +5,8 @@
  * Este endpoint e o "scanner diagnostico do sistema nervoso" da civilizacao cognitiva.
  */
 import { NextResponse } from "next/server";
-import { readdirSync, readFileSync, existsSync, statSync } from "fs";
-import { join, relative } from "path";
+import { readdirSync, readFileSync, existsSync } from "fs";
+import { join } from "path";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";

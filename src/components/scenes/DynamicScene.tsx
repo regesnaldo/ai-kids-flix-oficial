@@ -63,7 +63,7 @@ const SCENE_MAP: Record<string, () => Promise<{ default: ComponentType }>> = {
       default: m.VoltScene,
     })),
   NexusScene: () =>
-    import("@/components/universo/NexusScene").then((m) => ({
+    import("@/components/universe/NexusScene").then((m) => ({
       default: m.NexusScene,
     })),
 };
