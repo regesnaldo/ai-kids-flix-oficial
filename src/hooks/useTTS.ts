@@ -63,7 +63,10 @@ export function useTTS(): UseTTSReturn {
         body: JSON.stringify({ text, voice_id: voiceId }),
       });
 
-      if (!res.ok) throw new Error(`TTS ${res.status}`);
+      if (!res.ok) {
+        const errText = await res.text().catch(() => "");
+        throw new Error(`TTS ${res.status}: ${errText.slice(0, 200)}`);
+      }
 
       // Se stop() foi chamado durante o fetch, aborta — evita race condition
       if (gen !== generationRef.current) return;
@@ -97,7 +100,9 @@ export function useTTS(): UseTTSReturn {
 
       await audio.play();
       setState("playing");
-    } catch {
+    } catch (err) {
+      if (gen !== generationRef.current) return;
+      console.error("[TTS] Falha ao reproduzir áudio:", err instanceof Error ? err.message : err);
       setState("error");
     }
   }, [stop]);
