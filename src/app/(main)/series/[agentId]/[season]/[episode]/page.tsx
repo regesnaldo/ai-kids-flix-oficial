@@ -89,6 +89,7 @@ export default function ScreenplayPlayerPage() {
   const [continuationText, setContinuationText] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [xpAwarded, setXpAwarded] = useState(0);
+  const [showCompletionToast, setShowCompletionToast] = useState(false);
 
   // Hide HUD during episode playback
   useEffect(() => {
@@ -101,7 +102,7 @@ export default function ScreenplayPlayerPage() {
     stopTTS();
   }, [phase, stopTTS]);
 
-  // Award XP when episode completes
+  // Award XP and save progress when episode completes
   useEffect(() => {
     if (phase !== "fim" || xpAwarded > 0) return;
     // Trigger LOGOS gate every 3 episodes
@@ -110,11 +111,11 @@ export default function ScreenplayPlayerPage() {
     }
     (async () => {
       try {
-        const res = await fetch("/api/xp/award", {
+        const res = await fetch("/api/progress/complete", {
           method: "POST",
+          credentials: "include",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            reason: "episode_complete",
             agentId,
             season,
             episode,
@@ -124,18 +125,21 @@ export default function ScreenplayPlayerPage() {
         });
         const data = await res.json();
         if (data.success) {
-          setXpAwarded(data.awarded);
+          setXpAwarded(data.xpAwarded || 50);
+          setShowCompletionToast(true);
+          setTimeout(() => setShowCompletionToast(false), 4000);
           queueConquest({
             id: `${agentId}_s${season}_e${episode}`,
-            xp: data.awarded,
+            xp: data.xpAwarded || 50,
             message: "Episódio concluído!",
             agent: agent?.name,
             season,
             episode,
           });
         }
-      } catch (error) { console.error('[MENTE.AI] Error in series/[agentId]/[season]/[episode]/page.tsx:', error); }
-      // TODO: [MENTE.AI] adicionar feedback visual ao usuário
+      } catch (error) {
+        console.error("[EPISODE] Erro ao salvar progresso:", error);
+      }
     })();
   }, [phase, xpAwarded, agentId, season, episode, selectedChoice, agent]);
 
@@ -744,6 +748,35 @@ Seja cinematográfico, imersivo, inspirador.`,
           )}
         </AnimatePresence>
       </div>
+
+      {/* Completion Toast */}
+      <AnimatePresence>
+        {showCompletionToast && (
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50"
+          >
+            <div
+              className="flex items-center gap-3 px-6 py-3 rounded-2xl shadow-2xl"
+              style={{
+                background: "rgba(5,5,20,0.95)",
+                border: `1px solid ${agent?.color || "#00f0ff"}40`,
+                backdropFilter: "blur(16px)",
+              }}
+            >
+              <span className="text-2xl">🎉</span>
+              <div>
+                <p className="text-white font-bold text-sm">Episódio Concluído!</p>
+                <p className="text-xs" style={{ color: agent?.color || "#00f0ff" }}>
+                  +{xpAwarded} XP
+                </p>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </main>
   );
 }
