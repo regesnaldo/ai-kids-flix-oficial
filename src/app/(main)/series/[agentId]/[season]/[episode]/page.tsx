@@ -297,11 +297,12 @@ Seja cinematográfico, imersivo, inspirador.`,
       setScreenplay(data);
       setPhase("abertura");
     } else {
-      setError("Não foi possível gerar o roteiro. Tente novamente.");
+      setError("O roteiro deste episódio ainda não está disponível. Execute o seed de episódios ou aguarde a geração automática.");
     }
   }, [agent, season, episode, generate]);
 
   useEffect(() => {
+    if (process.env.NODE_ENV === 'development') console.log('[EPISODE] Loading:', agentId, season, episode);
     loadScreenplay();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -327,10 +328,25 @@ Seja cinematográfico, imersivo, inspirador.`,
   if (!agent) {
     return (
       <main
-        className="min-h-screen flex items-center justify-center"
-        style={{ background: "var(--cyber-black)" }}
+        className="min-h-screen flex items-center justify-center px-6"
+        style={{ background: "#050510" }}
       >
-        <p className="text-gray-400 text-lg">Agente não encontrado.</p>
+        <div className="text-center max-w-md">
+          <div className="text-5xl mb-4">🔍</div>
+          <h1 className="text-2xl font-black text-white mb-2" style={{ fontFamily: "var(--font-display)" }}>
+            Agente Não Encontrado
+          </h1>
+          <p className="text-gray-400 text-sm mb-4">
+            O agente <code className="text-gray-500">{agentId}</code> não está no catálogo.
+          </p>
+          <Link
+            href="/series"
+            className="px-5 py-2.5 rounded-lg text-sm font-bold transition"
+            style={{ background: "rgba(255,255,255,0.08)", color: "#fff", border: "1px solid rgba(255,255,255,0.1)" }}
+          >
+            Voltar para Séries
+          </Link>
+        </div>
       </main>
     );
   }
