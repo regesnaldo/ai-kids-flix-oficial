@@ -254,25 +254,4 @@ export async function routeAdaptiveNarrative(params: {
     transition: transition || undefined,
     langchainDecision: langchainAnalysis || undefined,
   };
-  
-  if (langchainAnalysis) {
-    await updateUserProfile(params.userId, {
-      emotionalScore: emotional,
-      intellectualScore: intellectual,
-      moralScore: moral,
-      archetype,
-      currentAgent: langchainAnalysis.nextAgent,
-      decisionHistory: [
-        ...(profile?.decisionHistory || []),
-        {
-          choice: params.userText.slice(0, 100),
-          agentId: langchainAnalysis.nextAgent,
-          emotionalDelta: langchainAnalysis.confidence > 0.8 ? 0.5 : 0,
-          intellectualDelta: 0,
-          moralDelta: 0,
-          timestamp: Date.now(),
-        },
-      ],
-    });
-  }
 }

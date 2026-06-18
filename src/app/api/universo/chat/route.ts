@@ -74,6 +74,15 @@ export async function POST(request: NextRequest) {
     const provider = (process.env.LLM_PROVIDER || "").toLowerCase();
     let responseText: string;
 
+    // Verificação explícita de provider — 503 se nada configurado
+    const hasOpenAI = provider === "openai" && process.env.OPENAI_API_KEY;
+    const hasAnthropic = provider === "anthropic" && process.env.ANTHROPIC_API_KEY;
+    const hasGroq = provider === "groq" && process.env.GROQ_API_KEY;
+    const hasAnyKey = process.env.OPENAI_API_KEY || (process.env.ANTHROPIC_API_KEY && !process.env.ANTHROPIC_API_KEY.includes("...")) || process.env.GROQ_API_KEY;
+    if (!hasOpenAI && !hasAnthropic && !hasGroq && !hasAnyKey) {
+      return NextResponse.json({ error: 'LLM Provider não configurado' }, { status: 503 });
+    }
+
     // Prioriza o provider configurado via LLM_PROVIDER.
     if (provider === "openai" && process.env.OPENAI_API_KEY) {
       responseText = await callOpenAI(systemPrompt, messages);
@@ -99,9 +108,10 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error("[universo/chat] Erro:", error);
+    const err = error instanceof Error ? error : new Error(String(error));
+    console.error("[universo/chat] Erro:", err.message);
     return NextResponse.json(
-      { error: "Erro ao processar mensagem" },
+      { error: 'Internal Server Error', details: err.message },
       { status: 500 }
     );
   }
