@@ -88,7 +88,14 @@ export async function POST(request: NextRequest) {
     } else if (process.env.GROQ_API_KEY) {
       responseText = await callGroq(systemPrompt, messages);
     } else {
-      return NextResponse.json({ error: "Nenhum provedor LLM configurado" }, { status: 503 });
+      const configuredProvider = process.env.LLM_PROVIDER || '(nenhum)';
+      const hasOpenAI = !!process.env.OPENAI_API_KEY;
+      const hasAnthropic = !!process.env.ANTHROPIC_API_KEY;
+      const hasGroq = !!process.env.GROQ_API_KEY;
+      return NextResponse.json({
+        error: "Nenhum provedor LLM configurado",
+        details: `LLM_PROVIDER="${configuredProvider}". Chaves disponíveis: OpenAI=${hasOpenAI}, Anthropic=${hasAnthropic}, Groq=${hasGroq}. Configure ao menos uma chave de API nas variáveis de ambiente do Vercel.`,
+      }, { status: 503 });
     }
 
     return NextResponse.json({
@@ -99,9 +106,20 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error("[universo/chat] Erro:", error);
+    const err = error instanceof Error ? error : new Error(String(error));
+    if (process.env.NODE_ENV === 'development') {
+      console.error("[universo/chat] Erro detalhado:", {
+        message: err.message,
+        stack: err.stack?.slice(0, 500),
+        cause: (err as any).cause,
+      });
+    }
     return NextResponse.json(
-      { error: "Erro ao processar mensagem" },
+      {
+        error: "Erro ao processar mensagem",
+        details: err.message || "Erro desconhecido",
+        stack: process.env.NODE_ENV === 'development' ? err.stack?.slice(0, 300) : undefined,
+      },
       { status: 500 }
     );
   }
@@ -109,6 +127,8 @@ export async function POST(request: NextRequest) {
 
 async function callOpenAI(system: string, messages: Array<{ role: string; content: string }>): Promise<string> {
   const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) throw new Error("OPENAI_API_KEY não configurada no ambiente");
+
   const model = process.env.OPENAI_MODEL || "gpt-4o";
 
   const response = await fetch("https://api.openai.com/v1/chat/completions", {
@@ -125,7 +145,8 @@ async function callOpenAI(system: string, messages: Array<{ role: string; conten
   });
 
   if (!response.ok) {
-    throw new Error(`OpenAI HTTP ${response.status}`);
+    const body = await response.text().catch(() => "");
+    throw new Error(`OpenAI HTTP ${response.status}: ${body.slice(0, 300)}`);
   }
 
   const data = await response.json();
