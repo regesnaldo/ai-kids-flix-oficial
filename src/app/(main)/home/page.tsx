@@ -13,6 +13,8 @@ import { presenceToBeacon } from "@/lib/navigation-hints/beacon-factory";
 import { useNavigationStore } from "@/store/useNavigationStore";
 import type { NarrativeTransition } from "@/engine/narrative-transitions";
 import { CosmicHero } from "@/components/home/CosmicHero";
+import { ArchetypeCard } from "@/components/home/ArchetypeCard";
+import { getAgentColor } from "@/canon/agents/presence";
 
 type NarrativeSuggestion = {
   title: string;
@@ -25,18 +27,18 @@ type NarrativeSuggestion = {
 };
 
 const AGENTS = [
-  { id: "nexus", name: "NEXUS", faction: "INTELIGÊNCIA", color: "#00f5ff", image: "/images/agents/nexus.jpg" },
-  { id: "volt", name: "VOLT", faction: "ENERGIA", color: "#F59E0B", image: "/images/agents/volt.jpg" },
-  { id: "aurora", name: "AURORA", faction: "INOVAÇÃO", color: "#a78bfa", image: "/images/agents/aurora.jpg" },
-  { id: "ethos", name: "ETHOS", faction: "ÉTICA", color: "#ffa500", image: "/images/agents/ethos.jpg" },
-  { id: "kaos", name: "KAOS", faction: "CAOS", color: "#ff6b35", image: "/images/agents/kaos.jpg" },
-  { id: "cipher", name: "CIPHER", faction: "CRIPTOGRAFIA", color: "#00ff88", image: "/images/agents/cipher.jpg" },
-  { id: "lyra", name: "LYRA", faction: "CRIATIVIDADE", color: "#f472b6", image: "/images/agents/lyra.jpg" },
-  { id: "axiom", name: "AXIOM", faction: "CIÊNCIA", color: "#3b82f6", image: "/images/agents/axiom.jpg" },
-  { id: "stratos", name: "STRATOS", faction: "ESTRATÉGIA", color: "#94a3b8", image: "/images/agents/stratos.jpg" },
-  { id: "terra", name: "TERRA", faction: "NATUREZA", color: "#22c55e", image: "/images/agents/terra.jpg" },
-  { id: "prism", name: "PRISM", faction: "FILOSOFIA", color: "#e879f9", image: "/images/agents/prism.jpg" },
-  { id: "janus", name: "JANUS", faction: "DUALIDADE", color: "#f59e0b", image: "/images/agents/janus.jpg" },
+  { id: "nexus", name: "NEXUS", role: "O Conector", faction: "INTELIGÊNCIA", color: getAgentColor("nexus"), image: "/images/agents/nexus.jpg" },
+  { id: "volt", name: "VOLT", role: "O Energético", faction: "ENERGIA", color: getAgentColor("volt"), image: "/images/agents/volt.jpg" },
+  { id: "aurora", name: "AURORA", role: "A Sintetizadora", faction: "INOVAÇÃO", color: getAgentColor("aurora"), image: "/images/agents/aurora.jpg" },
+  { id: "kaos", name: "KAOS", role: "O Explorador", faction: "CAOS", color: getAgentColor("kaos"), image: "/images/agents/kaos.jpg" },
+  { id: "cipher", name: "CIPHER", role: "O Analista", faction: "CRIPTOGRAFIA", color: getAgentColor("cipher"), image: "/images/agents/cipher.jpg" },
+  { id: "ethos", name: "ETHOS", role: "O Filósofo", faction: "ÉTICA", color: getAgentColor("ethos"), image: "/images/agents/ethos.jpg" },
+  { id: "lyra", name: "LYRA", role: "A Artista", faction: "CRIATIVIDADE", color: getAgentColor("lyra"), image: "/images/agents/lyra.jpg" },
+  { id: "axiom", name: "AXIOM", role: "O Cientista", faction: "CIÊNCIA", color: getAgentColor("axiom"), image: "/images/agents/axiom.jpg" },
+  { id: "stratos", name: "STRATOS", role: "O Estrategista", faction: "ESTRATÉGIA", color: getAgentColor("stratos"), image: "/images/agents/stratos.jpg" },
+  { id: "terra", name: "TERRA", role: "A Guardiã", faction: "NATUREZA", color: getAgentColor("terra"), image: "/images/agents/terra.jpg" },
+  { id: "prism", name: "PRISM", role: "O Revelador", faction: "FILOSOFIA", color: getAgentColor("prism"), image: "/images/agents/prism.jpg" },
+  { id: "janus", name: "JANUS", role: "O Humorista", faction: "DUALIDADE", color: getAgentColor("janus"), image: "/images/agents/janus.jpg" },
 ];
 
 function UtcClock() {
@@ -328,6 +330,9 @@ export default function HomePage() {
         {/* STATS ROW */}
         <StatsPanel completedCount={completedCount} />
 
+        {/* ARCHETYPE CARD */}
+        <ArchetypeCard />
+
         {/* PROGRESSION BAR */}
         <div style={{ marginBottom: "2.5rem" }}>
           <p style={{ fontFamily: "monospace", fontSize: "11px", color: "#00FF88", margin: "0 0 0.5rem" }}>
@@ -405,6 +410,9 @@ export default function HomePage() {
                   <div style={{ position: "absolute", bottom: "12px", left: "12px", right: "12px" }}>
                     <p style={{ fontFamily: "monospace", fontSize: "13px", color: agent.color, letterSpacing: "0.1em", margin: "0 0 2px", textTransform: "uppercase", textShadow: `0 0 8px ${agent.color}80` }}>
                       {agent.name}
+                    </p>
+                    <p style={{ fontFamily: "monospace", fontSize: "10px", color: "#fff", margin: "0 0 2px", opacity: 0.8 }}>
+                      {agent.role}
                     </p>
                     <p style={{ fontFamily: "monospace", fontSize: "10px", color: "#9ca3af", margin: 0 }}>
                       {agent.faction}
