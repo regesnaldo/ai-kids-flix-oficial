@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, ChevronLeft, ChevronRight, Loader2, Play, Sparkles, Zap, Volume2 } from "lucide-react";
+import { ArrowLeft, ChevronLeft, ChevronRight, Loader2, Play, Sparkles, Zap, Volume2, VolumeX } from "lucide-react";
 import { allAgents } from "@/data/agents";
 import { useDeepSeek } from "@/hooks/useDeepSeek";
 import { useTTS } from "@/hooks/useTTS";
@@ -513,12 +513,26 @@ Seja cinematográfico, imersivo, inspirador.`,
                 <button
                   onClick={() => speakTTS(displayedNarrativa || screenplay?.narrativa || "", agent.id)}
                   disabled={ttsState === "loading"}
-                  className="ml-auto w-8 h-8 rounded-full flex items-center justify-center transition hover:bg-white/5"
-                  style={{ color: agent.color }}
-                  title="Ouvir narração"
+                  className={`ml-auto w-8 h-8 rounded-full flex items-center justify-center transition hover:bg-white/5 ${
+                    ttsState === "error" ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
+                  style={{ color: ttsState === "error" ? "#ef4444" : agent.color }}
+                  title={
+                    ttsState === "error"
+                      ? "Áudio indisponível no momento"
+                      : ttsState === "loading"
+                      ? "Carregando áudio..."
+                      : "Ouvir narração"
+                  }
                   aria-label="Ouvir narração"
                 >
-                  <Volume2 size={16} className={ttsState === "playing" ? "animate-pulse" : ""} />
+                  {ttsState === "loading" ? (
+                    <Loader2 size={16} className="animate-spin" />
+                  ) : ttsState === "error" ? (
+                    <VolumeX size={16} />
+                  ) : (
+                    <Volume2 size={16} className={ttsState === "playing" ? "animate-pulse" : ""} />
+                  )}
                 </button>
                 {phase === "continuacao" && selectedChoice !== null && (
                   <span className="text-xs text-gray-500 ml-2">
