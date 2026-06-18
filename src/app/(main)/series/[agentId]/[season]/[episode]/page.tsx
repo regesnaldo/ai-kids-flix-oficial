@@ -9,6 +9,8 @@ import { allAgents } from "@/data/agents";
 import { useDeepSeek } from "@/hooks/useDeepSeek";
 import { useTTS } from "@/hooks/useTTS";
 import { useAppStore } from "@/store/useAppStore";
+import { useSession } from "@/providers/SessionProvider";
+import { PaywallBanner } from "@/components/home/PaywallBanner";
 import { queueConquest } from "@/components/gamification/ConquestNotification";
 import { useGamification } from "@/components/gamification/GamificationProvider";
 
@@ -77,10 +79,14 @@ export default function ScreenplayPlayerPage() {
   const agent = allAgents.find((a) => a.id === agentId);
   const { generate, loading: genLoading } = useDeepSeek();
   const { play: speakTTS, stop: stopTTS, state: ttsState } = useTTS();
-
+  const { user } = useSession();
 
   const setLogosActive = useAppStore((s) => s.setLogosActive);
   const { setPlaybackActive } = useGamification();
+
+  // ── Paywall: bloqueia episódios 2+ para usuários FREE ─────
+  const isPremium = user?.plan && user.plan !== "FREE" && user.planStatus === "active";
+  const isPaywalled = episode > 1 && !isPremium;
 
   const [screenplay, setScreenplay] = useState<Screenplay | null>(null);
   const [phase, setPhase] = useState<Phase>("loading");
@@ -325,6 +331,19 @@ Seja cinematográfico, imersivo, inspirador.`,
         style={{ background: "var(--cyber-black)" }}
       >
         <p className="text-gray-400 text-lg">Agente não encontrado.</p>
+      </main>
+    );
+  }
+
+  if (isPaywalled) {
+    return (
+      <main className="min-h-screen" style={{ background: "#050510" }}>
+        <PaywallBanner
+          agentId={agentId}
+          season={season}
+          episode={episode}
+          agentColor={agent?.color}
+        />
       </main>
     );
   }
