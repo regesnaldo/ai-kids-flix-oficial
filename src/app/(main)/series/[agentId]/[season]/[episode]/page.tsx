@@ -13,6 +13,7 @@ import { useSession } from "@/providers/SessionProvider";
 import { PaywallBanner } from "@/components/home/PaywallBanner";
 import { queueConquest } from "@/components/gamification/ConquestNotification";
 import { useGamification } from "@/components/gamification/GamificationProvider";
+import { getStaticScreenplay } from "@/data/static-screenplays";
 
 /* ─── Types ─────────────────────────────────────────────────────────── */
 
@@ -242,10 +243,23 @@ export default function ScreenplayPlayerPage() {
         }
       }
     } catch {
-      // API unavailable — fall through to direct generation
+      // API unavailable — fall through to static seed
     }
 
-    // 2. Fallback: direct DeepSeek generation (current behavior)
+    // 2. Static seed fallback (no DB dependency)
+    try {
+      const staticData = getStaticScreenplay(agent.id, season, episode);
+      if (staticData?.abertura) {
+        if (process.env.NODE_ENV === 'development') console.log('[EPISODE] STATIC SEED HIT —', agent.id, season, episode);
+        setScreenplay(staticData);
+        setPhase("abertura");
+        return;
+      }
+    } catch {
+      // Fall through to DeepSeek
+    }
+
+    // 3. Fallback: direct DeepSeek generation
     const data = await generate<Screenplay>({
       agentId: agent.id,
       season,
