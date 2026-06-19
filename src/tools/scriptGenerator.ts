@@ -99,13 +99,14 @@ export async function generateEpisodeScript(
   ].join("\n");
 
   const provider = await resolveProviderWithFallback();
-  const response = await chat({
+  const response = await chat(
     provider,
-    system,
-    messages: [{ role: "user", content: prompt }],
-    temperature: 0.95,
-    jsonMode: true,
-  });
+    [
+      { role: "system", content: system },
+      { role: "user", content: prompt },
+    ],
+    { maxTokens: 2000, temperature: 0.95 },
+  );
 
   const screenplay = JSON.parse(response) as Screenplay;
 
