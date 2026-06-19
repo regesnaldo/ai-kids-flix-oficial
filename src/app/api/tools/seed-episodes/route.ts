@@ -11,6 +11,19 @@ import {
 
 export const runtime = "nodejs";
 
+export async function GET() {
+  return NextResponse.json({
+    status: "ok",
+    message: "Use POST /api/tools/seed-episodes to populate T02-T05 episodes into the database",
+    episodes: [
+      { title: NEXUS_T01E02_UNIT.title, season: 1, episode: 2 },
+      { title: NEXUS_T01E03_UNIT.title, season: 1, episode: 3 },
+      { title: NEXUS_T01E04_UNIT.title, season: 1, episode: 4 },
+      { title: NEXUS_T01E05_UNIT.title, season: 1, episode: 5 },
+    ],
+  });
+}
+
 export async function POST(request: NextRequest) {
   try {
     const episodes = [
