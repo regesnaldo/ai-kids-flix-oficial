@@ -23,6 +23,10 @@ export async function POST(request: NextRequest) {
     const results: string[] = [];
 
     for (const { unit, asset } of episodes) {
+      const agentId = asset.agentId!;
+      const season = asset.season!;
+      const episode = asset.episode!;
+
       // Upsert knowledge_unit
       const existingUnit = await db
         .select()
@@ -32,10 +36,10 @@ export async function POST(request: NextRequest) {
 
       if (existingUnit.length === 0) {
         await db.insert(knowledgeUnit).values(unit as any);
-        results.push(`✅ Unit created: ${unit.title} (S01E${asset.episode})`);
+        results.push(`✅ Unit created: ${unit.title} (S01E${episode})`);
       } else {
         await db.update(knowledgeUnit).set(unit as any).where(eq(knowledgeUnit.id, unit.id!));
-        results.push(`🔄 Unit updated: ${unit.title} (S01E${asset.episode})`);
+        results.push(`🔄 Unit updated: ${unit.title} (S01E${episode})`);
       }
 
       // Upsert knowledge_asset
@@ -44,28 +48,28 @@ export async function POST(request: NextRequest) {
         .from(knowledgeAsset)
         .where(
           and(
-            eq(knowledgeAsset.agentId, asset.agentId),
-            eq(knowledgeAsset.season, asset.season),
-            eq(knowledgeAsset.episode, asset.episode),
+            eq(knowledgeAsset.agentId, agentId),
+            eq(knowledgeAsset.season, season),
+            eq(knowledgeAsset.episode, episode),
           )
         )
         .limit(1);
 
       if (existingAsset.length === 0) {
         await db.insert(knowledgeAsset).values(asset as any);
-        results.push(`✅ Asset created: S01E${asset.episode}`);
+        results.push(`✅ Asset created: S01E${episode}`);
       } else {
         await db
           .update(knowledgeAsset)
           .set(asset as any)
           .where(
             and(
-              eq(knowledgeAsset.agentId, asset.agentId),
-              eq(knowledgeAsset.season, asset.season),
-              eq(knowledgeAsset.episode, asset.episode),
+              eq(knowledgeAsset.agentId, agentId),
+              eq(knowledgeAsset.season, season),
+              eq(knowledgeAsset.episode, episode),
             )
           );
-        results.push(`🔄 Asset updated: S01E${asset.episode}`);
+        results.push(`🔄 Asset updated: S01E${episode}`);
       }
     }
 
