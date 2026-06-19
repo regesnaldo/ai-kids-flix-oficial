@@ -1,48 +1,36 @@
-import { MetadataRoute } from 'next'
+import type { MetadataRoute } from "next";
+
+const SITE_URL = "https://mente-ai.vercel.app";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const agents = ['nexus','volt','aurora','ethos','kaos','cipher','lyra','axiom','stratos','terra','prism','janus']
-  
-  const agentRoutes = agents.map(agent => ({
-    url: `https://mente-ai.vercel.app/universo/${agent}`,
-    lastModified: new Date(),
-    changeFrequency: 'weekly' as const,
-    priority: 0.8,
-  }))
+  const agents = [
+    "nexus", "volt", "aurora", "kaos", "cipher",
+    "ethos", "lyra", "axiom", "stratos", "terra", "prism", "janus",
+  ];
 
-  const seriesRoutes = agents.map(agent => ({
-    url: `https://mente-ai.vercel.app/series/${agent}`,
+  const staticRoutes: MetadataRoute.Sitemap = [
+    { url: SITE_URL, lastModified: new Date(), changeFrequency: "weekly", priority: 1 },
+    { url: `${SITE_URL}/landing`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.9 },
+    { url: `${SITE_URL}/series`, lastModified: new Date(), changeFrequency: "daily", priority: 0.9 },
+    { url: `${SITE_URL}/explorar`, lastModified: new Date(), changeFrequency: "daily", priority: 0.8 },
+    { url: `${SITE_URL}/cadastro`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.8 },
+  ];
+
+  const agentRoutes: MetadataRoute.Sitemap = agents.map((id) => ({
+    url: `${SITE_URL}/series/${id}/1`,
     lastModified: new Date(),
-    changeFrequency: 'weekly' as const,
+    changeFrequency: "weekly",
     priority: 0.7,
-  }))
+  }));
 
-  return [
-    {
-      url: 'https://mente-ai.vercel.app',
+  const episodeRoutes: MetadataRoute.Sitemap = agents.flatMap((id) =>
+    [1, 2, 3, 4, 5].map((ep) => ({
+      url: `${SITE_URL}/series/${id}/1/${ep}`,
       lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 1,
-    },
-    {
-      url: 'https://mente-ai.vercel.app/home',
-      lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 0.9,
-    },
-    {
-      url: 'https://mente-ai.vercel.app/explorar',
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.8,
-    },
-    {
-      url: 'https://mente-ai.vercel.app/certificado',
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
+      changeFrequency: "monthly",
       priority: 0.6,
-    },
-    ...agentRoutes,
-    ...seriesRoutes,
-  ]
+    }))
+  );
+
+  return [...staticRoutes, ...agentRoutes, ...episodeRoutes];
 }

@@ -1,5 +1,5 @@
 User-agent: *
 Allow: /
 Disallow: /api/
-Disallow: /dashboard/
+
 Sitemap: https://mente-ai.vercel.app/sitemap.xml
