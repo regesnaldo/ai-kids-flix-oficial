@@ -1,11 +1,20 @@
 import "./globals.css";
 import type { Metadata, Viewport } from "next";
-import { Space_Grotesk } from "next/font/google";
+import { Orbitron, Space_Grotesk } from "next/font/google";
 import GamificationWrapper from "@/components/gamification/GamificationWrapper";
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
   variable: "--font-space-grotesk",
+  display: "swap",
+});
+
+// Orbitron — fonte futurista para nomes de agentes e headers cinematográficos.
+// Exposta como --font-orbitron (consumida pela agent grid da /home e overlays).
+const orbitron = Orbitron({
+  subsets: ["latin"],
+  variable: "--font-orbitron",
+  weight: ["500", "600", "700", "800", "900"],
   display: "swap",
 });
 
@@ -99,7 +108,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="pt-BR" className={`${spaceGrotesk.variable} m-0`} style={{ backgroundColor: "var(--cyber-black)" }}>
+    <html lang="pt-BR" className={`${spaceGrotesk.variable} ${orbitron.variable} m-0`} style={{ backgroundColor: "var(--cyber-black)" }}>
       <body className="m-0 p-0 box-border" style={{ backgroundColor: "var(--cyber-black)", color: "white", fontFamily: "var(--font-display)" }}>
         <GamificationWrapper>{children}</GamificationWrapper>
       </body>

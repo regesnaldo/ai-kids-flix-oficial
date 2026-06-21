@@ -2,6 +2,7 @@
 import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
 import { useOasis } from "@/providers/OasisProvider";
 import { useSession } from "@/providers/SessionProvider";
 import { createEmotionStyleElement, getPaletteFromEmotionalState, emotionPaletteToStyle } from "@/design-system/colorEngine";
@@ -367,63 +368,115 @@ export default function HomePage() {
           </section>
         )}
 
-        {/* AGENT CARDS GRID */}
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(3, 1fr)",
-          gap: "1rem",
-          marginBottom: "2.5rem",
-        }}>
+        {/* AGENT CARDS GRID — Redesign cinematográfico
+            Filtro sci-fi nas imagens, overlay de profundidade, hover com glow
+            na cor de presença do agente, entrada flutuante com stagger. */}
+        <motion.div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(3, 1fr)",
+            gap: "1.5rem",
+            marginBottom: "2.5rem",
+          }}
+          initial="hidden"
+          animate="visible"
+          variants={{
+            hidden: { transition: { staggerChildren: 0.05 } },
+            visible: { transition: { staggerChildren: 0.08, delayChildren: 0.1 } },
+          }}
+        >
           {AGENTS.map((agent, i) => {
             const unlocked = i < completedCount;
             const count = presenceCounts[agent.id] || 0;
             const intensity = count >= 10 ? "urgent" : count >= 3 ? "moderate" : "subtle";
+
+            // Filtros de imagem — estado padrão (sci-fi) e hover (vibrante/colorido).
+            const filterIdle = "grayscale(0.4) contrast(1.1) brightness(0.9)";
+            const filterHover = "grayscale(0) contrast(1.15) brightness(1)";
+
             return (
-              <Link key={agent.id} href={`/universo/${agent.id}`} style={{ textDecoration: "none" }}>
-                <div style={{
-                  height: "220px",
-                  backgroundImage: `url(${agent.image})`,
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center top',
-                  border: `1px solid ${unlocked ? agent.color : "rgba(255,255,255,0.1)"}`,
-                  borderRadius: "8px",
-                  cursor: "pointer",
-                  position: "relative",
-                  overflow: "hidden",
-                  transition: "all 0.3s ease",
+              <motion.div
+                key={agent.id}
+                variants={{
+                  hidden: { opacity: 0, y: 24 },
+                  visible: {
+                    opacity: 1,
+                    y: 0,
+                    transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] },
+                  },
                 }}
-                  onMouseEnter={e => {
-                    (e.currentTarget as HTMLDivElement).style.boxShadow = `0 0 16px ${agent.color}40`;
-                    (e.currentTarget as HTMLDivElement).style.transform = "scale(1.03)";
-                  }}
-                  onMouseLeave={e => {
-                    (e.currentTarget as HTMLDivElement).style.boxShadow = "none";
-                    (e.currentTarget as HTMLDivElement).style.transform = "scale(1)";
-                  }}
-                >
-                  {/* Overlay escuro */}
-                  <div style={{
-                    position: "absolute", inset: 0,
-                    background: "linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.1) 100%)",
-                  }} />
-                  {/* Info no canto inferior */}
-                  <div style={{ position: "absolute", bottom: "12px", left: "12px", right: "12px" }}>
-                    <p style={{ fontFamily: "monospace", fontSize: "13px", color: agent.color, letterSpacing: "0.1em", margin: "0 0 2px", textTransform: "uppercase", textShadow: `0 0 8px ${agent.color}80` }}>
-                      {agent.name}
-                    </p>
-                    <p style={{ fontFamily: "monospace", fontSize: "10px", color: "#fff", margin: "0 0 2px", opacity: 0.8 }}>
-                      {agent.role}
-                    </p>
-                    <p style={{ fontFamily: "monospace", fontSize: "10px", color: "#9ca3af", margin: 0 }}>
-                      {agent.faction}
-                    </p>
-                    <PresenceIndicator agentId={agent.id} count={count} color={agent.color} pulseIntensity={intensity} />
-                  </div>
-                </div>
-              </Link>
+              >
+                <Link href={`/universo/${agent.id}`} style={{ textDecoration: "none", display: "block" }}>
+                  <motion.div
+                    style={{
+                      height: "240px",
+                      backgroundImage: `url(${agent.image})`,
+                      backgroundSize: "cover",
+                      backgroundPosition: "center top",
+                      border: `1px solid ${unlocked ? agent.color : "rgba(255,255,255,0.1)"}`,
+                      borderRadius: "12px",
+                      cursor: "pointer",
+                      position: "relative",
+                      overflow: "hidden",
+                      filter: filterIdle,
+                      boxShadow: `0 4px 20px rgba(0,0,0,0.4)`,
+                    }}
+                    whileHover={{
+                      scale: 1.05,
+                      filter: filterHover,
+                      boxShadow: `0 0 28px ${agent.color}99, 0 8px 30px rgba(0,0,0,0.5)`,
+                    }}
+                    transition={{ duration: 0.35, ease: "easeOut" }}
+                  >
+                    {/* Overlay escuro inferior — profundidade + legibilidade do texto */}
+                    <div style={{
+                      position: "absolute",
+                      inset: 0,
+                      background: "linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.55) 38%, rgba(0,0,0,0.12) 68%, rgba(0,0,0,0) 100%)",
+                      pointerEvents: "none",
+                    }} />
+
+                    {/* Info no canto inferior */}
+                    <div style={{ position: "absolute", bottom: "14px", left: "14px", right: "14px" }}>
+                      <p style={{
+                        fontFamily: "var(--font-orbitron), 'Space Grotesk', sans-serif",
+                        fontSize: "15px",
+                        fontWeight: 800,
+                        color: agent.color,
+                        letterSpacing: "0.14em",
+                        margin: "0 0 4px",
+                        textTransform: "uppercase",
+                        textShadow: `0 0 10px ${agent.color}, 0 0 20px ${agent.color}55`,
+                      }}>
+                        {agent.name}
+                      </p>
+                      <p style={{
+                        fontFamily: "var(--font-mono), monospace",
+                        fontSize: "10px",
+                        color: "#fff",
+                        margin: "0 0 3px",
+                        opacity: 0.85,
+                      }}>
+                        {agent.role}
+                      </p>
+                      <p style={{
+                        fontFamily: "var(--font-mono), monospace",
+                        fontSize: "9px",
+                        color: "#9ca3af",
+                        margin: 0,
+                        letterSpacing: "0.1em",
+                        textTransform: "uppercase",
+                      }}>
+                        {agent.faction}
+                      </p>
+                      <PresenceIndicator agentId={agent.id} count={count} color={agent.color} pulseIntensity={intensity} />
+                    </div>
+                  </motion.div>
+                </Link>
+              </motion.div>
             );
           })}
-        </div>
+        </motion.div>
 
         {/* QUICK ACTIONS */}
         <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap", marginBottom: "2rem" }}>
