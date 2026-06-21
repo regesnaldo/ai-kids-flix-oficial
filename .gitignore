@@ -39,3 +39,7 @@ lint-errors.txt
 
 # Binaries / generated images
 image.png
+coverage/
+
+next-env.d.ts
+tsconfig.tsbuildinfo
