@@ -117,3 +117,37 @@ export const universeTransitions = mysqlTable(
 
 export type UniverseTransition = typeof universeTransitions.$inferSelect;
 export type NewUniverseTransition = typeof universeTransitions.$inferInsert;
+
+// ─── 4. userAvatar — Avatar 3D com Aura Dinâmica ──────────────────────────
+// Relacionamento: users (1) → userAvatar (1)
+// Armazena a aparência física do avatar no metaverso e a aura gerada pelo profiler.
+
+export const userAvatar = mysqlTable(
+  "user_avatar",
+  {
+    userId: int("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+
+    shape: varchar("shape", { length: 32 }).notNull().default("sphere"),
+
+    color: varchar("color", { length: 7 }).notNull().default("#00f0ff"),
+
+    auraColor: varchar("aura_color", { length: 7 }).notNull().default("#00f0ff"),
+
+    auraIntensity: decimal("aura_intensity", { precision: 3, scale: 2 })
+      .notNull()
+      .default("0.50"),
+
+    updatedAt: timestamp("updated_at")
+      .notNull()
+      .defaultNow()
+      .onUpdateNow(),
+  },
+  (t) => ({
+    uniqUser: uniqueIndex("uq_av_user").on(t.userId),
+  }),
+);
+
+export type UserAvatar = typeof userAvatar.$inferSelect;
+export type NewUserAvatar = typeof userAvatar.$inferInsert;
