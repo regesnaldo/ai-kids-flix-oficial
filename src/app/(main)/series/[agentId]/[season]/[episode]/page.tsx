@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, ChevronLeft, ChevronRight, Loader2, Play, Sparkles, Zap, Volume2, VolumeX } from "lucide-react";
 import { allAgents } from "@/data/agents";
 import { useDeepSeek } from "@/hooks/useDeepSeek";
-import { useTTS } from "@/hooks/useTTS";
+import { useGoogleTTS } from "@/hooks/useGoogleTTS";
 import { useAppStore } from "@/store/useAppStore";
 import { useSession } from "@/providers/SessionProvider";
 import { PaywallBanner } from "@/components/home/PaywallBanner";
@@ -79,7 +79,7 @@ export default function ScreenplayPlayerPage() {
 
   const agent = allAgents.find((a) => a.id === agentId);
   const { generate, loading: genLoading } = useDeepSeek();
-  const { play: speakTTS, stop: stopTTS, state: ttsState } = useTTS();
+  const { play: speakTTS, stop: stopTTS, state: ttsState } = useGoogleTTS();
   const { user } = useSession();
 
   const setLogosActive = useAppStore((s) => s.setLogosActive);
