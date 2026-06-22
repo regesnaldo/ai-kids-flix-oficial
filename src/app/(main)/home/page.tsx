@@ -171,7 +171,8 @@ function StatsPanel({ completedCount }: { completedCount: number }) {
         <div key={item.label} style={{
           textAlign: "center", padding: "12px 8px",
           background: "rgba(255,255,255,0.03)",
-          border: "1px solid rgba(255,255,255,0.06)", borderRadius: "6px",
+          border: "1px solid rgba(255,255,255,0.06)",
+          clipPath: "polygon(8px 0%, 100% 0%, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0% 100%, 0% 8px)",
           transition: "all 0.3s ease",
         }}
           onMouseEnter={e => {
@@ -193,6 +194,34 @@ function StatsPanel({ completedCount }: { completedCount: number }) {
           </div>
         </div>
       ))}
+    </div>
+  )
+}
+
+function HudBar({ completedCount, nextAgentName }: { completedCount: number; nextAgentName: string }) {
+  return (
+    <div style={{
+      display: "flex", alignItems: "center", gap: "1rem",
+      marginBottom: "2.5rem",
+      padding: "10px 16px",
+      background: "rgba(0,255,255,0.03)",
+      border: "1px solid rgba(0,255,255,0.1)",
+      clipPath: "polygon(12px 0%, 100% 0%, 100% 100%, 0% 100%, 0% 12px)",
+      fontFamily: "monospace",
+    }}>
+      <span style={{ fontSize: "11px", color: "#00FF88", letterSpacing: "0.1em", whiteSpace: "nowrap" }}>
+        MUNDOS: {completedCount}/12
+      </span>
+      <div style={{ flex: 1, height: "2px", background: "rgba(0,255,255,0.1)" }}>
+        <div style={{
+          width: `${(completedCount / 12) * 100}%`,
+          height: "100%", background: "#00FFFF",
+          transition: "width 0.5s ease",
+        }} />
+      </div>
+      <span style={{ fontSize: "10px", color: "#0088FF", whiteSpace: "nowrap" }}>
+        PRÓXIMO: {nextAgentName}
+      </span>
     </div>
   )
 }
@@ -320,7 +349,7 @@ export default function HomePage() {
         }}>
           <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.6)' }} />
           <div style={{ position: 'relative', textAlign: 'center', padding: '60px 20px', color: 'white' }}>
-            <h2 style={{ fontFamily: 'monospace', color: '#00FFFF', fontSize: '1.5rem', letterSpacing: '4px', marginBottom: '8px' }}>12 UNIVERSOS DE IA - VERSÃO 2</h2>
+            <h2 style={{ fontFamily: 'monospace', color: '#00FFFF', fontSize: '1.5rem', letterSpacing: '4px', marginBottom: '8px' }}>12 UNIVERSOS DE IA</h2>
             <p style={{ color: '#94a3b8', fontSize: '0.9rem', marginBottom: '24px' }}>Escolha seu agente e comece sua jornada</p>
             <a href="/explorar" style={{ background: 'transparent', border: '1px solid #00FFFF', color: '#00FFFF', padding: '12px 32px', fontFamily: 'monospace', fontSize: '0.8rem', letterSpacing: '2px', cursor: 'pointer', textDecoration: 'none' }}>
               EXPLORAR UNIVERSOS →
@@ -334,22 +363,8 @@ export default function HomePage() {
         {/* ARCHETYPE CARD */}
         <ArchetypeCard />
 
-        {/* PROGRESSION BAR */}
-        <div style={{ marginBottom: "2.5rem" }}>
-          <p style={{ fontFamily: "monospace", fontSize: "11px", color: "#00FF88", margin: "0 0 0.5rem" }}>
-            MUNDOS DESBLOQUEADOS: {completedCount}/12
-          </p>
-          <div style={{ width: "100%", height: "2px", background: "rgba(0,255,255,0.1)", borderRadius: "1px" }}>
-            <div style={{
-              width: `${(completedCount / 12) * 100}%`,
-              height: "100%", background: "#00FFFF",
-              borderRadius: "1px", transition: "width 0.5s ease",
-            }} />
-          </div>
-          <p style={{ fontFamily: "monospace", fontSize: "10px", color: "#0088FF", margin: "0.5rem 0 0" }}>
-            PRÓXIMO: {nextAgent.name}
-          </p>
-        </div>
+        {/* PROGRESSION HUD */}
+        <HudBar completedCount={completedCount} nextAgentName={nextAgent.name} />
 
         {/* JOURNEY HUB — jornada cognitiva completa */}
         <JourneyHub />
@@ -368,11 +383,10 @@ export default function HomePage() {
           </section>
         )}
 
-        {/* AGENT CARDS GRID — Redesign cinematográfico
-            Filtro sci-fi nas imagens, overlay de profundidade, hover com glow
-            na cor de presença do agente, entrada flutuante com stagger. */}
+        {/* AGENT CARDS GRID — Metaverso Cinematográfico 3D */}
         <motion.div
           style={{
+            perspective: "1000px",
             display: "grid",
             gridTemplateColumns: "repeat(3, 1fr)",
             gap: "1.5rem",
@@ -390,19 +404,16 @@ export default function HomePage() {
             const count = presenceCounts[agent.id] || 0;
             const intensity = count >= 10 ? "urgent" : count >= 3 ? "moderate" : "subtle";
 
-            // Filtros de imagem — estado padrão (sci-fi) e hover (vibrante/colorido).
-            const filterIdle = "grayscale(0.4) contrast(1.1) brightness(0.9)";
-            const filterHover = "grayscale(0) contrast(1.15) brightness(1)";
-
             return (
               <motion.div
                 key={agent.id}
                 variants={{
-                  hidden: { opacity: 0, y: 24 },
+                  hidden: { opacity: 0, y: 24, rotateY: -5 },
                   visible: {
                     opacity: 1,
                     y: 0,
-                    transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] },
+                    rotateY: 0,
+                    transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] },
                   },
                 }}
               >
@@ -413,22 +424,40 @@ export default function HomePage() {
                       backgroundImage: `url(${agent.image})`,
                       backgroundSize: "cover",
                       backgroundPosition: "center top",
-                      border: `1px solid ${unlocked ? agent.color : "rgba(255,255,255,0.1)"}`,
                       borderRadius: "12px",
                       cursor: "pointer",
                       position: "relative",
                       overflow: "hidden",
-                      filter: filterIdle,
+                      background: unlocked
+                        ? `linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.01))`
+                        : "rgba(255,255,255,0.02)",
+                      backdropFilter: "blur(8px)",
+                      WebkitBackdropFilter: "blur(8px)",
+                      border: `1px solid ${unlocked ? agent.color + "80" : "rgba(255,255,255,0.08)"}`,
                       boxShadow: `0 4px 20px rgba(0,0,0,0.4)`,
                     }}
                     whileHover={{
                       scale: 1.05,
-                      filter: filterHover,
-                      boxShadow: `0 0 28px ${agent.color}99, 0 8px 30px rgba(0,0,0,0.5)`,
+                      rotateY: 8,
+                      borderColor: agent.color,
+                      boxShadow: `0 0 30px ${agent.color}, 0 0 60px ${agent.color}66, 0 8px 30px rgba(0,0,0,0.5)`,
                     }}
-                    transition={{ duration: 0.35, ease: "easeOut" }}
+                    transition={{ duration: 0.4, ease: "easeOut" }}
                   >
-                    {/* Overlay escuro inferior — profundidade + legibilidade do texto */}
+                    {/* Imagem de fundo com filtro sci-fi */}
+                    <div style={{
+                      position: "absolute", inset: 0,
+                      backgroundImage: `url(${agent.image})`,
+                      backgroundSize: "cover",
+                      backgroundPosition: "center top",
+                      filter: "grayscale(0.4) contrast(1.1) brightness(0.9)",
+                      transition: "filter 0.4s ease",
+                    }}
+                      onMouseEnter={e => (e.currentTarget as HTMLDivElement).style.filter = "grayscale(0) contrast(1.15) brightness(1)"}
+                      onMouseLeave={e => (e.currentTarget as HTMLDivElement).style.filter = "grayscale(0.4) contrast(1.1) brightness(0.9)"}
+                    />
+
+                    {/* Overlay escuro inferior */}
                     <div style={{
                       position: "absolute",
                       inset: 0,
