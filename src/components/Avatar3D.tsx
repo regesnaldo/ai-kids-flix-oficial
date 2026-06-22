@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef } from 'react'
+import { useRef, useMemo } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { Float } from '@react-three/drei'
 import * as THREE from 'three'
@@ -116,22 +116,97 @@ function AnimalBody({ color }: { color: string }) {
 }
 
 function Aura({ color, intensity }: { color: string; intensity: number }) {
-  const meshRef = useRef<THREE.Mesh>(null)
+  const innerRef = useRef<THREE.Mesh>(null)
+  const midRef = useRef<THREE.Mesh>(null)
+  const outerRef = useRef<THREE.Mesh>(null)
+  const particlesRef = useRef<THREE.Points>(null)
+  const lightRef = useRef<THREE.PointLight>(null)
+
+  // Partículas: 20 pontos distribuídos numa esfera de raio 2.0
+  const particleCount = 20
+  const positions = useMemo(() => {
+    const arr = new Float32Array(particleCount * 3)
+    for (let i = 0; i < particleCount; i++) {
+      const r = 2.0 * Math.cbrt(Math.random())
+      const theta = Math.random() * Math.PI * 2
+      const phi = Math.acos(2 * Math.random() - 1)
+      arr[i * 3] = r * Math.sin(phi) * Math.cos(theta)
+      arr[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta)
+      arr[i * 3 + 2] = r * Math.cos(phi)
+    }
+    return arr
+  }, [])
 
   useFrame((state) => {
-    if (!meshRef.current) return
     const t = state.clock.getElapsedTime()
-    const pulse = 1 + Math.sin(t * 0.8) * 0.08
-    meshRef.current.scale.set(pulse, pulse, pulse)
-    const mat = meshRef.current.material as THREE.MeshBasicMaterial
-    mat.opacity = intensity * (0.15 + Math.sin(t * 0.6) * 0.05)
+
+    // Esfera interna: pulsa 0.97 ↔ 1.03 @ 0.8Hz; opacidade varia com intensity
+    if (innerRef.current) {
+      const pulseIn = 1 + Math.sin(t * 0.8 * Math.PI * 2) * 0.03
+      innerRef.current.scale.set(pulseIn, pulseIn, pulseIn)
+      const matIn = innerRef.current.material as THREE.MeshBasicMaterial
+      matIn.opacity = intensity * (0.25 + (Math.sin(t * 0.8 * Math.PI * 2) + 1) * 0.1)
+    }
+
+    // Esfera média: pulsa 0.95 ↔ 1.05 @ 0.5Hz
+    if (midRef.current) {
+      const pulseMid = 1 + Math.sin(t * 0.5 * Math.PI * 2) * 0.05
+      midRef.current.scale.set(pulseMid, pulseMid, pulseMid)
+    }
+
+    // Esfera externa: pulsa 0.95 ↔ 1.05 @ 0.3Hz (mais lenta)
+    if (outerRef.current) {
+      const pulseOut = 1 + Math.sin(t * 0.3 * Math.PI * 2) * 0.05
+      outerRef.current.scale.set(pulseOut, pulseOut, pulseOut)
+    }
+
+    // Partículas: rotação lenta
+    if (particlesRef.current) {
+      particlesRef.current.rotation.y += 0.15 * 0.016
+      particlesRef.current.rotation.x += 0.15 * 0.008
+    }
+
+    // Point light dinâmico
+    if (lightRef.current) {
+      lightRef.current.intensity = intensity * 3
+    }
   })
 
   return (
-    <mesh ref={meshRef}>
-      <sphereGeometry args={[1.5, 32, 32]} />
-      <meshBasicMaterial color={color} transparent opacity={0.2} depthWrite={false} />
-    </mesh>
+    <group>
+      {/* Point light dinâmico no centro */}
+      <pointLight ref={lightRef} position={[0, 0, 0]} color={color} intensity={intensity * 3} distance={4} />
+
+      {/* Esfera interna: raio 1.3, opacidade alta, sem wireframe */}
+      <mesh ref={innerRef}>
+        <sphereGeometry args={[1.3, 32, 32]} />
+        <meshBasicMaterial color={color} transparent opacity={intensity * 0.35} depthWrite={false} />
+      </mesh>
+
+      {/* Esfera média: raio 1.7, opacidade média */}
+      <mesh ref={midRef}>
+        <sphereGeometry args={[1.7, 32, 32]} />
+        <meshBasicMaterial color={color} transparent opacity={0.15} depthWrite={false} />
+      </mesh>
+
+      {/* Esfera externa: raio 2.2, opacidade baixa */}
+      <mesh ref={outerRef}>
+        <sphereGeometry args={[2.2, 32, 32]} />
+        <meshBasicMaterial color={color} transparent opacity={0.06} depthWrite={false} />
+      </mesh>
+
+      {/* Partículas flutuantes */}
+      <points ref={particlesRef}>
+        <bufferGeometry>
+          <bufferAttribute
+            attach="attributes-position"
+            args={[positions, 3]}
+            count={particleCount}
+          />
+        </bufferGeometry>
+        <pointsMaterial color={color} size={0.04} sizeAttenuation transparent opacity={0.9} depthWrite={false} />
+      </points>
+    </group>
   )
 }
 
