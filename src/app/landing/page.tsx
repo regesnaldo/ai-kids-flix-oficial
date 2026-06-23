@@ -1,67 +1,156 @@
 import Link from "next/link";
 
-/**
- * Landing page pública — porta de entrada do MENTE.AI.
- *
- * Conteúdo minimalista focado em conversão: headline, subtítulo e CTA
- * para o fluxo de cadastro. O SEO é coberto pela metadata do root layout.
- */
+/* ─── Data ─── */
+
+const STEPS = [
+  {
+    step: "01",
+    title: "Escolha seu agente",
+    description: "12 agentes com universos únicos esperando por você.",
+  },
+  {
+    step: "02",
+    title: "Entre no universo",
+    description: "Cada agente tem um mundo 3D imersivo para explorar.",
+  },
+  {
+    step: "03",
+    title: "Aprenda interagindo",
+    description: "O sistema adapta a narrativa ao seu perfil cognitivo.",
+  },
+];
+
+const AGENTS = [
+  { name: "NEXUS", tagline: "O centro de tudo. Presente em todos os mundos.", accent: "text-[var(--neon-cyan)]" },
+  { name: "VOLT", tagline: "Energia e velocidade. Domina circuitos quânticos.", accent: "text-[var(--neon-purple)]" },
+  { name: "KAOS", tagline: "O caos que gera ordem. Mestre dos algoritmos.", accent: "text-[var(--neon-orange)]" },
+  { name: "LYRA", tagline: "Harmonia entre dados e emoção.", accent: "text-[var(--neon-pink)]" },
+  { name: "AURORA", tagline: "Desperta potenciais adormecidos.", accent: "text-[var(--neon-green)]" },
+  { name: "CIPHER", tagline: "Decifra padrões invisíveis.", accent: "text-[var(--neon-blue)]" },
+];
+
+/* ─── Page ─── */
+
 export default function LandingPage() {
   return (
-    <main
-      style={{
-        minHeight: "100vh",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        textAlign: "center",
-        padding: "2rem",
-        backgroundColor: "var(--cyber-black, #0a0a1a)",
-        color: "white",
-        gap: "1.5rem",
-      }}
-    >
-      <h1
-        style={{
-          fontSize: "clamp(2rem, 5vw, 3.5rem)",
-          fontWeight: 700,
-          lineHeight: 1.15,
-          maxWidth: "20ch",
-          margin: 0,
-        }}
-      >
-        Não apenas use Inteligência Artificial. Entenda-a.
-      </h1>
+    <div className="bg-[var(--cyber-black)] text-white min-h-screen">
 
-      <p
-        style={{
-          fontSize: "clamp(1rem, 2vw, 1.25rem)",
-          color: "rgba(255, 255, 255, 0.7)",
-          maxWidth: "55ch",
-          margin: 0,
-        }}
-      >
-        Bem-vindo ao MENTE.AI, o metaverso educacional onde você aprende IA de
-        forma imersiva e interativa.
-      </p>
+      {/* ═══════════════════════════════════════════
+          SEÇÃO 1 — HERO
+          ═══════════════════════════════════════════ */}
+      <section className="flex flex-col items-center justify-center text-center px-6 pt-32 pb-20 gap-6">
+        <h1 className="font-[var(--font-orbitron)] text-4xl sm:text-5xl lg:text-6xl font-extrabold max-w-4xl leading-tight tracking-tight">
+          Não apenas use Inteligência Artificial. Entenda-a.
+        </h1>
 
-      <Link
-        href="/cadastro"
-        style={{
-          marginTop: "1rem",
-          padding: "0.9rem 2rem",
-          borderRadius: "0.75rem",
-          backgroundColor: "#3B82F6",
-          color: "white",
-          fontWeight: 600,
-          fontSize: "1.05rem",
-          textDecoration: "none",
-          transition: "background-color 0.2s ease",
-        }}
-      >
-        Comece sua jornada
-      </Link>
-    </main>
+        <p className="font-[var(--font-display)] text-white/70 text-lg sm:text-xl max-w-2xl leading-relaxed">
+          O metaverso educacional onde você aprende IA de forma imersiva,
+          interativa e narrativa.
+        </p>
+
+        <div className="flex flex-wrap justify-center gap-4 mt-4">
+          <Link
+            href="/cadastro"
+            className="glow-cyan inline-flex items-center px-8 py-3.5 rounded-xl font-semibold text-lg transition-all duration-200 hover:brightness-110 bg-[var(--neon-cyan)] text-[var(--cyber-black)]"
+          >
+            Comece sua jornada
+          </Link>
+          <Link
+            href="/login"
+            className="glass inline-flex items-center px-8 py-3.5 rounded-xl font-semibold text-lg transition-all duration-200 text-[var(--neon-cyan)]"
+          >
+            Já tenho conta
+          </Link>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════
+          SEÇÃO 2 — COMO FUNCIONA
+          ═══════════════════════════════════════════ */}
+      <section className="px-6 py-20 max-w-6xl mx-auto">
+        <h2 className="font-[var(--font-orbitron)] text-2xl sm:text-3xl font-bold text-center mb-14">
+          Como funciona
+        </h2>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {STEPS.map((s) => (
+            <div key={s.step} className="glass rounded-2xl p-8 transition-all duration-300">
+              <span className="font-[var(--font-orbitron)] text-[var(--neon-cyan)] text-sm font-bold tracking-widest">
+                {s.step}
+              </span>
+              <h3 className="font-[var(--font-display)] text-xl font-semibold mt-4 mb-3">
+                {s.title}
+              </h3>
+              <p className="text-white/60 text-sm leading-relaxed">
+                {s.description}
+              </p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════
+          SEÇÃO 3 — AGENTES
+          ═══════════════════════════════════════════ */}
+      <section className="px-6 py-20 max-w-6xl mx-auto">
+        <h2 className="font-[var(--font-orbitron)] text-2xl sm:text-3xl font-bold text-center mb-4">
+          Conheça os agentes
+        </h2>
+        <p className="text-white/50 text-center text-sm mb-14 max-w-xl mx-auto">
+          Cada agente é uma porta de entrada para um universo único de conhecimento.
+        </p>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          {AGENTS.map((agent) => (
+            <div key={agent.name} className="glass rounded-2xl p-6 transition-all duration-300">
+              <span className={`font-[var(--font-orbitron)] text-lg font-bold tracking-wider ${agent.accent}`}>
+                {agent.name}
+              </span>
+              <p className="text-white/60 text-sm mt-2 leading-relaxed">
+                {agent.tagline}
+              </p>
+            </div>
+          ))}
+        </div>
+
+        <div className="text-center mt-10">
+          <Link
+            href="/agentes"
+            className="inline-flex items-center gap-2 font-semibold text-sm transition-all duration-200 text-[var(--neon-cyan)]"
+          >
+            Ver todos os agentes
+            <span aria-hidden="true">→</span>
+          </Link>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════
+          SEÇÃO 4 — CTA FINAL
+          ═══════════════════════════════════════════ */}
+      <section className="px-6 py-24 text-center max-w-2xl mx-auto">
+        <h2 className="font-[var(--font-orbitron)] text-3xl sm:text-4xl font-bold mb-6 leading-tight">
+          Pronto para entrar no metaverso?
+        </h2>
+        <p className="text-white/60 text-base mb-10">
+          Crie sua conta gratuita e comece a aprender IA como nunca antes.
+        </p>
+
+        <div className="flex flex-wrap justify-center gap-4">
+          <Link
+            href="/cadastro"
+            className="glow-purple inline-flex items-center px-10 py-4 rounded-xl font-semibold text-lg transition-all duration-200 hover:brightness-110 bg-[var(--neon-purple)] text-white"
+          >
+            Criar conta grátis
+          </Link>
+          <Link
+            href="/planos"
+            className="glass inline-flex items-center px-10 py-4 rounded-xl font-semibold text-lg transition-all duration-200 text-[var(--neon-purple)]"
+          >
+            Ver planos
+          </Link>
+        </div>
+      </section>
+
+    </div>
   );
 }
