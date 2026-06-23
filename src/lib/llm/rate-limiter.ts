@@ -58,6 +58,6 @@ export async function llmRateLimit(
 /** Reseta os contadores para um usuário (uso em testes/admin). */
 export async function resetLlmRateLimit(userId: string | number | undefined): Promise<void> {
   const ukey = userKey(userId);
-  await resetRateLimit(ukey, { keyPrefix: KEY_PREFIX });
-  await resetRateLimit("global", { keyPrefix: KEY_PREFIX });
+  await resetRateLimit(`${KEY_PREFIX}:${ukey}`);
+  await resetRateLimit(`${KEY_PREFIX}:global`);
 }
