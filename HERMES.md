@@ -19,3 +19,16 @@
 - Remover todos os `console.log` antes do commit (ou envolvê-los em `if (process.env.NODE_ENV === 'development')`).
 - Tratar erros de API com `try/catch` retornando status 500 ou 503 com JSON.
 - Usar aliases `@/` para imports (aponta para `./src`).
+
+## Loop Landing Hero — Rodada 1 — 2026-06-23
+- Resultado: APROVADO (Gates 2-5 ✅, Gate 1 pré-existente)
+- Arquivo modificado: src/app/landing/page.tsx
+- Aprendizado: erro TTS (@google-cloud/text-to-speech ausente)
+  é pré-existente — tratar em loop separado
+- Build limpo: Turbopack ✅, tsc landing ✅
+
+## Loop Cleanup .hermes/plans — 2026-06-24
+- Resultado: PR #250 criado (aguardando merge)
+- Ação: Removidos 11 scripts .py de criação de PR acidentalmente commitados no PR #248
+- Branch: chore/remove-hermes-plans
+- Regra registrada: `hermes_agent.py` scripts são artefatos internos — nunca commitados no repositório remoto
