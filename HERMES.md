@@ -32,3 +32,9 @@
 - Ação: Removidos 11 scripts .py de criação de PR acidentalmente commitados no PR #248
 - Branch: chore/remove-hermes-plans
 - Regra registrada: `hermes_agent.py` scripts são artefatos internos — nunca commitados no repositório remoto
+
+## Loop Unificado ERA 4 — 24 Jun 2026
+- Tarefa 1: PR #249 rate-limiter — PASSOU (cherry-pick e98d396 → fix/rate-limiter-v2)
+- Tarefa 2: PROJECT.md criado — PASSOU (docs/project-md, 98 linhas)
+- Tarefa 3: Constituição Arquitetural — PASSOU (docs/constituicao-arquitetural)
+- Aprendizado: `.next/dev/types/validator.ts` pode corromper entre branches — limpar arquivo específico antes do build
