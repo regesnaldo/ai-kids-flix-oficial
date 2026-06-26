@@ -55,7 +55,7 @@ export function useExperimentEngine(experimentId: string | null) {
     ]);
   }, []);
 
-  // ── Poll board every 2s ────────────────────────────────────────────
+  // ── Poll board every 10s ────────────────────────────────────────────
   useEffect(() => {
     if (!experimentId) return;
 
@@ -69,7 +69,7 @@ export function useExperimentEngine(experimentId: string | null) {
       } catch (error) { console.error('[MENTE.AI] Error in useExperimentEngine.ts:', error); }
     };
 
-    const interval = setInterval(poll, 2000);
+    const interval = setInterval(poll, 10000);
     return () => clearInterval(interval);
   }, [experimentId]);
 
