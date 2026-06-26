@@ -62,12 +62,17 @@ function resolverModelo(opts: LLMGenerateOptions): string {
   return opts.model ?? process.env.ANTHROPIC_MODEL ?? ANTHROPIC_MODELO_PADRAO;
 }
 
+function getBaseUrl(): string | undefined {
+  return process.env.ANTHROPIC_BASE_URL || undefined;
+}
+
 function criarCliente(): Anthropic {
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const apiKey = process.env.ANTHROPIC_AUTH_TOKEN || process.env.ANTHROPIC_API_KEY;
   if (!apiKey || apiKey.includes("...") || apiKey.length < 20) {
-    throw new LLMProviderError("anthropic", 0, "sem_chave", "ANTHROPIC_API_KEY não configurada no ambiente.");
+    throw new LLMProviderError("anthropic", 0, "sem_chave", "ANTHROPIC_API_KEY/ANTHROPIC_AUTH_TOKEN não configurada.");
   }
-  return new Anthropic({ apiKey, timeout: TIMEOUT_MS, maxRetries: 0 });
+  const baseURL = getBaseUrl();
+  return new Anthropic({ apiKey, baseURL, timeout: TIMEOUT_MS, maxRetries: 0 });
 }
 
 function toAnthropicMessages(opts: LLMGenerateOptions): AnthropicMensagem[] {
@@ -141,9 +146,9 @@ export async function generate(opts: LLMGenerateOptions): Promise<LLMResult> {
 // ─── Adapter: stream (SSE incremental via fetch) ──────────────────────────
 
 export async function* stream(opts: LLMGenerateOptions): AsyncGenerator<string> {
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const apiKey = process.env.ANTHROPIC_AUTH_TOKEN || process.env.ANTHROPIC_API_KEY;
   if (!apiKey || apiKey.includes("...") || apiKey.length < 20) {
-    throw new LLMProviderError("anthropic", 0, "sem_chave", "ANTHROPIC_API_KEY não configurada.");
+    throw new LLMProviderError("anthropic", 0, "sem_chave", "ANTHROPIC_API_KEY/ANTHROPIC_AUTH_TOKEN não configurada.");
   }
 
   const modelo = resolverModelo(opts);
@@ -156,7 +161,8 @@ export async function* stream(opts: LLMGenerateOptions): AsyncGenerator<string> 
   };
   if (opts.system) body.system = opts.system;
 
-  const response = await fetch("https://api.anthropic.com/v1/messages", {
+  const baseURL = (getBaseUrl() || "https://api.anthropic.com").replace(/\/+$/, "");
+  const response = await fetch(`${baseURL}/v1/messages`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
