@@ -73,7 +73,10 @@ export async function POST(req: NextRequest) {
 
     // 3. Chamar Claude (Haiku) com contexto emocional
     const { Anthropic } = await import('@anthropic-ai/sdk');
-    const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+    const anthropic = new Anthropic({
+      apiKey: process.env.ANTHROPIC_AUTH_TOKEN || process.env.ANTHROPIC_API_KEY,
+      baseURL: process.env.ANTHROPIC_BASE_URL || undefined,
+    });
 
     const systemWithEmotion = emotionHint
       ? `${agentSystemPrompt}\n\n[CONTEXTO EMOCIONAL]: ${emotionHint}`
