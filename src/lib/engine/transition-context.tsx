@@ -1,5 +1,5 @@
 "use client"
-import { createContext, useContext, useState, useCallback, type ReactNode } from "react"
+import { createContext, useContext, useState, useCallback, useMemo, type ReactNode } from "react"
 
 interface TransitionState {
   fromAgent: string
@@ -30,8 +30,10 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
     setTransition(null)
   }, [])
 
+  const contextValue = useMemo(() => ({ transition, startTransition, endTransition }), [transition, startTransition, endTransition])
+
   return (
-    <TransitionContext.Provider value={{ transition, startTransition, endTransition }}>
+    <TransitionContext.Provider value={contextValue}>
       {children}
     </TransitionContext.Provider>
   )
