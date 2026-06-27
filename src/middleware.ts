@@ -17,7 +17,6 @@ export async function middleware(request: NextRequest) {
     '/explorar',
     '/agentes',
     '/avatar',
-    '/sentinel',
     '/series',
     '/logos',
     '/certificado',
@@ -34,6 +33,16 @@ export async function middleware(request: NextRequest) {
 
   if (isProtected && !payload) {
     return NextResponse.redirect(new URL('/login', request.url))
+  }
+
+  // Sentinel: acesso restrito a admin
+  if (pathname.startsWith('/sentinel')) {
+    if (!payload) {
+      return NextResponse.redirect(new URL('/login', request.url))
+    }
+    if ((payload as { role?: string }).role !== 'admin') {
+      return NextResponse.redirect(new URL('/home', request.url))
+    }
   }
 
   if (pathname === '/' && payload) {
