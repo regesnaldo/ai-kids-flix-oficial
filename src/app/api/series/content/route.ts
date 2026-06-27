@@ -237,7 +237,9 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    console.error("[SERIES/CONTENT] error:", message);
+    if (process.env.NODE_ENV !== 'production') {
+      console.error("[SERIES/CONTENT] error:", message);
+    }
     return NextResponse.json(
       { error: "Erro interno ao resolver conteúdo" },
       { status: 500 },
