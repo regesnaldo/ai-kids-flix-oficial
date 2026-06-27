@@ -84,7 +84,7 @@ try { localStorage.setItem("mente_ai_username", name); } catch (error) { console
   const fetchXpData = useCallback(async () => {
     if (!userId) return;
     try {
-      const res = await fetch(`/api/xp/award?userId=${userId}`);
+      const res = await fetch("/api/xp/award", { credentials: "include" });
       if (!res.ok) return;
       const data = await res.json();
       setXpData({
