@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthCookieFromRequest, verifyToken } from "@/lib/auth";
+import { resolveProviderWithFallback, chat } from "@/lib/llm/provider";
 
 export const runtime = "nodejs";
 
@@ -44,30 +45,13 @@ Responda APENAS com JSON válido neste formato exato:
   ]
 }`;
 
-    const response = await fetch("https://api.deepseek.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.DEEPSEEK_API_KEY}`,
-      },
-      body: JSON.stringify({
-        model: "deepseek-v4-pro",
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: `Conteúdo do episódio:\n\n${episodeContent}` },
-        ],
-        max_tokens: 1500,
-        temperature: 0.7,
-      }),
-    });
+    const resolved = await resolveProviderWithFallback();
+    const rawText = await chat(resolved, [
+      { role: "system", content: systemPrompt },
+      { role: "user", content: `Conteúdo do episódio:\n\n${episodeContent}` },
+    ], { maxTokens: 1500, temperature: 0.7 });
 
-    if (!response.ok) {
-      throw new Error(`DeepSeek API error: ${response.status}`);
-    }
-
-    const data = await response.json();
-    const content = data.choices[0].message.content;
-    const clean = content.replace(/```json|```/g, "").trim();
+    const clean = rawText.replace(/```json|```/g, "").trim();
     const parsed = JSON.parse(clean);
 
     return NextResponse.json({
