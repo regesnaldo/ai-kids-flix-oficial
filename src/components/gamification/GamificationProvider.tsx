@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, useCallback } from "react";
+import { createContext, useContext, useEffect, useMemo, useState, useCallback } from "react";
 import { usePathname } from "next/navigation";
 import { UserHud } from "./UserHud";
 import { ConquestNotification } from "./ConquestNotification";
@@ -112,8 +112,10 @@ try { localStorage.setItem("mente_ai_username", name); } catch (error) { console
     return () => window.removeEventListener("mente_ai_conquest", handler);
   }, [fetchXpData]);
 
+  const contextValue = useMemo(() => ({ panelOpen, playbackActive, setPlaybackActive }), [panelOpen, playbackActive, setPlaybackActive]);
+
   return (
-    <GamificationContext.Provider value={{ panelOpen, playbackActive, setPlaybackActive }}>
+    <GamificationContext.Provider value={contextValue}>
       {children}
 
       {/* HUD — hidden during playback */}
