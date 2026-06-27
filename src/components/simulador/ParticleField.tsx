@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 
-import type { Emotion } from "@/cognitive/audio/ambientEngine";
+import type { Emotion } from "@/types/emotion";
 
 type ParticleMode = "ascending" | "descending" | "chaotic" | "floating";
 
