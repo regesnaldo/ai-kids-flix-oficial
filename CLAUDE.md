@@ -311,10 +311,10 @@ src/app/api/chat/route.ts
 - core AI communication
 
 src/app/api/elevenlabs/speak/route.ts
-- educational audio
+- educational audio ⚠️ ElevenLabs com créditos zerados em 27/06/2026 — TTS falha em produção
 
-src/cognitive/audio/ambientEngine.ts
-- real audio engine
+src/types/emotion.ts
+- tipo Emotion canônico — PR #264
 
 middleware.ts
 - auth protection
@@ -450,6 +450,28 @@ If not, improve first.
 
 ---
 
+## Histórico de PRs Recentes (27/06/2026)
+
+| PR | O que entrou |
+|---|---|
+| #255 | Anthropic AUTH_TOKEN + BASE_URL para proxy |
+| #256 | Lab polling 2s → 10s |
+| #257 | /sentinel restrito a role=admin |
+| #258 | 22 console.log removidos de produção |
+| #259 | logos/generate usando provider canônico |
+| #260 | voice/converse usando adapter canônico |
+| #261 | webhook/deploy stub morto removido |
+| #262 | Auth JWT em /certificate e /health/governance |
+| #263 | canon-database órfão removido — 2014 linhas |
+| #264 | cognitive/ órfã removida — tipo Emotion → src/types/ |
+| #265 | Content-Security-Policy no vercel.json |
+| #266 | Idempotência no webhook Stripe |
+| #267 | 25 scripts one-offs removidos |
+| #268 | GamificationProvider XP lido do DB |
+| #269 | Dependências circulares em engine/ resolvidas |
+
+---
+
 # SECTION 17 — NORTH STAR
 
 Every task must move MENTE.AI closer to becoming the benchmark AI learning platform in Brazil.
@@ -525,7 +547,7 @@ Location: src/lib/db/schema.ts
 ✅ npm run build after EVERY file change → ZERO errors
 ✅ npm run typecheck after build → ZERO errors
 ✅ One commit per task with conventional messages
-✅ Branch: feat/lab-redesign (NEVER main)
+✅ Branch: main (branch protegida — todo trabalho via PR)
 
 ### Authentication
 - Cookie name: mente_ai_token (hardcoded requirement)
@@ -589,4 +611,4 @@ import { users } from "@/lib/db/schema";
 ✅ NEXUS featured appropriately (if visual)  
 ✅ Animations smooth and responsive  
 ✅ Commit message clear and conventional  
-✅ Branch is feat/lab-redesign
+✅ Branch is main (branch protegida — todo trabalho via PR)
