@@ -14,30 +14,30 @@ export async function GET() {
       const dirs = await fs.readdir(universoPath, { withFileTypes: true });
       universes = dirs.filter(d => d.isDirectory()).map(d => d.name);
       universeCount = universes.length;
-    } catch (error) { console.error('[MENTE.AI] Error in api/sentinel/status/route.ts:', error); }
+    } catch (error) { if (process.env.NODE_ENV !== 'production') { console.error('[MENTE.AI] Error in api/sentinel/status/route.ts:', error); } }
 
     let botCount = 0;
     const botsPath = path.join(projectRoot, "scripts/agents");
     try {
       const bots = await fs.readdir(botsPath);
       botCount = bots.filter(f => f.endsWith(".ps1")).length;
-    } catch (error) { console.error('[MENTE.AI] Error in api/sentinel/status/route.ts:', error); }
+    } catch (error) { if (process.env.NODE_ENV !== 'production') { console.error('[MENTE.AI] Error in api/sentinel/status/route.ts:', error); } }
 
     let imageCount = 0;
     const imagesPath = path.join(projectRoot, "public/images/agentes");
     try {
       const images = await fs.readdir(imagesPath);
       imageCount = images.length;
-    } catch (error) { console.error('[MENTE.AI] Error in api/sentinel/status/route.ts:', error); }
+    } catch (error) { if (process.env.NODE_ENV !== 'production') { console.error('[MENTE.AI] Error in api/sentinel/status/route.ts:', error); } }
 
     let sitemapExists = false, robotsExists = false;
     try { await fs.access(path.join(projectRoot, "src/app/sitemap.ts")); sitemapExists = true; } catch (error) {
-      console.error('[MENTE.AI] Error in api/sentinel/status/route.ts:', error);
-      try { await fs.access(path.join(projectRoot, "public/sitemap.xml")); sitemapExists = true; } catch (error) { console.error('[MENTE.AI] Error in api/sentinel/status/route.ts:', error); }
+      if (process.env.NODE_ENV !== 'production') { console.error('[MENTE.AI] Error in api/sentinel/status/route.ts:', error); }
+      try { await fs.access(path.join(projectRoot, "public/sitemap.xml")); sitemapExists = true; } catch (error) { if (process.env.NODE_ENV !== 'production') { console.error('[MENTE.AI] Error in api/sentinel/status/route.ts:', error); } }
     }
     try { await fs.access(path.join(projectRoot, "src/app/robots.ts")); robotsExists = true; } catch (error) {
-      console.error('[MENTE.AI] Error in api/sentinel/status/route.ts:', error);
-      try { await fs.access(path.join(projectRoot, "public/robots.txt")); robotsExists = true; } catch (error) { console.error('[MENTE.AI] Error in api/sentinel/status/route.ts:', error); }
+      if (process.env.NODE_ENV !== 'production') { console.error('[MENTE.AI] Error in api/sentinel/status/route.ts:', error); }
+      try { await fs.access(path.join(projectRoot, "public/robots.txt")); robotsExists = true; } catch (error) { if (process.env.NODE_ENV !== 'production') { console.error('[MENTE.AI] Error in api/sentinel/status/route.ts:', error); } }
     }
 
     let apiCount = 0;
@@ -51,7 +51,7 @@ export async function GET() {
           else if (item.name === "route.ts") count++;
         }
         return count;
-      } catch (error) { console.error('[MENTE.AI] Error in api/sentinel/status/route.ts:', error); return 0; }
+      } catch (error) { if (process.env.NODE_ENV !== 'production') { console.error('[MENTE.AI] Error in api/sentinel/status/route.ts:', error); } return 0; }
     };
     apiCount = await countDirs(apiPath);
 
@@ -60,7 +60,7 @@ export async function GET() {
     try {
       const dirs = await fs.readdir(pagesPath, { withFileTypes: true });
       pageCount = dirs.filter(d => d.isDirectory()).length;
-    } catch (error) { console.error('[MENTE.AI] Error in api/sentinel/status/route.ts:', error); }
+    } catch (error) { if (process.env.NODE_ENV !== 'production') { console.error('[MENTE.AI] Error in api/sentinel/status/route.ts:', error); } }
 
     return NextResponse.json({
       timestamp: new Date().toISOString(),

@@ -83,7 +83,9 @@ class NexusRuntime {
    */
   init(): void {
     if (this.initialized) {
-      console.warn("[NexusRuntime] Already initialized. Skipping.");
+      if (process.env.NODE_ENV !== 'production') {
+        console.warn("[NexusRuntime] Already initialized. Skipping.");
+      }
       return;
     }
 
@@ -145,7 +147,9 @@ class NexusRuntime {
     const { agentId, name, scope } = params;
 
     if (this.state.agentRecords[agentId]) {
-      console.warn(`[NexusRuntime] Agent "${agentId}" already registered. Updating scope.`);
+      if (process.env.NODE_ENV !== 'production') {
+        console.warn(`[NexusRuntime] Agent "${agentId}" already registered. Updating scope.`);
+      }
       return this.state.agentRecords[agentId];
     }
 
@@ -190,7 +194,9 @@ class NexusRuntime {
   ): boolean {
     const record = this.state.agentRecords[agentId];
     if (!record) {
-      console.error(`[NexusRuntime] Cannot transition unknown agent: "${agentId}"`);
+      if (process.env.NODE_ENV !== 'production') {
+        console.error(`[NexusRuntime] Cannot transition unknown agent: "${agentId}"`);
+      }
       return false;
     }
 
@@ -206,9 +212,11 @@ class NexusRuntime {
     };
 
     if (!validTransitions[fromState].includes(toState)) {
-      console.error(
-        `[NexusRuntime] Invalid transition for "${agentId}": ${fromState} → ${toState}`
-      );
+      if (process.env.NODE_ENV !== 'production') {
+        console.error(
+          `[NexusRuntime] Invalid transition for "${agentId}": ${fromState} → ${toState}`
+        );
+      }
       return false;
     }
 

@@ -39,7 +39,9 @@ async function callGroq(systemPrompt: string, maxTokens = 1500): Promise<string>
 
     if (!response.ok) {
       const errText = await response.text().catch(() => "sem corpo");
-      console.error("[lab/agent] Groq HTTP error", { status: response.status, body: errText.slice(0, 300) });
+      if (process.env.NODE_ENV !== 'production') {
+        console.error("[lab/agent] Groq HTTP error", { status: response.status, body: errText.slice(0, 300) });
+      }
       throw new Error(`Groq retornou HTTP ${response.status}: ${errText.slice(0, 200)}`);
     }
 
@@ -47,7 +49,9 @@ async function callGroq(systemPrompt: string, maxTokens = 1500): Promise<string>
     const content: string | undefined = data?.choices?.[0]?.message?.content;
 
     if (typeof content !== "string" || !content.trim()) {
-      console.error("[lab/agent] Groq resposta vazia", { data: JSON.stringify(data).slice(0, 300) });
+      if (process.env.NODE_ENV !== 'production') {
+        console.error("[lab/agent] Groq resposta vazia", { data: JSON.stringify(data).slice(0, 300) });
+      }
       throw new Error("Groq retornou resposta vazia");
     }
 
@@ -149,19 +153,25 @@ export async function POST(request: NextRequest) {
 
     // ── Validation ─────────────────────────────────────────────────
     if (!body.experimentId || !body.agent) {
-      console.warn("[lab/agent] Parâmetros ausentes");
+      if (process.env.NODE_ENV !== 'production') {
+        console.warn("[lab/agent] Parâmetros ausentes");
+      }
       return NextResponse.json({ error: "experimentId e agent são obrigatórios" }, { status: 400 });
     }
 
     const board = getBoard(body.experimentId);
     if (!board) {
-      console.warn("[lab/agent] Experimento não encontrado", { id: body.experimentId.slice(0, 8) });
+      if (process.env.NODE_ENV !== 'production') {
+        console.warn("[lab/agent] Experimento não encontrado", { id: body.experimentId.slice(0, 8) });
+      }
       return NextResponse.json({ error: "Experimento não encontrado. Pode ter expirado (TTL 24h)." }, { status: 404 });
     }
 
     const agent = body.agent
     if (agent !== 'nexus' && agent !== 'cipher' && agent !== 'kaos' && agent !== 'aurora') {
-      console.warn("[lab/agent] Agente desconhecido", { agent: body.agent });
+      if (process.env.NODE_ENV !== 'production') {
+        console.warn("[lab/agent] Agente desconhecido", { agent: body.agent });
+      }
       return NextResponse.json({ error: `Agente desconhecido: ${body.agent}. Use: nexus, cipher, kaos ou aurora.` }, { status: 400 });
     }
 
@@ -207,11 +217,13 @@ export async function POST(request: NextRequest) {
       response = await callGroq(systemPrompt, maxTokens);
     } catch (err: any) {
       kvDecr("global_active"); // decrement on error
-      console.error("[lab/agent] Falha na chamada LLM", {
-        agent: body.agent,
-        error: err?.message,
-        stack: err?.stack?.slice(0, 300),
-      });
+      if (process.env.NODE_ENV !== 'production') {
+        console.error("[lab/agent] Falha na chamada LLM", {
+          agent: body.agent,
+          error: err?.message,
+          stack: err?.stack?.slice(0, 300),
+        });
+      }
 
       // Fallback: responder com erro amigável em PT-BR
       const errorMsg = err?.message?.includes("API_KEY")
@@ -224,7 +236,9 @@ export async function POST(request: NextRequest) {
     }
 
     if (!response) {
-      console.error("[lab/agent] LLM retornou vazio");
+      if (process.env.NODE_ENV !== 'production') {
+        console.error("[lab/agent] LLM retornou vazio");
+      }
       return NextResponse.json({ error: "O modelo de IA retornou uma resposta vazia. Tente novamente." }, { status: 502 });
     }
 
@@ -232,10 +246,12 @@ export async function POST(request: NextRequest) {
     const { narrative, facts } = parseBoardTags(response);
 
     if (facts.length === 0 && body.agent !== "aurora") {
-      console.warn("[lab/agent] Nenhuma tag [BOARD:] encontrada na resposta", {
-        agent: body.agent,
-        responsePreview: response.slice(0, 100),
-      });
+      if (process.env.NODE_ENV !== 'production') {
+        console.warn("[lab/agent] Nenhuma tag [BOARD:] encontrada na resposta", {
+          agent: body.agent,
+          responsePreview: response.slice(0, 100),
+        });
+      }
     }
 
     // ── Update board ───────────────────────────────────────────────
@@ -296,10 +312,12 @@ export async function POST(request: NextRequest) {
       boardFacts: board.facts,
     });
   } catch (err: any) {
-    console.error("[lab/agent] Erro não tratado", {
-      error: err?.message,
-      stack: err?.stack?.slice(0, 500),
-    });
+    if (process.env.NODE_ENV !== 'production') {
+      console.error("[lab/agent] Erro não tratado", {
+        error: err?.message,
+        stack: err?.stack?.slice(0, 500),
+      });
+    }
     return NextResponse.json(
       { error: `Falha interna ao executar agente: ${err?.message || "Erro desconhecido"}. Verifique os logs do servidor.` },
       { status: 500 }
