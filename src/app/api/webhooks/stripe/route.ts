@@ -6,6 +6,8 @@ import { users } from '@/lib/db/schema'
 
 export const runtime = 'nodejs'
 
+const processedEvents = new Set<string>()
+
 const PRICE_ID_TO_PLAN: Record<string, 'BASIC' | 'PREMIUM' | 'FAMILY'> = {
   price_1T8juHA8k5sJtQHotNEhgmOT: 'BASIC',
   price_1T8mgXA8k5sJtQHoeHgSJYa2: 'BASIC',
@@ -76,6 +78,12 @@ export async function POST(req: NextRequest) {
     console.error('Webhook signature verification failed:', err)
     return NextResponse.json({ error: 'Invalid signature' }, { status: 400 })
   }
+
+  // Idempotency: Stripe may retry the same event
+  if (processedEvents.has(event.id)) {
+    return NextResponse.json({ received: true }, { status: 200 })
+  }
+  processedEvents.add(event.id)
 
   try {
     switch (event.type) {
