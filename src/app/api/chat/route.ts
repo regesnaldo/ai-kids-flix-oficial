@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ALL_AGENTS } from "@/canon/agents/all-agents";
 import { anthropicCompletionText, anthropicStream, type AnthropicMensagem } from "@/lib/anthropic";
-import { detectarConflito, agenteOponente, getConflictPrompt } from "@/lib/engine/conflicts";
+import { detectarConflito, agenteOponente, getConflictPrompt } from "@/engine/conflicts";
 import { getMemoryContext, getSemanticMemoryContext, storeMemory } from "@/lib/agent-memory";
 import { analyzeIdentity, formatIdentityContext } from "@/lib/identity-profiler";
 import {
