@@ -4,9 +4,10 @@
  * Retorna a saúde completa da governança: ADRs, docs, links, orfaos, narrativa.
  * Este endpoint e o "scanner diagnostico do sistema nervoso" da civilizacao cognitiva.
  */
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { readdirSync, readFileSync, existsSync } from "fs";
 import { join } from "path";
+import { getAuthCookieFromRequest, verifyToken } from "@/lib/auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -154,7 +155,14 @@ function overallStatus(scores: Record<string, number>): "healthy" | "degraded" |
   return "critical";
 }
 
-export async function GET(): Promise<NextResponse<GovernanceReport>> {
+export async function GET(request: NextRequest): Promise<NextResponse<GovernanceReport>> {
+  // Auth
+  const token = getAuthCookieFromRequest(request);
+  if (!token) return NextResponse.json({ error: "Não autenticado" } as any, { status: 401 });
+
+  const payload = await verifyToken(token);
+  if (!payload) return NextResponse.json({ error: "Token inválido" } as any, { status: 401 });
+
   const adrs = countAdrs();
   const docs = countDocs();
   const critical = checkCriticalFiles();
