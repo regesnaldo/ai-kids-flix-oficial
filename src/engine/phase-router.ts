@@ -22,7 +22,7 @@ import {
 
 import { getSeasonByNumber, getSeasonsByPhase, getSeasonSummary } from '@/data/seasons';
 
-import type { Archetype } from './router';
+import type { Archetype } from './types';
 
 export interface PhaseRouterDecision {
   currentSeason: number;

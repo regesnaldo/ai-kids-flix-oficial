@@ -7,7 +7,7 @@
  */
 
 import type { AgentId } from './agent-conflicts';
-import type { Archetype } from './router';
+import type { Archetype } from './types';
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 const OPENAI_MODEL = process.env.OPENAI_MODEL || 'gpt-4o';

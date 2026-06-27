@@ -15,8 +15,8 @@ import {
   type UserProgress 
 } from "./phase-router";
 import { getSeasonByNumber } from "@/data/seasons";
+import type { Archetype } from "./types";
 
-export type Archetype = "analytical" | "rebel" | "paralyzed" | "empathetic" | "strategic" | "creative";
 export type UniverseId = "NEXUS" | "AXIOM" | "KAOS" | "ETHOS" | "VOLT" | "TERRA" | "LYRA" | "STRATOS" | "PRISM" | "AURORA";
 
 export interface RouterDecision {
