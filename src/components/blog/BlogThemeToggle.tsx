@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, createContext, useContext } from 'react';
+import { useState, useEffect, useMemo, createContext, useContext } from 'react';
 import { Sun, Moon } from 'lucide-react';
 
 type BlogTheme = 'dark' | 'light';
@@ -50,8 +50,10 @@ export function BlogThemeProvider({ children }: { children: React.ReactNode }) {
 
   const toggle = () => setTheme(prev => prev === 'dark' ? 'light' : 'dark');
 
+  const contextValue = useMemo(() => ({ theme, toggle }), [theme, toggle]);
+
   return (
-    <BlogThemeContext.Provider value={{ theme, toggle }}>
+    <BlogThemeContext.Provider value={contextValue}>
       {children}
     </BlogThemeContext.Provider>
   );
