@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState, useCallback } from "react";
+import React, { createContext, useContext, useEffect, useMemo, useState, useCallback } from "react";
 import { useSession } from "@/providers/SessionProvider";
 import { useOasis } from "@/providers/OasisProvider";
 
@@ -208,8 +208,10 @@ export function JourneyProvider({ children }: { children: React.ReactNode }) {
     }
   }, [sessionLoading, fetchJourney]);
 
+  const contextValue = useMemo(() => ({ journey, refresh: fetchJourney }), [journey, fetchJourney]);
+
   return (
-    <JourneyContext.Provider value={{ journey, refresh: fetchJourney }}>
+    <JourneyContext.Provider value={contextValue}>
       {children}
     </JourneyContext.Provider>
   );
