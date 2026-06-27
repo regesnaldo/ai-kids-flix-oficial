@@ -24,6 +24,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { transcribeAudio } from '@/lib/voice/whisper';
 import { detectEmotion, getEmotionPromptHint } from '@/lib/voice/hume';
 import { ALL_AGENTS } from '@/canon/agents/all-agents';
+import { generate } from '@/lib/llm/adapters/anthropic';
 
 export const runtime = 'nodejs';
 export const maxDuration = 45;
@@ -72,12 +73,6 @@ export async function POST(req: NextRequest) {
       : `Você é ${agentId}, um agente do metaverso MENTE.AI.`;
 
     // 3. Chamar Claude (Haiku) com contexto emocional
-    const { Anthropic } = await import('@anthropic-ai/sdk');
-    const anthropic = new Anthropic({
-      apiKey: process.env.ANTHROPIC_AUTH_TOKEN || process.env.ANTHROPIC_API_KEY,
-      baseURL: process.env.ANTHROPIC_BASE_URL || undefined,
-    });
-
     const systemWithEmotion = emotionHint
       ? `${agentSystemPrompt}\n\n[CONTEXTO EMOCIONAL]: ${emotionHint}`
       : agentSystemPrompt;
@@ -87,15 +82,15 @@ export async function POST(req: NextRequest) {
       { role: 'user' as const, content: transcription.text },
     ];
 
-    const completion = await anthropic.messages.create({
-      model: 'claude-haiku-4-5',
-      max_tokens: 300,
+    const result = await generate({
+      provider: 'anthropic',
+      model: 'claude-haiku-4-5-20251001',
       system: systemWithEmotion,
       messages,
+      maxTokens: 300,
     });
 
-    const agentText =
-      completion.content[0].type === 'text' ? completion.content[0].text : '';
+    const agentText = result.content;
 
     // 4. TTS com ElevenLabs (opcional — não bloqueia se falhar)
     let agentAudioBase64: string | null = null;
