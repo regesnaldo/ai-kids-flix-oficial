@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 
 export interface SessionUser {
   id: number;
@@ -67,8 +67,10 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     return () => { cancelled = true; };
   }, []);
 
+  const sessionValue = useMemo(() => ({ user, isLoading, error }), [user, isLoading, error]);
+
   return (
-    <SessionContext.Provider value={{ user, isLoading, error }}>
+    <SessionContext.Provider value={sessionValue}>
       {children}
     </SessionContext.Provider>
   );
