@@ -13,10 +13,9 @@ import { PresenceIndicator } from "@/components/PresenceIndicator";
 import { presenceToBeacon } from "@/lib/navigation-hints/beacon-factory";
 import { useNavigationStore } from "@/store/useNavigationStore";
 import type { NarrativeTransition } from "@/engine/narrative-transitions";
-import { CosmicHero } from "@/components/home/CosmicHero";
 import { ArchetypeCard } from "@/components/home/ArchetypeCard";
 import { getAgentColor } from "@/canon/agents/presence";
-
+import CognitiveHero from "@/components/hero/CognitiveHero";
 type NarrativeSuggestion = {
   title: string;
   description: string;
@@ -316,12 +315,8 @@ export default function HomePage() {
       <UtcClock />
       <FooterHud />
 
-      {/* HERO — Cosmic Brutal */}
-      <CosmicHero
-        isNewUser={!user}
-        episodeLeft={{ episodeNumber: 1, title: "O NASCIMENTO DA IA", accentColor: "cyan" }}
-        episodeRight={{ episodeNumber: 5, title: "REFORCO E RECOMPENSA", accentColor: "magenta" }}
-      />
+      {/* HERO — Cognitive Universe 3D */}
+      <CognitiveHero showNavbar={false} fullScreen={false} />
 
       {/* MAIN CONTENT */}
       <main style={{ paddingTop: "140px", paddingBottom: "80px", maxWidth: "1200px", margin: "0 auto", padding: "140px 2rem 80px" }}>

@@ -55,10 +55,22 @@ function LoadingScreen() {
   )
 }
 
-export default function CognitiveHero() {
+export interface CognitiveHeroProps {
+  /** Exibe a HeroNavbar (false quando o layout pai já tem Navigation) */
+  showNavbar?: boolean
+  /** true = h-screen full fixed para rota standalone; false = altura ajustada para layout com navbar 70px */
+  fullScreen?: boolean
+}
+
+export default function CognitiveHero({
+  showNavbar = true,
+  fullScreen = true,
+}: CognitiveHeroProps) {
+  const heightClass = fullScreen ? 'h-screen' : 'h-[calc(100vh-70px)]'
+
   return (
-    <div className="relative w-full h-screen overflow-hidden bg-black">
-      <HeroNavbar />
+    <div className={`relative w-full ${heightClass} overflow-hidden bg-black`}>
+      {showNavbar && <HeroNavbar />}
 
       {/* ── 3D Canvas ── */}
       <Suspense fallback={<LoadingScreen />}>
@@ -96,7 +108,7 @@ export default function CognitiveHero() {
 
       {/* ── Overlays ── */}
       <HeroOverlay />
-      <HeroHUD />
+      <HeroHUD positionFixed={fullScreen} />
     </div>
   )
 }
