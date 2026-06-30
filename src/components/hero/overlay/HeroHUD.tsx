@@ -23,7 +23,12 @@ interface HUDMetric {
   color: string
 }
 
-export default function HeroHUD() {
+interface HeroHUDProps {
+  /** true = fixed ao viewport (rota standalone); false = absolute ao container (página scrollável) */
+  positionFixed?: boolean
+}
+
+export default function HeroHUD({ positionFixed = true }: HeroHUDProps) {
   const [uptime, setUptime] = useState('00:00:00')
   const [systemLoad, setSystemLoad] = useState('12%')
   const [latency, setLatency] = useState('24ms')
@@ -68,7 +73,7 @@ export default function HeroHUD() {
 
   return (
     <div
-      className="fixed bottom-0 left-0 right-0 z-40 pointer-events-none"
+      className={`${positionFixed ? 'fixed' : 'absolute'} bottom-0 left-0 right-0 z-40 pointer-events-none`}
       style={{
         background: 'linear-gradient(to top, rgba(5,5,7,0.85) 0%, transparent 100%)',
       }}

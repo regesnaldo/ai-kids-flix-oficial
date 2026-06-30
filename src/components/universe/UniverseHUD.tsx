@@ -155,6 +155,7 @@ export function UniverseHUD({ progression, className = "" }: UniverseHUDProps) {
               SISTEMA {SYSTEM_ONLINE_COUNT}/{SYSTEM_TOTAL_AGENTS} ONLINE
             </span>
             <span
+              suppressHydrationWarning
               style={{
                 ...toStyle(typography.classifiedLabel),
                 color: tokens.color.text.tertiary,
