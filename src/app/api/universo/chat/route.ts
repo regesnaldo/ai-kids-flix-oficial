@@ -4,13 +4,21 @@ import { updateSilentProfile, type InteractionContext } from "@/engine/profiler"
 import { ALL_AGENTS } from "@/canon/agents/all-agents";
 import { anthropicCompletionText } from "@/lib/anthropic";
 import { AGENTS, type AgentId } from "@/canon/agents/canon";
+import { getAuthCookieFromRequest, verifyToken } from "@/lib/auth";
 
 export const runtime = "nodejs";
 
 export async function POST(request: NextRequest) {
   try {
+    // ── Auth ────────────────────────────────────────────────────────
+    const token = getAuthCookieFromRequest(request);
+    if (!token) return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
+    const authPayload = await verifyToken(token);
+    if (!authPayload) return NextResponse.json({ error: "Token inválido" }, { status: 401 });
+    const userId = Number(authPayload.userId);
+
     const body = await request.json();
-    const { message, history, userId = 0, agentOverride } = body;
+    const { message, history, agentOverride } = body;
 
     if (!message || typeof message !== "string") {
       return NextResponse.json({ error: "Message é obrigatório" }, { status: 400 });
@@ -34,7 +42,7 @@ export async function POST(request: NextRequest) {
 
     // Fire-and-forget: silent profile tracking não bloqueia a resposta
     const profileContext: InteractionContext = {
-      userId: Number(userId) || 0,
+      userId,
       choiceLabel: message.slice(0, 255),
       agentId: agentOverride || selectedAgent,
     };
