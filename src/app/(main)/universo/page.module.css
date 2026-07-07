@@ -1,0 +1,23 @@
+/* ─── Universe Page Animations ─────────────────────────────────────────────── */
+
+@keyframes twinkleStar {
+  from { opacity: 0.35; transform: scale(1); }
+  to { opacity: 0.95; transform: scale(1.2); }
+}
+
+.starTwinkle { animation: twinkleStar 3s ease-in-out infinite alternate; }
+
+@keyframes sunPulse {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); }
+  50% { transform: translate(-50%, -50%) scale(1.05); }
+}
+
+@keyframes orbitSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes planetPulse {
+  0%, 100% { box-shadow: var(--glow-color); }
+  50% { box-shadow: var(--glow-color-strong); }
+}

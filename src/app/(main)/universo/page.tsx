@@ -29,6 +29,7 @@ import { tokens } from "@/design-system/tokens";
 import { typography, toStyle } from "@/design-system/typography";
 import { useOasis } from "@/providers/OasisProvider";
 import { SYSTEM_ONLINE_COUNT, SYSTEM_TOTAL_AGENTS } from "@/canon/agents/presence";
+import styles from "./page.module.css";
 
 // ─── ORBITAL LAYOUT ───────────────────────────────────────────────────────────
 
@@ -214,12 +215,12 @@ export default function UniversoPage() {
   );
 
   return (
-    <div style={styles.galacticMap}>
+    <div style={inlineStyles.galacticMap}>
       {/* Stars */}
       {stars.map((star, i) => (
         <span
           key={i}
-          className={star.twinkle ? "star-twinkle" : ""}
+          className={star.twinkle ? styles.starTwinkle : ""}
           style={{
             position: "absolute",
             left: star.left,
@@ -234,11 +235,11 @@ export default function UniversoPage() {
       ))}
 
       {/* Header */}
-      <div style={styles.headerLabel}>
+      <div style={inlineStyles.headerLabel}>
         NEXUS PRIME // MAPA GALACTICO // {SYSTEM_ONLINE_COUNT}/{SYSTEM_TOTAL_AGENTS} MUNDOS ATIVOS
       </div>
       <button
-        style={styles.backButton}
+        style={inlineStyles.backButton}
         type="button"
         onClick={() => router.push("/home")}
       >
@@ -250,31 +251,11 @@ export default function UniversoPage() {
 
 
       {/* Flash overlay on planet entry */}
-      {flashActive && <div style={styles.flashOverlay} />}
+      {flashActive && <div style={inlineStyles.flashOverlay} />}
 
       {/* ── UniverseHUD: sistema operacional overlay ── */}
       <UniverseHUD progression={progression} />
 
-      {/* Keyframes */}
-      <style dangerouslySetInnerHTML={{ __html: `
-        @keyframes twinkleStar {
-          from { opacity: 0.35; transform: scale(1); }
-          to { opacity: 0.95; transform: scale(1.2); }
-        }
-        .star-twinkle { animation: twinkleStar 3s ease-in-out infinite alternate; }
-        @keyframes sunPulse {
-          0%, 100% { transform: translate(-50%, -50%) scale(1); }
-          50% { transform: translate(-50%, -50%) scale(1.05); }
-        }
-        @keyframes orbitSpin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-        @keyframes planetPulse {
-          0%, 100% { box-shadow: var(--glow-color); }
-          50% { box-shadow: var(--glow-color-strong); }
-        }
-      ` }} />
     </div>
   );
 }
@@ -550,7 +531,7 @@ const stateTagStyle: React.CSSProperties = {
   whiteSpace: "nowrap",
 };
 
-const styles: Record<string, React.CSSProperties> = {
+const inlineStyles: Record<string, React.CSSProperties> = {
   galacticMap: {
     width: "100vw",
     height: "100vh",
