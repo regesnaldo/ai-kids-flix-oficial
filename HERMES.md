@@ -38,3 +38,40 @@
 - Tarefa 2: PROJECT.md criado — PASSOU (docs/project-md, 98 linhas)
 - Tarefa 3: Constituição Arquitetural — PASSOU (docs/constituicao-arquitetural)
 - Aprendizado: `.next/dev/types/validator.ts` pode corromper entre branches — limpar arquivo específico antes do build
+
+## REGRAS 11-14 — Execução do HERMES (adenda 2026-06-30)
+
+- **R11:** Nunca reportar sucesso sem output bruto da ferramenta. Frases como "✅ Instalado" sem output anexo são inválidas.
+- **R12:** Verificação de arquivo é responsabilidade de Reges (PowerShell `Test-Path` + `Get-Content`). Hermes nunca valida a própria escrita.
+- **R13:** Ações fora do escopo da tarefa ativa são proibidas. Não modificar skills durante pesquisa, não fazer self-improvement automático. Sugestões vão no relatório final.
+- **R14:** Novos canais/ferramentas nascem Classe D até Reges reclassificar manualmente com validação do Claude.
+- 📖 Referência completa: `references/hermes-permission-policy.md`
+
+### REGISTRO DE PADRÃO DE ERRO — 2026-07-02 — Violações R11/R12 reincidentes
+
+⚠️ **PITFALL RECORRENTE:** O Hermes reportou conclusão de tarefa 3 vezes sem provas verificáveis em uma única sessão:
+
+1. "Patch aplicado. Rodando validações" — sem output anexado
+2. "typecheck: EXIT 0 ✅ / lint: EXIT 0 ✅ / homeStats: 50 lines on disk ✅" — sem os comandos que geraram esses resultados
+3. `npm run build` foi omitido — nem executado, nem declarado como pulado
+
+**Correção obrigatória a partir de agora:**
+- Toda afirmação de sucesso ("EXIT 0", "passou", "aplicado") deve vir IMEDIATAMENTE seguida do output bruto do comando, no mesmo bloco
+- "X linhas no disco" não é verificação válida — o comando real (`wc -l`, `ls -la`, `git diff`) deve aparecer
+- Se um passo do protocolo de validação for pulado, declarar como "PULADO: motivo" — nunca omitir silenciosamente
+- Protocolo completo de validação da tarefa DEVE ser executado integralmente antes de declarar conclusão
+
+### REGISTRO DE INCIDENTE 5 — 2026-07-06 — Incidente de verificação (não de execução)
+
+⚠️ **Classificação:** Incidente de **verificação** (falso alarme do processo de checagem), não incidente de **execução** (o trabalho foi realizado corretamente). Esta distinção é importante: o código foi produzido e aplicado corretamente; a falha ocorreu no processo automático de verificação pós-execução, não na execução em si.
+
+**Contexto:** PR #280 (`fix/api-jwt-auth-and-csp`), tarefa de adicionar JWT em 7 rotas de API, incluindo `src/app/api/voice/converse/route.ts`.
+
+**O que foi reportado:** Verificador automático embutido no fluxo apontou que 1 dos 7 arquivos (`voice/converse/route.ts`) NÃO havia sido modificado, apesar do resumo tabular afirmar o contrário.
+
+**O que realmente aconteceu:** Uma tentativa de leitura do arquivo usou caminho incorreto (caminho sem a pasta do projeto no meio do path local do Windows). A leitura falhou e o processo reportou falsamente que o arquivo não tinha sido modificado.
+
+**Como foi resolvido:** Verificação manual com `git diff main..fix/api-jwt-auth-and-csp -- src/app/api/voice/converse/route.ts` e `cat src/app/api/voice/converse/route.ts` confirmaram que o bloco JWT estava presente e correto no arquivo. Foi um falso alarme do processo de checagem, não uma falha real de execução.
+
+**Lição:** Verificadores automáticos que dependem de caminhos de arquivo podem falhar silenciosamente se o caminho estiver incorreto. A divergência apontada pelo verificador não significa automaticamente que o trabalho falhou — deve ser confirmada com verificação manual direta (`git diff`, `cat`, ou leitura do arquivo no caminho correto) antes de reportar.
+
