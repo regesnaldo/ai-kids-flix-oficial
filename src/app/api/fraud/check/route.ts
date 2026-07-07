@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getAuthCookieFromRequest, verifyToken } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { xpEvents, fraudLog } from "@/lib/db/schema-extensions";
 import { users } from "@/lib/db/schema";
@@ -43,6 +44,17 @@ async function emailSimilarityCheck(userId: number): Promise<string[]> {
 }
 
 export async function POST(request: NextRequest) {
+  // ── Auth: JWT obrigatório (cookie mente_ai_token) ─────────────────────
+  const token = getAuthCookieFromRequest(request);
+  if (!token) return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
+  const authPayload = await verifyToken(token);
+  if (!authPayload) return NextResponse.json({ error: "Token inválido" }, { status: 401 });
+  const adminUserId = Number(authPayload.userId);
+  if (!Number.isInteger(adminUserId) || adminUserId <= 0) {
+    return NextResponse.json({ error: "Usuário inválido" }, { status: 401 });
+  }
+  void adminUserId; // auth-only: userId do token não substitui body.userId
+
   try {
     const body = await request.json() as { userId: number };
     if (!body.userId) return NextResponse.json({ error: "userId obrigatório" }, { status: 400 });

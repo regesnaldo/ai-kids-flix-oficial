@@ -21,6 +21,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { getAuthCookieFromRequest, verifyToken } from '@/lib/auth';
 import { transcribeAudio } from '@/lib/voice/whisper';
 import { detectEmotion, getEmotionPromptHint } from '@/lib/voice/hume';
 import { ALL_AGENTS } from '@/canon/agents/all-agents';
@@ -30,6 +31,17 @@ export const runtime = 'nodejs';
 export const maxDuration = 45;
 
 export async function POST(req: NextRequest) {
+  // ── Auth: JWT obrigatório (cookie mente_ai_token) ─────────────────────
+  const token = getAuthCookieFromRequest(req);
+  if (!token) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
+  const authPayload = await verifyToken(token);
+  if (!authPayload) return NextResponse.json({ error: 'Token inválido' }, { status: 401 });
+  const userId = Number(authPayload.userId);
+  if (!Number.isInteger(userId) || userId <= 0) {
+    return NextResponse.json({ error: 'Usuário inválido' }, { status: 401 });
+  }
+  void userId; // auth gate — userId do token não usado na lógica de negócio
+
   const startTime = Date.now();
 
   try {

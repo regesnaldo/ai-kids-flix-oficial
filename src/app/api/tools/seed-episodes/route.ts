@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getAuthCookieFromRequest, verifyToken } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { knowledgeUnit, knowledgeAsset } from "@/lib/db/schema";
 import { eq, and } from "drizzle-orm";
@@ -11,7 +12,18 @@ import {
 
 export const runtime = "nodejs";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  // ── Auth: JWT obrigatório (cookie mente_ai_token) ─────────────────────
+  const token = getAuthCookieFromRequest(request);
+  if (!token) return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
+  const authPayload = await verifyToken(token);
+  if (!authPayload) return NextResponse.json({ error: "Token inválido" }, { status: 401 });
+  const userId = Number(authPayload.userId);
+  if (!Number.isInteger(userId) || userId <= 0) {
+    return NextResponse.json({ error: "Usuário inválido" }, { status: 401 });
+  }
+  void userId; // auth gate
+
   return NextResponse.json({
     status: "ok",
     message: "Use POST /api/tools/seed-episodes to populate T02-T05 episodes into the database",
@@ -25,6 +37,17 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
+  // ── Auth: JWT obrigatório (cookie mente_ai_token) ─────────────────────
+  const token = getAuthCookieFromRequest(request);
+  if (!token) return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
+  const authPayload = await verifyToken(token);
+  if (!authPayload) return NextResponse.json({ error: "Token inválido" }, { status: 401 });
+  const adminUserId = Number(authPayload.userId);
+  if (!Number.isInteger(adminUserId) || adminUserId <= 0) {
+    return NextResponse.json({ error: "Usuário inválido" }, { status: 401 });
+  }
+  void adminUserId; // auth gate — seed é operação admin-only
+
   try {
     const episodes = [
       { unit: NEXUS_T01E02_UNIT, asset: NEXUS_T01E02_ASSET },
