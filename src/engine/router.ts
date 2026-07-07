@@ -72,23 +72,9 @@ async function runTreeOfThoughtsHeuristic(args: {
   const asksAlternative = /alternativa|outra|diferente|new angle|different/i.test(lowered);
   const selectedUniverse = asksAlternative ? candidateB : candidateA;
 
-  try {
-    // Optional runtime integration; if LangChain is unavailable, heuristic remains active.
-    const dynamicImporter = new Function("specifier", "return import(specifier);") as (specifier: string) => Promise<unknown>;
-    const maybeLangchain = await dynamicImporter("langchain/chains");
-    if (maybeLangchain) {
-      return {
-        selectedUniverse,
-        reason: `${thought1} ${thought2} ${thought3} (Tree-of-Thoughts via LangChain enabled)`,
-      };
-    }
-  } catch {
-    // silent fallback to deterministic route
-  }
-
   return {
     selectedUniverse,
-    reason: `${thought1} ${thought2} ${thought3} (deterministic ToT fallback)`,
+    reason: `${thought1} ${thought2} ${thought3}`,
   };
 }
 
