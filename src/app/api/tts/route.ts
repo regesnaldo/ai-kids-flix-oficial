@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getAuthCookieFromRequest, verifyToken } from "@/lib/auth";
 
 const VOICE_MAP: Record<string, { name: string; ssmlGender: "MALE" | "FEMALE" }> = {
   nexus: { name: "pt-BR-Neural2-B", ssmlGender: "MALE" },
@@ -16,6 +17,16 @@ const VOICE_MAP: Record<string, { name: string; ssmlGender: "MALE" | "FEMALE" }>
 };
 
 export async function POST(request: NextRequest) {
+  // ── Auth: JWT obrigatório (cookie mente_ai_token) ─────────────────────
+  const token = getAuthCookieFromRequest(request);
+  if (!token) return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
+  const authPayload = await verifyToken(token);
+  if (!authPayload) return NextResponse.json({ error: "Token inválido" }, { status: 401 });
+  const userId = Number(authPayload.userId);
+  if (!Number.isInteger(userId) || userId <= 0) {
+    return NextResponse.json({ error: "Usuário inválido" }, { status: 401 });
+  }
+
   try {
     const body = await request.json().catch(() => ({}));
     const { text, agentId } = body as { text?: string; agentId?: string };
