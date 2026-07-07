@@ -17,6 +17,7 @@ import { db } from "@/lib/db";
 import { knowledgeAsset, knowledgeUnit } from "@/lib/db/schema";
 import { eq, and } from "drizzle-orm";
 import { resolveProviderWithFallback, chat } from "@/lib/llm/provider";
+import { getAuthCookieFromRequest, verifyToken } from "@/lib/auth";
 import crypto from "crypto";
 
 export const runtime = "nodejs";
@@ -40,6 +41,12 @@ function uuid() {
 
 export async function GET(request: NextRequest) {
   try {
+    // ── Auth ────────────────────────────────────────────────────────
+    const token = getAuthCookieFromRequest(request);
+    if (!token) return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
+    const payload = await verifyToken(token);
+    if (!payload) return NextResponse.json({ error: "Token inválido" }, { status: 401 });
+
     const { searchParams } = new URL(request.url);
     const agentId = searchParams.get("agent");
     const season = searchParams.get("season");
