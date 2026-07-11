@@ -12,19 +12,10 @@ import NarrativeSuggestionCard from "@/components/universe/NarrativeSuggestionCa
 import { PresenceIndicator } from "@/components/PresenceIndicator";
 import { presenceToBeacon } from "@/lib/navigation-hints/beacon-factory";
 import { useNavigationStore } from "@/store/useNavigationStore";
-import type { NarrativeTransition } from "@/engine/narrative-transitions";
+import type { NarrativeSuggestion } from "@/engine/adaptive-router";
 import { ArchetypeCard } from "@/components/home/ArchetypeCard";
 import { getAgentColor } from "@/canon/agents/presence";
 import CognitiveHero from "@/components/hero/CognitiveHero";
-type NarrativeSuggestion = {
-  title: string;
-  description: string;
-  targetAgent: string;
-  confidence: number;
-  isRecovery: boolean;
-  tags: string[];
-  transition: NarrativeTransition | null;
-};
 
 const AGENTS = [
   { id: "nexus", name: "NEXUS", role: "O Conector", faction: "INTELIGÊNCIA", color: getAgentColor("nexus"), image: "/images/agents/nexus.jpg" },
@@ -234,9 +225,9 @@ export default function HomePage() {
   const [presenceCounts, setPresenceCounts] = useState<Record<string, number>>({});
   useEffect(() => {
     if (!user?.id) return;
-    fetch(`/api/narrative/suggestions?userId=${user.id}`)
+    fetch("/api/narrative/suggest?currentAgent=nexus", { method: "GET", credentials: "include" })
       .then(res => res.json())
-      .then(data => setNarrativeSuggestions(data.suggestions ?? []))
+      .then(data => setNarrativeSuggestions(data.suggestion ? [data.suggestion] : []))
       .catch(() => setNarrativeSuggestions([]));
   }, [user?.id]);
 
