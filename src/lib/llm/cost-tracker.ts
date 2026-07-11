@@ -28,6 +28,7 @@ const DEFAULT_PRICING: Record<LLMProviderName, ProviderPricing> = {
   openai: { inputPerMillion: 2.5, outputPerMillion: 10.0 }, // gpt-4o
   groq: { inputPerMillion: 0.59, outputPerMillion: 0.79 }, // llama-3.3-70b
   deepseek: { inputPerMillion: 0.27, outputPerMillion: 1.1 }, // deepseek-chat
+  morphllm: { inputPerMillion: 0.15, outputPerMillion: 0.60 }, // morph-glm52-744b
 };
 
 function loadPricing(): Record<LLMProviderName, ProviderPricing> {
