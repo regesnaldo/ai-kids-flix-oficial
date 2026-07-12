@@ -7,7 +7,7 @@
  */
 
 /** Provedores suportados pela camada LLM. */
-export type LLMProviderName = "anthropic" | "openai" | "groq" | "deepseek";
+export type LLMProviderName = "anthropic" | "openai" | "groq" | "deepseek" | "morphllm";
 
 /** Modo de resolução de provider: específico ou "auto" (respeita LLM_PROVIDER env). */
 export type LLMProviderMode = LLMProviderName | "auto";

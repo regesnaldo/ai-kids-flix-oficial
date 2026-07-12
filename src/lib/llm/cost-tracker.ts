@@ -28,6 +28,7 @@ const DEFAULT_PRICING: Record<LLMProviderName, ProviderPricing> = {
   openai: { inputPerMillion: 2.5, outputPerMillion: 10.0 }, // gpt-4o
   groq: { inputPerMillion: 0.59, outputPerMillion: 0.79 }, // llama-3.3-70b
   deepseek: { inputPerMillion: 0.27, outputPerMillion: 1.1 }, // deepseek-chat
+  morphllm: { inputPerMillion: 0, outputPerMillion: 0 }, // TODO: preço placeholder — morphllm ainda não está conectado a nenhuma funcionalidade em uso. Buscar preço real em https://api.morphllm.com antes de ativar este provedor de verdade.
 };
 
 function loadPricing(): Record<LLMProviderName, ProviderPricing> {
