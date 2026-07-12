@@ -45,7 +45,7 @@ export function ArchetypeCard() {
 
   if (loading) {
     return (
-      <section style={{ marginBottom: "2rem", padding: "1.5rem", background: "rgba(255,255,255,0.02)", borderRadius: "12px", border: "1px solid rgba(255,255,255,0.05)" }}>
+      <section style={{ marginBottom: "2rem", padding: "2.25rem 1.5rem", minHeight: "380px", display: "flex", flexDirection: "column", justifyContent: "center", backgroundImage: "linear-gradient(90deg, rgba(4,7,18,0.95) 0%, rgba(4,7,18,0.78) 52%, rgba(4,7,18,0.24) 100%), url('/images/home/cognitive-archetype-cinematic.png')", backgroundSize: "cover", backgroundPosition: "center", borderRadius: "12px", border: "1px solid rgba(0,240,255,0.2)" }}>
         <p style={{ fontFamily: "monospace", fontSize: "12px", color: "#888" }}>Analisando seu perfil...</p>
       </section>
     );
@@ -54,7 +54,7 @@ export function ArchetypeCard() {
   const arch = data ? ARCHETYPE_COLORS[data.archetype] || ARCHETYPE_COLORS.explorer : null;
 
   return (
-    <section style={{ marginBottom: "2rem", padding: "1.5rem", background: "rgba(255,255,255,0.02)", borderRadius: "12px", border: "1px solid rgba(255,255,255,0.05)" }}>
+    <section style={{ marginBottom: "2rem", padding: "2.25rem 1.5rem", minHeight: "380px", display: "flex", flexDirection: "column", justifyContent: "center", backgroundImage: "linear-gradient(90deg, rgba(4,7,18,0.95) 0%, rgba(4,7,18,0.78) 52%, rgba(4,7,18,0.24) 100%), url('/images/home/cognitive-archetype-cinematic.png')", backgroundSize: "cover", backgroundPosition: "center", borderRadius: "12px", border: "1px solid rgba(0,240,255,0.2)" }}>
       <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "1rem" }}>
         <Sparkles size={20} style={{ color: arch?.color || "#00f0ff" }} />
         <h2 style={{ fontFamily: "monospace", fontSize: "14px", color: "#ccc", letterSpacing: "0.08em", margin: 0 }}>

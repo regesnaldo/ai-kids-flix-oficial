@@ -22,12 +22,14 @@ interface NarrativeSuggestionCardProps {
   suggestion: NarrativeSuggestion;
   onSelect: (targetAgent: string) => void;
   index?: number;
+  variant?: "default" | "homeBanner";
 }
 
 export default function NarrativeSuggestionCard({
   suggestion,
   onSelect,
   index = 0,
+  variant = "default",
 }: NarrativeSuggestionCardProps) {
   const [expanded, setExpanded] = useState(false);
 
@@ -54,7 +56,7 @@ export default function NarrativeSuggestionCard({
 
   return (
     <div
-      className="narrative-card"
+      className={`narrative-card ${variant === "homeBanner" ? "narrative-card--home-banner" : ""}`}
       style={{
         animation: `fadeIn 0.4s ease-out ${index * 0.08}s both`,
       }}
