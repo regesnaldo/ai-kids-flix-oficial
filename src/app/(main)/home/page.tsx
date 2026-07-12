@@ -143,13 +143,13 @@ function AvatarDropdown({ username, onLogout }: { username: string; onLogout: ()
   )
 }
 
-function StatsPanel({ completedCount }: { completedCount: number }) {
+function StatsPanel({ completedCount, xpTotal }: { completedCount: number; xpTotal: number | null }) {
 
   const items = [
-    { label: "MUNDOS", value: `${completedCount}/12`, accent: "#00FFFF" },
-    { label: "MÓDULOS", value: "...", accent: "#00FF88" },
-    { label: "DECISÕES", value: "...", accent: "#FFB347" },
-    { label: "XP", value: "...", accent: "#C084FC" },
+    { label: "MUNDOS", value: `${completedCount}/12`, accent: "#00FFFF", href: "/universo" },
+    { label: "MÓDULOS", value: "Em breve", accent: "#00FF88", href: "/series" },
+    { label: "DECISÕES", value: "Em breve", accent: "#FFB347", href: "/aulas" },
+    { label: "XP", value: xpTotal !== null ? String(xpTotal) : "...", accent: "#C084FC", href: "/blog/como-funciona-o-sistema-de-recompensas" },
   ]
 
   return (
@@ -158,7 +158,8 @@ function StatsPanel({ completedCount }: { completedCount: number }) {
       marginBottom: "1.5rem",
     }}>
       {items.map(item => (
-        <div key={item.label} style={{
+        <Link key={item.label} href={item.href} style={{
+          textDecoration: "none",
           textAlign: "center", padding: "12px 8px",
           background: "rgba(255,255,255,0.03)",
           border: "1px solid rgba(255,255,255,0.06)",
@@ -182,7 +183,7 @@ function StatsPanel({ completedCount }: { completedCount: number }) {
           <div style={{ fontFamily: "monospace", fontSize: "9px", color: "#888", marginTop: "4px", letterSpacing: "0.1em", textTransform: "uppercase" }}>
             {item.label}
           </div>
-        </div>
+        </Link>
       ))}
     </div>
   )
@@ -223,12 +224,22 @@ export default function HomePage() {
 
   const [narrativeSuggestions, setNarrativeSuggestions] = useState<NarrativeSuggestion[]>([]);
   const [presenceCounts, setPresenceCounts] = useState<Record<string, number>>({});
+  const [xpTotal, setXpTotal] = useState<number | null>(null);
   useEffect(() => {
     if (!user?.id) return;
     fetch("/api/narrative/suggest?currentAgent=nexus", { method: "GET", credentials: "include" })
       .then(res => res.json())
       .then(data => setNarrativeSuggestions(data.suggestion ? [data.suggestion] : []))
       .catch(() => setNarrativeSuggestions([]));
+  }, [user?.id]);
+
+  // Fetch XP total
+  useEffect(() => {
+    if (!user?.id) return;
+    fetch("/api/xp/award", { credentials: "include" })
+      .then(res => res.json())
+      .then(data => { if (typeof data.total === "number") setXpTotal(data.total); })
+      .catch(() => {});
   }, [user?.id]);
 
   // Fetch presence counts + dispatch beacons
@@ -344,7 +355,7 @@ export default function HomePage() {
         </section>
 
         {/* STATS ROW */}
-        <StatsPanel completedCount={completedCount} />
+        <StatsPanel completedCount={completedCount} xpTotal={xpTotal} />
 
         {/* ARCHETYPE CARD */}
         <ArchetypeCard />
@@ -363,6 +374,7 @@ export default function HomePage() {
                 key={`${suggestion.targetAgent}-${index}`}
                 suggestion={suggestion}
                 index={index}
+                variant="homeBanner"
                 onSelect={(targetAgent) => router.push(`/universo/${targetAgent}`)}
               />
             ))}
