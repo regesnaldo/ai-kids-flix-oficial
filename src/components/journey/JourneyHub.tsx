@@ -58,10 +58,16 @@ export default function JourneyHub() {
     return (
       <div
         style={{
-          background: "rgba(0,0,0,0.6)",
-          border: "1px solid rgba(0,255,255,0.15)",
-          borderRadius: "4px",
-          padding: "24px",
+          backgroundImage: "linear-gradient(90deg, rgba(4,7,18,0.94) 0%, rgba(4,7,18,0.78) 44%, rgba(4,7,18,0.28) 100%), url('/images/home/cognitive-calibration-chamber.png')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          border: "1px solid rgba(0,255,255,0.28)",
+          borderRadius: "8px",
+          padding: "32px 24px",
+          minHeight: "220px",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
           marginBottom: "2rem",
         }}
       >
@@ -98,10 +104,16 @@ export default function JourneyHub() {
     return (
       <div
         style={{
-          background: "rgba(0,0,0,0.6)",
-          border: "1px solid rgba(0,255,255,0.15)",
-          borderRadius: "4px",
-          padding: "24px",
+          backgroundImage: "linear-gradient(90deg, rgba(4,7,18,0.94) 0%, rgba(4,7,18,0.78) 44%, rgba(4,7,18,0.28) 100%), url('/images/home/cognitive-calibration-chamber.png')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          border: "1px solid rgba(0,255,255,0.28)",
+          borderRadius: "8px",
+          padding: "32px 24px",
+          minHeight: "220px",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
           marginBottom: "2rem",
         }}
       >
