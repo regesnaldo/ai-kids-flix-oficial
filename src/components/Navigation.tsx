@@ -30,7 +30,7 @@ export default function Navigation() {
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   const navItems = [
-    { label: 'Início', href: '/home' },
+    { label: 'Início', href: '/' },
     { label: 'Universos', href: '/universo' },
     { label: 'Séries', href: '/series' },
     { label: 'Blog', href: '/blog' },
@@ -146,6 +146,15 @@ export default function Navigation() {
               </Link>
             ))}
 
+            {session.authenticated && (
+              <Link
+                href="/home"
+                className="text-sm text-cyan-400 hover:text-cyan-300 transition font-medium"
+              >
+                Jornada
+              </Link>
+            )}
+
           </nav>
 
           {/* Status Bar — clicável para abrir Calibração */}
@@ -260,6 +269,15 @@ export default function Navigation() {
                 {item.label}
               </Link>
             ))}
+
+            {session.authenticated && (
+              <Link
+                href="/home"
+                className="block text-sm text-cyan-400 hover:text-cyan-300 transition font-medium"
+              >
+                Jornada
+              </Link>
+            )}
 
             <div className="pt-2 border-t border-zinc-800" />
 
