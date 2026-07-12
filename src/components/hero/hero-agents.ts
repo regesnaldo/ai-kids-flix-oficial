@@ -33,7 +33,7 @@ export const HERO_AGENTS: HeroAgent[] = [
     orbitSpeed: 0.15,
     orbitPhase: 0,
     orbitHeight: 0.3,
-    planetSize: 0.35,
+    planetSize: 0.55,
   },
   {
     id: 'cipher',
@@ -45,7 +45,7 @@ export const HERO_AGENTS: HeroAgent[] = [
     orbitSpeed: 0.10,
     orbitPhase: Math.PI * 0.67,
     orbitHeight: -0.2,
-    planetSize: 0.32,
+    planetSize: 0.55,
   },
   {
     id: 'aurora',
@@ -57,7 +57,7 @@ export const HERO_AGENTS: HeroAgent[] = [
     orbitSpeed: 0.12,
     orbitPhase: Math.PI * 1.33,
     orbitHeight: 0.5,
-    planetSize: 0.38,
+    planetSize: 0.55,
   },
 ]
 

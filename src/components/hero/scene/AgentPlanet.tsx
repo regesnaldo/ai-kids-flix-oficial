@@ -49,7 +49,7 @@ export default function AgentPlanet({ agent }: { agent: HeroAgent }) {
         <meshStandardMaterial
           color={agent.color}
           emissive={agent.color}
-          emissiveIntensity={1.5}
+          emissiveIntensity={2.2}
         />
       </mesh>
 
