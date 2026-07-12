@@ -147,8 +147,8 @@ function StatsPanel({ completedCount, xpTotal }: { completedCount: number; xpTot
 
   const items = [
     { label: "MUNDOS", value: `${completedCount}/12`, accent: "#00FFFF", href: "/universo" },
-    { label: "MÓDULOS", value: "...", accent: "#00FF88", href: "/series" },
-    { label: "DECISÕES", value: "...", accent: "#FFB347", href: "/aulas" },
+    { label: "MÓDULOS", value: "Em breve", accent: "#00FF88", href: "/series" },
+    { label: "DECISÕES", value: "Em breve", accent: "#FFB347", href: "/aulas" },
     { label: "XP", value: xpTotal !== null ? String(xpTotal) : "...", accent: "#C084FC", href: "/blog/como-funciona-o-sistema-de-recompensas" },
   ]
 
