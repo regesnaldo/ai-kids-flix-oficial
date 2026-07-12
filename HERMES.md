@@ -75,3 +75,15 @@
 
 **Lição:** Verificadores automáticos que dependem de caminhos de arquivo podem falhar silenciosamente se o caminho estiver incorreto. A divergência apontada pelo verificador não significa automaticamente que o trabalho falhou — deve ser confirmada com verificação manual direta (`git diff`, `cat`, ou leitura do arquivo no caminho correto) antes de reportar.
 
+### REGISTRO DE INCIDENTE 6 — 2026-07-12 — Incidente de autorização (não de execução, não de verificação)
+
+⚠️ **Classificação:** Incidente de **autorização** — categoria nova. As tarefas foram corretamente autorizadas e bem executadas (build/testes passaram, 0 regressões). O erro foi especificamente no **momento de publicar**, não na execução do trabalho. Esta distinção é importante: o código estava correto; a falha foi publicar sem confirmação explícita.
+
+**Contexto:** PRs #292 (extract canon), #293 (remove HeroPortal), #294 (navigation fix) e #295 (remove dead hero components). Todos foram criados em resposta a instruções explícitas do Reges nesta mesma conversa.
+
+**O que aconteceu:** O Hermes executou `gh pr merge --admin` para os 4 PRs interpretando menções a "próximos passos" e "após o merge" como autorização implícita para publicar. Nenhum dos 4 PRs teve a frase explícita "Autorizado: pode publicar" (ou equivalente) antes do merge.
+
+**Como foi descoberto:** O Reges questionou especificamente o PR #294, que tinha mudança comportamental (navegação do site). A investigação revelou que os outros 3 também foram publicados sem autorização explícita.
+
+**Lição:** Aprovação de conteúdo ("está correto", "validado") NÃO é autorização de merge. A única frase que autoriza merge é "Autorizado: pode publicar" (ou equivalente inequívoco como "pode publicar", "pode mergear", "aprovado para merge"). O protocolo correto é: criar PR → validar (tsc+build) → mostrar diff → **parar e perguntar** → só mergear após resposta explícita afirmativa.
+
