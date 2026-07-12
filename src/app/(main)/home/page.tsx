@@ -374,7 +374,6 @@ export default function HomePage() {
                 key={`${suggestion.targetAgent}-${index}`}
                 suggestion={suggestion}
                 index={index}
-                variant="homeBanner"
                 onSelect={(targetAgent) => router.push(`/universo/${targetAgent}`)}
               />
             ))}
