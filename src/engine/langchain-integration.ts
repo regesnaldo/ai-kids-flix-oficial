@@ -6,7 +6,7 @@
  * Inclui Tree of Thoughts (ToT) com OpenAI API
  */
 
-import type { AgentId } from './agent-conflicts';
+import type { AgentId } from './conflicts';
 import type { Archetype } from './types';
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;

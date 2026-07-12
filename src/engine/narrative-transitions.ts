@@ -5,7 +5,7 @@
  * O agente atual planta a semente da próxima transição
  */
 
-import type { AgentId } from './agent-conflicts';
+import type { AgentId } from './conflicts';
 
 export interface NarrativeTransition {
   fromAgent: AgentId;

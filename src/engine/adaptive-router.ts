@@ -14,7 +14,7 @@
  */
 
 import { getUserProfile } from "@/engine/profiler";
-import { getActiveConflicts, type AgentId } from "./agent-conflicts";
+import { getActiveConflicts, type AgentId } from "./conflicts";
 import { findTransition } from "./narrative-transitions";
 import type { NarrativeTransition } from "./narrative-transitions";
 import { ARCHETYPE_NARRATIVES, type Archetype } from "./archetype-narratives";
@@ -113,13 +113,13 @@ export async function suggestNarrative(
   if (activeConflicts.length > 0) {
     const conflicted = activeConflicts[0];
     suggestions.push({
-      title: `Resolução: ${conflicted.conflictType}`,
-      description: `Um conflito entre ${conflicted.agentA} e ${conflicted.agentB} sugere explorar uma nova perspectiva.`,
+      title: `Resolução: ${conflicted.nature}`,
+      description: `Um conflito entre ${conflicted.agents[0]} e ${conflicted.agents[1]} sugere explorar uma nova perspectiva.`,
       targetAgent: availableAgents[availableAgents.length - 1] || "nexus",
       transition: null,
       confidence: 0.7,
       isRecovery: false,
-      tags: ["conflict", conflicted.conflictType],
+      tags: ["conflict", conflicted.nature],
     });
   }
 

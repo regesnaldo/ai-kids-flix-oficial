@@ -4,7 +4,7 @@ import { interactiveDecisions } from "@/lib/db/schema";
 // NOTE (Phase 0): universeTransitions and userProfiles are Phase 2 tables.
 // All inserts/updates to those tables are stubbed out until migrations land.
 import { getUserProfile, updateUserProfile } from "@/engine/profiler";
-import { getActiveConflicts, type AgentId } from "./agent-conflicts";
+import { getActiveConflicts, type AgentId, type Conflict } from "./conflicts";
 import { findTransition } from "./narrative-transitions";
 import { analyzeWithLangChain, buildSystemPromptForAgent, type UserProfile } from "./langchain-integration";
 import { 
@@ -26,7 +26,7 @@ export interface RouterDecision {
   reason: string;
   backtrackApplied: boolean;
   hasConflict?: boolean;
-  conflictDetails?: import('./agent-conflicts').AgentConflict[];
+  conflictDetails?: Conflict[];
   transition?: import('./narrative-transitions').NarrativeTransition;
   langchainDecision?: import('./langchain-integration').NarrativeDecision;
   // Sistema de Temporadas (LEGO)

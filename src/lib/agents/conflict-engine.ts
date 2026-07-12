@@ -2,7 +2,7 @@
 // Cena 9 — Agent Conflict System Runtime
 // MASTER_SCREENPLAY.md ACT II Scene 9
 
-import { AGENT_CONFLICTS } from '../../engine/agent-conflicts'
+import { AGENT_CONFLICTS } from '@/engine/conflicts'
 
 export interface ConflictContext {
   agentId: string
@@ -13,14 +13,14 @@ export interface ConflictContext {
 
 export function detectConflict(agentId: string): ConflictContext | null {
   const conflict = AGENT_CONFLICTS.find(
-    c => c.agentA === agentId || c.agentB === agentId
+    c => c.agents[0] === agentId || c.agents[1] === agentId
   )
   if (!conflict) return null
   return {
     agentId,
-    conflictsWith: conflict.agentA === agentId 
-      ? [conflict.agentB] 
-      : [conflict.agentA],
+    conflictsWith: conflict.agents[0] === agentId 
+      ? [conflict.agents[1]] 
+      : [conflict.agents[0]],
     nexusIntervenes: true,
     tensionLevel: 50,
   }
