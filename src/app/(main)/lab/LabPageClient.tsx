@@ -17,6 +17,8 @@ import { LabModeToggle } from "@/components/lab/LabModeToggle";
 import { AgentSelector } from "@/components/lab/AgentSelector";
 import { TopicCarousel } from "@/components/lab/TopicCarousel";
 import { ConversationArea } from "@/components/lab/ConversationArea";
+import { CognitivePipeline } from "@/components/CognitiveHero";
+import type { OrchestrationState } from "@/components/CognitiveHero";
 
 /* ─── Props ──────────────────────────────────────────────────────────────── */
 
@@ -58,6 +60,15 @@ export function LabPageClient({ agents, topics }: LabPageClientProps) {
   }, []);
 
   const agentColor = activeAgent?.color ?? "#7C3AED";
+
+  // ── Pipeline state mapping (simple: 3 of 7 nodes wired) ──────────
+  const pipelineState: OrchestrationState = error
+    ? "error"
+    : isLoading
+    ? "generating"
+    : messages.length > 0
+    ? "approved"
+    : "idle";
 
   return (
     <div
@@ -135,6 +146,20 @@ export function LabPageClient({ agents, topics }: LabPageClientProps) {
               onSelect={handleSend}
               agentColor={agentColor}
               compact
+            />
+          </div>
+        )}
+
+        {/* 4.5 — Cognitive Pipeline (3/7 nodes wired today) */}
+        {hasStarted && (
+          <div className="mb-8">
+            <CognitivePipeline
+              state={pipelineState}
+              iteration={1}
+              cost={0}
+              maxIterations={1}
+              maxCost={0}
+              episodeTitle={activeAgent ? `${activeAgent.name} — ${messages[messages.length - 1]?.content?.slice(0, 40) ?? "..."}` : undefined}
             />
           </div>
         )}
