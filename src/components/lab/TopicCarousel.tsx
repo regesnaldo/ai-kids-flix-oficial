@@ -1,12 +1,8 @@
-// ─── src/components/lab/TopicCarousel.tsx ───────────────────────────────────
-
 "use client";
 
-import React, { useRef, useState, useEffect } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import React, { useEffect, useRef, useState } from "react";
+import { ArrowRight, ChevronLeft, ChevronRight, Clock3, FlaskConical } from "lucide-react";
 import type { Topic } from "@/types/topic";
-
-/* ─── Props ──────────────────────────────────────────────────────────────── */
 
 interface TopicCarouselProps {
   topics: Topic[];
@@ -15,46 +11,25 @@ interface TopicCarouselProps {
   compact?: boolean;
 }
 
-/* ─── Topic icons by category (SVG components) ──────────────────────────── */
-
-const TOPIC_ICONS: Record<string, React.ReactNode> = {
-  "como-ia-aprende": (
-    <svg width="40" height="40" viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="12" stroke="currentColor" strokeWidth="2"/><circle cx="20" cy="20" r="5" fill="currentColor" opacity="0.6"/><line x1="20" y1="8" x2="20" y2="4" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/><circle cx="13" cy="10" r="1.5" fill="currentColor"/><circle cx="27" cy="14" r="1" fill="currentColor"/></svg>
-  ),
-  "deep-learning": (
-    <svg width="40" height="40" viewBox="0 0 40 40" fill="none"><rect x="8" y="16" width="6" height="16" rx="2" fill="currentColor" opacity="0.4"/><rect x="17" y="10" width="6" height="22" rx="2" fill="currentColor" opacity="0.7"/><rect x="26" y="6" width="6" height="26" rx="2" fill="currentColor"/></svg>
-  ),
-  "etica-ia": (
-    <svg width="40" height="40" viewBox="0 0 40 40" fill="none"><path d="M20 6L20 34" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/><circle cx="20" cy="6" r="3" fill="currentColor" opacity="0.5"/><path d="M12 20L28 20" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/><circle cx="12" cy="20" r="3" fill="currentColor" opacity="0.5"/><circle cx="28" cy="20" r="3" fill="currentColor" opacity="0.5"/></svg>
-  ),
-  "futuro-ia": (
-    <svg width="40" height="40" viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="16" stroke="currentColor" strokeWidth="2" strokeDasharray="4 3"/><circle cx="20" cy="20" r="8" stroke="currentColor" strokeWidth="2"/><circle cx="20" cy="20" r="3" fill="currentColor"/></svg>
-  ),
-  llms: (
-    <svg width="40" height="40" viewBox="0 0 40 40" fill="none"><rect x="6" y="10" width="28" height="20" rx="3" stroke="currentColor" strokeWidth="2"/><line x1="10" y1="16" x2="30" y2="16" stroke="currentColor" strokeWidth="1.5" opacity="0.5"/><line x1="10" y1="21" x2="22" y2="21" stroke="currentColor" strokeWidth="1.5" opacity="0.7"/><line x1="10" y1="26" x2="18" y2="26" stroke="currentColor" strokeWidth="1.5" opacity="0.4"/></svg>
-  ),
-  "ia-criativa": (
-    <svg width="40" height="40" viewBox="0 0 40 40" fill="none"><circle cx="16" cy="16" r="10" stroke="currentColor" strokeWidth="2"/><circle cx="24" cy="24" r="10" stroke="currentColor" strokeWidth="2"/><circle cx="20" cy="14" r="4" fill="currentColor" opacity="0.4"/></svg>
-  ),
-  "ia-meio-ambiente": (
-    <svg width="40" height="40" viewBox="0 0 40 40" fill="none"><path d="M20 34V18" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/><circle cx="20" cy="12" r="8" stroke="currentColor" strokeWidth="2"/><path d="M8 34Q20 24 32 34" stroke="currentColor" strokeWidth="2"/></svg>
-  ),
+const EXPERIMENT_DETAILS: Record<string, { code: string; objective: string; specialist: string; duration: string; level: string }> = {
+  "como-ia-aprende": { code: "EXP-01 · FUNDAMENTOS", objective: "Entenda como dados viram previsões e decisões.", specialist: "NEXUS", duration: "8 min", level: "Iniciante" },
+  "deep-learning": { code: "EXP-02 · REDES NEURAIS", objective: "Veja como camadas aprendem padrões complexos.", specialist: "CIPHER", duration: "12 min", level: "Intermediário" },
+  "etica-ia": { code: "EXP-03 · ÉTICA", objective: "Avalie escolhas responsáveis no uso de IA.", specialist: "ETHOS", duration: "10 min", level: "Iniciante" },
+  "futuro-ia": { code: "EXP-04 · CENÁRIOS", objective: "Projete impactos possíveis para os próximos anos.", specialist: "KAOS", duration: "9 min", level: "Intermediário" },
+  llms: { code: "EXP-05 · MODELOS", objective: "Descubra como modelos de linguagem geram respostas.", specialist: "AURORA", duration: "14 min", level: "Intermediário" },
+  "ia-criativa": { code: "EXP-06 · CRIAÇÃO", objective: "Explore ideias, repertório e criação assistida.", specialist: "AURORA", duration: "11 min", level: "Iniciante" },
+  "ia-meio-ambiente": { code: "EXP-07 · IMPACTO", objective: "Investigue eficiência, energia e sustentabilidade.", specialist: "VOLT", duration: "10 min", level: "Intermediário" },
 };
 
-function TopicIcon({ topicId }: { topicId: string }) {
-  return (
-    <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-slate-800/80 border border-slate-700/50 mb-4" style={{ color: "var(--topic-color, #94A3B8)" }}>
-      {TOPIC_ICONS[topicId] || (
-        <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
-          <circle cx="20" cy="20" r="12" stroke="currentColor" strokeWidth="2" />
-          <circle cx="20" cy="20" r="4" fill="currentColor" opacity="0.5" />
-        </svg>
-      )}
-    </div>
-  );
+function getExperiment(topic: Topic) {
+  return EXPERIMENT_DETAILS[topic.id] ?? {
+    code: "EXP · EXPLORAÇÃO",
+    objective: "Investigue este tema com um especialista do Laboratório.",
+    specialist: "NEXUS",
+    duration: "10 min",
+    level: "Iniciante",
+  };
 }
-
-/* ─── Component ──────────────────────────────────────────────────────────── */
 
 export function TopicCarousel({ topics, onSelect, agentColor, compact }: TopicCarouselProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -62,31 +37,41 @@ export function TopicCarousel({ topics, onSelect, agentColor, compact }: TopicCa
   const [canScrollRight, setCanScrollRight] = useState(true);
 
   const updateScroll = () => {
-    const el = scrollRef.current;
-    if (!el) return;
-    setCanScrollLeft(el.scrollLeft > 4);
-    setCanScrollRight(el.scrollLeft < el.scrollWidth - el.clientWidth - 4);
+    const element = scrollRef.current;
+    if (!element) return;
+    setCanScrollLeft(element.scrollLeft > 4);
+    setCanScrollRight(element.scrollLeft < element.scrollWidth - element.clientWidth - 4);
   };
 
   useEffect(() => {
     updateScroll();
-    const el = scrollRef.current;
-    if (el) el.addEventListener("scroll", updateScroll, { passive: true });
-    return () => { if (el) el.removeEventListener("scroll", updateScroll); };
+    const element = scrollRef.current;
+    if (!element) return;
+    element.addEventListener("scroll", updateScroll, { passive: true });
+    const observer = new ResizeObserver(updateScroll);
+    observer.observe(element);
+    return () => {
+      element.removeEventListener("scroll", updateScroll);
+      observer.disconnect();
+    };
   }, []);
 
-  const scroll = (dir: "left" | "right") => {
-    scrollRef.current?.scrollBy({ left: dir === "left" ? -320 : 320, behavior: "smooth" });
+  const scroll = (direction: "left" | "right") => {
+    scrollRef.current?.scrollBy({ left: direction === "left" ? -380 : 380, behavior: "smooth" });
   };
 
   if (compact) {
     return (
       <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide">
-        {topics.map((t) => (
-          <button key={t.id} onClick={() => onSelect(t.question)}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium whitespace-nowrap rounded-lg border border-slate-700/50 bg-slate-800/40 text-slate-400 hover:text-white hover:border-slate-500 transition-colors">
-            <span className="w-2 h-2 rounded-full" style={{ backgroundColor: t.color }} />
-            {t.question.slice(0, 50)}...
+        {topics.map((topic) => (
+          <button
+            key={topic.id}
+            type="button"
+            onClick={() => onSelect(topic.question)}
+            className="flex items-center gap-1.5 whitespace-nowrap rounded-lg border border-slate-700/50 bg-slate-800/40 px-3 py-1.5 text-xs font-medium text-slate-300 transition-colors hover:border-cyan-300/50 hover:text-white"
+          >
+            <span className="h-2 w-2 rounded-full" style={{ backgroundColor: topic.color }} />
+            {getExperiment(topic).code}
           </button>
         ))}
       </div>
@@ -95,62 +80,74 @@ export function TopicCarousel({ topics, onSelect, agentColor, compact }: TopicCa
 
   return (
     <div className="relative">
-      <p className="text-xs font-medium text-slate-400 uppercase tracking-wider mb-4">
-        Tópicos para explorar
-      </p>
+      <div className="mb-5 flex items-center justify-between gap-4">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-200/70">Controle de missões</p>
+          <h2 className="mt-1 text-lg font-bold text-white">Experimentos do Laboratório</h2>
+          <p className="mt-1 text-sm text-slate-400">Escolha uma missão e aprenda fazendo.</p>
+        </div>
+        <span className="hidden items-center gap-2 text-xs text-cyan-100/70 sm:flex">
+          <FlaskConical size={15} className="text-cyan-300" />
+          {topics.length} experimentos disponíveis
+        </span>
+      </div>
 
       {canScrollLeft && (
-        <button onClick={() => scroll("left")}
-          className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-9 h-9 rounded-full bg-slate-900/90 backdrop-blur border border-slate-700/50 flex items-center justify-center text-slate-400 hover:text-white transition shadow-lg">
-          <ChevronLeft size={18} />
+        <button
+          type="button"
+          onClick={() => scroll("left")}
+          aria-label="Ver experimentos anteriores"
+          className="absolute left-2 top-[58%] z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-cyan-300/25 bg-slate-950/95 text-cyan-100 shadow-xl transition hover:border-cyan-300 hover:bg-cyan-400/10"
+        >
+          <ChevronLeft size={19} />
         </button>
       )}
 
-      <div ref={scrollRef} className="flex gap-5 overflow-x-auto scrollbar-hide pb-4"
-        style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
-        {topics.map((topic, i) => (
-          <button
-            key={topic.id}
-            onClick={() => onSelect(topic.question)}
-            className="group flex-shrink-0 w-[250px] text-left rounded-2xl p-5
-                       bg-slate-800/50 backdrop-blur-md border border-slate-700/50
-                       hover:translate-y-[-8px] hover:shadow-[0_20px_40px_rgba(0,0,0,0.3)]
-                       transition-all duration-500 focus:outline-none"
-            style={{
-              animationDelay: `${i * 80}ms`,
-            }}
-          >
-            {/* Topic SVG icon */}
-            <div style={{ "--topic-color": topic.color } as React.CSSProperties}>
-              <TopicIcon topicId={topic.id} />
-            </div>
-
-            {/* Agent badge */}
-            <div className="absolute top-3 right-3 w-6 h-6 rounded-full border-2 border-slate-800 flex items-center justify-center"
-              style={{ backgroundColor: agentColor }}>
-              <div className="w-2 h-2 rounded-full bg-white/80" />
-            </div>
-
-            {/* Title */}
-            <h3 className="text-sm font-semibold text-white mb-2 line-clamp-2 leading-snug">
-              {topic.label}
-            </h3>
-
-            {/* Description */}
-            <p className="text-xs text-slate-400 line-clamp-3 leading-relaxed">
-              {topic.question}
-            </p>
-
-            {/* Bottom gradient */}
-            <div className="absolute bottom-0 left-0 right-0 h-12 rounded-b-2xl bg-gradient-to-t from-slate-900/40 to-transparent pointer-events-none" />
-          </button>
-        ))}
+      <div ref={scrollRef} className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-3 scrollbar-hide" style={{ scrollbarWidth: "none" }}>
+        {topics.map((topic) => {
+          const experiment = getExperiment(topic);
+          return (
+            <button
+              key={topic.id}
+              type="button"
+              onClick={() => onSelect(topic.question)}
+              className="group relative w-[310px] shrink-0 snap-start overflow-hidden rounded-2xl border bg-[#091326]/90 p-5 text-left transition duration-300 hover:-translate-y-1 hover:shadow-[0_18px_36px_rgba(0,0,0,0.36)] focus:outline-none focus:ring-2 focus:ring-cyan-300 lg:w-[calc((100%-2rem)/3)]"
+              style={{ borderColor: `${topic.color}70` }}
+            >
+              <div className="absolute inset-x-0 top-0 h-1" style={{ backgroundColor: topic.color }} />
+              <div className="absolute -right-10 -top-10 h-28 w-28 rounded-full opacity-15 blur-2xl" style={{ backgroundColor: topic.color }} />
+              <div className="relative">
+                <div className="flex items-start justify-between gap-3">
+                  <p className="text-[10px] font-bold tracking-[0.16em]" style={{ color: topic.color }}>{experiment.code}</p>
+                  <span className="rounded-full border border-cyan-300/20 bg-cyan-300/5 px-2 py-1 text-[10px] font-medium text-cyan-100/80">Disponível</span>
+                </div>
+                <h3 className="mt-5 text-xl font-bold text-white">{topic.label}</h3>
+                <p className="mt-2 min-h-10 text-sm leading-relaxed text-slate-300">{experiment.objective}</p>
+                <div className="mt-5 border-t border-white/10 pt-4">
+                  <p className="text-[10px] uppercase tracking-[0.14em] text-slate-500">Especialista recomendado</p>
+                  <p className="mt-1 text-sm font-semibold" style={{ color: topic.color }}>{experiment.specialist}</p>
+                </div>
+                <div className="mt-4 flex items-center justify-between text-xs text-slate-400">
+                  <span className="flex items-center gap-1.5"><Clock3 size={14} />{experiment.duration}</span>
+                  <span>{experiment.level}</span>
+                </div>
+                <span className="mt-5 flex items-center gap-2 text-sm font-bold text-cyan-200 transition group-hover:gap-3">
+                  Iniciar experimento <ArrowRight size={16} />
+                </span>
+              </div>
+            </button>
+          );
+        })}
       </div>
 
       {canScrollRight && (
-        <button onClick={() => scroll("right")}
-          className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-9 h-9 rounded-full bg-slate-900/90 backdrop-blur border border-slate-700/50 flex items-center justify-center text-slate-400 hover:text-white transition shadow-lg">
-          <ChevronRight size={18} />
+        <button
+          type="button"
+          onClick={() => scroll("right")}
+          aria-label="Ver próximos experimentos"
+          className="absolute right-2 top-[58%] z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-cyan-300/25 bg-slate-950/95 text-cyan-100 shadow-xl transition hover:border-cyan-300 hover:bg-cyan-400/10"
+        >
+          <ChevronRight size={19} />
         </button>
       )}
     </div>
