@@ -13,7 +13,7 @@
 
 import type { PlanetId, PlanetState } from "../universe/planet-registry";
 import type { PlayerProgression } from "../universe/progression-engine";
-import type { CompressedContext } from "../universe/context-compressor";
+import type { CompressedContext } from "../universe/context.types";
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // AGENT LIFECYCLE
