@@ -109,29 +109,29 @@ export function LabPageClient({ agents, topics }: LabPageClientProps) {
 
       {/* Main content — single column */}
       <div className="relative z-10 max-w-4xl mx-auto px-4 py-8 md:py-12">
-        {/* 1. Hero */}
-        <LabHero
-          activeAgent={activeAgent}
-          agentCount={agents.length}
-          mode={mode}
-          onSend={handleSend}
-          isLoading={isLoading}
-        />
-
-        {/* 2. Mode Toggle */}
-        <div className="flex justify-center mb-6">
-          <LabModeToggle mode={mode} onToggle={toggleMode} />
-        </div>
-
-        {/* 3. Agent Pills */}
-        <div className="mb-6">
+        {/* 1. Especialistas */}
+        <section id="especialistas" className="mb-8 scroll-mt-24 rounded-3xl border border-cyan-300/20 bg-slate-950/55 p-4 shadow-[0_0_34px_rgba(14,165,233,0.06)] md:p-6">
           <AgentSelector
             agents={agents}
             activeAgentId={activeAgentId}
             onSelect={selectAgent}
           />
-        </div>
+        </section>
 
+        {/* 2. Painel de consulta */}
+        <section id="consulta" className="scroll-mt-24">
+          <LabHero
+            activeAgent={activeAgent}
+            agentCount={agents.length}
+            mode={mode}
+            onSend={handleSend}
+            isLoading={isLoading}
+          />
+
+          <div className="mb-8 flex justify-center">
+            <LabModeToggle mode={mode} onToggle={toggleMode} />
+          </div>
+        </section>
         {/* 4. Topic Carousel — collapses to compact row when conversation active */}
         {!hasStarted ? (
           <TopicCarousel
