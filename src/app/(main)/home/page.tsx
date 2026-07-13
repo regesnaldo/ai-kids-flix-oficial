@@ -335,7 +335,7 @@ export default function HomePage() {
 
         {/* AGENTS GRID — Storyboard */}
         <section style={{
-          backgroundImage: 'url(/images/storyboard/agents-grid.jpg)',
+          backgroundImage: 'url(/images/home/nexus-observatory-cinematic.png)',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           minHeight: '300px',
