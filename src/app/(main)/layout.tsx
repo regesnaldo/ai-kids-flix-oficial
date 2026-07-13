@@ -32,9 +32,12 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
       <OasisProvider>
         <JourneyProvider>
         <div style={{ backgroundColor: "#0a0e27", minHeight: "100vh", margin: 0 }}>
+      <a href="#main-content" className="skip-to-content">
+        Pular para o conteúdo principal
+      </a>
       <Navigation />
       <CognitiveGPS />
-      <main style={{ paddingTop: "70px" }}>{children}</main>
+      <main id="main-content" style={{ paddingTop: "70px" }}>{children}</main>
       {pathname !== "/logos" && <LogosOracle />}
     </div>
     </JourneyProvider>
