@@ -127,6 +127,38 @@
   .scrollbar-hide::-webkit-scrollbar { display: none; }
   .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 
+  /* ─── Accessibility ─── */
+  .sr-only {
+    position: absolute; width: 1px; height: 1px; padding: 0;
+    margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0);
+    white-space: nowrap; border-width: 0;
+  }
+
+  .skip-to-content {
+    position: absolute; top: -100%; left: 16px; z-index: 100;
+    padding: 12px 20px; background: white; color: black;
+    font-weight: 700; font-size: 14px; border-radius: 8px;
+    transition: top 0.2s;
+  }
+  .skip-to-content:focus {
+    top: 8px;
+  }
+
+  /* Touch-friendly minimum tap targets */
+  .touch-target {
+    min-width: 44px; min-height: 44px;
+  }
+
+  /* Respect user motion preferences */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
   /* ─── Glassmorphism ─── */
   .glass {
     background: rgba(20, 20, 50, 0.6);

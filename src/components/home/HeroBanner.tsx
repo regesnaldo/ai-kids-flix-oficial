@@ -112,9 +112,19 @@ export default function HeroBanner({ onInfoClick }: HeroBannerProps) {
   const [paused, setPaused] = useState(false);
   const [progressKey, setProgressKey] = useState(0);
   const [imageError, setImageError] = useState(false);
+  const [reduceMotion, setReduceMotion] = useState(false);
   const intervalRef = useRef<ReturnType<typeof globalThis.setInterval> | null>(null);
 
   const agent = HERO_AGENTS[activeIndex] ?? HERO_AGENTS[0];
+
+  // ── Respect reduced motion preference ────────────────────────────────
+  useEffect(() => {
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    setReduceMotion(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setReduceMotion(e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
 
   // ── Rotation timer ────────────────────────────────────────────────────
 
@@ -122,7 +132,7 @@ export default function HeroBanner({ onInfoClick }: HeroBannerProps) {
     const restartTimer = () => {
       if (intervalRef.current) globalThis.clearInterval(intervalRef.current);
       intervalRef.current = null;
-      if (paused) return;
+      if (paused || reduceMotion) return;
       intervalRef.current = globalThis.setInterval(() => {
         setActiveIndex((i) => (i + 1) % HERO_AGENTS.length);
         setProgressKey((k) => k + 1);
@@ -131,7 +141,7 @@ export default function HeroBanner({ onInfoClick }: HeroBannerProps) {
     };
     restartTimer();
     return () => { if (intervalRef.current) globalThis.clearInterval(intervalRef.current); };
-  }, [paused]);
+  }, [paused, reduceMotion]);
 
   useEffect(() => { setProgressKey((k) => k + 1); }, [activeIndex]);
 
