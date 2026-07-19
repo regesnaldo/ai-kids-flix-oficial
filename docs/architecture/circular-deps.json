@@ -1,7 +1,0 @@
-[
-  [
-    "lib/nexus/nexus.events.ts",
-    "lib/nexus/nexus.types.ts",
-    "lib/universe/context-compressor.ts"
-  ]
-]
