@@ -75,6 +75,11 @@ export default function Billboard({
     };
   }, [resetAutoPlay]);
 
+  const goTo = useCallback((index: number) => {
+    setCurrent(index);
+    setProgress(0);
+  }, []);
+
   // Keyboard navigation
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -83,12 +88,7 @@ export default function Billboard({
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [current, contents.length]);
-
-  const goTo = (index: number) => {
-    setCurrent(index);
-    setProgress(0);
-  };
+  }, [current, contents.length, goTo]);
 
   const item = contents[current];
   if (!item || !isClient) return null;

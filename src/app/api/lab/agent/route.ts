@@ -215,7 +215,7 @@ export async function POST(request: NextRequest) {
 
     try {
       response = await callGroq(systemPrompt, maxTokens);
-    } catch (err: any) {
+    } catch (err: unknown) {
       kvDecr("global_active"); // decrement on error
       if (process.env.NODE_ENV !== 'production') {
         console.error("[lab/agent] Falha na chamada LLM", {

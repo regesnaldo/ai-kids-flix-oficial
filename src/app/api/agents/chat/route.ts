@@ -127,13 +127,13 @@ export async function POST(request: NextRequest) {
     }
 
     // ── Step 2: Prompt Builder — build full system prompt ───────────────────
-    const systemPrompt = buildSystemPromptForAgent(agentKey as any, {
+    const systemPrompt = buildSystemPromptForAgent(agentKey as AgentId, {
       userId: userId ?? 0,
       emotionalScore: 0,
       intellectualScore: 0,
       moralScore: 0,
-      archetype: (routerDecision?.archetype as any) ?? 'creative',
-      currentAgent: agentKey as any,
+      archetype: (routerDecision?.archetype as string | undefined) ?? 'creative',
+      currentAgent: agentKey as AgentId,
       decisionHistory: [],
       lastUpdated: Date.now(),
     })

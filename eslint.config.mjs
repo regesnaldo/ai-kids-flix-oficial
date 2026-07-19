@@ -35,7 +35,7 @@ export default [
     },
   },
 
-  // Ignorar diretórios de build/test
+  // Ignorar diretórios de build/test e scripts legados JS
   {
     ignores: [
       ".next/**",
@@ -46,6 +46,13 @@ export default [
       "playwright-report/**",
       "test-results/**",
       "public/**",
+      // Scripts legados JS (não TypeScript)
+      "generate-pdf.js",
+      "migrate.js",
+      "jest.setup.js",
+      "jest.config.ts",
+      "scripts/validation/**",
+      ".minimax/**",
     ],
   },
 ];

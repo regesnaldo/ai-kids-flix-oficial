@@ -251,9 +251,9 @@ export function BrandSound({ onSoundEnd }: BrandSoundProps) {
     } catch {
       fallbackTone();
     }
-  }, [onSoundEnd]);
+  }, [onSoundEnd, fallbackTone]);
 
-  const fallbackTone = () => {
+  const fallbackTone = useCallback(() => {
     try {
       const ctx = new AudioContext();
       const oscillator = ctx.createOscillator();
@@ -280,7 +280,7 @@ export function BrandSound({ onSoundEnd }: BrandSoundProps) {
       // Web Audio not supported either, just callback
       onSoundEnd?.();
     }
-  };
+  });
 
   return null;
 }
