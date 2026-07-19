@@ -139,8 +139,8 @@ export default function ExperimentPage({
       try {
         const stored = localStorage.getItem("lab_experiments");
         if (stored) {
-          const exps = JSON.parse(stored);
-          const idx = exps.findIndex((e: any) => e.id === experimentId);
+          const exps = JSON.parse(stored) as Array<{ id: string; completedAgents?: number }>;
+          const idx = exps.findIndex((e) => e.id === experimentId);
           if (idx >= 0) {
             exps[idx].completedAgents = 4;
             localStorage.setItem("lab_experiments", JSON.stringify(exps));

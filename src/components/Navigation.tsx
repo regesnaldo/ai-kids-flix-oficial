@@ -42,6 +42,12 @@ function avatarColor(email: string): string {
   return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
 }
 
+function isEditable(el: EventTarget | null): boolean {
+  if (!el || !(el instanceof HTMLElement)) return false;
+  const tag = el.tagName.toLowerCase();
+  return tag === 'input' || tag === 'textarea' || tag === 'select' || el.isContentEditable;
+}
+
 export default function Navigation() {
   const pathname = usePathname();
   const router = useRouter();
@@ -100,12 +106,6 @@ export default function Navigation() {
     document.addEventListener('keydown', onKeyDown);
     return () => document.removeEventListener('keydown', onKeyDown);
   }, []);
-
-  function isEditable(el: EventTarget | null): boolean {
-    if (!el || !(el instanceof HTMLElement)) return false;
-    const tag = el.tagName.toLowerCase();
-    return tag === 'input' || tag === 'textarea' || tag === 'select' || el.isContentEditable;
-  }
 
   const handleSearchSubmit = useCallback((e: React.FormEvent) => {
     e.preventDefault();

@@ -59,7 +59,7 @@ function useIsolatedTTS() {
       // Tenta ElevenLabs primeiro se voiceId estiver disponível
       if (useElevenLabs && voiceId) {
         // Cria AudioContext isolado para ElevenLabs
-        const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const audioContext = new AudioContext();
         
         const response = await fetch('/api/elevenlabs/speak', {
           method: 'POST',

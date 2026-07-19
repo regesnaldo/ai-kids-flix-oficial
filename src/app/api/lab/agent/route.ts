@@ -215,22 +215,23 @@ export async function POST(request: NextRequest) {
 
     try {
       response = await callGroq(systemPrompt, maxTokens);
-    } catch (err: any) {
+    } catch (err: unknown) {
       kvDecr("global_active"); // decrement on error
+      const error = err instanceof Error ? err : new Error(String(err));
       if (process.env.NODE_ENV !== 'production') {
         console.error("[lab/agent] Falha na chamada LLM", {
           agent: body.agent,
-          error: err?.message,
-          stack: err?.stack?.slice(0, 300),
+          error: error.message,
+          stack: error.stack?.slice(0, 300),
         });
       }
 
       // Fallback: responder com erro amigável em PT-BR
-      const errorMsg = err?.message?.includes("API_KEY")
+      const errorMsg = error.message.includes("API_KEY")
         ? "Chave da API Groq não configurada. Configure GROQ_API_KEY no .env.local."
-        : err?.message?.includes("timeout")
+        : error.message.includes("timeout")
         ? "A API Groq demorou muito para responder. Tente novamente."
-        : `Erro ao chamar Groq: ${err?.message || "Erro desconhecido"}. Verifique os logs do servidor.`;
+        : `Erro ao chamar Groq: ${error.message || "Erro desconhecido"}. Verifique os logs do servidor.`;
 
       return NextResponse.json({ error: errorMsg }, { status: 502 });
     }
@@ -311,15 +312,16 @@ export async function POST(request: NextRequest) {
       isComplete: body.agent === "aurora",
       boardFacts: board.facts,
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
+    const error = err instanceof Error ? err : new Error(String(err));
     if (process.env.NODE_ENV !== 'production') {
       console.error("[lab/agent] Erro não tratado", {
-        error: err?.message,
-        stack: err?.stack?.slice(0, 500),
+        error: error.message,
+        stack: error.stack?.slice(0, 500),
       });
     }
     return NextResponse.json(
-      { error: `Falha interna ao executar agente: ${err?.message || "Erro desconhecido"}. Verifique os logs do servidor.` },
+      { error: `Falha interna ao executar agente: ${error.message || "Erro desconhecido"}. Verifique os logs do servidor.` },
       { status: 500 }
     );
   }

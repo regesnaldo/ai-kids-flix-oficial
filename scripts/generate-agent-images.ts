@@ -152,7 +152,7 @@ async function generateWithGoogleAiStudio(prompt: string, outputPath: string): P
     throw new Error(`Google API error: ${response.status} - ${error}`);
   }
 
-  const data: any = await response.json();
+  const data = await response.json() as { predictions?: Array<{ bytesBase64Encoded?: string }> };
   const base64 = data?.predictions?.[0]?.bytesBase64Encoded;
   if (typeof base64 !== "string" || !base64) throw new Error("No image data in response");
   writeFileSync(outputPath, Buffer.from(base64, "base64"));
@@ -199,9 +199,10 @@ async function generateAllImages() {
   if (isNanoBanana) {
     const usage = await checkUsage();
     if (usage) {
-      const used = typeof (usage as any).used === "number" ? (usage as any).used : undefined;
-      const limit = typeof (usage as any).limit === "number" ? (usage as any).limit : undefined;
-      const resetIn = (usage as any).resetIn;
+      const usageInfo = usage as { used?: number; limit?: number; resetIn?: unknown };
+      const used = typeof usageInfo.used === "number" ? usageInfo.used : undefined;
+      const limit = typeof usageInfo.limit === "number" ? usageInfo.limit : undefined;
+      const resetIn = usageInfo.resetIn;
       const headline = used !== undefined && limit !== undefined ? `Uso: ${used}/${limit}` : "Uso: disponível";
       console.log(`📊 ${headline}`);
       if (resetIn) console.log(`🔄 Reset em: ${resetIn}`);

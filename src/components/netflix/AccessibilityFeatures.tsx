@@ -233,27 +233,7 @@ interface BrandSoundProps {
 export function BrandSound({ onSoundEnd }: BrandSoundProps) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  const playSound = useCallback(() => {
-    try {
-      // Try loading the brand sound file
-      const audio = new Audio("/sounds/brand-tudum.mp3");
-      audio.volume = 0.3;
-      audioRef.current = audio;
-
-      audio.onended = () => {
-        onSoundEnd?.();
-      };
-
-      audio.play().catch(() => {
-        // Fallback: generate a simple tone using Web Audio API
-        fallbackTone();
-      });
-    } catch {
-      fallbackTone();
-    }
-  }, [onSoundEnd]);
-
-  const fallbackTone = () => {
+  const fallbackTone = useCallback(() => {
     try {
       const ctx = new AudioContext();
       const oscillator = ctx.createOscillator();
@@ -280,7 +260,27 @@ export function BrandSound({ onSoundEnd }: BrandSoundProps) {
       // Web Audio not supported either, just callback
       onSoundEnd?.();
     }
-  };
+  }, [onSoundEnd]);
+
+  const playSound = useCallback(() => {
+    try {
+      // Try loading the brand sound file
+      const audio = new Audio("/sounds/brand-tudum.mp3");
+      audio.volume = 0.3;
+      audioRef.current = audio;
+
+      audio.onended = () => {
+        onSoundEnd?.();
+      };
+
+      audio.play().catch(() => {
+        // Fallback: generate a simple tone using Web Audio API
+        fallbackTone();
+      });
+    } catch {
+      fallbackTone();
+    }
+  }, [onSoundEnd, fallbackTone]);
 
   return null;
 }

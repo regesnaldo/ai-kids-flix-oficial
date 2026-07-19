@@ -69,7 +69,7 @@ export const LYRA_T01E09_UNIT = mkUnit("ku-lyra-t01-e09", "A Exposição Final",
 export const LYRA_T01E10_UNIT = mkUnit("ku-lyra-t01-e10", "A Harmonia Eterna", "lyra-t01-e10-harmonia-eterna", "Sintetizar o aprendizado artístico como prática de vida.", "evaluate", ["synthesis", "artistic-life"], ["fundamentos", "harmonia"]);
 
 // Assets e edges simplificados para os episódios 3-10
-const mkAsset = (aid: string, uid: string, ep: number, abertura: string, narrativa: string, enc: string, prev: string | null, next: string | null, logos: boolean, ps: any[] = []): NewKnowledgeAsset => ({
+const mkAsset = (aid: string, uid: string, ep: number, abertura: string, narrativa: string, enc: string, prev: string | null, next: string | null, logos: boolean, ps: unknown[] = []): NewKnowledgeAsset => ({
   id: aid, knowledgeUnitId: uid, agentId: "lyra", season: 1, episode: ep, type: "episode",
   content: { abertura, narrativa, pausas: ps, encerramento: enc },
   metadata: { xpReward: 50, readingTimeMin: 7, pauseCount: ps.length, hasLogosGate: logos, prevEpisode: prev, nextEpisode: next },

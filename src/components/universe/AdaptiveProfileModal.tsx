@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
 // ─── MOCK DATA ─────────────────────────────────────────────────────────────
@@ -132,7 +132,7 @@ export default function AdaptiveProfileModal({ isOpen, onClose }: AdaptiveProfil
   const [calibrating, setCalibrating] = useState(true)
   const [animReady, setAnimReady] = useState(false)
   const [scrollPos, setScrollPos] = useState(0)
-  const badgesContainerRef = useState<HTMLDivElement | null>(null)
+  const badgesContainerRef = useRef<HTMLDivElement | null>(null)
 
   // Simula calibração ao abrir
   useEffect(() => {
@@ -163,12 +163,12 @@ export default function AdaptiveProfileModal({ isOpen, onClose }: AdaptiveProfil
   const isFormation = dims.intellectual <= 0.5 && dims.emotional <= 0.5 && dims.moral <= 0.5
 
   const scrollBadges = useCallback((dir: 'left' | 'right') => {
-    const el = badgesContainerRef[0]
+    const el = badgesContainerRef.current
     if (el) {
       const amount = dir === 'left' ? -160 : 160
       el.scrollBy({ left: amount, behavior: 'smooth' })
     }
-  }, [badgesContainerRef])
+  }, [])
 
   return (
     <AnimatePresence>
@@ -301,7 +301,7 @@ export default function AdaptiveProfileModal({ isOpen, onClose }: AdaptiveProfil
                   </div>
 
                   <div
-                    ref={(el) => { badgesContainerRef[0] = el }}
+                    ref={(el) => { badgesContainerRef.current = el }}
                     className="flex gap-3 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent"
                     style={{ scrollbarWidth: 'thin' }}
                   >

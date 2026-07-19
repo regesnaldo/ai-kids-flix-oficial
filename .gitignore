@@ -28,6 +28,14 @@ tsconfig.tsbuildinfo
 # Generated files
 GUIA-OPENCODE-CLAUDE.pdf
 
+# Artefatos locais temporários (não commitar)
+/PROJETO_DA_CIA_TRADUZIDO_PT_BR.pdf
+/PROJETO_DA_CIA_TRADUZIDO_PT_BR_COM_FIGURAS.pdf
+/figura_final_verificacao.png
+/gateway_transcription.html
+/pagina_teste.png
+/projeto_cia_extraido.txt
+
 # Vercel
 .vercel
 
@@ -43,3 +51,4 @@ coverage/
 
 next-env.d.ts
 tsconfig.tsbuildinfo
+/utput.txt
