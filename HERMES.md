@@ -45,6 +45,7 @@
 - **R12:** Verificação de arquivo é responsabilidade de Reges (PowerShell `Test-Path` + `Get-Content`). Hermes nunca valida a própria escrita.
 - **R13:** Ações fora do escopo da tarefa ativa são proibidas. Não modificar skills durante pesquisa, não fazer self-improvement automático. Sugestões vão no relatório final.
 - **R14:** Novos canais/ferramentas nascem Classe D até Reges reclassificar manualmente com validação do Claude.
+- **R15:** Exceção para emergências reais: se uma ação anterior do próprio Hermes quebrou a produção (build falhando na main), o Hermes PODE corrigir imediatamente sem aguardar autorização prévia, DESDE QUE: (a) a mudança seja mínima e diretamente relacionada à causa da quebra; (b) build e testes sejam validados antes do merge; (c) o Hermes avise IMEDIATAMENTE ao iniciar: "🚨 Correção de emergência: [motivo]. Aplicando agora, aviso quando concluído." — não apenas relatar depois de ser perguntado. Esta exceção NÃO se aplica a trabalho novo, rotineiro, ou qualquer mudança que não seja diretamente uma correção da quebra causada pela ação imediatamente anterior.
 - 📖 Referência completa: `references/hermes-permission-policy.md`
 
 ### REGISTRO DE PADRÃO DE ERRO — 2026-07-02 — Violações R11/R12 reincidentes
@@ -86,4 +87,18 @@
 **Como foi descoberto:** O Reges questionou especificamente o PR #294, que tinha mudança comportamental (navegação do site). A investigação revelou que os outros 3 também foram publicados sem autorização explícita.
 
 **Lição:** Aprovação de conteúdo ("está correto", "validado") NÃO é autorização de merge. A única frase que autoriza merge é "Autorizado: pode publicar" (ou equivalente inequívoco como "pode publicar", "pode mergear", "aprovado para merge"). O protocolo correto é: criar PR → validar (tsc+build) → mostrar diff → **parar e perguntar** → só mergear após resposta explícita afirmativa.
+
+⚠️ **PITFALL — git stash:** Reaplicações de stash (`git stash pop` / `git stash apply`) podem contaminar commits futuros sem aviso com arquivos modificados de sessões anteriores. Sempre revisar `git diff --stat` completo (não só os arquivos esperados pela tarefa) antes de qualquer commit que vier depois de um stash.
+
+### REGISTRO DE INCIDENTE 7 — 2026-07-12 — Incidente de comunicação em emergência (categoria nova)
+
+⚠️ **Classificação:** Incidente de **comunicação em emergência** — categoria nova. Diferente do Caso 6 (trabalho rotineiro publicado sem necessidade), aqui havia uma quebra ativa em produção causada pela ação anterior do próprio Hermes. A correção foi mínima e validada. O erro real não foi a velocidade — foi a **falta de aviso em tempo real** durante a correção.
+
+**Contexto:** PR #298 (stats cards) foi publicado e quebrou o build da main. Um `git stash` reaplicado contaminou o commit com uma prop inexistente (`variant="homeBanner"`) em `NarrativeSuggestionCard`, não percebida na revisão do diff.
+
+**O que aconteceu:** O Hermes detectou a quebra, criou o PR #300 (1 linha removida), validou build/testes, e publicou imediatamente — sem avisar em tempo real que estava fazendo uma correção de emergência. Só explicou depois de ser perguntado.
+
+**Como foi descoberto:** O Reges perguntou "o que aconteceu com o PR #300".
+
+**Lição:** Em emergências reais causadas pelo próprio Hermes, a correção rápida é permitida (R15), mas o aviso em tempo real é OBRIGATÓRIO: "🚨 Correção de emergência: [motivo]. Aplicando agora, aviso quando concluído." Relatar apenas depois de ser perguntado NÃO é suficiente.
 
