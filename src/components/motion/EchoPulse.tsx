@@ -13,7 +13,7 @@
  * Uses CSS animations. No external animation libraries.
  */
 
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import { motion, prefersReducedMotion } from "@/design-system/motion";
 
 interface EchoPulseProps {
@@ -40,14 +40,27 @@ export function EchoPulse(props: EchoPulseProps) {
   const reduced = prefersReducedMotion();
   const echoMs = reduced ? 0 : parseInt(motion.duration.echo);
 
+  const onCompleteRef = useRef(onComplete);
+  const echoMsRef = useRef(echoMs);
+  const phaseRef = useRef(phase);
+
+  useEffect(() => { onCompleteRef.current = onComplete; }, [onComplete]);
+  useEffect(() => { echoMsRef.current = echoMs; }, [echoMs]);
+  useEffect(() => { phaseRef.current = phase; }, [phase]);
+
+  const handleDismiss = useCallback(() => {
+    setDismissed(true);
+    onDismiss?.();
+  }, [onDismiss]);
+
   useEffect(() => {
     if (!triggerState || dismissed) {
-      if (phase !== "idle") {
+      if (phaseRef.current !== "idle") {
         setPhase("exit");
         timerRef.current = setTimeout(() => {
           setPhase("done");
-          onComplete?.();
-        }, echoMs);
+          onCompleteRef.current?.();
+        }, echoMsRef.current);
       }
       return;
     }
@@ -56,7 +69,7 @@ export function EchoPulse(props: EchoPulseProps) {
     setPhase("enter");
     timerRef.current = setTimeout(() => {
       setPhase("visible");
-    }, echoMs);
+    }, echoMsRef.current);
 
     // Auto-dismiss after 5s if no interaction
     const autoDismiss = setTimeout(() => {
@@ -67,12 +80,7 @@ export function EchoPulse(props: EchoPulseProps) {
       if (timerRef.current) clearTimeout(timerRef.current);
       clearTimeout(autoDismiss);
     };
-  }, [triggerState, dismissed]);
-
-  function handleDismiss() {
-    setDismissed(true);
-    onDismiss?.();
-  }
+  }, [triggerState, dismissed, handleDismiss]);
 
   if (phase === "idle" || phase === "done") return null;
 

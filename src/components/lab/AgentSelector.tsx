@@ -46,6 +46,7 @@ export function AgentSelector({ agents, activeAgentId, onSelect }: AgentSelector
                 border: `1.5px solid ${isActive ? `${agent.color}90` : "rgba(148,163,184,0.16)"}`,
               }}
             >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={`/images/agentes/${agent.id}.png`} alt="" className="absolute inset-0 h-full w-full object-cover opacity-70 transition duration-500 group-hover:scale-105 group-hover:opacity-90" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#060b18] via-[#060b18]/35 to-transparent" />
               <div className="absolute left-3 top-3 flex h-9 w-9 items-center justify-center rounded-xl border border-white/15 bg-black/35 text-lg backdrop-blur-sm" style={{ color: agent.color }}>

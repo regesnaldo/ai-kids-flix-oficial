@@ -1,6 +1,6 @@
 'use client';
-import { useRef, useEffect } from 'react';
-import { useFrame, useThree } from '@react-three/fiber';
+import { useRef } from 'react';
+import { useFrame } from '@react-three/fiber';
 import { Sparkles } from '@react-three/drei';
 import * as THREE from 'three';
 
@@ -53,10 +53,9 @@ function PulsingCore() {
 }
 
 export function VoltScene() {
-  const { scene } = useThree()
-  useEffect(() => { scene.background = new THREE.Color('#030200') }, [scene])
   return (
     <>
+      <color attach="background" args={['#030200']} />
       <ambientLight intensity={0.1} />
       <pointLight position={[0, 0, 6]} intensity={20} color="#F59E0B" />
       <pointLight position={[6, 6, 0]} intensity={10} color="#FB923C" />

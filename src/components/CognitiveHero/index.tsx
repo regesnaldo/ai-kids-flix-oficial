@@ -198,10 +198,12 @@ export function CognitivePipeline({
   );
 }
 
+const SEQ: OrchestrationState[] = [
+  "idle", "generating", "evaluating", "revising", "evaluating", "approved",
+];
+
 export function CognitivePipelineDemo() {
-  const seq: OrchestrationState[] = [
-    "idle", "generating", "evaluating", "revising", "evaluating", "approved",
-  ];
+  const seq = SEQ;
   const [idx, setIdx]           = useState(0);
   const [iteration, setIter]    = useState(1);
   const [cost, setCost]         = useState(0);
@@ -214,7 +216,7 @@ export function CognitivePipelineDemo() {
       if (next === 0) { setIter(1); setCost(0); }
       return next;
     });
-  }, []);
+  }, [seq]);
 
   useEffect(() => {
     const t = setInterval(advance, 3000);

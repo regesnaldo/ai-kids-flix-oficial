@@ -148,7 +148,7 @@ export default function ScreenplayPlayerPage() {
         console.error("[EPISODE] Erro ao salvar progresso:", error);
       }
     })();
-  }, [phase, xpAwarded, agentId, season, episode, selectedChoice, agent]);
+  }, [phase, xpAwarded, agentId, season, episode, selectedChoice, agent, setLogosActive]);
 
   // Typewriter for each phase
   const { displayed: displayedAbertura, done: aberturaDone } = useTypewriter(

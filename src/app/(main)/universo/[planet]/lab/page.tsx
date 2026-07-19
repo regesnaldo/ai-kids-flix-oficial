@@ -99,8 +99,10 @@ function PlanetLab({
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
   // Emit planet activation via triggerTransition on mount
+  const triggerTransitionRef = useRef(triggerTransition);
+  useEffect(() => { triggerTransitionRef.current = triggerTransition; }, [triggerTransition]);
   useEffect(() => {
-    triggerTransition(planetId, "warp");
+    triggerTransitionRef.current(planetId, "warp");
     return () => {
       // Cleanup — signal audio departure via audioManager
       try {

@@ -54,7 +54,7 @@ export function MemoryEcho(props: MemoryEchoProps) {
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
     };
-  }, [triggerState, reduced, onComplete]);
+  }, [triggerState, reduced, onComplete, echoMs]);
 
   if (phase === "idle" || phase === "done" || !discoveryTag) return null;
 

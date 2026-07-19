@@ -264,7 +264,7 @@ export default function NexusEntry() {
     };
 
     el.addEventListener('transitionend', onEnd);
-  }, [router, playPortalSound]);
+  }, [router, playPortalSound, spawnParticles]);
 
   useEffect(() => {
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;

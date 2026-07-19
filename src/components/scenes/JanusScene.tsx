@@ -1,6 +1,6 @@
 'use client';
-import { useRef, useEffect } from 'react';
-import { useFrame, useThree } from '@react-three/fiber';
+import { useRef } from 'react';
+import { useFrame } from '@react-three/fiber';
 import { Sparkles } from '@react-three/drei';
 import * as THREE from 'three';
 
@@ -61,10 +61,9 @@ function Nexus() {
 }
 
 export function JanusScene() {
-  const { scene } = useThree()
-  useEffect(() => { scene.background = new THREE.Color('#030308') }, [scene])
   return (
     <>
+      <color attach="background" args={['#030308']} />
       <ambientLight intensity={0.06} />
       <pointLight position={[-8, 0, 4]} intensity={14} color="#CBD5E1" />
       <pointLight position={[ 8, 0, 4]} intensity={14} color="#94A3B8" />

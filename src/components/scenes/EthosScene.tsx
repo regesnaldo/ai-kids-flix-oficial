@@ -1,6 +1,6 @@
 'use client';
-import { useRef, useEffect } from 'react';
-import { useFrame, useThree } from '@react-three/fiber';
+import { useRef } from 'react';
+import { useFrame } from '@react-three/fiber';
 import { Sparkles } from '@react-three/drei';
 import * as THREE from 'three';
 
@@ -62,10 +62,9 @@ const PILLARS = Array.from({ length: PILLAR_COUNT }, (_, i) => ({
 }));
 
 export function EthosScene() {
-  const { scene } = useThree()
-  useEffect(() => { scene.background = new THREE.Color('#050308') }, [scene])
   return (
     <>
+      <color attach="background" args={['#050308']} />
       <ambientLight intensity={0.08} />
       <pointLight position={[0, 8, 0]} intensity={20} color="#F59E0B" />
       <pointLight position={[0, -5, 0]} intensity={8} color="#F1F5F9" />

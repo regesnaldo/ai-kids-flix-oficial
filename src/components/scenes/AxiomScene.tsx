@@ -1,6 +1,6 @@
 'use client';
-import { useRef, useEffect } from 'react';
-import { useFrame, useThree } from '@react-three/fiber';
+import { useRef } from 'react';
+import { useFrame } from '@react-three/fiber';
 import { Sparkles } from '@react-three/drei';
 import * as THREE from 'three';
 
@@ -56,10 +56,9 @@ function PlatonicSolid({
 }
 
 export function AxiomScene() {
-  const { scene } = useThree()
-  useEffect(() => { scene.background = new THREE.Color('#020510') }, [scene])
   return (
     <>
+      <color attach="background" args={['#020510']} />
       <ambientLight intensity={0.08} />
       <pointLight position={[0, 8, 0]} intensity={18} color="#3B82F6" />
       <pointLight position={[0, -2, 6]} intensity={8} color="#F1F5F9" />

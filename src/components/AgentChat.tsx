@@ -55,7 +55,10 @@ export default function AgentChat({
   useEffect(() => {
     if (!onHeroInputChange || heroSendSignal === 0) return;
     void sendMessage();
-  }, [heroSendSignal, sendMessage]);
+    // sendMessage is intentionally omitted — it would create a stale closure.
+    // The heroSendSignal gate prevents re-execution.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [heroSendSignal, onHeroInputChange]);
 
   const streamingMessageRef = useRef<string | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);

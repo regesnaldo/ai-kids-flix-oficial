@@ -39,6 +39,9 @@ const DIALOGUE_CONTENT = {
 function useTypewriter(text: string, speed = 25, onComplete?: () => void) {
   const [displayedText, setDisplayedText] = useState('');
   const indexRef = useRef(0);
+  const onCompleteRef = useRef(onComplete);
+  useEffect(() => { onCompleteRef.current = onComplete; }, [onComplete]);
+
   useEffect(() => {
     setDisplayedText('');
     indexRef.current = 0;
@@ -46,7 +49,7 @@ function useTypewriter(text: string, speed = 25, onComplete?: () => void) {
     const interval = setInterval(() => {
       indexRef.current += 1;
       setDisplayedText(text.slice(0, indexRef.current));
-      if (indexRef.current >= text.length) { clearInterval(interval); onComplete?.(); }
+      if (indexRef.current >= text.length) { clearInterval(interval); onCompleteRef.current?.(); }
     }, speed);
     return () => clearInterval(interval);
   }, [text, speed]);

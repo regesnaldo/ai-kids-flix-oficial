@@ -8,7 +8,7 @@
  * NEXUS centrado. Orbitas concentricas. 12 circulos perfeitos.
  */
 
-import { useMemo, useState, useEffect, useCallback } from "react";
+import { useMemo, useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import {
   planetRegistry,
@@ -171,6 +171,12 @@ export default function UniversoPage() {
     return conns;
   }, [progression]);
 
+  // Stabilize callback refs from context
+  const triggerTransitionRef = useRef(triggerTransition);
+  useEffect(() => { triggerTransitionRef.current = triggerTransition; }, [triggerTransition]);
+  const routerRef = useRef(router);
+  useEffect(() => { routerRef.current = router; }, [router]);
+
   // Handle planet click
   const handlePlanetClick = useCallback(
     async (planetId: PlanetId) => {
@@ -193,7 +199,7 @@ export default function UniversoPage() {
           const result = await res.json();
           if (result.success) {
             audioManager.playSignature(planetId);
-            triggerTransition(planetId, "warp");
+            triggerTransitionRef.current(planetId, "warp");
           }
         } catch {
           console.error("Falha ao ativar planeta via API");
@@ -207,7 +213,7 @@ export default function UniversoPage() {
       setEnteringId(planetId);
       setFlashActive(true);
       window.setTimeout(() => {
-        router.push(`/universo/${planetId}/lab`);
+        routerRef.current.push(`/universo/${planetId}/lab`);
       }, 600);
       window.setTimeout(() => setFlashActive(false), 620);
     },

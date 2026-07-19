@@ -169,6 +169,7 @@ export default function HeroBanner({ onInfoClick }: HeroBannerProps) {
 
         {/* Background image */}
         {!imageError && (
+          // eslint-disable-next-line @next/next/no-img-element
           <img
             src={agent.image}
             alt=""

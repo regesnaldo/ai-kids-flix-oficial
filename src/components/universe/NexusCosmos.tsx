@@ -155,14 +155,22 @@ function Scene({ onNucleusClick = () => {} }: { onNucleusClick?: () => void }) {
 // Functions imported from @/lib/audio/nexus-audio at top of file
 // ──────────────────────────────────────────────────────────────
 
+const CINEMATIC_LINES = [
+  '> INICIALIZANDO NEXUS...',
+  '> SINCRONIZANDO 500 NÓS DE DADOS...',
+  '> BEM-VINDO AO KERNEL DO METAVERSO.',
+];
+
 function CinematicIntro({ onComplete, speak }: { onComplete: () => void; speak: (text: string) => Promise<void> }) {
-  const lines = [
-    '> INICIALIZANDO NEXUS...',
-    '> SINCRONIZANDO 500 NÓS DE DADOS...',
-    '> BEM-VINDO AO KERNEL DO METAVERSO.',
-  ]
+  const lines = CINEMATIC_LINES;
   const [visibleLines, setVisibleLines] = useState<string[]>([]);
   const [fading, setFading] = useState(false);
+
+  const onCompleteRef = useRef(onComplete);
+  const speakRef = useRef(speak);
+
+  useEffect(() => { onCompleteRef.current = onComplete; }, [onComplete]);
+  useEffect(() => { speakRef.current = speak; }, [speak]);
 
   useEffect(() => {
     let i = 0;
@@ -171,16 +179,16 @@ function CinematicIntro({ onComplete, speak }: { onComplete: () => void; speak: 
         const line = lines[i];
         setVisibleLines(prev => [...prev, line]);
         // Speak each line as it appears (strip leading "> ")
-        speak(line.replace(/^>\s*/, "")).catch(() => {});
+        speakRef.current(line.replace(/^>\s*/, "")).catch(() => {});
         i++;
       } else {
         clearInterval(interval);
         setTimeout(() => setFading(true), 800);
-        setTimeout(() => onComplete(), 1600);
+        setTimeout(() => onCompleteRef.current(), 1600);
       }
     }, 1200);
     return () => clearInterval(interval);
-  }, []);
+  }, [lines]);
 
   return (
     <div style={{
@@ -274,10 +282,13 @@ function ChatPanel({ onClose, speak }: { onClose: () => void; speak: (text: stri
   const [loading, setLoading] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
+  const speakRef2 = useRef(speak);
+  useEffect(() => { speakRef2.current = speak; }, [speak]);
+
   // Speak the first NEXUS message on mount
   useEffect(() => {
-    speak(messages[0].text).catch(() => {})
-  }, [])
+    speakRef2.current(messages[0].text).catch(() => {})
+  }, [messages])
 
   // Auto-scroll to bottom on new messages
   useEffect(() => {

@@ -1,6 +1,6 @@
 'use client';
-import { useRef, useMemo, useEffect } from 'react';
-import { useFrame, useThree } from '@react-three/fiber';
+import { useRef, useMemo } from 'react';
+import { useFrame } from '@react-three/fiber';
 import { Sparkles } from '@react-three/drei';
 import * as THREE from 'three';
 
@@ -60,8 +60,6 @@ function HexPlatform({ cx, cz }: { cx: number; cz: number }) {
 }
 
 export function TerraScene() {
-  const { scene } = useThree()
-  useEffect(() => { scene.background = new THREE.Color('#050a03') }, [scene])
   const stones = useMemo<StoneProps[]>(
     () =>
       Array.from({ length: 12 }, (_, i) => ({

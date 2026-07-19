@@ -1,6 +1,6 @@
 'use client';
-import { useRef, useEffect } from 'react';
-import { useFrame, useThree } from '@react-three/fiber';
+import { useRef } from 'react';
+import { useFrame } from '@react-three/fiber';
 import { Sparkles } from '@react-three/drei';
 import * as THREE from 'three';
 
@@ -67,10 +67,9 @@ const SHARDS: ShardProps[] = SPECTRUM.map((color, i) => ({
 }));
 
 export function PrismScene() {
-  const { scene } = useThree()
-  useEffect(() => { scene.background = new THREE.Color('#050205') }, [scene])
   return (
     <>
+      <color attach="background" args={['#050205']} />
       <ambientLight intensity={0.12} />
       <pointLight position={[ 0,  6,  4]} intensity={30} color="#FFFFFF" />
       <pointLight position={[-5, -3,  0]} intensity={10} color="#A78BFA" />

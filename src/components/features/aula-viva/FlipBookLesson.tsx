@@ -656,7 +656,7 @@ export default function FlipBookLesson({ lesson }: { lesson: FlipBookLesson }) {
       const timer = setTimeout(() => setCurrentBlock(0), 600);
       return () => clearTimeout(timer);
     }
-  }, [showTitle]);
+  }, [showTitle, currentBlock]);
   
   // Handle lesson changes
   useEffect(() => {

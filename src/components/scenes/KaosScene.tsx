@@ -1,6 +1,6 @@
 'use client';
-import { useRef, useMemo, useEffect } from 'react';
-import { useFrame, useThree } from '@react-three/fiber';
+import { useRef, useMemo } from 'react';
+import { useFrame } from '@react-three/fiber';
 import { Sparkles } from '@react-three/drei';
 import * as THREE from 'three';
 
@@ -37,9 +37,6 @@ function Fragment({ position, size, speed, rotAxis }: FragmentProps) {
 }
 
 export function KaosScene() {
-  const { scene } = useThree()
-  useEffect(() => { scene.background = new THREE.Color('#0a0005') }, [scene])
-
   const fragments = useMemo<FragmentProps[]>(() =>
     Array.from({ length: 20 }, (_, i) => ({
       position: [

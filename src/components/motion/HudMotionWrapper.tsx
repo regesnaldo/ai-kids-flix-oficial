@@ -295,7 +295,7 @@ export function HudMotionWrapper(props: HudMotionWrapperProps) {
       config.mountTiming
     );
     return () => anim.cancel();
-  }, [component, reduced]);
+  }, [component, reduced, config]);
 
   // State change animation
   useEffect(() => {

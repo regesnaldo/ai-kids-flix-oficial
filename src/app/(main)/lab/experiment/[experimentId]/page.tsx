@@ -148,7 +148,7 @@ export default function ExperimentPage({
         }
       } catch (error) { console.error('[MENTE.AI] Error in lab/experiment:', error); toastError('Erro ao conceder XP. O experimento foi salvo.'); }
     }
-  }, [phase, experimentId, awardXp]);
+  }, [phase, experimentId, awardXp, agentOutputs, boardFacts]);
 
   // Export report
   const handleExport = useCallback(() => {

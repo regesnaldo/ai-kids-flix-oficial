@@ -1,5 +1,6 @@
  "use client";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 const planos = [
   {
@@ -71,9 +72,11 @@ export default function Planos() {
   const [periodo, setPeriodo] = useState<Periodo>("mensal");
   const [loading, setLoading] = useState<string | null>(null);
 
+  const router = useRouter();
+
   async function handleAssinar(planoId: string, gratuito: boolean) {
     if (gratuito) {
-      window.location.href = "/player";
+      router.push("/player");
       return;
     }
     setLoading(planoId);
@@ -85,7 +88,7 @@ export default function Planos() {
       });
       const data = await res.json();
       if (data.url) {
-        window.location.href = data.url;
+        window.location.assign(data.url);
       } else {
         alert("Erro ao iniciar checkout. Tente novamente.");
       }

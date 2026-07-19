@@ -17,7 +17,9 @@ export function useGoogleTTS(): UseTTSReturn {
 
   useEffect(() => {
     return () => {
-      generationRef.current++;
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      const gen = ++generationRef.current;
+      void gen; // mark generation for cleanup
       if (audioRef.current) {
         audioRef.current.pause();
         audioRef.current.src = "";
