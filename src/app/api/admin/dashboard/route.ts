@@ -70,7 +70,11 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json() as { action: string; targetUserId: number };
     if (body.action === "suspend" && body.targetUserId) {
-      await db.update(users).set({ suspended: true }).where(eq(users.id, body.targetUserId));
+      // NOTE: Schema users não possui campo 'suspended'.
+      // Para suspender, altere o subscriptionStatus ou adicione o campo ao schema.
+      await db.update(users)
+        .set({ subscriptionStatus: "canceled" as const })
+        .where(eq(users.id, body.targetUserId));
       await db.insert(fraudLog).values({
         id: crypto.randomUUID(),
         userId: body.targetUserId,

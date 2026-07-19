@@ -128,7 +128,7 @@ export default function UniversoPage() {
   const orbitPositions = useMemo(() => {
     const cx = viewport.w / 2;
     const cy = viewport.h / 2;
-    const pos: Record<PlanetId, { x: number; y: number }> = {} as any;
+    const pos = {} as Record<PlanetId, { x: number; y: number }>;
 
     for (const id of ALL_PLANET_IDS) {
       const cfg = ORBIT_CONFIG[id];
@@ -193,7 +193,7 @@ export default function UniversoPage() {
           const result = await res.json();
           if (result.success) {
             audioManager.playSignature(planetId);
-            triggerTransition(planetId as any, "warp");
+            triggerTransition(planetId, "warp");
           }
         } catch {
           console.error("Falha ao ativar planeta via API");

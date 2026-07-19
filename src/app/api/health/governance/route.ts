@@ -155,7 +155,7 @@ function overallStatus(scores: Record<string, number>): "healthy" | "degraded" |
   return "critical";
 }
 
-export async function GET(request: NextRequest): Promise<NextResponse<GovernanceReport>> {
+export async function GET(request: NextRequest): Promise<NextResponse<GovernanceReport | { error: string }>> {
   // Auth
   const token = getAuthCookieFromRequest(request);
   if (!token) return NextResponse.json({ error: "Não autenticado" }, { status: 401 });

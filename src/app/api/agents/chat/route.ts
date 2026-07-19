@@ -132,7 +132,7 @@ export async function POST(request: NextRequest) {
       emotionalScore: 0,
       intellectualScore: 0,
       moralScore: 0,
-      archetype: (routerDecision?.archetype as string | undefined) ?? 'creative',
+      archetype: (routerDecision?.archetype as import("@/engine/types").Archetype | undefined) ?? 'creative',
       currentAgent: agentKey as AgentId,
       decisionHistory: [],
       lastUpdated: Date.now(),

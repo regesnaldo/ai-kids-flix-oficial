@@ -13,6 +13,7 @@ import {
   activatePlanet,
   completePlanet,
 } from "@/lib/universe/progression-engine.server";
+import { ALL_PLANET_IDS, type PlanetId } from "@/lib/universe/planet-registry";
 
 // ─── Helper: extrai userId do cookie JWT ─────────────────────────────────
 
@@ -66,13 +67,21 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    if (!ALL_PLANET_IDS.includes(planetId as PlanetId)) {
+      return NextResponse.json(
+        { error: "planetId inválido" },
+        { status: 400 }
+      );
+    }
+    const validPlanetId = planetId as PlanetId;
+
     if (action === "activate") {
-      const result = await activatePlanet(planetId as any, userId);
+      const result = await activatePlanet(validPlanetId, userId);
       return NextResponse.json(result);
     }
 
     if (action === "complete") {
-      const result = await completePlanet(planetId as any, userId);
+      const result = await completePlanet(validPlanetId, userId);
       return NextResponse.json(result);
     }
 

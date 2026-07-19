@@ -71,10 +71,10 @@ export async function POST(request: NextRequest) {
         .limit(1);
 
       if (existingUnit.length === 0) {
-        await db.insert(knowledgeUnit).values(unit as any);
+        await db.insert(knowledgeUnit).values(unit as typeof knowledgeUnit.$inferInsert);
         results.push(`✅ Unit created: ${unit.title} (S01E${episode})`);
       } else {
-        await db.update(knowledgeUnit).set(unit as any).where(eq(knowledgeUnit.id, unit.id!));
+        await db.update(knowledgeUnit).set(unit as typeof knowledgeUnit.$inferInsert).where(eq(knowledgeUnit.id, unit.id!));
         results.push(`🔄 Unit updated: ${unit.title} (S01E${episode})`);
       }
 
@@ -92,12 +92,12 @@ export async function POST(request: NextRequest) {
         .limit(1);
 
       if (existingAsset.length === 0) {
-        await db.insert(knowledgeAsset).values(asset as any);
+        await db.insert(knowledgeAsset).values(asset as typeof knowledgeAsset.$inferInsert);
         results.push(`✅ Asset created: S01E${episode}`);
       } else {
         await db
           .update(knowledgeAsset)
-          .set(asset as any)
+          .set(asset as typeof knowledgeAsset.$inferInsert)
           .where(
             and(
               eq(knowledgeAsset.agentId, agentId),

@@ -119,7 +119,7 @@ export async function POST(request: NextRequest) {
       console.error("[universo/chat] Erro detalhado:", {
         message: err.message,
         stack: err.stack?.slice(0, 500),
-        cause: (err as any).cause,
+        cause: err instanceof Error && "cause" in err ? err.cause : undefined,
       });
     }
     return NextResponse.json(

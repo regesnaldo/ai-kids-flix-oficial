@@ -1,0 +1,211 @@
+diff --git a/src/app/(main)/home/page.tsx b/src/app/(main)/home/page.tsx
+index fd0a8f6..e146abb 100644
+--- a/src/app/(main)/home/page.tsx
++++ b/src/app/(main)/home/page.tsx
+@@ -2,4 +2,5 @@
+ import { useState, useEffect, useMemo } from "react";
+ import Link from "next/link";
++import Image from "next/image";
+ import { useRouter } from "next/navigation";
+ import { motion } from "framer-motion";
+@@ -17,4 +18,7 @@ import { ArchetypeCard } from "@/components/home/ArchetypeCard";
+ import { getAgentColor } from "@/canon/agents/presence";
+ import CognitiveHero from "@/components/hero/CognitiveHero";
++import { CognitivePipelineDemo } from "@/components/CognitiveHero";
++import HeroPortal from "@/components/home/HeroPortal";
++import { buildHomeStats } from "@/config/homeStats";
+ type NarrativeSuggestion = {
+   title: string;
+@@ -154,46 +158,127 @@ function AvatarDropdown({ username, onLogout }: { username: string; onLogout: ()
+ 
+ function StatsPanel({ completedCount }: { completedCount: number }) {
+-
+-  const items = [
+-    { label: "MUNDOS", value: `${completedCount}/12`, accent: "#00FFFF" },
+-    { label: "MÓDULOS", value: "...", accent: "#00FF88" },
+-    { label: "DECISÕES", value: "...", accent: "#FFB347" },
+-    { label: "XP", value: "...", accent: "#C084FC" },
+-  ]
++  const items = buildHomeStats(completedCount);
+ 
+   return (
+-    <div style={{
+-      display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "0.75rem",
+-      marginBottom: "1.5rem",
+-    }}>
+-      {items.map(item => (
+-        <div key={item.label} style={{
+-          textAlign: "center", padding: "12px 8px",
+-          background: "rgba(255,255,255,0.03)",
+-          border: "1px solid rgba(255,255,255,0.06)",
+-          clipPath: "polygon(8px 0%, 100% 0%, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0% 100%, 0% 8px)",
+-          transition: "all 0.3s ease",
+-        }}
+-          onMouseEnter={e => {
+-            e.currentTarget.style.borderColor = item.accent
+-            e.currentTarget.style.boxShadow = `0 0 12px ${item.accent}22`
+-            e.currentTarget.style.transform = "scale(1.03)"
+-          }}
+-          onMouseLeave={e => {
+-            e.currentTarget.style.borderColor = "rgba(255,255,255,0.06)"
+-            e.currentTarget.style.boxShadow = "none"
+-            e.currentTarget.style.transform = "scale(1)"
+-          }}
++    <div
++      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1.3fr_1fr_1fr_1fr]"
++      style={{ gap: "0.75rem", marginBottom: "1.5rem" }}
++    >
++      {items.map((item) => (
++        <Link
++          key={item.label}
++          href={item.href}
++          style={{ textDecoration: "none", display: "block" }}
+         >
+-          <div style={{ fontFamily: "monospace", fontSize: "1.4rem", fontWeight: 700, color: item.accent, textShadow: `0 0 8px ${item.accent}44` }}>
+-            {item.value}
+-          </div>
+-          <div style={{ fontFamily: "monospace", fontSize: "9px", color: "#888", marginTop: "4px", letterSpacing: "0.1em", textTransform: "uppercase" }}>
+-            {item.label}
++          <div
++            style={{
++              position: "relative",
++              textAlign: "left",
++              padding: item.primary ? "16px 18px" : "12px 14px",
++              minHeight: item.primary ? "110px" : "96px",
++              borderRadius: "10px",
++              overflow: "hidden",
++              border: `1px solid ${item.primary ? item.accent + "30" : "rgba(255,255,255,0.06)"}`,
++              cursor: "pointer",
++              transition: "all 0.4s ease",
++            }}
++            onMouseEnter={(e) => {
++              e.currentTarget.style.boxShadow = `inset 0 0 20px ${item.accent}18, 0 0 16px ${item.accent}22`;
++              e.currentTarget.style.borderColor = `${item.accent}55`;
++            }}
++            onMouseLeave={(e) => {
++              e.currentTarget.style.boxShadow = "none";
++              e.currentTarget.style.borderColor = item.primary
++                ? item.accent + "30"
++                : "rgba(255,255,255,0.06)";
++            }}
++          >
++            <Image
++              src={item.image}
++              alt=""
++              fill
++              priority={item.primary}
++              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
++              className="object-cover"
++              style={{ opacity: 0.22 }}
++            />
++
++            <div
++              style={{
++                position: "absolute",
++                inset: 0,
++                background: "linear-gradient(180deg, rgba(5,6,15,0.55) 0%, rgba(5,6,15,0.85) 100%)",
++              }}
++            />
++
++            <div
++              style={{
++                position: "absolute",
++                inset: 0,
++                opacity: 0.03,
++                backgroundImage:
++                  "repeating-linear-gradient(0deg, transparent, transparent 2px, white 2px, white 3px)",
++                pointerEvents: "none",
++              }}
++            />
++
++            <div style={{ position: "relative", zIndex: 1 }}>
++              <div
++                style={{
++                  fontFamily: "monospace",
++                  fontSize: "0.6rem",
++                  letterSpacing: "0.15em",
++                  color: "rgba(255,255,255,0.4)",
++                  marginBottom: "4px",
++                  textTransform: "uppercase",
++                }}
++              >
++                {item.label}
++              </div>
++
++              <div
++                style={{
++                  fontFamily: "monospace",
++                  fontSize: item.primary ? "1.7rem" : "1.2rem",
++                  fontWeight: 700,
++                  color: item.accent,
++                  textShadow: `0 0 ${item.primary ? 12 : 6}px ${item.accent}44`,
++                  lineHeight: 1.1,
++                }}
++              >
++                {item.value}
++              </div>
++
++              <div
++                style={{
++                  fontFamily: "monospace",
++                  fontSize: "0.6rem",
++                  color: "rgba(255,255,255,0.35)",
++                  marginTop: "4px",
++                  display: "flex",
++                  alignItems: "center",
++                  gap: "4px",
++                }}
++              >
++                {!item.primary && (
++                  <span
++                    style={{
++                      width: "4px",
++                      height: "4px",
++                      borderRadius: "50%",
++                      background: item.accent,
++                      opacity: 0.6,
++                      animation: "pulse 2s ease-in-out infinite",
++                    }}
++                  />
++                )}
++                {item.sub}
++              </div>
++            </div>
+           </div>
+-        </div>
++        </Link>
+       ))}
+     </div>
+-  )
++  );
+ }
+ 
+@@ -321,4 +406,9 @@ export default function HomePage() {
+       {/* MAIN CONTENT */}
+       <main style={{ paddingTop: "140px", paddingBottom: "80px", maxWidth: "1200px", margin: "0 auto", padding: "140px 2rem 80px" }}>
++    {/* COGNITIVE PIPELINE */}
++    <div style={{ marginBottom: "3rem" }}>
++      <CognitivePipelineDemo />
++    </div>
++
+ 
+         {/* GREETING */}
+@@ -332,24 +422,6 @@ export default function HomePage() {
+         </div>
+ 
+-        {/* AGENTS GRID — Storyboard */}
+-        <section style={{
+-          backgroundImage: 'url(/images/storyboard/agents-grid.jpg)',
+-          backgroundSize: 'cover',
+-          backgroundPosition: 'center',
+-          minHeight: '300px',
+-          position: 'relative',
+-          marginBottom: '2rem',
+-          borderRadius: '12px',
+-          overflow: 'hidden',
+-        }}>
+-          <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.6)' }} />
+-          <div style={{ position: 'relative', textAlign: 'center', padding: '60px 20px', color: 'white' }}>
+-            <h2 style={{ fontFamily: 'monospace', color: '#00FFFF', fontSize: '1.5rem', letterSpacing: '4px', marginBottom: '8px' }}>12 UNIVERSOS DE IA</h2>
+-            <p style={{ color: '#94a3b8', fontSize: '0.9rem', marginBottom: '24px' }}>Escolha seu agente e comece sua jornada</p>
+-            <a href="/explorar

@@ -200,7 +200,7 @@ export default function NexusEntry() {
 
   const playPortalSound = useCallback(() => {
     try {
-      const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const ctx = new AudioContext();
       const now = ctx.currentTime;
       const masterGain = ctx.createGain();
       masterGain.gain.setValueAtTime(0, now);

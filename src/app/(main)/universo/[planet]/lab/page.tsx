@@ -100,7 +100,7 @@ function PlanetLab({
 
   // Emit planet activation via triggerTransition on mount
   useEffect(() => {
-    triggerTransition(planetId as any, "warp");
+    triggerTransition(planetId, "warp");
     return () => {
       // Cleanup — signal audio departure via audioManager
       try {

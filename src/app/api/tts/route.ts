@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
     const voiceConfig = VOICE_MAP[agentId || ""] || VOICE_MAP["nexus"];
 
     // Decodifica credenciais do Google Cloud TTS a partir da env var base64
-    let client: any;
+    let client: InstanceType<typeof import("@google-cloud/text-to-speech").TextToSpeechClient> | null = null;
     try {
       const credsBase64 = process.env.GOOGLE_TTS_BASE64 || "";
       if (credsBase64) {
@@ -66,14 +66,16 @@ export async function POST(request: NextRequest) {
         speakingRate: 1.0,
         pitch: 0,
       },
-    } as any);
+    });
 
     const audioContent = response.audioContent;
     if (!audioContent) {
       return NextResponse.json({ error: "Falha ao gerar áudio" }, { status: 500 });
     }
 
-    const base64 = Buffer.from(audioContent as Uint8Array).toString("base64");
+    const base64 = typeof audioContent === "string"
+      ? audioContent
+      : Buffer.from(audioContent).toString("base64");
     return NextResponse.json({
       success: true,
       audioContent: `data:audio/mp3;base64,${base64}`,

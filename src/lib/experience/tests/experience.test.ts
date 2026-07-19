@@ -58,9 +58,9 @@ describe("Experience Layer — Contracts", () => {
 
     // Verify REDACTION: raw state fields should NOT leak
     // agentRecords should never be exposed
-    expect((snapshot as any).agentRecords).toBeUndefined();
-    expect((snapshot as any).schemaVersion).toBeUndefined();
-    expect((snapshot as any).lastSyncAt).toBeUndefined();
+    expect((snapshot as unknown as Record<string, unknown>).agentRecords).toBeUndefined();
+    expect((snapshot as unknown as Record<string, unknown>).schemaVersion).toBeUndefined();
+    expect((snapshot as unknown as Record<string, unknown>).lastSyncAt).toBeUndefined();
 
     // Progression snapshot should be a summary, not raw
     expect(snapshot.progressionSnapshot.activePlanet).toBeNull(); // Nexus init doesn't auto-activate
